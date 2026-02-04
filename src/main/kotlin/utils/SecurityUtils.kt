@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 object AnalyticsSecurity {
     // In a real app, load this from an Environment Variable
-    private const val SERVER_SALT = "change-this-to-a-long-secret-string"
+    private const val SERVER_SALT = "change-this-to-a-long-secret-string" // TODO: Update this
 
     fun generateVisitorHash(ip: String, userAgent: String, projectId: String): String {
         val dateSalt = LocalDate.now().toString() // Hash changes every day

@@ -8,4 +8,3 @@ data class VisitSnippet(
     val timestamp: String,
     val city: String?
 )
-
