@@ -8,7 +8,7 @@ data class PageViewPayload(
     val referrer: String? = null,
     val sessionId: String,
     val type: String,
-    val browser: String? = null, // New
-    val os: String? = null,      // New
-    val device: String? = null   // New
+    val browser: String? = null,
+    val os: String? = null,
+    val device: String? = null
 )

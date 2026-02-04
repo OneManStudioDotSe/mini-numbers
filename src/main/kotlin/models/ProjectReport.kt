@@ -1,6 +1,8 @@
 package se.onemanstudio.models
 
 import kotlinx.serialization.Serializable
+import se.onemanstudio.models.dashboard.ActivityCell
+import se.onemanstudio.models.dashboard.PeakTimeAnalysis
 
 @Serializable
 data class ProjectReport(
@@ -13,6 +15,6 @@ data class ProjectReport(
     val referrers: List<StatEntry>,
     val countries: List<StatEntry>,
     val lastVisits: List<VisitSnippet>,
-    val activityHeatmap: List<ActivityCell>,     // 7x24 heatmap for traffic visualization
-    val peakTimeAnalysis: PeakTimeAnalysis      // Peak hours and days analysis
+    val activityHeatmap: List<ActivityCell>, // 7x24 heatmap for traffic visualization
+    val peakTimeAnalysis: PeakTimeAnalysis // Peak hours and days analysis
 )

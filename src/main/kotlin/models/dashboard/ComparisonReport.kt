@@ -1,6 +1,7 @@
-package se.onemanstudio.models
+package se.onemanstudio.models.dashboard
 
 import kotlinx.serialization.Serializable
+import se.onemanstudio.models.ProjectReport
 
 /**
  * Comparison report containing current and previous period data
@@ -19,7 +20,7 @@ data class ComparisonReport(
  */
 @Serializable
 data class TimeSeriesPoint(
-    val timestamp: String,         // ISO 8601 datetime string
-    val views: Long,               // Total views in this time bucket
-    val uniqueVisitors: Long       // Unique visitors in this time bucket
+    val timestamp: String, // ISO 8601 datetime string
+    val views: Long, // Total views in this time bucket
+    val uniqueVisitors: Long // Unique visitors in this time bucket
 )

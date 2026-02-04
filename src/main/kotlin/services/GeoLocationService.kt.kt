@@ -13,7 +13,7 @@ object GeoLocationService {
             println("WARNING: GeoIP Database not found at $dbPath. Location tracking will be disabled.")
             return
         }
-        // Use CHACHE mode for fastest lookups
+        // TODO: Improve the speed of the lookup
         reader = DatabaseReader.Builder(database).build()
     }
 
@@ -25,8 +25,8 @@ object GeoLocationService {
         return try {
             val ipAddress = InetAddress.getByName(ipString)
             val response = reader?.city(ipAddress)
-            val country = response?.country?.isoCode // e.g., "US", "GR"
-            val city = response?.city?.name // e.g., "Athens"
+            val country = response?.country()?.isoCode() // e.g., "US", "GR"
+            val city = response?.city()?.name() // e.g., "Athens"
             country to city
         } catch (e: Exception) {
             // IP not in database or private IP
