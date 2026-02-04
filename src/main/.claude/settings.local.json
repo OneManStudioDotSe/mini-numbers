@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew run:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew run:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)",
+      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew build:*)",
+      "Bash(kill:*)"
+    ]
+  }
+}

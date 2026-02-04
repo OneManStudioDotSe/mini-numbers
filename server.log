@@ -1,0 +1,9 @@
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :compileKotlin UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :run
+2026-02-03 22:58:47.319 [main] INFO  Application - Application started in 1.455 seconds.
+2026-02-03 22:58:47.413 [main] INFO  Application - Responding at http://0.0.0.0:8080

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/chartjs-chart-geo@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Leaflet for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/variables.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/themes.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+        <i data-feather="menu"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h2>Analytics</h2>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section__title">
+                <i data-feather="folder"></i>
+                <span>Your Projects</span>
+            </div>
+            <div class="sidebar-hint">
+                Click to switch between projects
+            </div>
+            <div id="project-menu" class="project-menu">
+                Loading projects...
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-ghost sidebar-btn" id="sign-out-btn">
+                <i data-feather="log-out"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 id="active-title">Select a Project</h1>
+            <div class="flex items-center gap-md">
+                <select class="select" id="time-filter">
+                    <option value="24h">Last 24 Hours</option>
+                    <option value="3d">Last 3 Days</option>
+                    <option value="7d" selected>Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                    <option value="365d">Last Year</option>
+                </select>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                    <div class="theme-toggle__slider">
+                        <i data-feather="sun"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content (hidden until project selected) -->
+        <div id="dashboard-content" class="hidden">
+
+            <!-- Filter Bar -->
+            <div class="filter-bar" id="filter-bar">
+                <div class="filter-selector">
+                    <label>Filter by:</label>
+                    <select id="filter-dimension" class="select">
+                        <option value="">All Traffic</option>
+                        <option value="browser">Browser</option>
+                        <option value="os">Operating System</option>
+                        <option value="device">Device</option>
+                        <option value="country">Country</option>
+                        <option value="referrer">Referrer</option>
+                    </select>
+                </div>
+
+                <div class="filter-value" id="filter-value-container" style="display: none;">
+                    <select id="filter-value" class="select"></select>
+                    <button class="btn btn-ghost btn-sm" id="clear-filter">Clear</button>
+                </div>
+
+                <div class="filter-warning" style="display: none;">
+                    <i data-feather="alert-circle"></i>
+                    <span>Filtered view - totals show all traffic</span>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-2 mt-lg">
+                <!-- Total Page Views -->
+                <div class="card stat-card">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon">
+                            <i data-feather="eye"></i>
+                        </div>
+                        <small>Total page views</small>
+                    </div>
+                    <div class="stat-card__value" id="total-views">0</div>
+                    <canvas id="sparkline-views" class="stat-card__sparkline"></canvas>
+                    <div class="stat-card__comparison" id="views-comparison">
+                        Loading...
+                    </div>
+                </div>
+
+                <!-- Unique Visitors -->
+                <div class="card stat-card">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon">
+                            <i data-feather="users"></i>
+                        </div>
+                        <small>Unique visitors</small>
+                    </div>
+                    <div class="stat-card__value" id="unique-visitors">0</div>
+                    <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
+                    <div class="stat-card__comparison" id="visitors-comparison">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Series Chart -->
+            <div class="card chart-card mt-lg">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i data-feather="trending-up"></i> Views over time
+                    </h3>
+                </div>
+                <div class="chart-card__container">
+                    <canvas id="chart-timeseries"></canvas>
+                </div>
+            </div>
+
+            <!-- Activity Heatmap -->
+            <div class="card chart-card mt-lg">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i data-feather="calendar"></i> Activity heatmap
+                    </h3>
+                    <div class="heatmap-legend">
+                        <span class="text-muted text-xs">Less</span>
+                        <div class="legend-gradient"></div>
+                        <span class="text-muted text-xs">More</span>
+                    </div>
+                </div>
+                <div class="chart-card__container chart-card__container--tall">
+                    <canvas id="chart-heatmap"></canvas>
+                </div>
+            </div>
+
+            <!-- Peak Traffic Times Cards -->
+            <div class="grid grid-cols-2 mt-lg">
+                <!-- Peak Hours -->
+                <div class="card">
+                    <h3>
+                        <i data-feather="clock"></i> Peak hours
+                    </h3>
+                    <div class="peak-list" id="peak-hours">
+                        Loading...
+                    </div>
+                </div>
+
+                <!-- Peak Days -->
+                <div class="card">
+                    <h3>
+                        <i data-feather="calendar"></i> Peak days
+                    </h3>
+                    <div class="peak-list" id="peak-days">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Visualizations Grid -->
+            <div class="grid grid-cols-2 mt-lg">
+                <!-- Top Pages -->
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="file-text"></i> Top pages
+                        </h3>
+                        <button class="btn btn-ghost btn-icon" data-export="top-pages" title="Export to CSV">
+                            <i data-feather="download"></i>
+                        </button>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-pages"></canvas>
+                    </div>
+                </div>
+
+                <!-- Referrers -->
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="external-link"></i> Referrers
+                        </h3>
+                        <button class="btn btn-ghost btn-icon" data-export="referrers" title="Export to CSV">
+                            <i data-feather="download"></i>
+                        </button>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-referrers"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doughnut Charts Grid -->
+            <div class="grid grid-cols-3 mt-lg">
+                <!-- Browsers -->
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="globe"></i> Browsers
+                        </h3>
+                        <div class="chart-card__actions">
+                            <button class="btn btn-ghost btn-icon" data-export="browsers" title="Export to CSV">
+                                <i data-feather="download"></i>
+                            </button>
+                            <div class="view-toggle" data-chart="browsers">
+                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                    <i data-feather="pie-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                    <i data-feather="bar-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                    <i data-feather="target"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-browsers"></canvas>
+                    </div>
+                </div>
+
+                <!-- Operating Systems -->
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="monitor"></i> Operating systems
+                        </h3>
+                        <div class="chart-card__actions">
+                            <button class="btn btn-ghost btn-icon" data-export="os" title="Export to CSV">
+                                <i data-feather="download"></i>
+                            </button>
+                            <div class="view-toggle" data-chart="os">
+                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                    <i data-feather="pie-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                    <i data-feather="bar-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                    <i data-feather="target"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-os"></canvas>
+                    </div>
+                </div>
+
+                <!-- Devices -->
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="smartphone"></i> Devices
+                        </h3>
+                        <div class="chart-card__actions">
+                            <button class="btn btn-ghost btn-icon" data-export="devices" title="Export to CSV">
+                                <i data-feather="download"></i>
+                            </button>
+                            <div class="view-toggle" data-chart="devices">
+                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                    <i data-feather="pie-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                    <i data-feather="bar-chart"></i>
+                                </button>
+                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                    <i data-feather="target"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-devices"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geographic Visualization -->
+            <div class="card chart-card mt-lg">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i data-feather="map"></i> Geographic distribution
+                    </h3>
+                    <div class="chart-card__actions">
+                        <button class="btn btn-ghost btn-icon" data-export="countries" title="Export to CSV">
+                            <i data-feather="download"></i>
+                        </button>
+                        <div class="view-toggle" id="geo-view-toggle">
+                            <button class="view-toggle__btn active" data-view="chart" title="Chart View">
+                                <i data-feather="bar-chart-2"></i>
+                            </button>
+                            <button class="view-toggle__btn" data-view="map" title="Map View">
+                                <i data-feather="map-pin"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card__container chart-card__container--tall">
+                    <canvas id="chart-countries"></canvas>
+                    <div id="map-countries" class="map-container hidden"></div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="card mt-lg">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i data-feather="activity"></i> Recent activity
+                    </h3>
+                    <div class="flex items-center" style="gap: var(--spacing-sm);">
+                        <button class="btn btn-primary btn-sm" data-export="full-report">
+                            <i data-feather="download"></i> Export Full Report
+                        </button>
+                        <button class="btn btn-ghost btn-icon" data-export="recent-activity" title="Export Recent Activity">
+                            <i data-feather="download"></i>
+                        </button>
+                        <input
+                            type="text"
+                            class="input"
+                            id="table-search"
+                            placeholder="Search..."
+                            style="width: 200px;"
+                        />
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="table-recent">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="path">
+                                    Path <i data-feather="chevron-down" class="sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-sort="city">
+                                    City <i data-feather="chevron-down" class="sort-icon"></i>
+                                </th>
+                                <th class="sortable" data-sort="time">
+                                    Time <i data-feather="chevron-down" class="sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contribution Calendar -->
+            <div class="card chart-card mt-lg">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i data-feather="activity"></i> Activity calendar (last 365 days)
+                    </h3>
+                    <div class="contribution-legend">
+                        <span class="text-muted text-xs">Less</span>
+                        <div class="contribution-level" data-level="0"></div>
+                        <div class="contribution-level" data-level="1"></div>
+                        <div class="contribution-level" data-level="2"></div>
+                        <div class="contribution-level" data-level="3"></div>
+                        <div class="contribution-level" data-level="4"></div>
+                        <span class="text-muted text-xs">More</span>
+                    </div>
+                </div>
+                <div class="chart-card__container">
+                    <div id="contribution-calendar" class="contribution-calendar">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Feed -->
+            <div class="card mt-lg">
+                <h3>
+                    <span class="live-indicator"></span>
+                    Live feed (last 5 minutes)
+                </h3>
+                <div id="live-feed" class="live-feed">
+                    Waiting for data...
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script src="/static/js/admin.js"></script>
+
+    <!-- Initialize Feather Icons -->
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
