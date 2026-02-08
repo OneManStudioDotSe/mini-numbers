@@ -4,21 +4,21 @@
     async
     src="https://api.yourdomain.com/static/tracker.js"
     data-project-key="test-key-123">
-</script>
+ </script>
  **/
 
 (function() {
     // 1. Configuration: Get the API Key from the script tag's data attribute
     const script = document.currentScript;
     const apiKey = script.getAttribute('data-project-key');
-    const endpoint = "https://your-ktor-api-domain.com/collect"; // UPDATE THIS
+    const endpoint = "https://your-ktor-api-domain.com/collect"; // TODO: UPDATE THIS
 
     if (!apiKey) {
         console.error("Minimalist Analytics: Missing data-project-key");
         return;
     }
 
-    // 2. Session Management (No Cookies)
+    // 2. Session management (No Cookies)
     // sessionStorage persists for the duration of the page session (tab)
     let sessionId = sessionStorage.getItem('ma_session_id');
     if (!sessionId) {
