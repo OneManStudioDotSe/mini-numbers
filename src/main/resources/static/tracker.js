@@ -1,20 +1,31 @@
 /**
- How to use it:
- <script
-    async
-    src="https://api.yourdomain.com/static/tracker.js"
-    data-project-key="test-key-123">
- </script>
+ * Mini Numbers Analytics Tracker
+ *
+ * Usage:
+ * <script
+ *    async
+ *    src="https://analytics.example.com/admin-panel/tracker.js"
+ *    data-project-key="your-api-key-here"
+ *    data-api-endpoint="https://analytics.example.com/collect">
+ * </script>
+ *
+ * Options:
+ * - data-project-key (required): Your project's API key
+ * - data-api-endpoint (optional): Custom API endpoint URL
+ *   If not specified, defaults to same origin + '/collect'
  **/
 
 (function() {
-    // 1. Configuration: Get the API Key from the script tag's data attribute
+    // 1. Configuration: Get settings from script tag's data attributes
     const script = document.currentScript;
     const apiKey = script.getAttribute('data-project-key');
-    const endpoint = "https://your-ktor-api-domain.com/collect"; // TODO: UPDATE THIS
+
+    // Configurable endpoint: use data-api-endpoint or default to same origin
+    const endpoint = script.getAttribute('data-api-endpoint')
+        || window.location.origin + '/collect';
 
     if (!apiKey) {
-        console.error("Minimalist Analytics: Missing data-project-key");
+        console.error("Mini Numbers Analytics: Missing data-project-key attribute");
         return;
     }
 
