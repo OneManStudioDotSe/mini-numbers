@@ -49,4 +49,44 @@ dependencies {
 
     // User-Agent parsing
     implementation("eu.bitwalker:UserAgentUtils:1.21")
+
+    // Rate limiting (in-memory cache)
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+}
+
+// Custom task to reset database
+tasks.register<JavaExec>("reset") {
+    group = "application"
+    description = "Reset database: delete all data and re-seed demo"
+
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("se.onemanstudio.db.ResetDatabaseKt")
+
+    doFirst {
+        println("=" .repeat(70))
+        println("WARNING: This will delete ALL data from the database!")
+        println("=" .repeat(70))
+        println()
+        println("This action will:")
+        println("  - Delete all projects and events")
+        println("  - Re-seed demo data (Professional Demo project with 1000 events)")
+        println()
+        println("Press Enter to continue or Ctrl+C to cancel...")
+
+        System.`in`.read()
+    }
+
+    doLast {
+        println()
+        println("=" .repeat(70))
+        println("✓ Database reset complete!")
+        println("=" .repeat(70))
+        println()
+        println("Demo project created:")
+        println("  - Name: Professional Demo")
+        println("  - Domain: localhost")
+        println("  - API Key: demo-key-123")
+        println("  - Events: 1000 sample events")
+        println()
+    }
 }

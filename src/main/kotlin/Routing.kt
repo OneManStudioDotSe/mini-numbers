@@ -11,8 +11,11 @@ import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import se.onemanstudio.config.AppConfig
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.Projects
+import se.onemanstudio.middleware.RateLimiter
+import se.onemanstudio.middleware.RateLimitResult
 import se.onemanstudio.models.PageViewPayload
 import se.onemanstudio.models.ProjectStats
 import se.onemanstudio.models.VisitSnippet
@@ -20,10 +23,23 @@ import se.onemanstudio.models.dashboard.ComparisonReport
 import se.onemanstudio.models.dashboard.TopPage
 import se.onemanstudio.services.GeoLocationService
 import se.onemanstudio.utils.AnalyticsSecurity
+import se.onemanstudio.utils.InputValidator
 import se.onemanstudio.utils.UserAgentParser
 import java.time.LocalDateTime
 
-fun Application.configureRouting() {
+/**
+ * Configure application routing
+ * Sets up data collection endpoint, admin panel, and static resources
+ *
+ * @param config Application configuration for rate limiting and security
+ */
+fun Application.configureRouting(config: AppConfig) {
+    // Initialize rate limiter with configured limits
+    val rateLimiter = RateLimiter(
+        maxTokensPerIp = config.rateLimit.perIpRequestsPerMinute,
+        maxTokensPerApiKey = config.rateLimit.perApiKeyRequestsPerMinute
+    )
+
     routing {
         // Serve the Admin HTML
         staticResources("/admin-panel", "static")
@@ -33,25 +49,82 @@ fun Application.configureRouting() {
             adminRoutes()
         }
 
-        // Data Collection
+        // Data Collection Endpoint
         post("/collect") {
-            // Check header OR query parameter
+            // 1. Extract and validate API key
             val apiKey = call.request.headers["X-Project-Key"]
                 ?: call.request.queryParameters["key"]
-                ?: return@post call.respond(HttpStatusCode.BadRequest)
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Missing API key")
+                )
 
-            val payload = call.receive<PageViewPayload>()
+            // 2. Get client IP for rate limiting
+            val ip = call.request.origin.remoteHost
 
-            // 1. Identify the project
+            // 3. Check rate limits (both IP and API key must pass)
+            when (val rateLimitResult = rateLimiter.checkRateLimit(ip, apiKey)) {
+                is RateLimitResult.Exceeded -> {
+                    call.application.environment.log.warn(
+                        "Rate limit exceeded: ${rateLimitResult.limitType} - ${rateLimitResult.identifier}"
+                    )
+                    return@post call.respond(
+                        HttpStatusCode.TooManyRequests,
+                        mapOf(
+                            "error" to "Rate limit exceeded",
+                            "message" to "Too many requests. Please try again later.",
+                            "limit_type" to rateLimitResult.limitType,
+                            "limit" to rateLimitResult.limit,
+                            "window" to rateLimitResult.window
+                        )
+                    )
+                }
+                else -> {
+                    // Rate limit passed, continue processing
+                }
+            }
+
+            // 4. Deserialize and validate payload
+            val payload = try {
+                call.receive<PageViewPayload>()
+            } catch (e: Exception) {
+                call.application.environment.log.warn("Invalid JSON payload: ${e.message}")
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid request payload")
+                )
+            }
+
+            // 5. Validate payload fields
+            val validationResult = InputValidator.validatePageViewPayload(payload)
+            if (!validationResult.isValid) {
+                call.application.environment.log.warn(
+                    "Validation failed for API key $apiKey: ${validationResult.errors}"
+                )
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf(
+                        "error" to "Validation failed",
+                        "details" to validationResult.errors
+                    )
+                )
+            }
+
+            // 6. Sanitize inputs before database insert
+            val sanitizedPath = InputValidator.sanitize(payload.path)
+            val sanitizedReferrer = payload.referrer?.let { InputValidator.sanitize(it) }
+            val sanitizedSessionId = InputValidator.sanitize(payload.sessionId)
+
+            // 7. Identify the project
             val project = transaction {
                 Projects.selectAll().where { Projects.apiKey eq apiKey }.singleOrNull()
-            } ?: return@post call.respond(HttpStatusCode.NotFound)
+            } ?: return@post call.respond(
+                HttpStatusCode.NotFound,
+                mapOf("error" to "Invalid API key")
+            )
 
-            // 2. Extract visitor info
-
-            val ip = call.request.origin.remoteHost
-            val (countryName, cityName) = GeoLocationService.lookup(ip) // LOOKUP HERE
-
+            // 8. Extract visitor info (privacy-preserving)
+            val (countryName, cityName) = GeoLocationService.lookup(ip)
             val ua = call.request.headers["User-Agent"] ?: "unknown"
             val vHash = AnalyticsSecurity.generateVisitorHash(ip, ua, project[Projects.id].toString())
 
@@ -60,21 +133,29 @@ fun Application.configureRouting() {
             val os = UserAgentParser.parseOS(ua)
             val device = UserAgentParser.parseDevice(ua)
 
-            // 3. Save to DB
-            transaction {
-                Events.insert {
-                    it[projectId] = project[Projects.id]
-                    it[visitorHash] = vHash
-                    it[sessionId] = payload.sessionId
-                    it[path] = payload.path
-                    it[referrer] = payload.referrer
-                    it[eventType] = payload.type
-                    it[country] = countryName // SAVE GEO DATA
-                    it[city] = cityName
-                    it[Events.browser] = browser // PARSE AND SAVE BROWSER
-                    it[Events.os] = os           // PARSE AND SAVE OS
-                    it[Events.device] = device   // PARSE AND SAVE DEVICE
+            // 9. Save to database
+            try {
+                transaction {
+                    Events.insert {
+                        it[projectId] = project[Projects.id]
+                        it[visitorHash] = vHash
+                        it[sessionId] = sanitizedSessionId
+                        it[path] = sanitizedPath
+                        it[referrer] = sanitizedReferrer
+                        it[eventType] = payload.type
+                        it[country] = countryName
+                        it[city] = cityName
+                        it[Events.browser] = browser
+                        it[Events.os] = os
+                        it[Events.device] = device
+                    }
                 }
+            } catch (e: Exception) {
+                call.application.environment.log.error("Database insert failed: ${e.message}")
+                return@post call.respond(
+                    HttpStatusCode.InternalServerError,
+                    mapOf("error" to "Failed to save event")
+                )
             }
 
             /*
@@ -87,6 +168,7 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.Accepted)
         }
 
+        // Health check endpoint
         get("/") {
             call.respondText("Hello World!")
         }
