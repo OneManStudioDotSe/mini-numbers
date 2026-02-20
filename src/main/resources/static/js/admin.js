@@ -437,6 +437,9 @@ const Dashboard = {
       // Load contribution calendar (separate API call)
       this.loadContributionCalendar();
 
+      // Load goals and funnels
+      this.loadGoalsAndFunnels();
+
       // Hide loading state
       this.hideLoadingState();
     } catch (error) {
@@ -1269,6 +1272,25 @@ const Dashboard = {
       this.renderContributionCalendar(calendar);
     } catch (error) {
       console.error('Failed to load contribution calendar:', error);
+    }
+  },
+
+  /**
+   * Load goals and funnels data
+   */
+  async loadGoalsAndFunnels() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      const [goalStats, funnels] = await Promise.all([
+        GoalsManager.loadGoalStats(this.state.currentProjectId, this.state.currentFilter),
+        GoalsManager.loadFunnels(this.state.currentProjectId)
+      ]);
+
+      GoalsManager.renderGoals(goalStats);
+      GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
+    } catch (error) {
+      console.error('Failed to load goals and funnels:', error);
     }
   },
 

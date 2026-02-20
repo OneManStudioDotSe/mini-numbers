@@ -15,9 +15,13 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 import se.onemanstudio.config.models.AppConfig
+import se.onemanstudio.db.ConversionGoals
 import se.onemanstudio.db.Events
+import se.onemanstudio.db.FunnelSteps
+import se.onemanstudio.db.Funnels
 import se.onemanstudio.db.Projects
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.middleware.models.RateLimitResult
@@ -26,6 +30,11 @@ import se.onemanstudio.api.models.ProjectStats
 import se.onemanstudio.api.models.RawEvent
 import se.onemanstudio.api.models.RawEventsResponse
 import se.onemanstudio.api.models.VisitSnippet
+import se.onemanstudio.api.models.GoalRequest
+import se.onemanstudio.api.models.GoalResponse
+import se.onemanstudio.api.models.FunnelRequest
+import se.onemanstudio.api.models.FunnelResponse
+import se.onemanstudio.api.models.FunnelStepResponse
 import se.onemanstudio.api.models.dashboard.ComparisonReport
 import se.onemanstudio.api.models.dashboard.TopPage
 import se.onemanstudio.services.GeoLocationService
@@ -355,7 +364,15 @@ fun Route.adminRoutes() {
                 )
 
             transaction {
-                // Also delete all events associated with this project first
+                // Delete funnel steps for all funnels in this project
+                val funnelIds = Funnels.selectAll().where { Funnels.projectId eq uuid }
+                    .map { it[Funnels.id] }
+                if (funnelIds.isNotEmpty()) {
+                    FunnelSteps.deleteWhere { FunnelSteps.funnelId inList funnelIds }
+                }
+                Funnels.deleteWhere { Funnels.projectId eq uuid }
+                ConversionGoals.deleteWhere { ConversionGoals.projectId eq uuid }
+                // Delete all events associated with this project
                 Events.deleteWhere { Events.projectId eq uuid }
                 Projects.deleteWhere { Projects.id eq uuid }
             }
@@ -560,6 +577,289 @@ fun Route.adminRoutes() {
             }
 
             call.respond(response)
+        }
+
+        // ── Conversion Goals ──────────────────────────────────────────
+
+        // List all goals for a project
+        get("/projects/{id}/goals") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
+            val goals = transaction {
+                ConversionGoals.selectAll().where { ConversionGoals.projectId eq pid }
+                    .orderBy(ConversionGoals.createdAt, SortOrder.DESC)
+                    .map {
+                        GoalResponse(
+                            id = it[ConversionGoals.id].toString(),
+                            name = it[ConversionGoals.name],
+                            goalType = it[ConversionGoals.goalType],
+                            matchValue = it[ConversionGoals.matchValue],
+                            isActive = it[ConversionGoals.isActive],
+                            createdAt = it[ConversionGoals.createdAt].toString()
+                        )
+                    }
+            }
+            call.respond(goals)
+        }
+
+        // Create a new goal
+        post("/projects/{id}/goals") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
+            val request = try {
+                call.receive<GoalRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid request body")
+                )
+            }
+
+            if (request.name.isBlank() || request.matchValue.isBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Name and match value are required")
+                )
+            }
+
+            if (request.goalType !in listOf("url", "event")) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Goal type must be 'url' or 'event'")
+                )
+            }
+
+            val goalId = UUID.randomUUID()
+            transaction {
+                ConversionGoals.insert {
+                    it[id] = goalId
+                    it[projectId] = pid
+                    it[name] = request.name.trim()
+                    it[goalType] = request.goalType
+                    it[matchValue] = request.matchValue.trim()
+                }
+            }
+
+            call.respond(HttpStatusCode.Created, buildJsonObject {
+                put("id", goalId.toString())
+                put("success", true)
+            })
+        }
+
+        // Update a goal
+        put("/projects/{id}/goals/{goalId}") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@put call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val goalId = safeParseUUID(call.parameters["goalId"])
+                ?: return@put call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing goal ID")
+                )
+
+            val updates = call.receive<Map<String, String>>()
+
+            transaction {
+                ConversionGoals.update({
+                    (ConversionGoals.id eq goalId) and (ConversionGoals.projectId eq pid)
+                }) {
+                    updates["name"]?.let { name -> it[ConversionGoals.name] = name.trim() }
+                    updates["goalType"]?.let { type -> it[ConversionGoals.goalType] = type }
+                    updates["matchValue"]?.let { value -> it[ConversionGoals.matchValue] = value.trim() }
+                    updates["isActive"]?.let { active -> it[ConversionGoals.isActive] = active.toBoolean() }
+                }
+            }
+            call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+        }
+
+        // Delete a goal
+        delete("/projects/{id}/goals/{goalId}") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val goalId = safeParseUUID(call.parameters["goalId"])
+                ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing goal ID")
+                )
+
+            transaction {
+                ConversionGoals.deleteWhere {
+                    (ConversionGoals.id eq goalId) and (ConversionGoals.projectId eq pid)
+                }
+            }
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        // Get goal stats with conversion rates
+        get("/projects/{id}/goals/stats") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val filter = call.request.queryParameters["filter"] ?: "7d"
+
+            val stats = calculateGoalStats(pid, filter)
+            call.respond(stats)
+        }
+
+        // ── Funnels ──────────────────────────────────────────────────
+
+        // List all funnels for a project
+        get("/projects/{id}/funnels") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
+            val funnels = transaction {
+                Funnels.selectAll().where { Funnels.projectId eq pid }
+                    .orderBy(Funnels.createdAt, SortOrder.DESC)
+                    .map { funnel ->
+                        val funnelId = funnel[Funnels.id]
+                        val steps = FunnelSteps.selectAll()
+                            .where { FunnelSteps.funnelId eq funnelId }
+                            .orderBy(FunnelSteps.stepNumber, SortOrder.ASC)
+                            .map { step ->
+                                FunnelStepResponse(
+                                    id = step[FunnelSteps.id].toString(),
+                                    stepNumber = step[FunnelSteps.stepNumber],
+                                    name = step[FunnelSteps.name],
+                                    stepType = step[FunnelSteps.stepType],
+                                    matchValue = step[FunnelSteps.matchValue]
+                                )
+                            }
+
+                        FunnelResponse(
+                            id = funnelId.toString(),
+                            name = funnel[Funnels.name],
+                            steps = steps,
+                            createdAt = funnel[Funnels.createdAt].toString()
+                        )
+                    }
+            }
+            call.respond(funnels)
+        }
+
+        // Create a new funnel with steps
+        post("/projects/{id}/funnels") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
+            val request = try {
+                call.receive<FunnelRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid request body")
+                )
+            }
+
+            if (request.name.isBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Funnel name is required")
+                )
+            }
+
+            if (request.steps.size < 2) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Funnel must have at least 2 steps")
+                )
+            }
+
+            for (step in request.steps) {
+                if (step.stepType !in listOf("url", "event")) {
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Step type must be 'url' or 'event'")
+                    )
+                }
+            }
+
+            val funnelId = UUID.randomUUID()
+            transaction {
+                Funnels.insert {
+                    it[id] = funnelId
+                    it[projectId] = pid
+                    it[name] = request.name.trim()
+                }
+
+                request.steps.forEachIndexed { index, step ->
+                    FunnelSteps.insert {
+                        it[id] = UUID.randomUUID()
+                        it[FunnelSteps.funnelId] = funnelId
+                        it[stepNumber] = index + 1
+                        it[name] = step.name.trim()
+                        it[stepType] = step.stepType
+                        it[matchValue] = step.matchValue.trim()
+                    }
+                }
+            }
+
+            call.respond(HttpStatusCode.Created, buildJsonObject {
+                put("id", funnelId.toString())
+                put("success", true)
+            })
+        }
+
+        // Delete a funnel and its steps
+        delete("/projects/{id}/funnels/{funnelId}") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val funnelId = safeParseUUID(call.parameters["funnelId"])
+                ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing funnel ID")
+                )
+
+            transaction {
+                FunnelSteps.deleteWhere { FunnelSteps.funnelId eq funnelId }
+                Funnels.deleteWhere {
+                    (Funnels.id eq funnelId) and (Funnels.projectId eq pid)
+                }
+            }
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        // Funnel analysis with drop-off rates
+        get("/projects/{id}/funnels/{funnelId}/analysis") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val funnelId = safeParseUUID(call.parameters["funnelId"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing funnel ID")
+                )
+            val filter = call.request.queryParameters["filter"] ?: "7d"
+
+            val (start, end) = getCurrentPeriod(filter)
+            val analysis = analyzeFunnel(funnelId, pid, start, end)
+            call.respond(analysis)
         }
     }
 }

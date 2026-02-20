@@ -12,7 +12,7 @@
 |------|--------|
 | Security hardening (env vars, CORS, rate limiting, validation) | COMPLETED |
 | Setup wizard (zero-restart, interactive) | COMPLETED |
-| Test suite (111 tests) | COMPLETED |
+| Test suite (166 tests) | COMPLETED |
 | Code architecture (package-per-feature) | COMPLETED |
 | Session-based authentication | COMPLETED |
 | Bounce rate calculation and dashboard | COMPLETED |
@@ -33,8 +33,8 @@
 | Week | Focus | Status |
 |------|-------|--------|
 | 7-9 | Custom event tracking | COMPLETED |
-| 10-11 | Conversion goals | Not Started |
-| 12-13 | Basic funnels | Not Started |
+| 10-11 | Conversion goals | COMPLETED |
+| 12-13 | Basic funnels | COMPLETED |
 | 14-15 | API enhancements (pagination, caching, docs) | Not Started |
 | 16 | Email reports | Not Started |
 

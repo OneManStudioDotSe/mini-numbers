@@ -5,6 +5,31 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2026-02-20
+
+### Added
+
+- **Conversion Goals** — URL-based and event-based goal tracking with conversion rate analytics
+  - Backend: `ConversionGoals` table, 5 goal API endpoints (CRUD + stats), conversion rate calculation with period comparison
+  - Dashboard: Goal cards showing conversion rates with previous period comparison, goal management modal
+  - Goal types: URL path match (pageview events) and custom event name match
+  - Active/inactive toggle for goals without deletion
+- **Basic Funnels** — Multi-step conversion tracking with drop-off analysis
+  - Backend: `Funnels` and `FunnelSteps` tables, 4 funnel API endpoints (CRUD + analysis)
+  - Dashboard: Horizontal funnel visualization with drop-off percentages and avg time between steps
+  - Analysis: Session-based sequential step completion (events must occur in chronological order)
+  - Funnel management modal with dynamic step builder (add/remove steps)
+- **Expanded test suite** — 55 new tests (166 total, up from 111)
+  - Analytics calculation tests (22 tests) — period calculations, report generation, bounce rate, heatmap, time series, contribution calendar
+  - Admin endpoint integration tests (14 tests) — authentication, project CRUD, analytics endpoints
+  - End-to-end tracking workflow tests (9 tests) — create project, collect events, verify analytics
+  - Health endpoint tests (6 tests) — health check responses, JSON format, public access
+
+### Fixed
+
+- Mixed-type `mapOf` serialization failures in health, login, logout, rate limit, and update endpoints (replaced with `buildJsonObject`)
+- Custom events query using `selectAll()` instead of explicit column selection (`COUNT(event_name)` not in result set)
+
 ## [0.0.3] - 2026-02-20
 
 ### Added

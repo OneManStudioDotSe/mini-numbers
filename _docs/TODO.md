@@ -23,7 +23,7 @@
 - [x] Interactive setup wizard (WordPress-style, zero-restart)
 - [x] Demo data generator
 - [x] Session-based authentication with login page
-- [x] Comprehensive test suite (111 tests)
+- [x] Comprehensive test suite (166 tests)
 - [x] Code architecture restructuring (package-per-feature)
 - [x] Configurable tracker endpoint
 - [x] Bounce rate calculation and dashboard display
@@ -54,9 +54,10 @@
 ## Phase 3: Testing & Quality
 
 ### Additional Tests
-- [ ] Analytics calculation tests
-- [ ] Admin endpoint integration tests
-- [ ] End-to-end tests (full tracking workflow)
+- [x] Analytics calculation tests (22 tests in DataAnalysisUtilsTest)
+- [x] Admin endpoint integration tests (14 tests in AdminEndpointTest)
+- [x] End-to-end tests (9 tests in TrackingWorkflowTest)
+- [x] Health endpoint tests (6 tests in HealthEndpointTest)
 - [ ] Docker build and deployment tests
 
 ### CI/CD Pipeline
@@ -124,8 +125,8 @@
 
 ### High Priority (Next 3 months)
 - [x] Custom event tracking — name-based tracking with `MiniNumbers.track()` API and dashboard card
-- [ ] Conversion goals
-- [ ] Basic funnels
+- [x] Conversion goals — URL-based and event-based goals with conversion rate tracking and management UI
+- [x] Basic funnels — multi-step conversion tracking with drop-off analysis and time between steps
 - [ ] Email reports
 - [ ] Webhooks
 - [ ] Retention and cohort analysis

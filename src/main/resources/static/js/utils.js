@@ -531,4 +531,16 @@ const Utils = {
       URL.revokeObjectURL(url);
     },
   },
+
+  /**
+   * Escape HTML entities to prevent XSS
+   * @param {string} str - String to escape
+   * @returns {string} Escaped string
+   */
+  escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  },
 };
