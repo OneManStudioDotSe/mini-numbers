@@ -98,6 +98,29 @@ fun generateTimeSeries(
 
 
 /**
+ * Calculate bounce rate for a project within a time range.
+ * A bounced session = only 1 unique page viewed AND no heartbeat events (left within 30s).
+ * Must be called within an existing transaction.
+ */
+fun calculateBounceRate(id: UUID, start: LocalDateTime, end: LocalDateTime): Double {
+    val events = Events.selectAll().where {
+        (Events.projectId eq id) and (Events.timestamp greaterEq start) and (Events.timestamp lessEq end)
+    }.toList()
+
+    // Group events by session
+    val sessions = events.groupBy { it[Events.sessionId] }
+    if (sessions.isEmpty()) return 0.0
+
+    val bouncedSessions = sessions.count { (_, sessionEvents) ->
+        val uniquePages = sessionEvents.map { it[Events.path] }.distinct().size
+        val hasHeartbeat = sessionEvents.any { it[Events.eventType] == "heartbeat" }
+        uniquePages == 1 && !hasHeartbeat
+    }
+
+    return (bouncedSessions.toDouble() / sessions.size) * 100.0
+}
+
+/**
  * Generate a full project report for a given time period
  */
 fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectReport {
@@ -125,6 +148,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
 
         val activityHeatmap = generateActivityHeatmap(id, start)
         val peakTimeAnalysis = analyzePeakTimes(activityHeatmap)
+        val bounceRate = calculateBounceRate(id, start, end)
 
         ProjectReport(
             totalViews = totalViews,
@@ -146,7 +170,8 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
                     )
                 },
             activityHeatmap = activityHeatmap,
-            peakTimeAnalysis = peakTimeAnalysis
+            peakTimeAnalysis = peakTimeAnalysis,
+            bounceRate = bounceRate
         )
     }
 }

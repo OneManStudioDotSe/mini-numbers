@@ -1,6 +1,6 @@
 # Mini Numbers - Competitive Analysis
 
-**Date**: February 17, 2026
+**Date**: February 20, 2026
 
 ---
 
@@ -15,7 +15,7 @@
 | Device/browser/OS | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Time series | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Real-time feed | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Bounce rate | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Bounce rate | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Advanced Analytics** |
 | Custom events | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Conversion goals | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
@@ -39,7 +39,7 @@
 | Cloud option | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Multi-project | ✅ | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ |
 | Open source | ⚠️ (TBD) | ✅ (MIT) | ✅ (AGPL) | ✅ (GPL) | ✅ (MIT) | ❌ | ❌ |
-| Tracker size | ~4KB | <1KB | <1KB | ~21KB | ~44KB | <1KB | <1KB |
+| Tracker size | ~1.3KB | <1KB | <1KB | ~21KB | ~44KB | <1KB | <1KB |
 
 ---
 
@@ -50,7 +50,7 @@
 | **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
 | **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
 | **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
-| **Mini Numbers** | 8.5/10 | 4/10 | 9/10 | 7/10 | 8.5/10 | **7.5/10** |
+| **Mini Numbers** | 9/10 | 4/10 | 9/10 | 7/10 | 8.5/10 | **7.5/10** |
 | **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
 | **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
 | **Simple Analytics** | 8/10 | 2/10 | 10/10 | 5/10 | 6/10 | **6.2/10** |
@@ -63,7 +63,7 @@
 - **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
 - **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events
 - **Weaknesses**: No activity heatmap, no contribution calendar, no daily hash rotation
-- **vs Mini Numbers**: Umami wins on community and tracker size; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, and JVM stack
+- **vs Mini Numbers**: Umami wins on community and custom events; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), and JVM stack
 
 ### Plausible CE
 - **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
@@ -109,7 +109,6 @@
 **Disadvantages**:
 - No custom events, goals, or funnels yet
 - No community or ecosystem
-- Tracker larger than most competitors (~4KB vs <1KB)
 - No cloud option
 
 **Best For**: Privacy-conscious developers, JVM ecosystem users, open-source projects, EU businesses needing GDPR compliance, users wanting self-hosted with no recurring costs.

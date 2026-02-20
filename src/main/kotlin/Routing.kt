@@ -603,39 +603,75 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
     val random = java.util.Random()
 
     var inserted = 0
-    repeat(count) {
-        val daysAgo = random.nextInt(timeScope) // Spread over configured time scope
-        val timestamp = now.minusDays(daysAgo.toLong())
+    var remaining = count
+
+    while (remaining > 0) {
+        val daysAgo = random.nextInt(timeScope)
+        val sessionStart = now.minusDays(daysAgo.toLong())
             .minusHours(random.nextInt(24).toLong())
             .minusMinutes(random.nextInt(60).toLong())
 
         val country = countries.random()
         val city = cities[country]?.random()
         val sessionId = java.util.UUID.randomUUID().toString()
+        val browser = browsers.random()
+        val os = oses.random()
+        val device = devices.random()
+        val referrer = referrers.random()
 
-        // Generate a unique visitor hash (simulated)
         val visitorHash = AnalyticsSecurity.generateVisitorHash(
             ip = "192.168.${random.nextInt(255)}.${random.nextInt(255)}",
-            userAgent = browsers.random(),
+            userAgent = browser,
             projectId = projectId.toString()
         )
 
-        Events.insert {
-            it[Events.projectId] = projectId
-            it[Events.visitorHash] = visitorHash
-            it[Events.sessionId] = sessionId
-            it[Events.eventType] = "pageview"
-            it[Events.path] = paths.random()
-            it[Events.referrer] = referrers.random()
-            it[Events.country] = country
-            it[Events.city] = city
-            it[Events.browser] = browsers.random()
-            it[Events.os] = oses.random()
-            it[Events.device] = devices.random()
-            it[Events.duration] = random.nextInt(300) // 0-5 minutes
-            it[Events.timestamp] = timestamp
+        // ~40% bounce sessions (single pageview, no heartbeat)
+        // ~60% engaged sessions (multiple pageviews + heartbeats)
+        val isBounce = random.nextDouble() < 0.4
+        val sessionEvents = if (isBounce) 1 else minOf(2 + random.nextInt(4), remaining) // 2-5 events
+
+        var currentTimestamp = sessionStart
+        val firstPath = paths.random()
+
+        for (eventIdx in 0 until sessionEvents) {
+            if (remaining <= 0) break
+
+            val isFirstEvent = eventIdx == 0
+            val eventType: String
+            val path: String
+
+            if (isFirstEvent) {
+                eventType = "pageview"
+                path = firstPath
+            } else if (!isBounce && random.nextDouble() < 0.4) {
+                // 40% chance of navigating to a new page within the session
+                eventType = "pageview"
+                path = paths.filter { it != firstPath }.random()
+            } else {
+                eventType = "heartbeat"
+                path = firstPath
+            }
+
+            Events.insert {
+                it[Events.projectId] = projectId
+                it[Events.visitorHash] = visitorHash
+                it[Events.sessionId] = sessionId
+                it[Events.eventType] = eventType
+                it[Events.path] = path
+                it[Events.referrer] = if (isFirstEvent) referrer else null
+                it[Events.country] = country
+                it[Events.city] = city
+                it[Events.browser] = browser
+                it[Events.os] = os
+                it[Events.device] = device
+                it[Events.duration] = if (eventType == "heartbeat") 30 else 0
+                it[Events.timestamp] = currentTimestamp
+            }
+
+            currentTimestamp = currentTimestamp.plusSeconds(30)
+            inserted++
+            remaining--
         }
-        inserted++
     }
 
     return inserted
