@@ -5,6 +5,41 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - 2026-02-20
+
+### Added
+
+- **Custom event tracking** — Full-stack implementation with `MiniNumbers.track("name")` public API
+  - Backend: `eventName` column, validation rules, custom event type, demo data generation
+  - Dashboard: Dedicated "Custom Events" bar chart card, raw events filter, CSV export
+  - Tracker: `window.MiniNumbers.track()` API exposed from tracking script IIFE
+  - Validation: Event name regex (`a-zA-Z0-9_-. `), max 100 chars, required for custom type only
+  - Tests: 8 new test cases for custom event validation (111 total)
+- **GeoIP database bundling** — Classpath fallback for fat JAR deployments
+  - Tries filesystem path first (dev mode), then classpath resource extraction to temp file
+  - GeoIP works out of the box with `java -jar` without any user configuration
+- **Comprehensive deployment documentation** — Full guide for production deployment
+  - Installation methods: Fat JAR with systemd, source build, Docker (multi-stage)
+  - Configuration reference: All environment variables from ConfigLoader
+  - Reverse proxy: Nginx and Caddy configuration examples
+  - SSL/HTTPS: Let's Encrypt with certbot and Caddy auto-HTTPS
+  - Backup & recovery: SQLite and PostgreSQL strategies
+  - Upgrading and troubleshooting guides
+  - Docker Compose configurations for SQLite and PostgreSQL setups
+- **Database schema evolution** — `createMissingTablesAndColumns` for non-destructive column additions
+
+### Changed
+
+- **Tracker script** — Internal `track()` renamed to `send(type, eventName)` to support custom event payloads
+- **Demo data generator** — Now includes custom events (~15% of engaged session events)
+  - Event names: signup, download, purchase, newsletter_subscribe, share, contact_form
+- **Raw events table** — Shows event name in badge for custom events (e.g., "custom: signup")
+- **Dashboard badges** — New color scheme: primary (pageview), secondary (heartbeat), accent (custom)
+
+### Fixed
+
+- Heartbeat not resuming after tab visibility change (referenced renamed function)
+
 ## [0.0.2] - 2026-02-17
 
 ### Added
@@ -78,4 +113,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Contributors
 
 - Initial development by OneManStudio
-- Security hardening and code architecture assisted by Claude Code (Anthropic)
+- Security hardening, custom events, and documentation assisted by Claude Code (Anthropic)

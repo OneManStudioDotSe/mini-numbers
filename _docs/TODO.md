@@ -23,21 +23,24 @@
 - [x] Interactive setup wizard (WordPress-style, zero-restart)
 - [x] Demo data generator
 - [x] Session-based authentication with login page
-- [x] Comprehensive test suite (103 tests)
+- [x] Comprehensive test suite (111 tests)
 - [x] Code architecture restructuring (package-per-feature)
 - [x] Configurable tracker endpoint
 - [x] Bounce rate calculation and dashboard display
 - [x] Tracker optimization (1.9KB source, 1.3KB minified, History API SPA detection, visibility-aware heartbeat)
 - [x] Gradle minification task (`minifyTracker`)
 - [x] Realistic demo data generator (multi-event sessions, bounce/engaged mix)
+- [x] Custom event tracking with `MiniNumbers.track()` API and dashboard visualization
+- [x] GeoIP database bundling (classpath fallback for fat JAR deployments)
+- [x] Comprehensive deployment documentation (JAR, Docker, reverse proxy, SSL, backups)
 
 ---
 
 ## Phase 2: Easy Deployment (HIGH)
 
 ### Docker Optimization
-- [ ] Production Dockerfile (multi-stage build, Alpine-based, non-root user)
-- [ ] docker-compose.yml (single-command deployment, volume mounts)
+- [ ] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user)
+- [ ] docker-compose.yml in repo (single-command deployment, volume mounts)
 - [ ] Docker Hub automated builds with version tagging
 - [ ] Multi-platform builds (amd64, arm64)
 
@@ -46,9 +49,10 @@
 - [ ] Render deployment (blueprint + guide)
 - [ ] Fly.io deployment (config + guide)
 
-### Other
-- [ ] GeoIP database auto-download on startup
+### Completed
+- [x] GeoIP database bundled — works from filesystem and classpath (fat JAR)
 - [x] Tracker size optimization (<2KB minified) — 1.9KB source, 1.3KB minified
+- [x] Deployment documentation (JAR, Docker, reverse proxy, SSL, systemd, backups)
 
 ---
 
@@ -71,12 +75,12 @@
 
 ---
 
-## Phase 4: Documentation (HIGH)
+## Phase 4: Documentation (HIGH) — Partially Complete
 
-- [ ] Installation guide (Docker, JAR, source)
-- [ ] Configuration reference (all environment variables)
-- [ ] Deployment guide (reverse proxy, SSL, backups, upgrading)
-- [ ] Tracking integration guide (setup, SPA, debugging)
+- [x] Installation guide (Docker, JAR, source) — in DEPLOYMENT.md
+- [x] Configuration reference (all environment variables) — in DEPLOYMENT.md
+- [x] Deployment guide (reverse proxy, SSL, backups, upgrading) — in DEPLOYMENT.md
+- [x] Tracking integration guide (setup, SPA, custom events) — in DEPLOYMENT.md
 - [ ] Dashboard user guide
 - [ ] API documentation
 - [ ] Privacy architecture explanation
@@ -131,7 +135,7 @@
 ## Phase 7: Post-Launch Features
 
 ### High Priority (Next 3 months)
-- [ ] Custom event tracking
+- [x] Custom event tracking — name-based tracking with `MiniNumbers.track()` API and dashboard card
 - [ ] Conversion goals
 - [ ] Basic funnels
 - [ ] Email reports
@@ -152,6 +156,7 @@
 | Phase | Status |
 |-------|--------|
 | Phase 1 (Security & Foundation) | COMPLETED |
-| Phase 2 (Easy Deployment) | Starting |
-| Phase 3 (Testing & Quality) | Partially done |
-| Phase 4-7 | Pending |
+| Phase 2 (Easy Deployment) | In Progress (docs done, Docker pending) |
+| Phase 3 (Testing & Quality) | Partially done (111 tests) |
+| Phase 4 (Documentation) | Partially done (deployment docs complete) |
+| Phase 5-7 | Pending |

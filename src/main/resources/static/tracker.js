@@ -36,7 +36,7 @@
         if (document.hidden) {
             clearInterval(hb);
         } else {
-            hb = setInterval(function() { track('heartbeat'); }, 30000);
+            hb = setInterval(function() { send('heartbeat'); }, 30000);
         }
     });
 

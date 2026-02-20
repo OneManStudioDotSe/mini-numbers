@@ -1,6 +1,6 @@
 # Mini Numbers - Market Viability Assessment
 
-**Date**: February 17, 2026
+**Date**: February 20, 2026
 
 ---
 
@@ -12,22 +12,22 @@
 |----------|--------|
 | Technical Foundation | 9/10 |
 | Privacy Features | 10/10 |
-| UI/UX | 8.5/10 |
-| Unique Features | 8/10 |
+| UI/UX | 9/10 |
+| Unique Features | 8.5/10 |
 | Documentation | 9/10 |
 
-**Key strengths**: Daily hash rotation (unique), Kotlin/JVM stack, beautiful dashboard with dark mode, contribution calendar (unique), activity heatmap (rare), comprehensive documentation.
+**Key strengths**: Daily hash rotation (unique), Kotlin/JVM stack, beautiful dashboard with dark mode, contribution calendar (unique), activity heatmap (rare), custom event tracking, comprehensive deployment documentation, GeoIP bundled for JAR deployments.
 
 ### Weaknesses
 
 | Category | Rating | Notes |
 |----------|--------|-------|
 | Security | 8/10 | Resolved (previously 3/10) |
-| Testing | 7/10 | Improved (previously 2/10) |
-| Features | 6/10 | Missing custom events, goals, funnels |
-| Deployment | 5/10 | Improved (previously 4/10), needs Docker + docs |
+| Testing | 7.5/10 | 111 tests (previously 2/10) |
+| Features | 7/10 | Custom events done; goals and funnels still missing |
+| Deployment | 7/10 | Docs complete, GeoIP bundled; Docker image not yet in repo |
 | Community | 0/10 | New project, no ecosystem yet |
-| Tracker Size | 6/10 | ~4KB vs <1KB competitors |
+| Tracker Size | 8/10 | ~1.3KB minified, competitive with most alternatives |
 
 ### Opportunities
 
@@ -38,11 +38,12 @@
 5. **Visual analytics** — Unique visualizations differentiate from competitors
 6. **Cost advantage** — Self-hosted with no recurring fees
 7. **Open source** — Transparency and trust vs closed-source SaaS
+8. **Custom events** — Now competitive with Umami and Plausible on event tracking
 
 ### Threats
 
 1. **Established competition** — Umami (6K stars), Plausible (19K), Matomo (19K), PostHog (20K)
-2. **Feature gaps** — Missing standard features competitors have
+2. **Feature gaps** — Missing goals and funnels that competitors have
 3. **Cold start** — No community or ecosystem yet
 4. **Cloud competition** — Managed cloud more convenient than self-hosted
 5. **Market saturation** — 10+ established players
@@ -52,11 +53,11 @@
 
 ## Overall Verdict
 
-**Status**: Beta-Ready (Not Production-Ready)
+**Status**: Production-Ready (Beta)
 
-**Market Viability**: VIABLE with Conditions
+**Market Viability**: VIABLE
 
-**Recommendation**: PROCEED with development after addressing remaining gaps
+**Recommendation**: PROCEED to public beta launch
 
 ---
 
@@ -67,27 +68,29 @@
 | Technical Foundation | 20% | 9/10 | 1.8 |
 | Privacy Features | 20% | 10/10 | 2.0 |
 | Security Posture | 15% | 8/10 | 1.2 |
-| Feature Completeness | 15% | 6/10 | 0.9 |
+| Feature Completeness | 15% | 7/10 | 1.05 |
 | Market Opportunity | 15% | 8/10 | 1.2 |
-| Differentiation | 10% | 8/10 | 0.8 |
-| Deployment Readiness | 5% | 5/10 | 0.25 |
-| **Total** | **100%** | | **8.15/10** |
+| Differentiation | 10% | 8.5/10 | 0.85 |
+| Deployment Readiness | 5% | 7/10 | 0.35 |
+| **Total** | **100%** | | **8.45/10** |
 
-**Decision**: GO (with conditions)
+**Decision**: Strong Go
 
 - 0-4: No-Go
 - 4-6: Go with Major Concerns
 - 6-8: Go with Conditions
-- 8-10: Strong Go ← Mini Numbers is here (after security improvements)
+- 8-10: Strong Go — Mini Numbers is here
 
 ---
 
 ## Conditions for Launch
 
-1. **Production deployment** — Docker optimization, deployment documentation
-2. **Tracker optimization** — Reduce to <2KB as promised
-3. **Feature parity** — Custom events, goals, funnels (within 6-12 months)
-4. **Community building** — Strong launch, responsive to feedback
+1. ~~Tracker optimization~~ — DONE (1.3KB minified)
+2. ~~Custom events~~ — DONE (`MiniNumbers.track()` API with dashboard visualization)
+3. ~~Deployment documentation~~ — DONE (comprehensive guide)
+4. **Production Docker image** — Dockerfile and docker-compose.yml in repository
+5. **Community building** — Strong launch, responsive to feedback
+6. **Feature parity** — Goals and funnels (within 3-6 months post-launch)
 
 ---
 
@@ -98,7 +101,7 @@
 - It markets heavily to Kotlin/Java developers (underserved niche)
 - It leverages unique visualizations (contribution calendar, activity heatmap)
 - It appeals to developers who value transparency and self-hosting
-- It achieves feature parity within 6-12 months
+- It achieves full feature parity (goals, funnels) within 6 months
 
 **Market positioning**: Not "another analytics tool" but "the privacy-first analytics tool for JVM developers"
 
@@ -128,7 +131,7 @@
 
 ## Bottom Line
 
-Mini Numbers has the potential to become a respected player in the privacy-focused analytics space, particularly within the JVM ecosystem. It requires focused work on deployment, feature parity, and community building. The unique privacy approach (daily hash rotation) and beautiful UI give it a fighting chance against established competitors.
+Mini Numbers has strong potential to become a respected player in the privacy-focused analytics space, particularly within the JVM ecosystem. The core platform is production-ready with custom events, comprehensive deployment docs, and a lightweight tracker. Remaining work focuses on Docker packaging, conversion goals/funnels, and community building. The unique privacy approach (daily hash rotation) and beautiful UI give it a competitive edge against established players.
 
 ---
 
