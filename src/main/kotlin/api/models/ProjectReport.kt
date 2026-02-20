@@ -15,6 +15,7 @@ data class ProjectReport(
     val referrers: List<StatEntry>,
     val countries: List<StatEntry>,
     val lastVisits: List<VisitSnippet>,
-    val activityHeatmap: List<ActivityCell>, // 7x24 heatmap for traffic visualization
-    val peakTimeAnalysis: PeakTimeAnalysis // Peak hours and days analysis
+    val activityHeatmap: List<ActivityCell>,
+    val peakTimeAnalysis: PeakTimeAnalysis,
+    val bounceRate: Double // Percentage of single-page sessions with no heartbeat
 )

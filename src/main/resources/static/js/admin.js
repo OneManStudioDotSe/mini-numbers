@@ -477,6 +477,12 @@ const Dashboard = {
     if (visitorsEl) {
       visitorsEl.textContent = Utils.format.number(data.uniqueVisitors);
     }
+
+    // Update bounce rate
+    const bounceEl = document.getElementById('bounce-rate');
+    if (bounceEl) {
+      bounceEl.textContent = (data.bounceRate != null ? data.bounceRate.toFixed(1) : '0') + '%';
+    }
   },
 
   /**
@@ -543,6 +549,21 @@ const Dashboard = {
         <span class="comparison-detail">(${previousFormatted} previously)</span>
       `;
       visitorsCompEl.className = `stat-card__comparison ${className}`;
+    }
+
+    // Update bounce rate comparison (inverted: lower is better)
+    const bounceCompEl = document.getElementById('bounce-comparison');
+    if (bounceCompEl && current.bounceRate != null && previous.bounceRate != null) {
+      const bounceChange = this.calculatePercentChange(current.bounceRate, previous.bounceRate);
+      const { text } = Utils.format.percentageChange(bounceChange);
+      // Invert colors: decrease = good (positive), increase = bad (negative)
+      const className = bounceChange < 0 ? 'positive' : bounceChange > 0 ? 'negative' : '';
+      const previousFormatted = previous.bounceRate.toFixed(1) + '%';
+      bounceCompEl.innerHTML = `
+        ${text} vs previous period
+        <span class="comparison-detail">(${previousFormatted} previously)</span>
+      `;
+      bounceCompEl.className = `stat-card__comparison ${className}`;
     }
   },
 

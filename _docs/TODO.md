@@ -1,6 +1,6 @@
 # Mini Numbers - TODO List
 
-**Last Updated**: February 17, 2026
+**Last Updated**: February 20, 2026
 
 ---
 
@@ -26,6 +26,10 @@
 - [x] Comprehensive test suite (103 tests)
 - [x] Code architecture restructuring (package-per-feature)
 - [x] Configurable tracker endpoint
+- [x] Bounce rate calculation and dashboard display
+- [x] Tracker optimization (1.9KB source, 1.3KB minified, History API SPA detection, visibility-aware heartbeat)
+- [x] Gradle minification task (`minifyTracker`)
+- [x] Realistic demo data generator (multi-event sessions, bounce/engaged mix)
 
 ---
 
@@ -44,7 +48,7 @@
 
 ### Other
 - [ ] GeoIP database auto-download on startup
-- [ ] Tracker size optimization (<2KB minified)
+- [x] Tracker size optimization (<2KB minified) — 1.9KB source, 1.3KB minified
 
 ---
 

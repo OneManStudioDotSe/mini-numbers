@@ -56,6 +56,32 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 }
 
+// Minify tracker.js (strip comments and collapse whitespace)
+tasks.register("minifyTracker") {
+    group = "build"
+    description = "Minify tracker.js for production"
+
+    val srcFile = file("src/main/resources/static/tracker.js")
+    val outFile = file("src/main/resources/static/tracker.min.js")
+
+    inputs.file(srcFile)
+    outputs.file(outFile)
+
+    doLast {
+        val source = srcFile.readText()
+        val minified = source
+            .replace(Regex("/\\*\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL), "") // strip block comments
+            .replace(Regex("//.*"), "")             // strip line comments
+            .replace(Regex("\\s*\n\\s*"), "\n")     // collapse line whitespace
+            .replace(Regex("\n+"), "\n")             // collapse blank lines
+            .trim()
+        outFile.writeText(minified)
+        println("tracker.min.js: ${minified.length} bytes (from ${source.length} bytes)")
+    }
+}
+
+tasks.named("processResources") { dependsOn("minifyTracker") }
+
 // Custom task to reset database
 tasks.register<JavaExec>("reset") {
     group = "application"

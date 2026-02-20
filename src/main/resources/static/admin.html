@@ -130,7 +130,7 @@
             </div>
 
             <!-- Stat Cards -->
-            <div class="grid grid-cols-2 mt-lg">
+            <div class="grid grid-cols-3 mt-lg">
                 <!-- Total Page Views -->
                 <div class="card stat-card">
                     <div class="stat-card__header">
@@ -157,6 +157,20 @@
                     <div class="stat-card__value" id="unique-visitors">0</div>
                     <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
                     <div class="stat-card__comparison" id="visitors-comparison">
+                        Loading...
+                    </div>
+                </div>
+
+                <!-- Bounce Rate -->
+                <div class="card stat-card">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon">
+                            <i data-feather="log-out"></i>
+                        </div>
+                        <small>Bounce rate</small>
+                    </div>
+                    <div class="stat-card__value" id="bounce-rate">0%</div>
+                    <div class="stat-card__comparison" id="bounce-comparison">
                         Loading...
                     </div>
                 </div>
