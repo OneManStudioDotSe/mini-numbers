@@ -4,7 +4,7 @@
 
 ---
 
-## Phase 1: Production Ready (Weeks 1-6) — NEARLY COMPLETE
+## Phase 1: Production Ready (Weeks 1-6) — COMPLETE
 
 **Goal**: Security hardened, tested, and ready for beta testers
 
@@ -12,13 +12,15 @@
 |------|--------|
 | Security hardening (env vars, CORS, rate limiting, validation) | COMPLETED |
 | Setup wizard (zero-restart, interactive) | COMPLETED |
-| Test suite (103 tests) | COMPLETED |
+| Test suite (111 tests) | COMPLETED |
 | Code architecture (package-per-feature) | COMPLETED |
 | Session-based authentication | COMPLETED |
 | Bounce rate calculation and dashboard | COMPLETED |
 | Tracker optimization (1.9KB source, 1.3KB minified) | COMPLETED |
+| Custom event tracking (name-only, full stack) | COMPLETED |
+| GeoIP database bundling (classpath fallback for JAR) | COMPLETED |
+| Deployment documentation (JAR, Docker, reverse proxy, SSL) | COMPLETED |
 | Production Docker configuration | Pending |
-| Deployment documentation | Pending |
 
 **Milestone**: v1.0.0-beta
 
@@ -30,7 +32,7 @@
 
 | Week | Focus | Status |
 |------|-------|--------|
-| 7-9 | Custom event tracking | Not Started |
+| 7-9 | Custom event tracking | COMPLETED |
 | 10-11 | Conversion goals | Not Started |
 | 12-13 | Basic funnels | Not Started |
 | 14-15 | API enhancements (pagination, caching, docs) | Not Started |

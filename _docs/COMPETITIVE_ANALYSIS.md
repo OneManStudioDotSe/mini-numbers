@@ -17,7 +17,7 @@
 | Real-time feed | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Bounce rate | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Advanced Analytics** |
-| Custom events | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Custom events | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Conversion goals | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Funnels | ❌ | ✅ (v3) | ❌ (paid) | ✅ | ✅ | ❌ | ❌ |
 | Cohort/retention | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
@@ -49,8 +49,8 @@
 |----------|-------|----------|---------|-------------|-------|---------|
 | **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
 | **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
+| **Mini Numbers** | 9/10 | 5/10 | 9/10 | 7/10 | 8.5/10 | **7.8/10** |
 | **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
-| **Mini Numbers** | 9/10 | 4/10 | 9/10 | 7/10 | 8.5/10 | **7.5/10** |
 | **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
 | **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
 | **Simple Analytics** | 8/10 | 2/10 | 10/10 | 5/10 | 6/10 | **6.2/10** |
@@ -61,9 +61,9 @@
 
 ### Umami — Primary Competitor
 - **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
-- **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events
+- **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events, goals
 - **Weaknesses**: No activity heatmap, no contribution calendar, no daily hash rotation
-- **vs Mini Numbers**: Umami wins on community and custom events; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), and JVM stack
+- **vs Mini Numbers**: Umami wins on community and goals/funnels; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), JVM stack, and now matches on custom events
 
 ### Plausible CE
 - **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
@@ -87,10 +87,10 @@
 - **Type**: Closed-source, cloud-only | **Pricing**: From $15/month
 - **Strengths**: Simple, excellent privacy, ad-blocker bypass, great support
 - **Weaknesses**: Closed-source, no self-hosted option, limited features, vendor lock-in
-- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features, no recurring costs
+- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features (custom events, heatmap, calendar), no recurring costs
 
 ### Simple Analytics — EU SaaS
-- **Type**: Closed-source, cloud-only | **Pricing**: From €19/month
+- **Type**: Closed-source, cloud-only | **Pricing**: From EUR 19/month
 - **Strengths**: 100% GDPR compliant, all data in EU, simple interface
 - **Weaknesses**: Closed-source, cloud-only, very limited features, higher pricing
 - **vs Mini Numbers**: Simple Analytics wins on EU data hosting; Mini Numbers wins on features, self-hosted, no recurring costs
@@ -103,11 +103,13 @@
 - Daily hash rotation (unique, strongest privacy)
 - Contribution calendar (unique visualization)
 - Activity heatmap (rare feature)
+- Custom event tracking with `MiniNumbers.track()` API
 - JVM/Kotlin stack (underserved market)
 - Beautiful UI with dark mode and 6 chart types
+- Comprehensive deployment documentation
 
 **Disadvantages**:
-- No custom events, goals, or funnels yet
+- No conversion goals or funnels yet
 - No community or ecosystem
 - No cloud option
 

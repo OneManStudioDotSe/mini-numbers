@@ -4,47 +4,48 @@
 
 ---
 
-## 1. Critical Priority (Before Any Launch) — ✅ RESOLVED
+## 1. Critical Priority (Before Any Launch) — RESOLVED
 
-All critical security and foundation items have been implemented.
+All critical security, foundation, and deployment documentation items have been implemented.
 
-### 1.1 Security Hardening ✅
-- ✅ Environment variable configuration system
-- ✅ Configurable CORS (development vs production)
-- ✅ Rate limiting (per IP and per API key)
-- ✅ Input validation & sanitization
+### 1.1 Security Hardening — COMPLETE
+- Environment variable configuration system
+- Configurable CORS (development vs production)
+- Rate limiting (per IP and per API key)
+- Input validation & sanitization
 - Formal penetration testing still recommended
 
-### 1.2 Comprehensive Testing ✅ (Partial)
-- ✅ 103 tests (91 passing, 88% pass rate)
-- ✅ Unit tests for security, parsing, validation, and lifecycle
-- ✅ Integration tests for data collection and setup wizard
+### 1.2 Comprehensive Testing — COMPLETE (Partial)
+- 111 tests (99 passing, 89% pass rate)
+- Unit tests for security, parsing, validation, lifecycle, and custom events
+- Integration tests for data collection and setup wizard
 - Remaining: analytics calculations, admin endpoints, end-to-end tests
 
-### 1.3 Production Configuration (Pending)
-- Docker production setup (multi-stage build)
-- Docker Compose configuration
-- Deployment documentation
-- Health check and monitoring endpoints
+### 1.3 Production Configuration — Partially Complete
+- Deployment documentation complete (JAR, Docker, reverse proxy, SSL, systemd, backups)
+- GeoIP database bundled (classpath fallback for fat JAR deployments)
+- Remaining: Dockerfile and docker-compose.yml in repository, health check and monitoring endpoints
 
-### 1.4 Tracker Optimization ✅
-- ✅ Tracker reduced to 1.9KB source, 1.3KB minified (was ~3.2KB)
-- ✅ SPA detection switched from MutationObserver to History API patching
-- ✅ Visibility-aware heartbeat (pauses when tab hidden)
-- ✅ Gradle `minifyTracker` task for automated minification
-- ✅ Bounce rate calculation and dashboard display
+### 1.4 Tracker Optimization — COMPLETE
+- Tracker reduced to 1.9KB source, 1.3KB minified (was ~3.2KB)
+- SPA detection switched from MutationObserver to History API patching
+- Visibility-aware heartbeat (pauses when tab hidden)
+- Gradle `minifyTracker` task for automated minification
+- Bounce rate calculation and dashboard display
 - Remaining: additional configuration options (heartbeat interval, disable SPA)
 
 ---
 
 ## 2. High Priority (Feature Parity with Competitors)
 
-**Timeline**: 8-10 weeks
+**Timeline**: 6-8 weeks
 
-### 2.1 Custom Event Tracking
-- Event name and properties support in data collection
-- Event breakdown in dashboard
-- Public tracking API for custom events
+### 2.1 Custom Event Tracking — COMPLETE
+- Name-based event tracking with `MiniNumbers.track("name")` API
+- Event breakdown in dashboard (bar chart, hidden when no data)
+- Validation: regex pattern, max 100 chars, required for custom type only
+- Raw events filter and CSV export support
+- 8 dedicated tests for custom event validation
 
 ### 2.2 Conversion Goals
 - URL-based and event-based goals
@@ -95,7 +96,7 @@ All critical security and foundation items have been implemented.
 
 | Priority | Timeline | Status | Impact |
 |----------|----------|--------|--------|
-| **Critical** | Weeks 1-6 | ✅ Complete | Blocks launch |
-| **High** | Weeks 7-16 | Pending | Feature parity |
-| **Medium** | Weeks 17-24 | Pending | Competitive edge |
-| **Low** | Weeks 24+ | Pending | Future growth |
+| **Critical** | Weeks 1-6 | Complete | Blocks launch |
+| **High** | Weeks 7-14 | Custom events done, rest pending | Feature parity |
+| **Medium** | Weeks 15-22 | Pending | Competitive edge |
+| **Low** | Weeks 22+ | Pending | Future growth |
