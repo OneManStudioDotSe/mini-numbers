@@ -76,28 +76,6 @@
 
 ---
 
-## Success Metrics
-
-### Year 1 — Launch & Growth
-- 1,000 GitHub stars
-- 100 production deployments
-- 10 contributors
-- Feature parity with Umami
-
-### Year 2 — Maturity & Ecosystem
-- 5,000 GitHub stars
-- 1,000 production deployments
-- Cloud offering launch
-- Plugin ecosystem started
-
-### Year 3 — Leadership
-- 10,000+ GitHub stars
-- 5,000+ production deployments
-- Enterprise customers
-- Recognized privacy leader
-
----
-
 ## Risk Mitigation
 
 | Risk | Mitigation |
