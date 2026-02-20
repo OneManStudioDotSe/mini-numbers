@@ -6,6 +6,8 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
@@ -100,21 +102,21 @@ fun Application.configureSetupRouting() {
                 ServiceManager.State.ERROR -> {
                     call.respond(
                         HttpStatusCode.ServiceUnavailable,
-                        mapOf(
-                            "status" to "error",
-                            "servicesReady" to false,
-                            "message" to (ServiceManager.getLastError()?.message ?: "Service initialization failed")
-                        )
+                        buildJsonObject {
+                            put("status", "error")
+                            put("servicesReady", false)
+                            put("message", ServiceManager.getLastError()?.message ?: "Service initialization failed")
+                        }
                     )
                 }
                 else -> {
                     call.respond(
                         HttpStatusCode.OK,
-                        mapOf(
-                            "status" to "ok",
-                            "servicesReady" to servicesReady,
-                            "setupNeeded" to setupNeeded
-                        )
+                        buildJsonObject {
+                            put("status", "ok")
+                            put("servicesReady", servicesReady)
+                            put("setupNeeded", setupNeeded)
+                        }
                     )
                 }
             }

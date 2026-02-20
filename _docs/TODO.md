@@ -66,8 +66,6 @@
 
 ### Monitoring
 - [x] Health check endpoint (`GET /health` — JSON status with servicesReady flag)
-- [ ] Metrics endpoint (Prometheus format)
-- [ ] Structured JSON logging
 
 ---
 
