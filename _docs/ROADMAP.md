@@ -86,10 +86,3 @@
 | Feature gaps | Prioritize most-requested features, deliver incrementally |
 | Competitors innovate faster | Focus on unique strengths (JVM, privacy, visuals) |
 
----
-
-## Investment
-
-- **Solo developer**: 6-8 months to v1.0.0
-- **Small team (2-3)**: 3-4 months to v1.0.0
-- **Infrastructure costs**: <$100/year (self-hosted)

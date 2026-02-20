@@ -345,14 +345,23 @@ mini-numbers/
 ├── _docs/                           # Project documentation
 │   ├── CHANGELOG.md
 │   ├── COMPETITIVE_ANALYSIS.md
+│   ├── DASHBOARD_GUIDE.md           # Dashboard user guide
 │   ├── GAP_ANALYSIS.md
 │   ├── MARKET_VIABILITY.md
+│   ├── PERFORMANCE.md               # Performance benchmarking guide
+│   ├── PRIVACY.md                   # Privacy architecture explanation
 │   ├── PROJECT_EVALUATION.md
 │   ├── ROADMAP.md
+│   ├── SECURITY_AUDIT.md            # Security audit findings
+│   ├── TESTING_PLAN.md              # Manual testing plan
 │   └── TODO.md
 ├── .github/workflows/               # CI/CD
-│   ├── build.yml                    # Test + build on push/PR
+│   ├── build.yml                    # Test + build + Detekt + Docker verify
 │   └── docker-publish.yml           # Docker multi-platform publish
+├── config/detekt/                   # Static analysis config
+│   └── detekt.yml                   # Detekt rules (relaxed for existing code)
+├── CODE_OF_CONDUCT.md               # Contributor Covenant v2.1
+├── CONTRIBUTING.md                  # Contributing guidelines
 ├── Dockerfile                       # Multi-stage production build
 ├── docker-compose.yml               # SQLite deployment
 ├── docker-compose.postgres.yml      # PostgreSQL deployment

@@ -2,10 +2,12 @@ package se.onemanstudio.core
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
+import se.onemanstudio.api.models.ApiError
 import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.models.LoginAttempt
@@ -113,8 +115,10 @@ fun Application.configureSecurity(config: AppConfig) {
                 session
             }
             challenge {
-                // Redirect to login page instead of showing HTTP auth dialog
-                call.respondRedirect("/login")
+                // Return 401 JSON so frontend fetch() calls get a proper error
+                // instead of being redirected to an HTML login page
+                call.respond(HttpStatusCode.Unauthorized,
+                    ApiError.unauthorized("Authentication required"))
             }
         }
     }

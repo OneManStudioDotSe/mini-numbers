@@ -883,6 +883,56 @@
         </div>
     </div>
 
+    <!-- Onboarding Checklist Modal -->
+    <div id="onboarding-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome to Mini Numbers!</h2>
+                <button class="modal-close" id="close-onboarding">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-lg);">
+                    Get started with privacy-first analytics in a few simple steps.
+                </p>
+                <div class="onboarding-checklist" id="onboarding-checklist">
+                    <div class="onboarding-step" data-step="create-project">
+                        <div class="onboarding-step__check"></div>
+                        <div class="onboarding-step__content">
+                            <div class="onboarding-step__title">Create your first project</div>
+                            <div class="onboarding-step__desc">Set up a project for each website you want to track</div>
+                        </div>
+                    </div>
+                    <div class="onboarding-step" data-step="install-tracker">
+                        <div class="onboarding-step__check"></div>
+                        <div class="onboarding-step__content">
+                            <div class="onboarding-step__title">Install the tracking script</div>
+                            <div class="onboarding-step__desc">Add the lightweight script tag to your website's HTML</div>
+                        </div>
+                    </div>
+                    <div class="onboarding-step" data-step="first-visit">
+                        <div class="onboarding-step__check"></div>
+                        <div class="onboarding-step__content">
+                            <div class="onboarding-step__title">Receive your first visit</div>
+                            <div class="onboarding-step__desc">Visit your website to verify tracking is working</div>
+                        </div>
+                    </div>
+                    <div class="onboarding-step" data-step="explore-dashboard">
+                        <div class="onboarding-step__check"></div>
+                        <div class="onboarding-step__content">
+                            <div class="onboarding-step__title">Explore the dashboard</div>
+                            <div class="onboarding-step__desc">View analytics, set up goals, and customize settings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="dismiss-onboarding">Skip for now</button>
+                <button class="btn btn-primary" id="close-onboarding-done">Got it!</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Modules -->
     <script src="/admin-panel/js/theme.js"></script>
     <script src="/admin-panel/js/settings.js"></script>

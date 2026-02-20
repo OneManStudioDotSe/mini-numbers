@@ -248,6 +248,42 @@ const Utils = {
     toggle(el) {
       if (el) el.classList.toggle('hidden');
     },
+
+    /**
+     * Show empty state in a container
+     * @param {HTMLElement} container - Target container
+     * @param {Object} options - Icon, message, hint
+     */
+    showEmptyState(container, { icon, message, hint } = {}) {
+      if (!container) return;
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">${icon || '&#128202;'}</div>
+          <div class="empty-state__message">${Utils.escapeHtml(message || 'No data available')}</div>
+          ${hint ? `<div class="empty-state__suggestion">${Utils.escapeHtml(hint)}</div>` : ''}
+        </div>
+      `;
+    },
+
+    /**
+     * Show error state in a container with optional retry
+     * @param {HTMLElement} container - Target container
+     * @param {string} message - Error message
+     * @param {Function} retryCallback - Optional retry function
+     */
+    showError(container, message, retryCallback) {
+      if (!container) return;
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">&#9888;</div>
+          <div class="empty-state__message">${Utils.escapeHtml(message)}</div>
+          ${retryCallback ? '<button class="btn btn-secondary btn-sm empty-state__retry">Retry</button>' : ''}
+        </div>
+      `;
+      if (retryCallback) {
+        container.querySelector('.empty-state__retry')?.addEventListener('click', retryCallback);
+      }
+    },
   },
 
   // Toast notifications
@@ -330,50 +366,90 @@ const Utils = {
     },
   },
 
+  // Global error handling
+  errors: {
+    init() {
+      window.onerror = (message, source, lineno, colno, error) => {
+        console.error('Global error:', { message, source, lineno, colno, error });
+        return false;
+      };
+
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        if (event.reason && !event.reason._handled) {
+          Utils.toast.error('An unexpected error occurred.');
+        }
+      });
+    },
+  },
+
   // API helpers
   api: {
     /**
-     * Fetch data with caching and error handling
+     * Fetch data with caching, retry, and error handling
      * @param {string} url - API URL
-     * @param {Object} options - Fetch options
+     * @param {Object} options - Fetch options (useCache, retries)
      * @returns {Promise} Response data
      */
     async fetch(url, options = {}) {
-      // Extract our custom cache option
-      const useCache = options.useCache !== false; // Default true
-      const { useCache: _, ...fetchOptions } = options; // Remove custom option
+      const useCache = options.useCache !== false;
+      const maxRetries = options.retries ?? 2;
+      const { useCache: _, retries: __, ...fetchOptions } = options;
 
-      // Check cache first
       if (useCache && Utils.cache.has(url)) {
         return Utils.cache.get(url);
       }
 
-      try {
-        const response = await fetch(url, {
-          headers: {
-            ...Utils.auth.getHeader(),
-            ...fetchOptions.headers,
-          },
-          ...fetchOptions,
-        });
+      let lastError;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(url, {
+            headers: {
+              ...Utils.auth.getHeader(),
+              ...fetchOptions.headers,
+            },
+            ...fetchOptions,
+          });
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          if (!response.ok) {
+            // Redirect to login on authentication failure
+            if (response.status === 401) {
+              window.location.href = '/login';
+              const err = new Error('Authentication required');
+              err.status = 401;
+              err._handled = true;
+              throw err;
+            }
+            const err = new Error(`HTTP ${response.status}: ${response.statusText}`);
+            err.status = response.status;
+            // Don't retry client errors (4xx)
+            if (response.status >= 400 && response.status < 500) {
+              err._handled = true;
+              throw err;
+            }
+            throw err;
+          }
+
+          const data = await response.json();
+
+          if (useCache) {
+            Utils.cache.set(url, data);
+          }
+
+          return data;
+        } catch (error) {
+          lastError = error;
+          if (error.status && error.status >= 400 && error.status < 500) throw error;
+          if (attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
+          }
         }
-
-        const data = await response.json();
-
-        // Cache successful responses
-        if (useCache) {
-          Utils.cache.set(url, data);
-        }
-
-        return data;
-      } catch (error) {
-        console.error('API fetch error:', error);
-        Utils.toast.error(`Failed to fetch data: ${error.message}`);
-        throw error;
       }
+
+      console.error('API fetch error after retries:', lastError);
+      Utils.toast.error(`Failed to fetch data: ${lastError.message}`);
+      lastError._handled = true;
+      throw lastError;
     },
 
     /**
