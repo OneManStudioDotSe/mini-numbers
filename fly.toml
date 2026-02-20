@@ -1,0 +1,53 @@
+# Fly.io Configuration - Mini Numbers Analytics
+#
+# Deploy:
+#   fly launch          # First time (creates app + volume)
+#   fly deploy          # Subsequent deploys
+#
+# Set secrets:
+#   fly secrets set ADMIN_PASSWORD=your-password SERVER_SALT=$(openssl rand -hex 64)
+#
+# Create persistent volume (if not created during launch):
+#   fly volumes create analytics_data --size 1 --region iad
+
+app = "mini-numbers"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  SERVER_PORT = "8080"
+  DB_TYPE = "SQLITE"
+  DB_SQLITE_PATH = "/app/data/stats.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[checks]
+  [checks.health]
+    port = 8080
+    type = "http"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "15s"
+    method = "GET"
+    path = "/health"
+
+[mounts]
+  source = "analytics_data"
+  destination = "/app/data"

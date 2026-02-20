@@ -1,0 +1,35 @@
+# Mini Numbers - Docker Compose (SQLite)
+# Default setup: single container with SQLite database
+#
+# Usage:
+#   docker compose up -d
+#   Visit http://localhost:8080 to complete setup wizard
+#
+# Pre-configured setup (skip wizard):
+#   1. Copy .env.example to .env and fill in values
+#   2. docker compose up -d
+
+services:
+  mini-numbers:
+    build: .
+    container_name: mini-numbers
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    volumes:
+      - analytics-data:/app/data
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - DB_TYPE=SQLITE
+      - DB_SQLITE_PATH=/app/data/stats.db
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  analytics-data:

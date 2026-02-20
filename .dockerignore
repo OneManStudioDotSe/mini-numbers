@@ -1,0 +1,35 @@
+# Build artifacts
+build/
+.gradle/
+out/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Environment and secrets
+.env
+.env.*
+
+# Documentation
+_docs/
+*.md
+LICENSE
+
+# Test databases
+stats.db
+test-dbs/
+
+# Claude/AI config
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db

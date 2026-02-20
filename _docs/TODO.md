@@ -36,27 +36,22 @@
 
 ---
 
-## Phase 2: Easy Deployment (HIGH)
+## Phase 2: Easy Deployment — COMPLETED
 
 ### Docker Optimization
-- [ ] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user)
-- [ ] docker-compose.yml in repo (single-command deployment, volume mounts)
-- [ ] Docker Hub automated builds with version tagging
-- [ ] Multi-platform builds (amd64, arm64)
+- [x] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user)
+- [x] docker-compose.yml in repo (SQLite + PostgreSQL variants, volume mounts)
+- [x] GHCR automated builds with version tagging (GitHub Actions)
+- [x] Multi-platform builds (linux/amd64, linux/arm64)
 
-### One-Click Platform Deployments
-- [ ] Railway deployment (button + guide)
-- [ ] Render deployment (blueprint + guide)
-- [ ] Fly.io deployment (config + guide)
-
-### Completed
+### Other
 - [x] GeoIP database bundled — works from filesystem and classpath (fat JAR)
 - [x] Tracker size optimization (<2KB minified) — 1.9KB source, 1.3KB minified
-- [x] Deployment documentation (JAR, Docker, reverse proxy, SSL, systemd, backups)
+- [x] Deployment documentation (JAR, Docker, platforms, reverse proxy, SSL, systemd, backups)
 
 ---
 
-## Phase 3: Testing & Quality (MEDIUM)
+## Phase 3: Testing & Quality
 
 ### Additional Tests
 - [ ] Analytics calculation tests
@@ -65,17 +60,18 @@
 - [ ] Docker build and deployment tests
 
 ### CI/CD Pipeline
-- [ ] GitHub Actions: test, Docker build, release workflows
+- [x] GitHub Actions: test + build workflow (on push/PR to main)
+- [x] GitHub Actions: Docker multi-platform publish to GHCR (on push/tag)
 - [ ] Code quality checks (linting, static analysis, vulnerability scanning)
 
 ### Monitoring
-- [ ] Health check endpoint
+- [x] Health check endpoint (`GET /health` — JSON status with servicesReady flag)
 - [ ] Metrics endpoint (Prometheus format)
 - [ ] Structured JSON logging
 
 ---
 
-## Phase 4: Documentation (HIGH) — Partially Complete
+## Phase 4: Documentation
 
 - [x] Installation guide (Docker, JAR, source) — in DEPLOYMENT.md
 - [x] Configuration reference (all environment variables) — in DEPLOYMENT.md
@@ -89,7 +85,7 @@
 
 ---
 
-## Phase 5: Polish & Launch Prep (POLISH)
+## Phase 5: Polish & Launch Prep
 
 ### UI/UX
 - [ ] Loading states and skeleton screens
@@ -115,18 +111,12 @@
 
 ## Phase 6: Launch
 
-### Pre-Launch
 - [ ] Screenshots and demo GIFs
 - [ ] GitHub repository setup (public, issue templates, discussions)
 - [ ] Launch content (blog post, Show HN, Reddit, Product Hunt)
-
-### Launch Day
 - [ ] GitHub release v1.0.0
 - [ ] Announce on Hacker News, Reddit, Product Hunt, Dev.to
 - [ ] Monitor and respond to feedback
-
-### Post-Launch
-- [ ] Address initial feedback and bugs
 - [ ] Comparison and tutorial content
 - [ ] Community building (Discord or GitHub Discussions)
 
@@ -140,23 +130,7 @@
 - [ ] Basic funnels
 - [ ] Email reports
 - [ ] Webhooks
-
-### Future (6+ months)
 - [ ] Retention and cohort analysis
 - [ ] User journey visualization
-- [ ] Multi-user support with roles
-- [ ] Mobile PWA
 - [ ] Plugin system
 - [ ] Integrations (Slack, Discord, Zapier)
-
----
-
-## Progress
-
-| Phase | Status |
-|-------|--------|
-| Phase 1 (Security & Foundation) | COMPLETED |
-| Phase 2 (Easy Deployment) | In Progress (docs done, Docker pending) |
-| Phase 3 (Testing & Quality) | Partially done (111 tests) |
-| Phase 4 (Documentation) | Partially done (deployment docs complete) |
-| Phase 5-7 | Pending |
