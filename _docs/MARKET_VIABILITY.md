@@ -90,8 +90,7 @@
 2. ~~Custom events~~ — DONE (`MiniNumbers.track()` API with dashboard visualization)
 3. ~~Deployment documentation~~ — DONE (comprehensive guide)
 4. ~~Production Docker image~~ — DONE (Dockerfile with multi-stage build, JVM tuning, health check)
-5. **Community building** — Strong launch, responsive to feedback
-6. ~~Feature parity~~ — DONE (Goals, funnels, segments, API enhancements implemented)
+5. ~~Feature parity~~ — DONE (Goals, funnels, segments, API enhancements implemented)
 
 ---
 
@@ -105,28 +104,6 @@
 - It continues delivering features (email reports, webhooks, integrations)
 
 **Market positioning**: Not "another analytics tool" but "the privacy-first analytics tool for JVM developers"
-
----
-
-## Success Criteria
-
-### Year 1
-- 1,000 GitHub stars
-- 100 production deployments
-- 10 contributors
-- Feature parity with Umami
-
-### Year 2
-- 5,000 GitHub stars
-- 1,000 production deployments
-- Cloud offering launch
-- Plugin ecosystem started
-
-### Year 3
-- 10,000+ GitHub stars
-- 5,000+ production deployments
-- Enterprise customers
-- Recognized privacy leader
 
 ---
 

@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Critical Priority (Before Any Launch) — RESOLVED
+## 1. Critical Priority — COMPLETE
 
 All critical security, foundation, and deployment documentation items have been implemented.
 
@@ -33,7 +33,6 @@ All critical security, foundation, and deployment documentation items have been 
 - Tracker reduced to 1.9KB source, 1.3KB minified (was ~3.2KB)
 - SPA detection switched from MutationObserver to History API patching
 - Visibility-aware heartbeat (pauses when tab hidden)
-- Gradle `minifyTracker` task for automated minification
 - Bounce rate calculation and dashboard display
 - Configurable heartbeat interval via `data-heartbeat-interval` attribute
 - SPA tracking can be disabled via `data-disable-spa="true"` attribute
@@ -43,27 +42,21 @@ All critical security, foundation, and deployment documentation items have been 
 
 ## 2. High Priority (Feature Parity with Competitors)
 
-**Timeline**: 6-8 weeks
-
 ### 2.1 Custom Event Tracking — COMPLETE
 - Name-based event tracking with `MiniNumbers.track("name")` API
 - Event breakdown in dashboard (bar chart, hidden when no data)
-- Validation: regex pattern, max 100 chars, required for custom type only
 - Raw events filter and CSV export support
-- 8 dedicated tests for custom event validation
 
 ### 2.2 Conversion Goals — COMPLETE
 - URL-based and event-based goals with conversion rate tracking
 - Goal management UI (create, toggle active/inactive, delete)
 - Conversion rate cards with previous period comparison
-- 5 API endpoints (CRUD + stats)
 
 ### 2.3 Basic Funnels — COMPLETE
 - Multi-step conversion tracking with sequential step completion
 - Drop-off analysis and horizontal funnel visualization
 - Average time between steps analysis
 - Funnel management modal with dynamic step builder
-- 4 API endpoints (CRUD + analysis)
 
 ### 2.4 API Enhancements — COMPLETE
 - Pagination for all list endpoints (`?page=&limit=` query parameters, backward compatible)
@@ -80,8 +73,6 @@ All critical security, foundation, and deployment documentation items have been 
 
 ## 3. Medium Priority (Competitive Advantages) — COMPLETE
 
-**Timeline**: 12-16 weeks
-
 - **Enhanced Privacy** — COMPLETE: Configurable hash rotation (1-8760 hours), three privacy modes (STANDARD, STRICT, PARANOID), data retention policies with auto-purge
 - **Performance Optimization** — COMPLETE: 8 database indexes, Caffeine query cache (500 entries, 30s TTL), GeoIP lookup cache (10K entries, 1h TTL)
 - **User Segments** — COMPLETE: Visual filter builder with AND/OR logic, segment analysis, CRUD API
@@ -89,8 +80,6 @@ All critical security, foundation, and deployment documentation items have been 
 ---
 
 ## 4. Low Priority (Future Enhancements)
-
-**Timeline**: 16+ weeks
 
 - **Advanced Analytics** — User journey visualization, retention/cohort analysis
 - **UI Enhancements** — Customizable dashboards, saved reports, annotations

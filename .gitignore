@@ -34,3 +34,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Application data ###
+*.db
+test-dbs/
+.env
+.env.backup
