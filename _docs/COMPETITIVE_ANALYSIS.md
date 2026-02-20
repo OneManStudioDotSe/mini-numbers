@@ -1,0 +1,117 @@
+# Mini Numbers - Competitive Analysis
+
+**Date**: February 17, 2026
+
+---
+
+## Feature Comparison Matrix
+
+| Feature | Mini Numbers | Umami | Plausible CE | Matomo | PostHog | Fathom | Simple Analytics |
+|---------|-------------|-------|-------------|--------|---------|--------|-----------------|
+| **Basic Analytics** |
+| Page views & visitors | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Referrer tracking | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Geographic data | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Device/browser/OS | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Time series | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Real-time feed | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Bounce rate | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Advanced Analytics** |
+| Custom events | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Conversion goals | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Funnels | ❌ | ✅ (v3) | ❌ (paid) | ✅ | ✅ | ❌ | ❌ |
+| Cohort/retention | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Session replay | ❌ | ❌ | ❌ | ✅ (paid) | ✅ | ❌ | ❌ |
+| Activity heatmap | ✅ | ❌ | ❌ | ✅ (paid) | ❌ | ❌ | ❌ |
+| A/B testing | ❌ | ❌ | ❌ | ✅ (paid) | ✅ | ❌ | ❌ |
+| **Privacy** |
+| Cookie-free | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
+| No PII storage | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
+| Daily hash rotation | ✅ (unique) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| No consent needed | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
+| **UI & UX** |
+| Dark mode | ✅ | ✅ | ❌ | ⚠️ | ✅ | ❌ | ❌ |
+| Contribution calendar | ✅ (unique) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Multiple chart types | ✅ (6) | ⚠️ (3) | ⚠️ | ✅ | ✅ | ⚠️ | ⚠️ |
+| Interactive maps | ✅ | ❌ | ❌ | ✅ | ⚠️ | ❌ | ❌ |
+| **Technical** |
+| Self-hosted | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Cloud option | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Multi-project | ✅ | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ |
+| Open source | ⚠️ (TBD) | ✅ (MIT) | ✅ (AGPL) | ✅ (GPL) | ✅ (MIT) | ❌ | ❌ |
+| Tracker size | ~4KB | <1KB | <1KB | ~21KB | ~44KB | <1KB | <1KB |
+
+---
+
+## Scoring Summary
+
+| Platform | Basic | Advanced | Privacy | Integration | UI/UX | Overall |
+|----------|-------|----------|---------|-------------|-------|---------|
+| **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
+| **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
+| **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
+| **Mini Numbers** | 8.5/10 | 4/10 | 9/10 | 7/10 | 8.5/10 | **7.5/10** |
+| **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
+| **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
+| **Simple Analytics** | 8/10 | 2/10 | 10/10 | 5/10 | 6/10 | **6.2/10** |
+
+---
+
+## Competitor Profiles
+
+### Umami — Primary Competitor
+- **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
+- **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events
+- **Weaknesses**: No activity heatmap, no contribution calendar, no daily hash rotation
+- **vs Mini Numbers**: Umami wins on community and tracker size; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, and JVM stack
+
+### Plausible CE
+- **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
+- **Strengths**: Strong brand, <1KB tracker, EU-focused, high performance
+- **Weaknesses**: AGPL restricts commercial use, CE updated only twice/year, limited multi-project
+- **vs Mini Numbers**: Plausible wins on brand and performance; Mini Numbers wins on daily hash rotation, contribution calendar, license flexibility
+
+### Matomo — Enterprise Leader
+- **Stack**: PHP, MySQL | **License**: GPL | **Stars**: ~19,000
+- **Strengths**: 100+ features, 1,000+ plugins, 15+ years maturity, session replay, A/B testing
+- **Weaknesses**: Heavy tracker (21KB), cookie-based by default, complex UI, many paid features
+- **vs Mini Numbers**: Matomo wins on feature breadth and enterprise capabilities; Mini Numbers wins on simplicity, lightweight tracker, modern stack, and privacy-by-default
+
+### PostHog — All-in-One Platform
+- **Stack**: Python/TypeScript, ClickHouse | **License**: MIT | **Stars**: ~20,000
+- **Strengths**: Complete platform (analytics + feature flags + session replay + A/B testing), generous free tier, mobile SDKs
+- **Weaknesses**: Overkill for simple analytics, heavy tracker (44KB), complex to self-host
+- **vs Mini Numbers**: PostHog wins on feature breadth; Mini Numbers wins on simplicity, lightweight tracker, and focused web analytics approach
+
+### Fathom Analytics — Privacy SaaS
+- **Type**: Closed-source, cloud-only | **Pricing**: From $15/month
+- **Strengths**: Simple, excellent privacy, ad-blocker bypass, great support
+- **Weaknesses**: Closed-source, no self-hosted option, limited features, vendor lock-in
+- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features, no recurring costs
+
+### Simple Analytics — EU SaaS
+- **Type**: Closed-source, cloud-only | **Pricing**: From €19/month
+- **Strengths**: 100% GDPR compliant, all data in EU, simple interface
+- **Weaknesses**: Closed-source, cloud-only, very limited features, higher pricing
+- **vs Mini Numbers**: Simple Analytics wins on EU data hosting; Mini Numbers wins on features, self-hosted, no recurring costs
+
+---
+
+## Mini Numbers — Competitive Position
+
+**Advantages**:
+- Daily hash rotation (unique, strongest privacy)
+- Contribution calendar (unique visualization)
+- Activity heatmap (rare feature)
+- JVM/Kotlin stack (underserved market)
+- Beautiful UI with dark mode and 6 chart types
+
+**Disadvantages**:
+- No custom events, goals, or funnels yet
+- No community or ecosystem
+- Tracker larger than most competitors (~4KB vs <1KB)
+- No cloud option
+
+**Best For**: Privacy-conscious developers, JVM ecosystem users, open-source projects, EU businesses needing GDPR compliance, users wanting self-hosted with no recurring costs.
+
+**Not Best For**: Users needing comprehensive features (Matomo/PostHog), non-technical users wanting cloud simplicity (Fathom/Simple Analytics), users needing extensive integrations.
