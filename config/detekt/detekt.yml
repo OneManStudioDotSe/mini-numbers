@@ -1,0 +1,33 @@
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+  TooManyFunctions:
+    thresholdInFiles: 30
+    thresholdInClasses: 25
+    thresholdInInterfaces: 15
+  CyclomaticComplexMethod:
+    threshold: 20
+
+style:
+  MaxLineLength:
+    maxLineLength: 140
+  WildcardImport:
+    active: false
+  MagicNumber:
+    active: false
+  ReturnCount:
+    max: 5
+  ThrowsCount:
+    max: 5
+
+naming:
+  FunctionNaming:
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+  MatchingDeclarationName:
+    active: false

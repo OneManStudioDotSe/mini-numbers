@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.3.0"
     kotlin("plugin.serialization") version "2.1.0"
     id("io.ktor.plugin") version "3.4.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
 group = "se.onemanstudio"
@@ -54,6 +55,21 @@ dependencies {
 
     // Rate limiting (in-memory cache)
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+}
+
+// Detekt static analysis configuration
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$projectDir/config/detekt/detekt.yml"))
+    baseline = file("$projectDir/detekt-baseline.xml")
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
+        txt.required.set(false)
+    }
 }
 
 // Minify tracker.js (strip comments and collapse whitespace)

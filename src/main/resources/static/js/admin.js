@@ -40,6 +40,9 @@ const Dashboard = {
    * Initialize dashboard
    */
   async init() {
+    // Initialize global error handling
+    Utils.errors.init();
+
     // Set up theme toggle
     this.setupThemeToggle();
 
@@ -80,6 +83,9 @@ const Dashboard = {
 
     // Initialize segments modal
     this.setupSegmentsInit();
+
+    // Initialize onboarding for new users
+    this.setupOnboarding();
 
     // Initialize geographic state
     this.state.geoState = {
@@ -398,10 +404,14 @@ const Dashboard = {
     const filterEl = document.getElementById('time-filter');
     if (!filterEl) return;
 
+    const debouncedRefresh = Utils.debounce(() => {
+      this.refreshReport();
+    }, 300);
+
     filterEl.addEventListener('change', (e) => {
       this.state.currentFilter = e.target.value;
       this.updateDateRangeDisplay();
-      this.refreshReport();
+      debouncedRefresh();
     });
   },
 
@@ -430,24 +440,22 @@ const Dashboard = {
       // Backward compatibility
       this.state.previousData = data.current;
 
-      // Update UI
+      // Update primary UI immediately
       this.updateStats(data.current);
       this.updateComparisons(data.current, data.previous);
       this.updateSparklines(data.timeSeries);
       this.updateCharts(data.current);
       this.updateTables(data.current);
 
-      // Load contribution calendar (separate API call)
-      this.loadContributionCalendar();
-
-      // Load goals and funnels
-      this.loadGoalsAndFunnels();
-
-      // Load segments
-      this.loadSegments();
-
-      // Hide loading state
+      // Hide loading state after primary data renders
       this.hideLoadingState();
+
+      // Load secondary data in parallel (non-blocking)
+      Promise.allSettled([
+        this.loadContributionCalendar(),
+        this.loadGoalsAndFunnels(),
+        this.loadSegments()
+      ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
       Utils.toast.error('Failed to load analytics data');
@@ -606,19 +614,26 @@ const Dashboard = {
    */
   updateCharts(data) {
     // Top Pages - Bar Chart
-    if (data.topPages?.length && document.getElementById('chart-pages')) {
+    const pagesEl = document.getElementById('chart-pages');
+    if (data.topPages?.length && pagesEl) {
       const topPages = Utils.aggregate.groupTopN(data.topPages, 10);
       ChartManager.createBarChart('chart-pages', topPages);
+    } else if (pagesEl) {
+      Utils.dom.showEmptyState(pagesEl.parentElement, { icon: '&#128196;', message: 'No page views yet', hint: 'Page views will appear once visitors arrive' });
     }
 
     // Referrers - Bar Chart
-    if (data.referrers?.length && document.getElementById('chart-referrers')) {
+    const referrersEl = document.getElementById('chart-referrers');
+    if (data.referrers?.length && referrersEl) {
       const topReferrers = Utils.aggregate.groupTopN(data.referrers, 10);
       ChartManager.createBarChart('chart-referrers', topReferrers);
+    } else if (referrersEl) {
+      Utils.dom.showEmptyState(referrersEl.parentElement, { icon: '&#128279;', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
     }
 
     // Browsers - Chart with toggle
-    if (data.browsers?.length && document.getElementById('chart-browsers')) {
+    const browsersEl = document.getElementById('chart-browsers');
+    if (data.browsers?.length && browsersEl) {
       this.state.browsersData = data.browsers;
       const topBrowsers = Utils.aggregate.groupTopN(data.browsers, 8);
       const chartType = localStorage.getItem('chart-view-browsers') || 'doughnut';
@@ -628,10 +643,13 @@ const Dashboard = {
       } else {
         ChartManager.createDoughnutChart('chart-browsers', topBrowsers);
       }
+    } else if (browsersEl) {
+      Utils.dom.showEmptyState(browsersEl.parentElement, { icon: '&#127760;', message: 'No browser data' });
     }
 
     // Operating Systems - Chart with toggle
-    if (data.oss?.length && document.getElementById('chart-os')) {
+    const osEl = document.getElementById('chart-os');
+    if (data.oss?.length && osEl) {
       this.state.osData = data.oss;
       const topOS = Utils.aggregate.groupTopN(data.oss, 8);
       const chartType = localStorage.getItem('chart-view-os') || 'doughnut';
@@ -641,10 +659,13 @@ const Dashboard = {
       } else {
         ChartManager.createDoughnutChart('chart-os', topOS);
       }
+    } else if (osEl) {
+      Utils.dom.showEmptyState(osEl.parentElement, { icon: '&#128187;', message: 'No OS data' });
     }
 
     // Devices - Chart with toggle
-    if (data.devices?.length && document.getElementById('chart-devices')) {
+    const devicesEl = document.getElementById('chart-devices');
+    if (data.devices?.length && devicesEl) {
       this.state.devicesData = data.devices;
       const topDevices = Utils.aggregate.groupTopN(data.devices, 8);
       const chartType = localStorage.getItem('chart-view-devices') || 'doughnut';
@@ -654,6 +675,8 @@ const Dashboard = {
       } else {
         ChartManager.createDoughnutChart('chart-devices', topDevices);
       }
+    } else if (devicesEl) {
+      Utils.dom.showEmptyState(devicesEl.parentElement, { icon: '&#128241;', message: 'No device data' });
     }
 
     // Custom Events - Bar Chart (show section only when data exists)
@@ -666,46 +689,50 @@ const Dashboard = {
     }
 
     // Countries - Geographic visualization
-    if (data.countries?.length && document.getElementById('chart-countries')) {
-      // Check if we're in drill-down mode
+    const countriesEl = document.getElementById('chart-countries');
+    if (data.countries?.length && countriesEl) {
       if (this.state.geoState?.view === 'cities') {
-        // Already drilled down, chart is showing cities
         return;
       }
 
       MapManager.createMap('chart-countries', data.countries);
 
-      // Initialize view toggle (only once)
       if (!MapManager._toggleInitialized) {
         MapManager.initViewToggle(data.countries);
         MapManager._toggleInitialized = true;
       } else if (MapManager.currentView === 'map' && MapManager.leafletMap) {
-        // Update map if it's the active view
         MapManager.updateLeafletMap(data.countries);
       }
 
-      // Add click handler for bar chart view (drill-down)
       window.addEventListener('chartBarClick', (e) => {
         if (e.detail.chartId === 'chart-countries' && this.state.geoState?.view === 'countries') {
           this.drillDownToCountry(e.detail.label);
         }
       });
+    } else if (countriesEl) {
+      Utils.dom.showEmptyState(countriesEl.parentElement, { icon: '&#127758;', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
 
-    // Time Series - Line Chart (aggregate from lastVisits)
-    if (data.lastVisits?.length && document.getElementById('chart-timeseries')) {
+    // Time Series - Line Chart
+    const timeseriesEl = document.getElementById('chart-timeseries');
+    if (data.lastVisits?.length && timeseriesEl) {
       const granularity = this.state.currentFilter === '24h' ? 'hour' : 'day';
       const timeData = Utils.aggregate.groupByTime(data.lastVisits, granularity);
       if (timeData.length) {
         ChartManager.createLineChart('chart-timeseries', timeData);
       }
+    } else if (timeseriesEl) {
+      Utils.dom.showEmptyState(timeseriesEl.parentElement, { icon: '&#128200;', message: 'No time series data' });
     }
 
     // Activity Heatmap with peak highlighting
-    if (data.activityHeatmap?.length && document.getElementById('chart-heatmap')) {
+    const heatmapEl = document.getElementById('chart-heatmap');
+    if (data.activityHeatmap?.length && heatmapEl) {
       const peakHour = data.peakTimeAnalysis?.peakHour;
       const peakDay = data.peakTimeAnalysis?.peakDay;
       ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, peakHour, peakDay);
+    } else if (heatmapEl) {
+      Utils.dom.showEmptyState(heatmapEl.parentElement, { icon: '&#128197;', message: 'No activity data yet' });
     }
 
     // Peak times analysis
@@ -757,23 +784,36 @@ const Dashboard = {
   updateTables(data) {
     // Update recent activity table
     const tableBody = document.querySelector('#table-recent tbody');
-    if (tableBody && data.lastVisits?.length) {
+    if (!tableBody) return;
+
+    if (data.lastVisits?.length) {
       tableBody.innerHTML = data.lastVisits
         .map(
           (visit) => `
         <tr>
-          <td>${visit.path}</td>
-          <td>${visit.city || 'Unknown'}</td>
+          <td>${Utils.escapeHtml(visit.path)}</td>
+          <td>${Utils.escapeHtml(visit.city || 'Unknown')}</td>
           <td>${Utils.time.formatTime(visit.timestamp)}</td>
         </tr>
       `
         )
         .join('');
 
-      // Re-initialize Feather icons
       if (window.feather) {
         feather.replace();
       }
+    } else {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: center; padding: var(--spacing-xl);">
+            <div class="empty-state" style="padding: var(--spacing-lg);">
+              <div class="empty-state__icon">&#128203;</div>
+              <div class="empty-state__message">No recent activity</div>
+              <div class="empty-state__suggestion">Visits will appear here as they happen</div>
+            </div>
+          </td>
+        </tr>
+      `;
     }
   },
 
@@ -819,9 +859,9 @@ const Dashboard = {
         .map(
           (visit) => `
         <div class="live-feed__item">
-          <div class="live-feed__path">${visit.path}</div>
+          <div class="live-feed__path">${Utils.escapeHtml(visit.path)}</div>
           <div class="live-feed__meta">
-            ${visit.city || 'Unknown'} • ${Utils.time.relative(visit.timestamp)}
+            ${Utils.escapeHtml(visit.city || 'Unknown')} • ${Utils.time.relative(visit.timestamp)}
           </div>
         </div>
       `
@@ -1935,6 +1975,45 @@ const Dashboard = {
     };
 
     displayEl.textContent = `${formatDate(start)} — ${formatDate(now)}`;
+  },
+
+  /**
+   * Setup onboarding flow for new users
+   */
+  setupOnboarding() {
+    if (localStorage.getItem('mini-numbers-onboarding-dismissed')) return;
+
+    const modal = document.getElementById('onboarding-modal');
+    if (!modal) return;
+
+    // Close handlers
+    ['close-onboarding', 'dismiss-onboarding', 'close-onboarding-done'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', () => {
+        modal.classList.remove('show');
+        localStorage.setItem('mini-numbers-onboarding-dismissed', 'true');
+      });
+    });
+
+    // Check project count to determine if we should show onboarding
+    this._checkOnboardingState = async () => {
+      try {
+        const projects = await Utils.api.fetch('/admin/projects');
+        const hasProjects = projects && projects.length > 0;
+
+        if (hasProjects) {
+          document.querySelector('[data-step="create-project"]')?.classList.add('completed');
+        }
+
+        // Show onboarding if no projects exist
+        if (!hasProjects) {
+          modal.classList.add('show');
+        }
+      } catch (e) {
+        // Don't show onboarding if we can't determine state
+      }
+    };
+
+    this._checkOnboardingState();
   },
 };
 

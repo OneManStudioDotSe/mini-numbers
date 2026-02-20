@@ -106,21 +106,17 @@ class AdminEndpointTest {
     // ==================== Project CRUD Tests ====================
 
     @Test
-    fun `GET admin projects without auth returns redirect`() = testApplication {
+    fun `GET admin projects without auth returns 401`() = testApplication {
         application { module() }
 
         val response = client.get("/admin/projects")
 
-        // Without authentication, should redirect to login
-        assertTrue(
-            response.status == HttpStatusCode.Found ||
-            response.status == HttpStatusCode.OK, // redirect may be followed
-            "Should redirect without auth, got: ${response.status}"
-        )
+        // Without authentication, should return 401 JSON error
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
-    fun `POST admin projects without auth returns redirect`() = testApplication {
+    fun `POST admin projects without auth returns 401`() = testApplication {
         application { module() }
 
         val response = client.post("/admin/projects") {
@@ -128,11 +124,7 @@ class AdminEndpointTest {
             setBody("""{"name":"Test Project","domain":"test.com"}""")
         }
 
-        assertTrue(
-            response.status == HttpStatusCode.Found ||
-            response.status == HttpStatusCode.OK,
-            "Should redirect without auth, got: ${response.status}"
-        )
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test

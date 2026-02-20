@@ -1799,3 +1799,71 @@ tbody tr:nth-child(even):hover td {
     gap: var(--spacing-sm);
   }
 }
+
+/* ============================================
+   ONBOARDING CHECKLIST
+   ============================================ */
+
+.onboarding-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.onboarding-step {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.onboarding-step.completed {
+  border-color: var(--color-success);
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.onboarding-step__check {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-dark, var(--color-border));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.onboarding-step.completed .onboarding-step__check {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.onboarding-step.completed .onboarding-step__check::after {
+  content: '\2713';
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.onboarding-step__content {
+  flex: 1;
+}
+
+.onboarding-step__title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.onboarding-step__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.empty-state__retry {
+  margin-top: var(--spacing-md);
+}
