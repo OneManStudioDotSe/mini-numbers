@@ -11,6 +11,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -104,7 +106,10 @@ fun Application.configureRouting(config: AppConfig) {
                 call.sessions.set(UserSession(username = loginRequest.username))
                 call.respond(
                     HttpStatusCode.OK,
-                    mapOf("success" to true, "message" to "Login successful")
+                    buildJsonObject {
+                        put("success", true)
+                        put("message", "Login successful")
+                    }
                 )
             } else {
                 call.respond(
@@ -119,7 +124,10 @@ fun Application.configureRouting(config: AppConfig) {
             call.sessions.clear<UserSession>()
             call.respond(
                 HttpStatusCode.OK,
-                mapOf("success" to true, "message" to "Logged out successfully")
+                buildJsonObject {
+                    put("success", true)
+                    put("message", "Logged out successfully")
+                }
             )
         }
 
@@ -154,13 +162,13 @@ fun Application.configureRouting(config: AppConfig) {
                     )
                     return@post call.respond(
                         HttpStatusCode.TooManyRequests,
-                        mapOf(
-                            "error" to "Rate limit exceeded",
-                            "message" to "Too many requests. Please try again later.",
-                            "limit_type" to rateLimitResult.limitType,
-                            "limit" to rateLimitResult.limit,
-                            "window" to rateLimitResult.window
-                        )
+                        buildJsonObject {
+                            put("error", "Rate limit exceeded")
+                            put("message", "Too many requests. Please try again later.")
+                            put("limit_type", rateLimitResult.limitType)
+                            put("limit", rateLimitResult.limit)
+                            put("window", rateLimitResult.window)
+                        }
                     )
                 }
                 else -> {
@@ -335,7 +343,7 @@ fun Route.adminRoutes() {
                     it[name] = newName
                 }
             }
-            call.respond(HttpStatusCode.OK, mapOf("success" to true))
+            call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
         }
 
         // Delete a project

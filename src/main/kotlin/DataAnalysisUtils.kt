@@ -152,7 +152,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
 
         // Custom events breakdown (separate query since it filters by eventType)
         val customEventsCountCol = Events.eventName.count()
-        val customEvents = Events.selectAll().where {
+        val customEvents = Events.select(Events.eventName, customEventsCountCol).where {
             (Events.projectId eq id) and
             (Events.timestamp greaterEq start) and
             (Events.timestamp lessEq end) and
