@@ -13,9 +13,10 @@ object InputValidator {
     private const val MAX_REFERRER_LENGTH = 512
     private const val MAX_SESSION_ID_LENGTH = 64
     private const val MAX_EVENT_TYPE_LENGTH = 20
+    private const val MAX_EVENT_NAME_LENGTH = 100
 
     // Valid event types
-    private val VALID_EVENT_TYPES = setOf("pageview", "heartbeat")
+    private val VALID_EVENT_TYPES = setOf("pageview", "heartbeat", "custom")
 
     // Regex patterns for validation
     // Path: alphanumeric + common URL characters
@@ -26,6 +27,9 @@ object InputValidator {
 
     // Session ID: alphanumeric + hyphens
     private val SESSION_ID_REGEX = Regex("^[a-zA-Z0-9-]+$")
+
+    // Event name: alphanumeric + underscores, hyphens, dots, spaces
+    private val EVENT_NAME_REGEX = Regex("^[a-zA-Z0-9_\\-. ]+$")
 
     /**
      * Validation result with error details
@@ -93,6 +97,22 @@ object InputValidator {
             if (payload.type !in VALID_EVENT_TYPES) {
                 errors.add("Event type must be one of: ${VALID_EVENT_TYPES.joinToString(", ")}")
             }
+        }
+
+        // Validate eventName (required for custom events, must be absent otherwise)
+        if (payload.type == "custom") {
+            if (payload.eventName.isNullOrBlank()) {
+                errors.add("Event name is required for custom events")
+            } else {
+                if (payload.eventName.length > MAX_EVENT_NAME_LENGTH) {
+                    errors.add("Event name exceeds maximum length of $MAX_EVENT_NAME_LENGTH characters")
+                }
+                if (!EVENT_NAME_REGEX.matches(payload.eventName)) {
+                    errors.add("Event name contains invalid characters. Allowed: alphanumeric, _, -, ., space")
+                }
+            }
+        } else if (!payload.eventName.isNullOrBlank()) {
+            errors.add("Event name should only be provided for custom event type")
         }
 
         return if (errors.isEmpty()) {

@@ -210,6 +210,7 @@ fun Application.configureRouting(config: AppConfig) {
             val sanitizedPath = InputValidator.sanitize(payload.path)
             val sanitizedReferrer = payload.referrer?.let { InputValidator.sanitize(it) }
             val sanitizedSessionId = InputValidator.sanitize(payload.sessionId)
+            val sanitizedEventName = payload.eventName?.let { InputValidator.sanitize(it) }
 
             // 7. Identify the project
             val project = transaction {
@@ -239,6 +240,7 @@ fun Application.configureRouting(config: AppConfig) {
                         it[path] = sanitizedPath
                         it[referrer] = sanitizedReferrer
                         it[eventType] = payload.type
+                        it[eventName] = sanitizedEventName
                         it[country] = countryName
                         it[city] = cityName
                         it[Events.browser] = browser
@@ -528,6 +530,7 @@ fun Route.adminRoutes() {
                             id = row[Events.id],
                             timestamp = row[Events.timestamp].toString(),
                             eventType = row[Events.eventType],
+                            eventName = row[Events.eventName],
                             path = row[Events.path],
                             referrer = row[Events.referrer],
                             country = row[Events.country],
@@ -580,6 +583,8 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
         "https://linkedin.com",
         "https://news.ycombinator.com"
     )
+
+    val customEventNames = listOf("signup", "download", "purchase", "newsletter_subscribe", "share", "contact_form")
 
     val browsers = listOf("Chrome", "Firefox", "Safari", "Edge", "Opera")
     val oses = listOf("Windows", "macOS", "Linux", "iOS", "Android")
@@ -639,17 +644,26 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
             val isFirstEvent = eventIdx == 0
             val eventType: String
             val path: String
+            val customEventName: String?
 
             if (isFirstEvent) {
                 eventType = "pageview"
                 path = firstPath
+                customEventName = null
+            } else if (!isBounce && random.nextDouble() < 0.15) {
+                // 15% chance of a custom event in engaged sessions
+                eventType = "custom"
+                path = firstPath
+                customEventName = customEventNames.random()
             } else if (!isBounce && random.nextDouble() < 0.4) {
                 // 40% chance of navigating to a new page within the session
                 eventType = "pageview"
                 path = paths.filter { it != firstPath }.random()
+                customEventName = null
             } else {
                 eventType = "heartbeat"
                 path = firstPath
+                customEventName = null
             }
 
             Events.insert {
@@ -657,6 +671,7 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
                 it[Events.visitorHash] = visitorHash
                 it[Events.sessionId] = sessionId
                 it[Events.eventType] = eventType
+                it[Events.eventName] = customEventName
                 it[Events.path] = path
                 it[Events.referrer] = if (isFirstEvent) referrer else null
                 it[Events.country] = country

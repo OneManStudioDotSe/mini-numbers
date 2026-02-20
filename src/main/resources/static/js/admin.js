@@ -623,6 +623,15 @@ const Dashboard = {
       }
     }
 
+    // Custom Events - Bar Chart (show section only when data exists)
+    const customEventsSection = document.getElementById('custom-events-section');
+    if (data.customEvents?.length && document.getElementById('chart-custom-events')) {
+      if (customEventsSection) customEventsSection.style.display = '';
+      ChartManager.createBarChart('chart-custom-events', data.customEvents);
+    } else if (customEventsSection) {
+      customEventsSection.style.display = 'none';
+    }
+
     // Countries - Geographic visualization
     if (data.countries?.length && document.getElementById('chart-countries')) {
       // Check if we're in drill-down mode
@@ -1160,6 +1169,14 @@ const Dashboard = {
         filename = `${projectName}_countries_${timestamp}.csv`;
         break;
 
+      case 'custom-events':
+        csvData = Utils.export.toCSV(
+          (data.customEvents || []).map(e => ({ event: e.label, count: e.value })),
+          ['event', 'count']
+        );
+        filename = `${projectName}_custom_events_${timestamp}.csv`;
+        break;
+
       case 'recent-activity':
         csvData = Utils.export.toCSV(
           data.lastVisits.map(v => ({
@@ -1224,6 +1241,14 @@ const Dashboard = {
     lines.push('Country,Visits');
     data.countries.forEach(c => lines.push(`"${c.label}",${c.value}`));
     lines.push('');
+
+    // Custom Events
+    if (data.customEvents?.length) {
+      lines.push('CUSTOM EVENTS');
+      lines.push('Event,Count');
+      data.customEvents.forEach(e => lines.push(`"${e.label}",${e.value}`));
+      lines.push('');
+    }
 
     // Recent Activity
     lines.push('RECENT ACTIVITY');
@@ -1655,17 +1680,20 @@ const Dashboard = {
       if (!data.events || data.events.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">No events found</td></tr>';
       } else {
-        tbody.innerHTML = data.events.map(e => `
+        tbody.innerHTML = data.events.map(e => {
+          const badgeClass = e.eventType === 'pageview' ? 'primary' : e.eventType === 'custom' ? 'accent' : 'secondary';
+          const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${e.eventName}` : e.eventType;
+          return `
           <tr>
             <td>${Utils.time.formatTime(e.timestamp)}</td>
-            <td><span class="badge badge-${e.eventType === 'pageview' ? 'primary' : 'secondary'}">${e.eventType}</span></td>
+            <td><span class="badge badge-${badgeClass}">${typeLabel}</span></td>
             <td>${e.path}</td>
             <td>${e.city || 'Unknown'}, ${e.country || 'Unknown'}</td>
             <td>${e.browser || 'Unknown'}</td>
             <td>${e.device || 'Unknown'}</td>
             <td>${e.duration || 0}s</td>
           </tr>
-        `).join('');
+        `}).join('');
       }
 
       modal.dataset.page = page.toString();

@@ -10,6 +10,7 @@ object Events : Table("events") {
     val visitorHash = varchar("visitor_hash", 64)
     val sessionId = varchar("session_id", 64)
     val eventType = varchar("event_type", 20)
+    val eventName = varchar("event_name", 100).nullable()
     val path = varchar("path", 512)
     val referrer = varchar("referrer", 512).nullable()
     val country = varchar("country", 100).nullable()
@@ -27,5 +28,6 @@ object Events : Table("events") {
         index("idx_events_timestamp", false, timestamp)
         index("idx_events_project_timestamp", false, projectId, timestamp)
         index("idx_events_project_session", false, projectId, sessionId)
+        index("idx_events_project_eventname", false, projectId, eventName)
     }
 }

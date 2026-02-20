@@ -150,6 +150,19 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
         val peakTimeAnalysis = analyzePeakTimes(activityHeatmap)
         val bounceRate = calculateBounceRate(id, start, end)
 
+        // Custom events breakdown (separate query since it filters by eventType)
+        val customEventsCountCol = Events.eventName.count()
+        val customEvents = Events.selectAll().where {
+            (Events.projectId eq id) and
+            (Events.timestamp greaterEq start) and
+            (Events.timestamp lessEq end) and
+            (Events.eventType eq "custom") and
+            Events.eventName.isNotNull()
+        }.groupBy(Events.eventName)
+            .orderBy(customEventsCountCol, SortOrder.DESC)
+            .limit(10)
+            .map { StatEntry(it[Events.eventName] ?: "Unknown", it[customEventsCountCol]) }
+
         ProjectReport(
             totalViews = totalViews,
             uniqueVisitors = uniqueVisitors,
@@ -159,6 +172,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             devices = getBreakdown(Events.device),
             referrers = getBreakdown(Events.referrer),
             countries = getBreakdown(Events.country),
+            customEvents = customEvents,
             lastVisits = baseQuery.copy()
                 .orderBy(Events.timestamp, SortOrder.DESC)
                 .limit(10)
