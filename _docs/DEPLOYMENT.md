@@ -65,58 +65,21 @@ cd mini-numbers
 
 ### Option 3: Docker
 
-#### Using the Ktor Gradle Plugin
+The repository includes a production-ready `Dockerfile` (multi-stage build) and `docker-compose` files.
 
-The Ktor Gradle plugin includes built-in Docker support:
+#### Quick Start with Docker Compose
 
 ```bash
-# Build Docker image
-./gradlew buildImage
+# SQLite (simplest — just start it)
+docker compose up -d
 
-# Publish to local Docker registry
-./gradlew publishImageToLocalRegistry
-
-# Run the Docker container
-./gradlew runDocker
+# PostgreSQL (production — set password first)
+DB_PG_PASSWORD=mysecretpassword docker compose -f docker-compose.postgres.yml up -d
 ```
 
-#### Using a Custom Dockerfile
+Visit `http://localhost:8080` to complete the setup wizard.
 
-For more control over the build, create a `Dockerfile` in the project root:
-
-```dockerfile
-# Stage 1: Build
-FROM gradle:8-jdk21 AS build
-WORKDIR /app
-COPY build.gradle.kts settings.gradle.kts ./
-COPY gradle ./gradle
-COPY src ./src
-RUN gradle buildFatJar --no-daemon
-
-# Stage 2: Run
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-
-# Create non-root user
-RUN addgroup -S analytics && adduser -S analytics -G analytics
-
-# Copy the fat JAR from build stage
-COPY --from=build /app/build/libs/*-all.jar app.jar
-
-# Create data directory for SQLite and backups
-RUN mkdir -p /app/data /app/backups && chown -R analytics:analytics /app
-
-USER analytics
-
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-Build and run:
+#### Docker Build & Run
 
 ```bash
 # Build the image
@@ -143,89 +106,24 @@ docker run -d \
   mini-numbers
 ```
 
-#### Docker Compose
+#### Using the Ktor Gradle Plugin
 
-Create a `docker-compose.yml` for easy deployment:
+The Ktor Gradle plugin also includes built-in Docker support:
 
-**SQLite setup (simplest):**
-
-```yaml
-services:
-  mini-numbers:
-    build: .
-    container_name: mini-numbers
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    volumes:
-      - analytics-data:/app/data
-    env_file:
-      - .env
-    environment:
-      - DB_TYPE=SQLITE
-      - DB_SQLITE_PATH=/app/data/stats.db
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-
-volumes:
-  analytics-data:
+```bash
+./gradlew buildImage
+./gradlew publishImageToLocalRegistry
+./gradlew runDocker
 ```
 
-**PostgreSQL setup (production):**
+#### Docker Compose Files
 
-```yaml
-services:
-  mini-numbers:
-    build: .
-    container_name: mini-numbers
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
-    environment:
-      - DB_TYPE=POSTGRESQL
-      - DB_PG_HOST=postgres
-      - DB_PG_PORT=5432
-      - DB_PG_NAME=mini_numbers
-      - DB_PG_USERNAME=analytics
-      - DB_PG_PASSWORD=${DB_PG_PASSWORD}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+| File | Database | Use Case |
+|------|----------|----------|
+| `docker-compose.yml` | SQLite | Simple single-server deployments |
+| `docker-compose.postgres.yml` | PostgreSQL | Production / high-traffic |
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: mini-numbers-db
-    restart: unless-stopped
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: mini_numbers
-      POSTGRES_USER: analytics
-      POSTGRES_PASSWORD: ${DB_PG_PASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U analytics -d mini_numbers"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-volumes:
-  postgres-data:
-```
-
-**Running with Docker Compose:**
+**Managing containers:**
 
 ```bash
 # Start all services
@@ -241,14 +139,82 @@ docker compose down
 docker compose down -v
 ```
 
+#### Pre-built Images (GitHub Container Registry)
+
+Multi-platform images (`linux/amd64`, `linux/arm64`) are published automatically via GitHub Actions:
+
+```bash
+# Pull and run the latest image
+docker run -d \
+  --name mini-numbers \
+  -p 8080:8080 \
+  -v mini-numbers-data:/app/data \
+  ghcr.io/user/mini-numbers:main
+```
+
 #### Docker Tips
 
-- **Data persistence**: Always use named volumes (`analytics-data:`, `postgres-data:`) or bind mounts to persist data across container restarts
+- **Data persistence**: Always use named volumes (`analytics-data:`) or bind mounts for the SQLite database
 - **Environment variables**: Use `--env-file .env` or the `env_file` directive in docker-compose instead of hardcoding secrets
-- **GeoIP database**: The GeoIP database is bundled inside the JAR and extracted to a temp file automatically — no volume mount needed
+- **GeoIP database**: Bundled inside the JAR and extracted automatically — no volume mount needed
 - **Resource limits**: For production, set memory limits: `docker run --memory=512m ...` or use `mem_limit: 512m` in docker-compose
 - **Networking**: When using docker-compose with PostgreSQL, the app connects to `postgres` (the service name) instead of `localhost`
-- **Updating**: Pull the latest code, rebuild the image, and recreate the container. Database schema migrations are handled automatically
+- **Updating**: Pull the latest code, rebuild the image, and recreate the container. Schema migrations are handled automatically
+- **Health checks**: The `/health` endpoint returns JSON status — used by Docker HEALTHCHECK and platform probes
+
+---
+
+## Platform Deployments
+
+Mini Numbers includes configuration files for one-click deployment to popular platforms.
+
+### Railway
+
+1. Click **"New Project"** in Railway and connect your GitHub repo
+2. Railway auto-detects `railway.json` and uses the Dockerfile
+3. Set environment variables in Railway dashboard:
+   - `ADMIN_PASSWORD` — your admin password
+   - `SERVER_SALT` — run `openssl rand -hex 64` to generate
+   - `SERVER_PORT` — set to the port Railway assigns (check `$PORT`)
+4. Deploy — Railway builds the image and starts the service
+5. Visit the assigned URL to complete setup
+
+### Render
+
+1. Click **"New Web Service"** in Render and connect your GitHub repo
+2. Render detects `render.yaml` (Blueprint) automatically
+3. Fill in the required secrets (`ADMIN_USERNAME`, `ADMIN_PASSWORD`)
+4. `SERVER_SALT` is auto-generated by Render
+5. A 1GB persistent disk is created at `/app/data` for SQLite
+6. Deploy — auto-deploys on push to main
+
+### Fly.io
+
+```bash
+# Install Fly CLI: https://fly.io/docs/flyctl/install/
+
+# Launch (first time — creates app, volume, and deploys)
+fly launch
+
+# Set secrets
+fly secrets set ADMIN_PASSWORD=your-password SERVER_SALT=$(openssl rand -hex 64)
+
+# Create persistent volume for SQLite (if not created during launch)
+fly volumes create analytics_data --size 1 --region iad
+
+# Deploy (subsequent updates)
+fly deploy
+```
+
+The `fly.toml` configures scale-to-zero (stops when idle, starts on request) to minimize costs.
+
+### Platform Notes
+
+- **Health checks**: All platforms use `GET /health` which returns `{"status":"ok","servicesReady":true}` when ready
+- **Setup wizard**: If no environment variables are pre-configured, the setup wizard launches automatically at the root URL
+- **Database**: SQLite is the default (file stored on persistent volume). For PostgreSQL, use the platform's managed database add-on
+- **GeoIP**: Bundled in the JAR — no additional configuration needed
+- **Memory**: 512 MB minimum recommended
 
 ---
 

@@ -89,6 +89,37 @@ fun Application.configureSetupRouting() {
             }
         }
 
+        // Health check endpoint for Docker/platform deployments
+        // Always accessible, never behind auth
+        get("/health") {
+            val servicesReady = ServiceManager.isReady()
+            val setupNeeded = ConfigLoader.isSetupNeeded()
+            val state = ServiceManager.getState()
+
+            when (state) {
+                ServiceManager.State.ERROR -> {
+                    call.respond(
+                        HttpStatusCode.ServiceUnavailable,
+                        mapOf(
+                            "status" to "error",
+                            "servicesReady" to false,
+                            "message" to (ServiceManager.getLastError()?.message ?: "Service initialization failed")
+                        )
+                    )
+                }
+                else -> {
+                    call.respond(
+                        HttpStatusCode.OK,
+                        mapOf(
+                            "status" to "ok",
+                            "servicesReady" to servicesReady,
+                            "setupNeeded" to setupNeeded
+                        )
+                    )
+                }
+            }
+        }
+
         // API: Save configuration and initialize services (NO RESTART!)
         post("/setup/api/save") {
             try {
