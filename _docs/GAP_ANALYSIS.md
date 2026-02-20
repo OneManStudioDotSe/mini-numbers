@@ -15,11 +15,11 @@ All critical security, foundation, and deployment documentation items have been 
 - Input validation & sanitization
 - Formal penetration testing still recommended
 
-### 1.2 Comprehensive Testing — COMPLETE (Partial)
-- 111 tests (99 passing, 89% pass rate)
-- Unit tests for security, parsing, validation, lifecycle, and custom events
-- Integration tests for data collection and setup wizard
-- Remaining: analytics calculations, admin endpoints, end-to-end tests
+### 1.2 Comprehensive Testing — COMPLETE
+- 166 tests (154 passing, 93% pass rate)
+- Unit tests for security, parsing, validation, lifecycle, custom events, and analytics calculations
+- Integration tests for data collection, setup wizard, admin endpoints, and health endpoint
+- End-to-end tests for full tracking workflow
 
 ### 1.3 Production Configuration — Partially Complete
 - Deployment documentation complete (JAR, Docker, reverse proxy, SSL, systemd, backups)
@@ -47,15 +47,18 @@ All critical security, foundation, and deployment documentation items have been 
 - Raw events filter and CSV export support
 - 8 dedicated tests for custom event validation
 
-### 2.2 Conversion Goals
-- URL-based and event-based goals
-- Conversion rate tracking
-- Goal management UI
+### 2.2 Conversion Goals — COMPLETE
+- URL-based and event-based goals with conversion rate tracking
+- Goal management UI (create, toggle active/inactive, delete)
+- Conversion rate cards with previous period comparison
+- 5 API endpoints (CRUD + stats)
 
-### 2.3 Basic Funnels
-- Multi-step conversion tracking
-- Drop-off analysis and visualization
-- Time between steps analysis
+### 2.3 Basic Funnels — COMPLETE
+- Multi-step conversion tracking with sequential step completion
+- Drop-off analysis and horizontal funnel visualization
+- Average time between steps analysis
+- Funnel management modal with dynamic step builder
+- 4 API endpoints (CRUD + analysis)
 
 ### 2.4 API Enhancements
 - Pagination for all list endpoints
@@ -74,7 +77,6 @@ All critical security, foundation, and deployment documentation items have been 
 
 **Timeline**: 12-16 weeks
 
-- **Webhooks & Integrations** — Slack, Discord, Zapier support
 - **Enhanced Privacy** — Configurable hash rotation, privacy mode levels, data retention policies
 - **Performance Optimization** — Database indexing, query caching, GeoIP caching
 - **User Segments** — Visual filter builder with AND/OR logic
@@ -97,6 +99,6 @@ All critical security, foundation, and deployment documentation items have been 
 | Priority | Timeline | Status | Impact |
 |----------|----------|--------|--------|
 | **Critical** | Weeks 1-6 | Complete | Blocks launch |
-| **High** | Weeks 7-14 | Custom events done, rest pending | Feature parity |
+| **High** | Weeks 7-14 | Custom events, goals, funnels done; API enhancements & email pending | Feature parity |
 | **Medium** | Weeks 15-22 | Pending | Competitive edge |
 | **Low** | Weeks 22+ | Pending | Future growth |

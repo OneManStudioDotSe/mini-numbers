@@ -465,6 +465,34 @@
                 </div>
             </div>
 
+            <!-- Conversion Goals -->
+            <div class="card mt-lg" id="goals-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i data-feather="target"></i> Conversion Goals
+                    </h3>
+                    <button class="btn btn-primary btn-sm" id="manage-goals-btn">
+                        <i data-feather="settings"></i>
+                        <span>Manage Goals</span>
+                    </button>
+                </div>
+                <div id="goals-list">Loading...</div>
+            </div>
+
+            <!-- Funnels -->
+            <div class="card mt-lg" id="funnels-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i data-feather="filter"></i> Funnels
+                    </h3>
+                    <button class="btn btn-primary btn-sm" id="manage-funnels-btn">
+                        <i data-feather="settings"></i>
+                        <span>Manage Funnels</span>
+                    </button>
+                </div>
+                <div id="funnels-list">Loading...</div>
+            </div>
+
             <!-- Live Feed -->
             <div class="card mt-lg">
                 <h3>
@@ -684,12 +712,114 @@
         </div>
     </div>
 
+    <!-- Goals Management Modal -->
+    <div id="goals-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2>Manage Conversion Goals</h2>
+                <button class="modal-close" id="close-goals-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <h3 style="margin-top: 0;">Create New Goal</h3>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="goal-name">Name</label>
+                            <input type="text" id="goal-name" class="input" placeholder="e.g. Visited Pricing">
+                        </div>
+                        <div class="form-group" style="min-width: 120px;">
+                            <label for="goal-type">Type</label>
+                            <select id="goal-type" class="select">
+                                <option value="url">URL Path</option>
+                                <option value="event">Custom Event</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="goal-match-value">Match Value</label>
+                            <input type="text" id="goal-match-value" class="input" placeholder="e.g. /pricing or signup">
+                        </div>
+                        <button class="btn btn-primary" id="create-goal-btn" style="margin-bottom: var(--spacing-md);">Create</button>
+                    </div>
+                </div>
+
+                <h3>Existing Goals</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Match Value</th>
+                                <th>Active</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="goals-table-body">
+                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funnels Management Modal -->
+    <div id="funnels-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2>Manage Funnels</h2>
+                <button class="modal-close" id="close-funnels-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <h3 style="margin-top: 0;">Create New Funnel</h3>
+                    <div class="form-group">
+                        <label for="funnel-name">Funnel Name</label>
+                        <input type="text" id="funnel-name" class="input" placeholder="e.g. Purchase Flow">
+                    </div>
+
+                    <label style="display: block; margin-bottom: var(--spacing-sm); font-weight: var(--font-weight-medium);">Steps</label>
+                    <div id="funnel-steps-container">
+                        <!-- Steps are dynamically rendered -->
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
+                        <button class="btn btn-ghost btn-sm" id="add-funnel-step-btn">
+                            <i data-feather="plus"></i> Add Step
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="create-funnel-btn">Create Funnel</button>
+                    </div>
+                </div>
+
+                <h3>Existing Funnels</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Steps</th>
+                                <th>Flow</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="funnels-table-body">
+                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Modules -->
     <script src="/admin-panel/js/theme.js"></script>
     <script src="/admin-panel/js/settings.js"></script>
     <script src="/admin-panel/js/utils.js"></script>
     <script src="/admin-panel/js/charts.js"></script>
     <script src="/admin-panel/js/map.js"></script>
+    <script src="/admin-panel/js/goals.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
     <!-- Initialize Feather Icons -->

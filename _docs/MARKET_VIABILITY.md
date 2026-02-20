@@ -23,8 +23,8 @@
 | Category | Rating | Notes |
 |----------|--------|-------|
 | Security | 8/10 | Resolved (previously 3/10) |
-| Testing | 7.5/10 | 111 tests (previously 2/10) |
-| Features | 7/10 | Custom events done; goals and funnels still missing |
+| Testing | 8/10 | 166 tests (previously 2/10) |
+| Features | 8/10 | Custom events, goals, and funnels done; email reports pending |
 | Deployment | 7/10 | Docs complete, GeoIP bundled; Docker image not yet in repo |
 | Community | 0/10 | New project, no ecosystem yet |
 | Tracker Size | 8/10 | ~1.3KB minified, competitive with most alternatives |
@@ -43,7 +43,7 @@
 ### Threats
 
 1. **Established competition** — Umami (6K stars), Plausible (19K), Matomo (19K), PostHog (20K)
-2. **Feature gaps** — Missing goals and funnels that competitors have
+2. **Feature gaps** — Missing email reports and webhooks that some competitors have
 3. **Cold start** — No community or ecosystem yet
 4. **Cloud competition** — Managed cloud more convenient than self-hosted
 5. **Market saturation** — 10+ established players
@@ -68,11 +68,11 @@
 | Technical Foundation | 20% | 9/10 | 1.8 |
 | Privacy Features | 20% | 10/10 | 2.0 |
 | Security Posture | 15% | 8/10 | 1.2 |
-| Feature Completeness | 15% | 7/10 | 1.05 |
+| Feature Completeness | 15% | 8/10 | 1.2 |
 | Market Opportunity | 15% | 8/10 | 1.2 |
 | Differentiation | 10% | 8.5/10 | 0.85 |
 | Deployment Readiness | 5% | 7/10 | 0.35 |
-| **Total** | **100%** | | **8.45/10** |
+| **Total** | **100%** | | **8.6/10** |
 
 **Decision**: Strong Go
 
@@ -90,7 +90,7 @@
 3. ~~Deployment documentation~~ — DONE (comprehensive guide)
 4. **Production Docker image** — Dockerfile and docker-compose.yml in repository
 5. **Community building** — Strong launch, responsive to feedback
-6. **Feature parity** — Goals and funnels (within 3-6 months post-launch)
+6. ~~Feature parity~~ — DONE (Goals and funnels implemented)
 
 ---
 
@@ -101,7 +101,7 @@
 - It markets heavily to Kotlin/Java developers (underserved niche)
 - It leverages unique visualizations (contribution calendar, activity heatmap)
 - It appeals to developers who value transparency and self-hosting
-- It achieves full feature parity (goals, funnels) within 6 months
+- It continues delivering features (email reports, webhooks, integrations)
 
 **Market positioning**: Not "another analytics tool" but "the privacy-first analytics tool for JVM developers"
 

@@ -18,8 +18,8 @@
 | Bounce rate | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Advanced Analytics** |
 | Custom events | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Conversion goals | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Funnels | ❌ | ✅ (v3) | ❌ (paid) | ✅ | ✅ | ❌ | ❌ |
+| Conversion goals | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Funnels | ✅ | ✅ (v3) | ❌ (paid) | ✅ | ✅ | ❌ | ❌ |
 | Cohort/retention | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Session replay | ❌ | ❌ | ❌ | ✅ (paid) | ✅ | ❌ | ❌ |
 | Activity heatmap | ✅ | ❌ | ❌ | ✅ (paid) | ❌ | ❌ | ❌ |
@@ -49,7 +49,7 @@
 |----------|-------|----------|---------|-------------|-------|---------|
 | **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
 | **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
-| **Mini Numbers** | 9/10 | 5/10 | 9/10 | 7/10 | 8.5/10 | **7.8/10** |
+| **Mini Numbers** | 9/10 | 7.5/10 | 9/10 | 7/10 | 9/10 | **8.3/10** |
 | **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
 | **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
 | **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
@@ -63,7 +63,7 @@
 - **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
 - **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events, goals
 - **Weaknesses**: No activity heatmap, no contribution calendar, no daily hash rotation
-- **vs Mini Numbers**: Umami wins on community and goals/funnels; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), JVM stack, and now matches on custom events
+- **vs Mini Numbers**: Umami wins on community size; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), JVM stack, and now matches on custom events, goals, and funnels
 
 ### Plausible CE
 - **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
@@ -104,13 +104,14 @@
 - Contribution calendar (unique visualization)
 - Activity heatmap (rare feature)
 - Custom event tracking with `MiniNumbers.track()` API
+- Conversion goals (URL and event-based) with conversion rate tracking
+- Basic funnels with drop-off analysis and time between steps
 - JVM/Kotlin stack (underserved market)
 - Beautiful UI with dark mode and 6 chart types
 - Comprehensive deployment documentation
 
 **Disadvantages**:
-- No conversion goals or funnels yet
-- No community or ecosystem
+- No community or ecosystem yet
 - No cloud option
 
 **Best For**: Privacy-conscious developers, JVM ecosystem users, open-source projects, EU businesses needing GDPR compliance, users wanting self-hosted with no recurring costs.
