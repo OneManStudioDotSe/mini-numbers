@@ -1,5 +1,6 @@
 package se.onemanstudio.config
 
+import se.onemanstudio.config.models.*
 import java.io.File
 
 /**
@@ -13,6 +14,68 @@ import java.io.File
 object ConfigLoader {
 
     private const val ENV_FILE_PATH = ".env"
+
+    /**
+     * Check if setup wizard is needed
+     * Returns true if .env file is missing or required configuration is incomplete
+     */
+    fun isSetupNeeded(): Boolean {
+        val envFile = File(ENV_FILE_PATH)
+
+        // If .env doesn't exist, setup is needed
+        if (!envFile.exists()) {
+            return true
+        }
+
+        // Try to load .env and check for required fields
+        try {
+            loadDotEnvFile()
+
+            // Check for required configuration
+            val hasAdminPassword = getEnvOrNull("ADMIN_PASSWORD")?.isNotBlank() == true
+            val hasServerSalt = getEnvOrNull("SERVER_SALT")?.isNotBlank() == true
+
+            // Setup is needed if either required field is missing
+            return !(hasAdminPassword && hasServerSalt)
+        } catch (e: Exception) {
+            // If any error occurs reading .env, treat as needs setup
+            return true
+        }
+    }
+
+    /**
+     * Reload configuration from file system
+     * Used when configuration is updated (e.g., after setup wizard completes)
+     *
+     * This method clears any previously loaded system properties from the .env file
+     * and reloads the configuration fresh from the file system.
+     *
+     * @return Freshly loaded application configuration
+     * @throws ConfigurationException if configuration is invalid
+     */
+    fun reload(): AppConfig {
+        // Clear previously loaded system properties from .env
+        // (Only clears system properties, not actual environment variables)
+        val envFile = File(ENV_FILE_PATH)
+        if (envFile.exists()) {
+            envFile.forEachLine { line ->
+                val trimmed = line.trim()
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachLine
+
+                val separatorIndex = trimmed.indexOf("=")
+                if (separatorIndex > 0) {
+                    val key = trimmed.substring(0, separatorIndex).trim()
+                    // Only clear if it's a system property (not an env var)
+                    if (System.getenv(key) == null) {
+                        System.clearProperty(key)
+                    }
+                }
+            }
+        }
+
+        // Reload fresh configuration
+        return load()
+    }
 
     /**
      * Load complete application configuration

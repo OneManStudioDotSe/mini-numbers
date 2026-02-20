@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.0"
-    kotlin("plugin.serialization") version "2.1.0" // <--- MAKE SURE THIS IS HERE
+    kotlin("plugin.serialization") version "2.1.0"
     id("io.ktor.plugin") version "3.4.0"
 }
 
@@ -44,6 +44,8 @@ dependencies {
     // Security & Utilities
     implementation("io.ktor:ktor-server-auth-jvm:3.4.0")
     implementation("io.ktor:ktor-server-cors-jvm:3.4.0")
+    implementation("io.ktor:ktor-server-default-headers-jvm:3.4.0")
+    implementation("org.mindrot:jbcrypt:0.4")
 
     implementation("com.maxmind.geoip2:geoip2:5.0.1")
 

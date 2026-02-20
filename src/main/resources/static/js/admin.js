@@ -66,6 +66,23 @@ const Dashboard = {
 
     // Set up export buttons
     this.setupExportButtons();
+
+    // Set up demo data generator
+    this.setupDemoDataGenerator();
+
+    // New features: UI/UX improvements
+    this.setupInspirationalMessage();
+    this.setupModals();
+    this.setupSettingsPanel();
+    this.setupRawEventsViewer();
+    this.setupGeographicDrillDown();
+    this.updateTimeFilterLabels();
+
+    // Initialize geographic state
+    this.state.geoState = {
+      view: 'countries',
+      selectedCountry: null
+    };
   },
 
   /**
@@ -139,7 +156,7 @@ const Dashboard = {
     const signOutBtn = document.getElementById('sign-out-btn');
     if (!signOutBtn) return;
 
-    signOutBtn.addEventListener('click', () => {
+    signOutBtn.addEventListener('click', async () => {
       // Stop live feed updates
       this.stopLiveFeed();
 
@@ -148,9 +165,22 @@ const Dashboard = {
 
       // Show confirmation
       if (confirm('Are you sure you want to sign out?')) {
-        // Reload page to clear session
-        // In a real app, this would call a logout endpoint
-        window.location.reload();
+        try {
+          // Call logout endpoint
+          await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          // Redirect to login page
+          window.location.href = '/login';
+        } catch (error) {
+          console.error('Logout error:', error);
+          // Fallback: redirect anyway
+          window.location.href = '/login';
+        }
       } else {
         // Restart live feed if user cancels
         if (this.state.currentProjectId) {
@@ -170,6 +200,27 @@ const Dashboard = {
       const menu = document.getElementById('project-menu');
       if (!menu) return;
 
+      // Handle empty state (no projects)
+      if (!projects || projects.length === 0) {
+        menu.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state__icon">📊</div>
+            <div class="empty-state__message">No projects yet</div>
+            <div class="empty-state__hint">Create your first project to start tracking analytics</div>
+            <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateProjectDialog()">
+              Create Project
+            </button>
+          </div>
+        `;
+        // Hide dashboard content when no projects
+        const dashboardContent = document.getElementById('dashboard-content');
+        if (dashboardContent) {
+          Utils.dom.hide(dashboardContent);
+        }
+        return;
+      }
+
+      // Show projects list
       menu.innerHTML = projects
         .map(
           (project) => `
@@ -186,6 +237,111 @@ const Dashboard = {
     } catch (error) {
       console.error('Failed to load projects:', error);
       Utils.toast.error('Failed to load projects');
+    }
+  },
+
+  /**
+   * Show enhanced modal to create a new project
+   */
+  async showCreateProjectDialog() {
+    const modal = document.getElementById('create-project-modal');
+    if (!modal) {
+      console.error('Create project modal not found!');
+      return;
+    }
+
+    const nameInput = document.getElementById('project-name');
+    const subtitleInput = document.getElementById('project-subtitle');
+    const domainInput = document.getElementById('project-domain');
+    const apiKeyPreview = document.getElementById('api-key-preview');
+    const confirmBtn = document.getElementById('confirm-create-project');
+    const cancelBtn = document.getElementById('cancel-create-project');
+    const copyBtn = document.getElementById('copy-api-key');
+
+    // Reset form
+    if (nameInput) nameInput.value = '';
+    if (subtitleInput) subtitleInput.value = '';
+    if (domainInput) domainInput.value = '';
+    if (apiKeyPreview) apiKeyPreview.style.display = 'none';
+    if (confirmBtn) confirmBtn.textContent = 'Create Project';
+
+    modal.classList.add('show');
+
+    // Store original state for cleanup
+    if (!this._createProjectHandlers) {
+      this._createProjectHandlers = { confirm: null, cancel: null, copy: null };
+    }
+
+    // Clean up old handlers
+    if (confirmBtn && this._createProjectHandlers.confirm) {
+      confirmBtn.removeEventListener('click', this._createProjectHandlers.confirm);
+    }
+    if (cancelBtn && this._createProjectHandlers.cancel) {
+      cancelBtn.removeEventListener('click', this._createProjectHandlers.cancel);
+    }
+    if (copyBtn && this._createProjectHandlers.copy) {
+      copyBtn.removeEventListener('click', this._createProjectHandlers.copy);
+    }
+
+    // Cancel handler
+    const cancelHandler = () => modal.classList.remove('show');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', cancelHandler);
+      this._createProjectHandlers.cancel = cancelHandler;
+    }
+
+    // Create handler
+    const confirmHandler = async () => {
+      // If already showing API key, close modal
+      if (apiKeyPreview && apiKeyPreview.style.display !== 'none') {
+        modal.classList.remove('show');
+        await this.loadProjects();
+        return;
+      }
+
+      const name = nameInput?.value.trim() || '';
+      const subtitle = subtitleInput?.value.trim() || '';
+      const domain = domainInput?.value.trim() || '';
+
+      if (!name || !domain) {
+        Utils.toast.error('Name and domain are required');
+        return;
+      }
+
+      try {
+        const displayName = subtitle ? `${name} - ${subtitle}` : name;
+        await Utils.api.post('/admin/projects', { name: displayName, domain });
+
+        const projects = await Utils.api.fetch('/admin/projects');
+        const newProject = projects[projects.length - 1];
+
+        document.getElementById('generated-api-key').textContent = newProject.apiKey;
+        if (apiKeyPreview) apiKeyPreview.style.display = 'block';
+        if (confirmBtn) confirmBtn.textContent = 'Done';
+
+        Utils.toast.success('Project created!');
+        feather.replace();
+      } catch (error) {
+        console.error('Failed to create project:', error);
+        Utils.toast.error('Failed to create project');
+      }
+    };
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', confirmHandler);
+      this._createProjectHandlers.confirm = confirmHandler;
+    }
+
+    // Copy API key handler
+    const copyHandler = () => {
+      const key = document.getElementById('generated-api-key')?.textContent;
+      if (key) {
+        navigator.clipboard.writeText(key);
+        Utils.toast.success('API key copied!');
+      }
+    };
+    if (copyBtn) {
+      copyBtn.addEventListener('click', copyHandler);
+      this._createProjectHandlers.copy = copyHandler;
     }
   },
 
@@ -215,6 +371,12 @@ const Dashboard = {
       Utils.dom.show(dashboardContent);
     }
 
+    // Show raw events button
+    const rawEventsBtn = document.getElementById('view-raw-events-btn');
+    if (rawEventsBtn) {
+      rawEventsBtn.style.display = 'flex';
+    }
+
     // Close mobile menu if open
     const sidebar = document.getElementById('sidebar');
     if (sidebar && window.innerWidth <= 640) {
@@ -235,6 +397,7 @@ const Dashboard = {
 
     filterEl.addEventListener('change', (e) => {
       this.state.currentFilter = e.target.value;
+      this.updateDateRangeDisplay();
       this.refreshReport();
     });
   },
@@ -441,6 +604,12 @@ const Dashboard = {
 
     // Countries - Geographic visualization
     if (data.countries?.length && document.getElementById('chart-countries')) {
+      // Check if we're in drill-down mode
+      if (this.state.geoState?.view === 'cities') {
+        // Already drilled down, chart is showing cities
+        return;
+      }
+
       MapManager.createMap('chart-countries', data.countries);
 
       // Initialize view toggle (only once)
@@ -451,6 +620,13 @@ const Dashboard = {
         // Update map if it's the active view
         MapManager.updateLeafletMap(data.countries);
       }
+
+      // Add click handler for bar chart view (drill-down)
+      window.addEventListener('chartBarClick', (e) => {
+        if (e.detail.chartId === 'chart-countries' && this.state.geoState?.view === 'countries') {
+          this.drillDownToCountry(e.detail.label);
+        }
+      });
     }
 
     // Time Series - Line Chart (aggregate from lastVisits)
@@ -1144,6 +1320,495 @@ const Dashboard = {
     return visits === 0
       ? `${formatted}: No activity`
       : `${formatted}: ${visits} visits, ${uniqueVisitors} unique visitors`;
+  },
+
+  /**
+   * Set up demo data generator modal and handlers
+   */
+  setupDemoDataGenerator() {
+    const generateBtn = document.getElementById('generate-demo-btn');
+    const modal = document.getElementById('demo-data-modal');
+    const closeBtn = document.getElementById('close-demo-modal');
+    const cancelBtn = document.getElementById('cancel-demo-btn');
+    const confirmBtn = document.getElementById('confirm-demo-btn');
+
+    if (!generateBtn || !modal) return;
+
+    // Show button when project is selected
+    const observer = new MutationObserver(() => {
+      if (this.state.currentProjectId) {
+        generateBtn.style.display = 'flex';
+      } else {
+        generateBtn.style.display = 'none';
+      }
+    });
+
+    observer.observe(document.getElementById('dashboard-content'), {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    // Open modal
+    generateBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+    });
+
+    // Close modal handlers
+    const closeModal = () => {
+      modal.classList.remove('show');
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // Generate demo data
+    confirmBtn.addEventListener('click', async () => {
+      const count = parseInt(document.getElementById('demo-count').value) || 500;
+      await this.generateDemoData(count);
+      closeModal();
+    });
+  },
+
+  /**
+   * Generate demo data for current project
+   * @param {number} count - Number of events to generate
+   */
+  async generateDemoData(count) {
+    if (!this.state.currentProjectId) {
+      Utils.toast.error('No project selected');
+      return;
+    }
+
+    if (count < 0 || count > 3000) {
+      Utils.toast.error('Count must be between 0 and 3000');
+      return;
+    }
+
+    try {
+      Utils.toast.info(`Generating ${count} demo events...`);
+
+      const timeScope = parseInt(document.getElementById('demo-time-scope')?.value) || 30;
+
+      const response = await fetch(`/admin/projects/${this.state.currentProjectId}/demo-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count, timeScope })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate demo data');
+      }
+
+      const result = await response.json();
+      Utils.toast.success(`Generated ${result.generated} demo events`);
+
+      // Reload project data
+      await this.refreshReport();
+    } catch (error) {
+      console.error('Demo data generation failed:', error);
+      Utils.toast.error('Failed to generate demo data');
+    }
+  },
+
+  /**
+   * Setup inspirational message display in sidebar
+   */
+  setupInspirationalMessage() {
+    const messages = [
+      "Data tells stories. Listen carefully.",
+      "Privacy matters. You're doing it right.",
+      "Small insights, big impact.",
+      "Know your visitors, respect their privacy.",
+      "Analytics without compromise.",
+      "Understanding beats guessing every time.",
+      "Your data, your rules.",
+      "Minimal tracking, maximum insight.",
+      "Numbers with meaning.",
+      "Privacy-first is future-proof.",
+    ];
+
+    const container = document.getElementById('sidebar-inspiration');
+    if (!container) return;
+
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    container.textContent = messages[randomIndex];
+  },
+
+  /**
+   * Setup modal close handlers
+   */
+  setupModals() {
+    // Generic modal closer for backdrop and X button
+    document.querySelectorAll('.modal-backdrop, .modal-close').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal');
+        if (modal) modal.classList.remove('show');
+      });
+    });
+
+    // Prevent content clicks from closing modal
+    document.querySelectorAll('.modal-content').forEach(el => {
+      el.addEventListener('click', (e) => e.stopPropagation());
+    });
+  },
+
+  /**
+   * Setup settings panel with project information
+   */
+  setupSettingsPanel() {
+    const modal = document.getElementById('settings-modal');
+    const openBtn = document.getElementById('open-settings-btn');
+    const saveBtn = document.getElementById('save-settings');
+    const cancelBtn = document.getElementById('cancel-settings');
+    const copyProjectKeyBtn = document.getElementById('copy-project-api-key');
+
+    if (!modal || !openBtn) return;
+
+    openBtn.addEventListener('click', () => {
+      // Show modal immediately
+      modal.classList.add('show');
+
+      // Load dashboard settings (synchronous)
+      const settings = SettingsManager.load();
+      document.getElementById('setting-time-format').value = settings.timeFormat;
+      document.getElementById('setting-date-format').value = settings.dateFormat;
+      document.getElementById('setting-heatmap-colors').value = settings.heatmapColors;
+
+      // Load project information asynchronously (don't block modal from showing)
+      const projectSection = document.getElementById('project-settings-section');
+      if (this.state.currentProjectId && projectSection) {
+        projectSection.style.display = 'block';
+        document.getElementById('setting-project-name').value = 'Loading...';
+        document.getElementById('setting-project-domain').value = 'Loading...';
+        document.getElementById('setting-project-api-key').textContent = 'Loading...';
+
+        // Load data in background
+        Utils.api.fetch('/admin/projects').then(projects => {
+          const currentProject = projects.find(p => p.id === this.state.currentProjectId);
+
+          if (currentProject) {
+            document.getElementById('setting-project-name').value = currentProject.name;
+            document.getElementById('setting-project-domain').value = currentProject.domain;
+            document.getElementById('setting-project-api-key').textContent = currentProject.apiKey;
+            feather.replace();
+          } else {
+            projectSection.style.display = 'none';
+          }
+        }).catch(error => {
+          console.error('Failed to load project info:', error);
+          projectSection.style.display = 'none';
+        });
+      } else if (projectSection) {
+        projectSection.style.display = 'none';
+      }
+
+      feather.replace();
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      // Save dashboard settings
+      const settings = {
+        timeFormat: document.getElementById('setting-time-format').value,
+        dateFormat: document.getElementById('setting-date-format').value,
+        heatmapColors: document.getElementById('setting-heatmap-colors').value,
+      };
+      SettingsManager.save(settings);
+
+      // Save project name if changed
+      if (this.state.currentProjectId) {
+        const newName = document.getElementById('setting-project-name')?.value.trim();
+        if (newName) {
+          try {
+            // Update project name via API
+            await Utils.api.post(`/admin/projects/${this.state.currentProjectId}`, {
+              name: newName
+            });
+
+            // Update the title display
+            const titleEl = document.getElementById('active-title');
+            if (titleEl) titleEl.textContent = newName;
+
+            // Reload projects list
+            await this.loadProjects();
+          } catch (error) {
+            console.error('Failed to update project name:', error);
+            Utils.toast.error('Failed to update project name');
+            return;
+          }
+        }
+      }
+
+      modal.classList.remove('show');
+      Utils.toast.success('Settings saved');
+
+      // Refresh dashboard to apply settings
+      this.refreshReport();
+      this.updateTimeFilterLabels();
+    });
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => modal.classList.remove('show'));
+    }
+
+    // Copy project API key handler
+    if (copyProjectKeyBtn) {
+      copyProjectKeyBtn.addEventListener('click', () => {
+        const key = document.getElementById('setting-project-api-key')?.textContent;
+        if (key) {
+          navigator.clipboard.writeText(key);
+          Utils.toast.success('API key copied!');
+        }
+      });
+    }
+
+    // Listen for settings changes and update heatmap colors
+    window.addEventListener('settingsChanged', (e) => {
+      const calendar = document.getElementById('contribution-calendar');
+      if (calendar) {
+        calendar.className = `heatmap-${e.detail.heatmapColors}`;
+      }
+    });
+  },
+
+  /**
+   * Setup raw events viewer with pagination
+   */
+  setupRawEventsViewer() {
+    const modal = document.getElementById('raw-events-modal');
+    const openBtn = document.getElementById('view-raw-events-btn');
+
+    if (!modal || !openBtn) return;
+
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+      this.loadRawEvents(0);
+    });
+
+    document.getElementById('raw-events-next')?.addEventListener('click', () => {
+      const page = parseInt(modal.dataset.page || '0');
+      this.loadRawEvents(page + 1);
+    });
+
+    document.getElementById('raw-events-prev')?.addEventListener('click', () => {
+      const page = parseInt(modal.dataset.page || '0');
+      if (page > 0) this.loadRawEvents(page - 1);
+    });
+
+    ['raw-events-type', 'raw-events-sort'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', () => this.loadRawEvents(0));
+    });
+
+    document.getElementById('export-raw-events')?.addEventListener('click', () => {
+      this.exportRawEvents();
+    });
+  },
+
+  /**
+   * Load raw events data with pagination and filtering
+   * @param {number} page - Page number to load
+   */
+  async loadRawEvents(page = 0) {
+    if (!this.state.currentProjectId) return;
+
+    const modal = document.getElementById('raw-events-modal');
+    const tbody = document.getElementById('raw-events-tbody');
+    const limit = 50;
+
+    const filterType = document.getElementById('raw-events-type')?.value || '';
+    const sortValue = document.getElementById('raw-events-sort')?.value || 'timestamp-desc';
+    const [sortBy, order] = sortValue.split('-');
+
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sortBy,
+        order,
+        ...(filterType && { filter: filterType })
+      });
+
+      const data = await Utils.api.fetch(
+        `/admin/projects/${this.state.currentProjectId}/events?${params}`
+      );
+
+      if (!data.events || data.events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">No events found</td></tr>';
+      } else {
+        tbody.innerHTML = data.events.map(e => `
+          <tr>
+            <td>${Utils.time.formatTime(e.timestamp)}</td>
+            <td><span class="badge badge-${e.eventType === 'pageview' ? 'primary' : 'secondary'}">${e.eventType}</span></td>
+            <td>${e.path}</td>
+            <td>${e.city || 'Unknown'}, ${e.country || 'Unknown'}</td>
+            <td>${e.browser || 'Unknown'}</td>
+            <td>${e.device || 'Unknown'}</td>
+            <td>${e.duration || 0}s</td>
+          </tr>
+        `).join('');
+      }
+
+      modal.dataset.page = page.toString();
+      modal.dataset.totalEvents = data.total.toString();
+
+      document.getElementById('raw-events-info').textContent =
+        `Showing ${page * limit + 1}-${Math.min((page + 1) * limit, data.total)} of ${data.total}`;
+
+      document.getElementById('raw-events-prev').disabled = page === 0;
+      document.getElementById('raw-events-next').disabled = (page + 1) * limit >= data.total;
+
+      feather.replace();
+    } catch (error) {
+      console.error('Failed to load raw events:', error);
+      Utils.toast.error('Failed to load events');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-error);">Error loading events</td></tr>';
+    }
+  },
+
+  /**
+   * Export raw events to CSV
+   */
+  async exportRawEvents() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      const filterType = document.getElementById('raw-events-type')?.value || '';
+      const sortValue = document.getElementById('raw-events-sort')?.value || 'timestamp-desc';
+      const [sortBy, order] = sortValue.split('-');
+
+      const params = new URLSearchParams({
+        page: '0',
+        limit: '10000', // Get more for export
+        sortBy,
+        order,
+        ...(filterType && { filter: filterType })
+      });
+
+      const data = await Utils.api.fetch(
+        `/admin/projects/${this.state.currentProjectId}/events?${params}`
+      );
+
+      const csvData = Utils.export.toCSV(
+        data.events.map(e => ({
+          timestamp: e.timestamp,
+          type: e.eventType,
+          path: e.path,
+          referrer: e.referrer || '',
+          country: e.country || '',
+          city: e.city || '',
+          browser: e.browser || '',
+          os: e.os || '',
+          device: e.device || '',
+          duration: e.duration || 0
+        })),
+        ['timestamp', 'type', 'path', 'referrer', 'country', 'city', 'browser', 'os', 'device', 'duration']
+      );
+
+      const projectName = document.getElementById('active-title')?.textContent || 'project';
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `${projectName}_raw_events_${timestamp}.csv`;
+
+      Utils.export.downloadCSV(csvData, filename);
+      Utils.toast.success(`Exported ${data.events.length} events`);
+    } catch (error) {
+      console.error('Failed to export raw events:', error);
+      Utils.toast.error('Failed to export events');
+    }
+  },
+
+  /**
+   * Setup geographic drill-down functionality
+   */
+  setupGeographicDrillDown() {
+    const backBtn = document.getElementById('geo-back-btn');
+    if (!backBtn) return;
+
+    backBtn.addEventListener('click', () => {
+      this.state.geoState.view = 'countries';
+      this.state.geoState.selectedCountry = null;
+      document.getElementById('geo-title').textContent = 'Geographic distribution';
+      backBtn.style.display = 'none';
+
+      // Restore countries view
+      if (this.state.data.current?.countries) {
+        const topCountries = Utils.aggregate.groupTopN(this.state.data.current.countries, 10);
+        ChartManager.createBarChart('chart-countries', topCountries);
+      }
+    });
+  },
+
+  /**
+   * Drill down to show cities for a specific country
+   * @param {string} countryName - Country name to drill down into
+   */
+  async drillDownToCountry(countryName) {
+    this.state.geoState.view = 'cities';
+    this.state.geoState.selectedCountry = countryName;
+
+    // Filter to cities in this country
+    const citiesData = this.state.data.current.lastVisits
+      .filter(v => v.country === countryName)
+      .reduce((acc, v) => {
+        const city = v.city || 'Unknown';
+        acc[city] = (acc[city] || 0) + 1;
+        return acc;
+      }, {});
+
+    const citiesArray = Object.entries(citiesData)
+      .map(([label, value]) => ({ label, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+
+    document.getElementById('geo-title').textContent = `Cities in ${countryName}`;
+    document.getElementById('geo-back-btn').style.display = 'flex';
+
+    ChartManager.createBarChart('chart-countries', citiesArray);
+  },
+
+  /**
+   * Update time filter labels - now just updates the date range display card
+   */
+  updateTimeFilterLabels() {
+    this.updateDateRangeDisplay();
+  },
+
+  /**
+   * Update the date range display card below the time picker
+   */
+  updateDateRangeDisplay() {
+    const displayEl = document.getElementById('date-range-display');
+    const filterEl = document.getElementById('time-filter');
+    if (!displayEl || !filterEl) return;
+
+    const now = new Date();
+    const filterValue = filterEl.value || '7d';
+
+    const ranges = {
+      '24h': { hours: 24 },
+      '3d': { days: 3 },
+      '7d': { days: 7 },
+      '30d': { days: 30 },
+      '365d': { days: 365 }
+    };
+
+    const range = ranges[filterValue];
+    if (!range) return;
+
+    const start = new Date(now);
+    if (range.hours) start.setHours(start.getHours() - range.hours);
+    if (range.days) start.setDate(start.getDate() - range.days);
+
+    const settings = typeof SettingsManager !== 'undefined' ? SettingsManager.load() : { dateFormat: 'MM/DD/YYYY' };
+    const formatDate = (d) => {
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+
+      if (settings.dateFormat === 'DD/MM/YYYY') return `${day}/${month}/${year}`;
+      if (settings.dateFormat === 'YYYY-MM-DD') return `${year}-${month}-${day}`;
+      return `${month}/${day}/${year}`;
+    };
+
+    displayEl.textContent = `${formatDate(start)} — ${formatDate(now)}`;
   },
 };
 

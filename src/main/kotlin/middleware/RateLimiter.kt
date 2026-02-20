@@ -2,18 +2,12 @@ package se.onemanstudio.middleware
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import se.onemanstudio.middleware.models.RateLimitBucket
+import se.onemanstudio.middleware.models.RateLimitResult
+import se.onemanstudio.middleware.models.RateLimitStatus
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-
-/**
- * Token bucket for rate limiting
- * Stores available tokens and last refill time
- */
-data class RateLimitBucket(
-    val tokens: AtomicInteger,
-    val lastRefillTime: AtomicLong
-)
 
 /**
  * Rate limiter using token bucket algorithm
@@ -74,11 +68,7 @@ class RateLimiter(
      * @param cache Cache storing buckets
      * @return true if request is allowed, false if rate limit exceeded
      */
-    private fun checkBucket(
-        key: String,
-        maxTokens: Int,
-        cache: Cache<String, RateLimitBucket>
-    ): Boolean {
+    private fun checkBucket(key: String, maxTokens: Int, cache: Cache<String, RateLimitBucket>): Boolean {
         // Get or create bucket for this key
         val bucket = cache.get(key) {
             RateLimitBucket(
@@ -87,27 +77,31 @@ class RateLimiter(
             )
         }!!
 
-        // Calculate elapsed time since last refill
-        val now = System.currentTimeMillis()
-        val lastRefill = bucket.lastRefillTime.get()
-        val elapsedMinutes = (now - lastRefill) / 60_000.0
+        // Synchronize on bucket to prevent race conditions
+        // This ensures check-and-update is atomic across concurrent requests
+        synchronized(bucket) {
+            // Calculate elapsed time since last refill
+            val now = System.currentTimeMillis()
+            val lastRefill = bucket.lastRefillTime.get()
+            val elapsedMinutes = (now - lastRefill) / 60_000.0
 
-        // Refill tokens if a minute has passed
-        if (elapsedMinutes >= 1.0) {
-            // Full refill after 1 minute
-            bucket.tokens.set(maxTokens)
-            bucket.lastRefillTime.set(now)
+            // Refill tokens if a minute has passed
+            if (elapsedMinutes >= 1.0) {
+                // Full refill after 1 minute
+                bucket.tokens.set(maxTokens)
+                bucket.lastRefillTime.set(now)
+            }
+
+            // Try to consume a token (atomic check-and-decrement)
+            val currentTokens = bucket.tokens.get()
+            if (currentTokens > 0) {
+                bucket.tokens.decrementAndGet()
+                return true
+            }
+
+            // No tokens available - rate limit exceeded
+            return false
         }
-
-        // Try to consume a token
-        val currentTokens = bucket.tokens.get()
-        if (currentTokens > 0) {
-            bucket.tokens.decrementAndGet()
-            return true
-        }
-
-        // No tokens available - rate limit exceeded
-        return false
     }
 
     /**
@@ -126,38 +120,3 @@ class RateLimiter(
         )
     }
 }
-
-/**
- * Result of rate limit check
- */
-sealed class RateLimitResult {
-    /**
-     * Request is allowed
-     */
-    object Allowed : RateLimitResult()
-
-    /**
-     * Rate limit exceeded
-     *
-     * @param limitType Type of limit exceeded (IP or API_KEY)
-     * @param identifier The IP or API key that exceeded the limit
-     * @param limit Maximum requests allowed
-     * @param window Time window for the limit
-     */
-    data class Exceeded(
-        val limitType: String,
-        val identifier: String,
-        val limit: Int,
-        val window: String
-    ) : RateLimitResult()
-}
-
-/**
- * Current rate limit status for debugging
- */
-data class RateLimitStatus(
-    val ipTokensRemaining: Int,
-    val ipTokensMax: Int,
-    val apiKeyTokensRemaining: Int,
-    val apiKeyTokensMax: Int
-)
