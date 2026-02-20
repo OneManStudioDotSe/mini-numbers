@@ -48,8 +48,8 @@ object DatabaseFactory {
         }
 
         transaction(database) {
-            // Create tables if they don't exist
-            SchemaUtils.create(Projects, Events)
+            // Create tables and add any missing columns (supports schema evolution)
+            SchemaUtils.createMissingTablesAndColumns(Projects, Events)
         }
     }
 

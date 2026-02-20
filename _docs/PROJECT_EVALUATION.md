@@ -41,15 +41,6 @@ Mini Numbers is a privacy-focused web analytics platform that is **~90% complete
 - 103 tests covering security, validation, lifecycle, and integration
 - Clean package-per-feature code architecture
 
-## Resolved Blockers (Previously Critical)
-
-- ~~Hardcoded security credentials~~ — Environment variables with setup wizard
-- ~~No environment variable support~~ — Full configuration system
-- ~~Minimal testing~~ — 103 tests (88% pass rate)
-- ~~CORS allows all origins~~ — Configurable allowed origins
-- ~~No rate limiting~~ — Per-IP and per-API key rate limiting
-- ~~No input validation~~ — Comprehensive validation and sanitization
-
 ## Remaining Gaps
 
 - No custom event tracking

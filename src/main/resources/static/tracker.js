@@ -14,24 +14,23 @@
         sessionStorage.setItem('mn_sid', sid);
     }
 
-    // Track function
-    function track(type) {
-        navigator.sendBeacon(
-            endpoint + '?key=' + key,
-            JSON.stringify({
-                path: location.pathname,
-                referrer: document.referrer || null,
-                sessionId: sid,
-                type: type || 'pageview'
-            })
-        );
+    // Send event to server
+    function send(type, eventName) {
+        var payload = {
+            path: location.pathname,
+            referrer: document.referrer || null,
+            sessionId: sid,
+            type: type || 'pageview'
+        };
+        if (eventName) payload.eventName = eventName;
+        navigator.sendBeacon(endpoint + '?key=' + key, JSON.stringify(payload));
     }
 
     // Initial pageview
-    track('pageview');
+    send('pageview');
 
     // Heartbeat (pauses when tab is hidden)
-    var hb = setInterval(function() { track('heartbeat'); }, 30000);
+    var hb = setInterval(function() { send('heartbeat'); }, 30000);
 
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
@@ -46,7 +45,7 @@
     function onNav() {
         if (lastPath !== location.pathname) {
             lastPath = location.pathname;
-            track('pageview');
+            send('pageview');
         }
     }
 
@@ -55,4 +54,7 @@
     history.pushState = function() { origPush.apply(this, arguments); onNav(); };
     history.replaceState = function() { origReplace.apply(this, arguments); onNav(); };
     window.addEventListener('popstate', onNav);
+
+    // Public API for custom event tracking
+    window.MiniNumbers = { track: function(name) { send('custom', name); } };
 })();

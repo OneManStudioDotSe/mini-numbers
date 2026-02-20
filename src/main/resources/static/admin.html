@@ -320,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- Devices Row -->
+            <!-- Devices & Custom Events Row -->
             <div class="grid grid-cols-2 mt-lg">
                 <!-- Devices -->
                 <div class="card chart-card">
@@ -347,6 +347,21 @@
                     </div>
                     <div class="chart-card__container chart-card__container--short">
                         <canvas id="chart-devices"></canvas>
+                    </div>
+                </div>
+
+                <!-- Custom Events -->
+                <div class="card chart-card" id="custom-events-section" style="display: none;">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i data-feather="zap"></i> Custom events
+                        </h3>
+                        <button class="btn btn-ghost btn-icon" data-export="custom-events" title="Export to CSV">
+                            <i data-feather="download"></i>
+                        </button>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-custom-events"></canvas>
                     </div>
                 </div>
             </div>
@@ -629,6 +644,7 @@
                         <option value="">All Event Types</option>
                         <option value="pageview">Pageviews</option>
                         <option value="heartbeat">Heartbeats</option>
+                        <option value="custom">Custom Events</option>
                     </select>
                     <select id="raw-events-sort" class="select">
                         <option value="timestamp-desc">Newest First</option>

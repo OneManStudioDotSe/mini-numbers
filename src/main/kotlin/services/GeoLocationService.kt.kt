@@ -13,14 +13,36 @@ object GeoLocationService {
         // Close existing reader if reinitializing
         close()
 
+        // 1. Try filesystem path first (works in dev mode and custom paths)
         val database = File(dbPath)
-        if (!database.exists()) {
-            logger.warn("GeoIP Database not found at $dbPath. Location tracking will be disabled.")
+        if (database.exists()) {
+            reader = DatabaseReader.Builder(database).build()
+            logger.info("GeoIP database initialized from filesystem: $dbPath")
             return
         }
-        // TODO: Improve the speed of the lookup
-        reader = DatabaseReader.Builder(database).build()
-        logger.info("GeoIP database initialized successfully")
+
+        // 2. Try classpath resource (works from fat JAR)
+        val classpathPath = "geo/geolite2-city.mmdb"
+        val resourceStream = this::class.java.classLoader.getResourceAsStream(classpathPath)
+        if (resourceStream != null) {
+            try {
+                val tempFile = File.createTempFile("geolite2-city", ".mmdb")
+                tempFile.deleteOnExit()
+                resourceStream.use { input ->
+                    tempFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                reader = DatabaseReader.Builder(tempFile).build()
+                logger.info("GeoIP database initialized from classpath (extracted to temp file)")
+                return
+            } catch (e: Exception) {
+                logger.warn("Failed to extract GeoIP database from classpath: ${e.message}")
+            }
+        }
+
+        // 3. Neither worked
+        logger.warn("GeoIP database not found at '$dbPath' or on classpath. Location tracking will be disabled.")
     }
 
     fun lookup(ipString: String): Pair<String?, String?> {

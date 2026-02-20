@@ -1087,6 +1087,16 @@ tbody tr:nth-child(even):hover td {
   color: white;
 }
 
+.badge-secondary {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+}
+
+.badge-accent {
+  background: #f59e0b;
+  color: white;
+}
+
 /* ============================================
    Export Button Styles
    ============================================ */

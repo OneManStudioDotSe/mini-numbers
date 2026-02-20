@@ -14,6 +14,7 @@ data class ProjectReport(
     val devices: List<StatEntry>,
     val referrers: List<StatEntry>,
     val countries: List<StatEntry>,
+    val customEvents: List<StatEntry>,
     val lastVisits: List<VisitSnippet>,
     val activityHeatmap: List<ActivityCell>,
     val peakTimeAnalysis: PeakTimeAnalysis,

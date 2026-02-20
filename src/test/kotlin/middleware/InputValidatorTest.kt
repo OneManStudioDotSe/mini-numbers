@@ -302,4 +302,135 @@ class InputValidatorTest {
             assertTrue(result.isValid, "Path $path should be valid")
         }
     }
+
+    // ==================== Custom Event Validation Tests ====================
+
+    @Test
+    fun `validatePageViewPayload accepts custom event with valid eventName`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "custom",
+            eventName = "signup"
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertTrue(result.isValid)
+        assertTrue(result.errors.isEmpty())
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects custom event without eventName`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "custom",
+            eventName = null
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertFalse(result.isValid)
+        assertTrue(result.errors.any { it.contains("event name", ignoreCase = true) })
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects non-custom event with eventName`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "pageview",
+            eventName = "signup"
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertFalse(result.isValid)
+        assertTrue(result.errors.any { it.contains("event name", ignoreCase = true) })
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects event name that is too long`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "custom",
+            eventName = "a".repeat(101)
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertFalse(result.isValid)
+        assertTrue(result.errors.any { it.contains("event name", ignoreCase = true) })
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects event name with invalid characters`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "custom",
+            eventName = "event<script>"
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertFalse(result.isValid)
+        assertTrue(result.errors.any { it.contains("event name", ignoreCase = true) })
+    }
+
+    @Test
+    fun `validatePageViewPayload accepts various valid event names`() {
+        val validNames = listOf("signup", "newsletter_subscribe", "file-download", "page.view", "Purchase 2024")
+
+        validNames.forEach { name ->
+            val payload = PageViewPayload(
+                path = "/home",
+                referrer = null,
+                sessionId = "abc123",
+                type = "custom",
+                eventName = name
+            )
+
+            val result = InputValidator.validatePageViewPayload(payload)
+            assertTrue(result.isValid, "Event name '$name' should be valid")
+        }
+    }
+
+    @Test
+    fun `validatePageViewPayload accepts heartbeat without eventName`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "heartbeat",
+            eventName = null
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertTrue(result.isValid)
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects custom event with blank eventName`() {
+        val payload = PageViewPayload(
+            path = "/home",
+            referrer = null,
+            sessionId = "abc123",
+            type = "custom",
+            eventName = "   "
+        )
+
+        val result = InputValidator.validatePageViewPayload(payload)
+
+        assertFalse(result.isValid)
+        assertTrue(result.errors.any { it.contains("event name", ignoreCase = true) })
+    }
 }
