@@ -16,10 +16,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="/static/css/variables.css">
-    <link rel="stylesheet" href="/static/css/base.css">
-    <link rel="stylesheet" href="/static/css/themes.css">
-    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/admin-panel/css/variables.css">
+    <link rel="stylesheet" href="/admin-panel/css/base.css">
+    <link rel="stylesheet" href="/admin-panel/css/themes.css">
+    <link rel="stylesheet" href="/admin-panel/css/components.css">
 </head>
 <body>
     <!-- Mobile Menu Toggle -->
@@ -31,6 +31,7 @@
     <div id="sidebar">
         <div class="sidebar-header">
             <h2>Analytics</h2>
+            <div class="sidebar-inspiration" id="sidebar-inspiration"></div>
         </div>
 
         <div class="sidebar-section">
@@ -47,6 +48,10 @@
         </div>
 
         <div class="sidebar-footer">
+            <button class="btn btn-primary sidebar-btn" id="new-project-btn" onclick="Dashboard.showCreateProjectDialog()">
+                <i data-feather="plus"></i>
+                <span>New Project</span>
+            </button>
             <button class="btn btn-ghost sidebar-btn" id="sign-out-btn">
                 <i data-feather="log-out"></i>
                 <span>Sign Out</span>
@@ -60,6 +65,14 @@
         <div class="dashboard-header">
             <h1 id="active-title">Select a Project</h1>
             <div class="flex items-center gap-md">
+                <button class="btn btn-secondary btn-sm" id="generate-demo-btn" style="display: none;">
+                    <i data-feather="database"></i>
+                    <span>Generate Demo Data</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none;">
+                    <i data-feather="list"></i>
+                    <span>Raw Events</span>
+                </button>
                 <select class="select" id="time-filter">
                     <option value="24h">Last 24 Hours</option>
                     <option value="3d">Last 3 Days</option>
@@ -72,11 +85,24 @@
                         <i data-feather="sun"></i>
                     </div>
                 </button>
+                <button class="btn btn-ghost btn-icon" id="open-settings-btn" title="Settings">
+                    <i data-feather="settings"></i>
+                </button>
             </div>
         </div>
 
         <!-- Dashboard Content (hidden until project selected) -->
         <div id="dashboard-content" class="hidden">
+
+            <!-- Date Range Display -->
+            <div class="card" style="padding: var(--spacing-sm); margin-bottom: var(--spacing-md); text-align: center; background: var(--color-bg-tertiary);">
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Showing data from
+                </div>
+                <div id="date-range-display" style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-top: var(--spacing-xs);">
+                    Loading...
+                </div>
+            </div>
 
             <!-- Filter Bar -->
             <div class="filter-bar" id="filter-bar">
@@ -221,8 +247,8 @@
                 </div>
             </div>
 
-            <!-- Doughnut Charts Grid -->
-            <div class="grid grid-cols-3 mt-lg">
+            <!-- Tech Stack Analytics (Max 2 per row) -->
+            <div class="grid grid-cols-2 mt-lg">
                 <!-- Browsers -->
                 <div class="card chart-card">
                     <div class="chart-card__header">
@@ -278,7 +304,10 @@
                         <canvas id="chart-os"></canvas>
                     </div>
                 </div>
+            </div>
 
+            <!-- Devices Row -->
+            <div class="grid grid-cols-2 mt-lg">
                 <!-- Devices -->
                 <div class="card chart-card">
                     <div class="chart-card__header">
@@ -312,7 +341,11 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i data-feather="map"></i> Geographic distribution
+                        <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
+                            <i data-feather="arrow-left"></i>
+                        </button>
+                        <i data-feather="map"></i>
+                        <span id="geo-title">Geographic distribution</span>
                     </h3>
                     <div class="chart-card__actions">
                         <button class="btn btn-ghost btn-icon" data-export="countries" title="Export to CSV">
@@ -417,12 +450,217 @@
         </div>
     </div>
 
+    <!-- Demo Data Generator Modal -->
+    <div id="demo-data-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate demo data</h2>
+                <button class="modal-close" id="close-demo-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Generate realistic dummy analytics data for testing purposes.</p>
+                <div class="form-group">
+                    <label for="demo-count">Number of events (0-3000):</label>
+                    <input type="number" id="demo-count" class="input" min="0" max="3000" value="500" />
+                </div>
+                <div class="form-group">
+                    <label for="demo-time-scope">Time scope:</label>
+                    <select id="demo-time-scope" class="select">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                    <small class="help-text">Events will be randomly distributed over this period</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancel-demo-btn">Cancel</button>
+                <button class="btn btn-primary" id="confirm-demo-btn">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Create Project Modal -->
+    <div id="create-project-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Project</h2>
+                <button class="modal-close" id="close-create-project">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="project-name">Project Name*</label>
+                    <input type="text" id="project-name" class="input" placeholder="My Website" required />
+                    <small class="help-text">A friendly name for your project</small>
+                </div>
+                <div class="form-group">
+                    <label for="project-subtitle">Subtitle (Optional)</label>
+                    <input type="text" id="project-subtitle" class="input" placeholder="Production" />
+                    <small class="help-text">Environment or short description</small>
+                </div>
+                <div class="form-group">
+                    <label for="project-domain">Domain*</label>
+                    <input type="text" id="project-domain" class="input" placeholder="example.com" required />
+                    <small class="help-text">Primary domain for this project</small>
+                </div>
+                <div id="api-key-preview" class="form-group" style="display: none;">
+                    <label>API Key (Generated)</label>
+                    <div class="api-key-display">
+                        <code id="generated-api-key">...</code>
+                        <button class="btn btn-ghost btn-icon" id="copy-api-key" title="Copy to clipboard">
+                            <i data-feather="copy"></i>
+                        </button>
+                    </div>
+                    <small class="help-text">Save this key - you'll need it to configure tracking</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancel-create-project">Cancel</button>
+                <button class="btn btn-primary" id="confirm-create-project">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Project Information Section -->
+                <div id="project-settings-section" style="display: none;">
+                    <h3 style="margin-top: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Project Information</h3>
+
+                    <div class="form-group">
+                        <label for="setting-project-name">Project Name*</label>
+                        <input type="text" id="setting-project-name" class="input" placeholder="My Website" />
+                        <small class="help-text">Change your project name</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Domain (Read-only)</label>
+                        <input type="text" id="setting-project-domain" class="input" readonly style="background: var(--color-bg-tertiary); cursor: not-allowed;" />
+                        <small class="help-text">The domain being tracked</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tracking ID (Read-only)</label>
+                        <div class="api-key-display">
+                            <code id="setting-project-api-key">...</code>
+                            <button class="btn btn-ghost btn-icon" id="copy-project-api-key" title="Copy to clipboard">
+                                <i data-feather="copy"></i>
+                            </button>
+                        </div>
+                        <small class="help-text">Use this API key to track events from your website</small>
+                    </div>
+
+                    <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Dashboard Preferences</h3>
+                </div>
+
+                <!-- Dashboard Settings Section -->
+                <div class="form-group">
+                    <label for="setting-time-format">Time Format</label>
+                    <select id="setting-time-format" class="select">
+                        <option value="24h">24-hour (13:00)</option>
+                        <option value="12h">12-hour (1:00 PM)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="setting-date-format">Date Format</label>
+                    <select id="setting-date-format" class="select">
+                        <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                        <option value="DD/MM/YYYY">DD/MM/YYYY (EU)</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="setting-heatmap-colors">Activity Heatmap Colors</label>
+                    <select id="setting-heatmap-colors" class="select">
+                        <option value="blue">Blue (Default)</option>
+                        <option value="green">Green (GitHub-style)</option>
+                        <option value="purple">Purple</option>
+                        <option value="orange">Orange</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancel-settings">Cancel</button>
+                <button class="btn btn-primary" id="save-settings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Events Viewer Modal -->
+    <div id="raw-events-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2>Raw Events</h2>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
+                        <i data-feather="download"></i>
+                    </button>
+                    <button class="modal-close" id="close-raw-events">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <select id="raw-events-type" class="select">
+                        <option value="">All Event Types</option>
+                        <option value="pageview">Pageviews</option>
+                        <option value="heartbeat">Heartbeats</option>
+                    </select>
+                    <select id="raw-events-sort" class="select">
+                        <option value="timestamp-desc">Newest First</option>
+                        <option value="timestamp-asc">Oldest First</option>
+                        <option value="path-asc">Path (A-Z)</option>
+                        <option value="country-asc">Country (A-Z)</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="raw-events-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Type</th>
+                                <th>Path</th>
+                                <th>Location</th>
+                                <th>Browser</th>
+                                <th>Device</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody id="raw-events-tbody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem;">
+                    <div id="raw-events-info" style="font-size: 0.875rem; color: var(--color-text-muted);">Showing 0-0 of 0</div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-ghost btn-sm" id="raw-events-prev" disabled>Previous</button>
+                        <button class="btn btn-ghost btn-sm" id="raw-events-next">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Modules -->
-    <script src="/static/js/theme.js"></script>
-    <script src="/static/js/utils.js"></script>
-    <script src="/static/js/charts.js"></script>
-    <script src="/static/js/map.js"></script>
-    <script src="/static/js/admin.js"></script>
+    <script src="/admin-panel/js/theme.js"></script>
+    <script src="/admin-panel/js/settings.js"></script>
+    <script src="/admin-panel/js/utils.js"></script>
+    <script src="/admin-panel/js/charts.js"></script>
+    <script src="/admin-panel/js/map.js"></script>
+    <script src="/admin-panel/js/admin.js"></script>
 
     <!-- Initialize Feather Icons -->
     <script>

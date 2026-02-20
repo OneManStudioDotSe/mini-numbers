@@ -8,24 +8,58 @@ import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import se.onemanstudio.config.AppConfig
+import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.Projects
 import se.onemanstudio.middleware.RateLimiter
-import se.onemanstudio.middleware.RateLimitResult
-import se.onemanstudio.models.PageViewPayload
-import se.onemanstudio.models.ProjectStats
-import se.onemanstudio.models.VisitSnippet
-import se.onemanstudio.models.dashboard.ComparisonReport
-import se.onemanstudio.models.dashboard.TopPage
+import se.onemanstudio.middleware.models.RateLimitResult
+import se.onemanstudio.api.models.PageViewPayload
+import se.onemanstudio.api.models.ProjectStats
+import se.onemanstudio.api.models.RawEvent
+import se.onemanstudio.api.models.RawEventsResponse
+import se.onemanstudio.api.models.VisitSnippet
+import se.onemanstudio.api.models.dashboard.ComparisonReport
+import se.onemanstudio.api.models.dashboard.TopPage
 import se.onemanstudio.services.GeoLocationService
-import se.onemanstudio.utils.AnalyticsSecurity
-import se.onemanstudio.utils.InputValidator
-import se.onemanstudio.utils.UserAgentParser
+import se.onemanstudio.core.AnalyticsSecurity
+import se.onemanstudio.middleware.InputValidator
+import se.onemanstudio.services.UserAgentParser
+import se.onemanstudio.core.models.UserSession
+import se.onemanstudio.core.verifyCredentials
+import se.onemanstudio.config.ConfigLoader
 import java.time.LocalDateTime
+import java.util.UUID
+
+/**
+ * Login request payload
+ */
+@Serializable
+data class LoginRequest(
+    val username: String,
+    val password: String
+)
+
+/**
+ * Safely parse UUID from string parameter
+ * Returns null if parameter is missing or invalid
+ *
+ * @param value UUID string to parse
+ * @return Parsed UUID or null if invalid
+ */
+private fun safeParseUUID(value: String?): UUID? {
+    if (value == null) return null
+    return try {
+        UUID.fromString(value)
+    } catch (e: IllegalArgumentException) {
+        null
+    }
+}
 
 /**
  * Configure application routing
@@ -41,11 +75,61 @@ fun Application.configureRouting(config: AppConfig) {
     )
 
     routing {
-        // Serve the Admin HTML
-        staticResources("/admin-panel", "static")
+        // Serve login page
+        staticResources("/login", "static/login") {
+            default("login.html")
+        }
 
-        // Admin API
-        authenticate("admin-auth") {
+        // Login endpoint
+        post("/api/login") {
+            val loginRequest = try {
+                call.receive<LoginRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid request body")
+                )
+            }
+
+            val config = ConfigLoader.load()
+            val isValid = verifyCredentials(
+                loginRequest.username,
+                loginRequest.password,
+                config,
+                call.application.environment.log
+            )
+
+            if (isValid) {
+                // Create session
+                call.sessions.set(UserSession(username = loginRequest.username))
+                call.respond(
+                    HttpStatusCode.OK,
+                    mapOf("success" to true, "message" to "Login successful")
+                )
+            } else {
+                call.respond(
+                    HttpStatusCode.Unauthorized,
+                    mapOf("error" to "Invalid username or password")
+                )
+            }
+        }
+
+        // Logout endpoint
+        post("/api/logout") {
+            call.sessions.clear<UserSession>()
+            call.respond(
+                HttpStatusCode.OK,
+                mapOf("success" to true, "message" to "Logged out successfully")
+            )
+        }
+
+        // Serve the Admin HTML
+        staticResources("/admin-panel", "static") {
+            default("admin.html")
+        }
+
+        // Admin API - protected by session auth
+        authenticate("admin-session") {
             adminRoutes()
         }
 
@@ -87,11 +171,23 @@ fun Application.configureRouting(config: AppConfig) {
             // 4. Deserialize and validate payload
             val payload = try {
                 call.receive<PageViewPayload>()
-            } catch (e: Exception) {
-                call.application.environment.log.warn("Invalid JSON payload: ${e.message}")
+            } catch (e: SerializationException) {
+                call.application.environment.log.warn("Invalid JSON payload - serialization error: ${e.message}")
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    mapOf("error" to "Invalid request payload")
+                    mapOf("error" to "Invalid JSON structure")
+                )
+            } catch (e: IllegalArgumentException) {
+                call.application.environment.log.warn("Invalid payload data: ${e.message}")
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid payload data: ${e.message}")
+                )
+            } catch (e: BadRequestException) {
+                call.application.environment.log.warn("Bad request: ${e.message}")
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid request payload format")
                 )
             }
 
@@ -150,11 +246,17 @@ fun Application.configureRouting(config: AppConfig) {
                         it[Events.device] = device
                     }
                 }
-            } catch (e: Exception) {
-                call.application.environment.log.error("Database insert failed: ${e.message}")
+            } catch (e: org.jetbrains.exposed.exceptions.ExposedSQLException) {
+                call.application.environment.log.error("Database SQL error: ${e.message}", e)
                 return@post call.respond(
                     HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Failed to save event")
+                    mapOf("error" to "Failed to save event - database error")
+                )
+            } catch (e: java.sql.SQLException) {
+                call.application.environment.log.error("Database connection error: ${e.message}", e)
+                return@post call.respond(
+                    HttpStatusCode.InternalServerError,
+                    mapOf("error" to "Failed to save event - database unavailable")
                 )
             }
 
@@ -168,10 +270,8 @@ fun Application.configureRouting(config: AppConfig) {
             call.respond(HttpStatusCode.Accepted)
         }
 
-        // Health check endpoint
-        get("/") {
-            call.respondText("Hello World!")
-        }
+        // Note: Root "/" endpoint is handled by SetupRouting.configureSetupRouting()
+        // which provides intelligent routing based on setup status and service state
     }
 }
 
@@ -210,21 +310,55 @@ fun Route.adminRoutes() {
             call.respond(HttpStatusCode.Created)
         }
 
+        // Update a project
+        post("/projects/{id}") {
+            val uuid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
+            val updates = call.receive<Map<String, String>>()
+            val newName = updates["name"]?.trim()
+
+            if (newName.isNullOrBlank()) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Project name is required")
+                )
+            }
+
+            transaction {
+                Projects.update({ Projects.id eq uuid }) {
+                    it[name] = newName
+                }
+            }
+            call.respond(HttpStatusCode.OK, mapOf("success" to true))
+        }
+
         // Delete a project
         delete("/projects/{id}") {
-            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val uuid = safeParseUUID(call.parameters["id"])
+                ?: return@delete call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+
             transaction {
                 // Also delete all events associated with this project first
-                Events.deleteWhere { Events.projectId eq java.util.UUID.fromString(id) }
-                Projects.deleteWhere { Projects.id eq java.util.UUID.fromString(id) }
+                Events.deleteWhere { Events.projectId eq uuid }
+                Projects.deleteWhere { Projects.id eq uuid }
             }
             call.respond(HttpStatusCode.NoContent)
         }
 
         // Get stats for a specific project
         get("/projects/{id}/stats") {
-            val projectIdParam = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val pid = java.util.UUID.fromString(projectIdParam)
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
 
             val stats = transaction {
                 // 1. Total Page Views
@@ -261,7 +395,11 @@ fun Route.adminRoutes() {
 
         // Get live map for a specific project
         get("/projects/{id}/live") {
-            val id = java.util.UUID.fromString(call.parameters["id"])
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
             val fiveMinutesAgo = LocalDateTime.now().minusMinutes(5)
 
             val liveData = transaction {
@@ -274,9 +412,36 @@ fun Route.adminRoutes() {
             call.respond(liveData)
         }
 
+        // Generate demo data for a project
+        post("/projects/{id}/demo-data") {
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
+            val request = call.receive<Map<String, Int>>()
+            val count = request["count"] ?: 500
+            val timeScope = request["timeScope"] ?: 30 // days
+
+            if (count < 0 || count > 3000) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Count must be between 0 and 3000"))
+                return@post
+            }
+
+            val generated = transaction {
+                generateDemoData(id, count, timeScope)
+            }
+
+            call.respond(mapOf("generated" to generated))
+        }
+
         // Report endpoint: Returns full analytics report for a time period
         get("/projects/{id}/report") {
-            val id = java.util.UUID.fromString(call.parameters["id"])
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
             val filter = call.request.queryParameters["filter"] ?: "7d"
 
             val (start, end) = getCurrentPeriod(filter)
@@ -287,7 +452,11 @@ fun Route.adminRoutes() {
 
         // Comparison endpoint: Returns current + previous period + time series
         get("/projects/{id}/report/comparison") {
-            val id = java.util.UUID.fromString(call.parameters["id"])
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
             val filter = call.request.queryParameters["filter"] ?: "7d"
 
             val (currentStart, currentEnd) = getCurrentPeriod(filter)
@@ -308,9 +477,166 @@ fun Route.adminRoutes() {
 
         // Contribution calendar endpoint: Returns 365 days of activity
         get("/projects/{id}/calendar") {
-            val id = java.util.UUID.fromString(call.parameters["id"])
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid or missing project ID")
+                )
             val calendar = generateContributionCalendar(id)
             call.respond(calendar)
         }
+
+        // Raw events viewer with pagination and filtering
+        get("/projects/{id}/events") {
+            val id = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Invalid project ID")
+                )
+
+            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 0
+            val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 50
+            val filterType = call.request.queryParameters["filter"]
+            val sortBy = call.request.queryParameters["sortBy"] ?: "timestamp"
+            val sortOrder = call.request.queryParameters["order"] ?: "desc"
+
+            val response = transaction {
+                val baseQuery = { Events.selectAll().where {
+                    if (filterType != null) {
+                        (Events.projectId eq id) and (Events.eventType eq filterType)
+                    } else {
+                        Events.projectId eq id
+                    }
+                }}
+
+                val total = baseQuery().count()
+
+                val sortColumn = when(sortBy) {
+                    "path" -> Events.path
+                    "country" -> Events.country
+                    "browser" -> Events.browser
+                    else -> Events.timestamp
+                }
+
+                val order = if (sortOrder == "asc") SortOrder.ASC else SortOrder.DESC
+
+                val results = baseQuery()
+                    .orderBy(sortColumn, order)
+                    .limit(limit, offset = (page * limit).toLong())
+                    .map { row ->
+                        RawEvent(
+                            id = row[Events.id],
+                            timestamp = row[Events.timestamp].toString(),
+                            eventType = row[Events.eventType],
+                            path = row[Events.path],
+                            referrer = row[Events.referrer],
+                            country = row[Events.country],
+                            city = row[Events.city],
+                            browser = row[Events.browser],
+                            os = row[Events.os],
+                            device = row[Events.device],
+                            sessionId = row[Events.sessionId],
+                            duration = row[Events.duration]
+                        )
+                    }
+
+                RawEventsResponse(
+                    events = results,
+                    total = total,
+                    page = page,
+                    limit = limit
+                )
+            }
+
+            call.respond(response)
+        }
     }
+}
+
+/**
+ * Generate realistic demo/dummy data for testing
+ * @param projectId Project UUID
+ * @param count Number of events to generate (0-3000)
+ * @param timeScope Number of days to spread events over (default: 30)
+ * @return Number of events actually generated
+ */
+private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: Int = 30): Int {
+    if (count == 0) return 0
+
+    val paths = listOf(
+        "/", "/about", "/contact", "/blog", "/products", "/services",
+        "/blog/getting-started", "/blog/tutorial", "/blog/announcement",
+        "/products/item-1", "/products/item-2", "/products/item-3",
+        "/pricing", "/faq", "/docs", "/docs/api", "/docs/guide"
+    )
+
+    val referrers = listOf(
+        null, // Direct traffic
+        "https://google.com/search",
+        "https://twitter.com",
+        "https://facebook.com",
+        "https://github.com",
+        "https://reddit.com",
+        "https://linkedin.com",
+        "https://news.ycombinator.com"
+    )
+
+    val browsers = listOf("Chrome", "Firefox", "Safari", "Edge", "Opera")
+    val oses = listOf("Windows", "macOS", "Linux", "iOS", "Android")
+    val devices = listOf("Desktop", "Mobile", "Tablet")
+
+    val countries = listOf("United States", "United Kingdom", "Canada", "Germany", "France", "Spain", "Italy", "Australia", "Japan", "Brazil")
+    val cities = mapOf(
+        "United States" to listOf("New York", "Los Angeles", "Chicago", "Houston", "Phoenix"),
+        "United Kingdom" to listOf("London", "Manchester", "Birmingham", "Leeds", "Glasgow"),
+        "Canada" to listOf("Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa"),
+        "Germany" to listOf("Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"),
+        "France" to listOf("Paris", "Marseille", "Lyon", "Toulouse", "Nice"),
+        "Spain" to listOf("Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza"),
+        "Italy" to listOf("Rome", "Milan", "Naples", "Turin", "Florence"),
+        "Australia" to listOf("Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"),
+        "Japan" to listOf("Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo"),
+        "Brazil" to listOf("São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza")
+    )
+
+    val now = LocalDateTime.now()
+    val random = java.util.Random()
+
+    var inserted = 0
+    repeat(count) {
+        val daysAgo = random.nextInt(timeScope) // Spread over configured time scope
+        val timestamp = now.minusDays(daysAgo.toLong())
+            .minusHours(random.nextInt(24).toLong())
+            .minusMinutes(random.nextInt(60).toLong())
+
+        val country = countries.random()
+        val city = cities[country]?.random()
+        val sessionId = java.util.UUID.randomUUID().toString()
+
+        // Generate a unique visitor hash (simulated)
+        val visitorHash = AnalyticsSecurity.generateVisitorHash(
+            ip = "192.168.${random.nextInt(255)}.${random.nextInt(255)}",
+            userAgent = browsers.random(),
+            projectId = projectId.toString()
+        )
+
+        Events.insert {
+            it[Events.projectId] = projectId
+            it[Events.visitorHash] = visitorHash
+            it[Events.sessionId] = sessionId
+            it[Events.eventType] = "pageview"
+            it[Events.path] = paths.random()
+            it[Events.referrer] = referrers.random()
+            it[Events.country] = country
+            it[Events.city] = city
+            it[Events.browser] = browsers.random()
+            it[Events.os] = oses.random()
+            it[Events.device] = devices.random()
+            it[Events.duration] = random.nextInt(300) // 0-5 minutes
+            it[Events.timestamp] = timestamp
+        }
+        inserted++
+    }
+
+    return inserted
 }

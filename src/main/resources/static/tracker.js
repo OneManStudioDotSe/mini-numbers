@@ -33,8 +33,28 @@
     // sessionStorage persists for the duration of the page session (tab)
     let sessionId = sessionStorage.getItem('ma_session_id');
     if (!sessionId) {
-        sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        // Generate cryptographically secure random session ID
+        sessionId = generateSecureSessionId();
         sessionStorage.setItem('ma_session_id', sessionId);
+    }
+
+    /**
+     * Generate a cryptographically secure random session ID
+     * Uses crypto.getRandomValues() for security, falls back to Math.random()
+     * for older browsers that don't support the Crypto API
+     */
+    function generateSecureSessionId() {
+        if (window.crypto && window.crypto.getRandomValues) {
+            // Modern browsers: use cryptographically secure random
+            const array = new Uint8Array(16); // 128 bits of entropy
+            window.crypto.getRandomValues(array);
+            // Convert to hex string
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        } else {
+            // Fallback for older browsers (not cryptographically secure, but better than nothing)
+            console.warn('Mini Numbers Analytics: crypto.getRandomValues() not available, using Math.random() fallback');
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
     }
 
     // 3. The Tracking Function

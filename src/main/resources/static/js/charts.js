@@ -406,6 +406,7 @@ const ChartManager = {
         scales: {
           x: {
             beginAtZero: true,
+            grace: '5%',
             grid: {
               display: true,
             },
@@ -419,7 +420,31 @@ const ChartManager = {
             grid: {
               display: false,
             },
+            ticks: {
+              padding: 8,
+            },
           },
+        },
+        elements: {
+          bar: {
+            borderRadius: 6,
+            categoryPercentage: 0.7,
+            barPercentage: 0.75,
+          },
+        },
+        onClick: (event, activeElements, chart) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const label = chart.data.labels[index];
+            const value = chart.data.datasets[0].data[index];
+
+            window.dispatchEvent(new CustomEvent('chartBarClick', {
+              detail: { label, value, chartId: chart.canvas.id }
+            }));
+          }
+        },
+        onHover: (event, activeElements, chart) => {
+          chart.canvas.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
         },
         ...options,
       }
@@ -533,10 +558,12 @@ const ChartManager = {
           },
           y: {
             beginAtZero: true,
+            grace: '10%',
             grid: {
               display: true,
             },
             ticks: {
+              precision: 0,
               callback: function (value) {
                 return Utils.format.compact(value);
               },

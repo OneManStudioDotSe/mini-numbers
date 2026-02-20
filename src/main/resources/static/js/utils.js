@@ -135,16 +135,18 @@ const Utils = {
     /**
      * Format ISO timestamp to readable time
      * @param {string} isoString - ISO timestamp
-     * @returns {string} Formatted time (HH:MM)
+     * @returns {string} Formatted time (HH:MM or HH:MM AM/PM)
      */
     formatTime(isoString) {
       if (!isoString) return '';
       try {
         const date = new Date(isoString);
+        const settings = typeof SettingsManager !== 'undefined' ? SettingsManager.load() : { timeFormat: '24h' };
+
         return date.toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
-          hour12: false,
+          hour12: settings.timeFormat === '12h',
         });
       } catch (error) {
         return isoString.split('T')[1]?.substring(0, 5) || '';
@@ -370,6 +372,41 @@ const Utils = {
       } catch (error) {
         console.error('API fetch error:', error);
         Utils.toast.error(`Failed to fetch data: ${error.message}`);
+        throw error;
+      }
+    },
+
+    /**
+     * POST data to API endpoint
+     * @param {string} url - API URL
+     * @param {Object} data - Data to send
+     * @returns {Promise} Response data
+     */
+    async post(url, data) {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...Utils.auth.getHeader(),
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        // Check if response has content
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return await response.json();
+        }
+
+        return null;
+      } catch (error) {
+        console.error('API POST error:', error);
+        Utils.toast.error(`Failed to save data: ${error.message}`);
         throw error;
       }
     },
