@@ -1,0 +1,518 @@
+openapi: 3.0.3
+info:
+  title: Mini Numbers Analytics API
+  description: |
+    Privacy-first, minimalist web analytics API. No cookies, no PII storage.
+    All admin endpoints require session authentication via /api/login.
+  version: 1.0.0
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: healthy }
+                  state: { type: string, example: READY }
+                  uptime_seconds: { type: integer }
+                  version: { type: string }
+        '503':
+          description: Service unavailable
+
+  /metrics:
+    get:
+      summary: Application metrics
+      tags: [System]
+      responses:
+        '200':
+          description: Metrics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uptime_seconds: { type: integer }
+                  total_events: { type: integer }
+                  total_projects: { type: integer }
+                  cache_size: { type: integer }
+                  hash_rotation_hours: { type: integer }
+                  privacy_mode: { type: string }
+                  data_retention_days: { type: integer }
+
+  /tracker/config:
+    get:
+      summary: Tracker configuration
+      tags: [System]
+      responses:
+        '200':
+          description: Tracker settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  heartbeatInterval: { type: integer, example: 30 }
+                  spaEnabled: { type: boolean, example: true }
+
+  /collect:
+    post:
+      summary: Collect analytics event
+      tags: [Data Collection]
+      parameters:
+        - name: X-Project-Key
+          in: header
+          required: false
+          schema: { type: string }
+        - name: key
+          in: query
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageViewPayload'
+      responses:
+        '202': { description: Event accepted }
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '404': { description: Invalid API key }
+        '429': { description: Rate limit exceeded }
+
+  /api/login:
+    post:
+      summary: Admin login
+      tags: [Authentication]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Login successful }
+        '401': { description: Invalid credentials }
+
+  /api/logout:
+    post:
+      summary: Admin logout
+      tags: [Authentication]
+      responses:
+        '200': { description: Logged out }
+
+  /admin/projects:
+    get:
+      summary: List all projects
+      tags: [Projects]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Project' }
+    post:
+      summary: Create project
+      tags: [Projects]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, domain]
+              properties:
+                name: { type: string }
+                domain: { type: string }
+      responses:
+        '201': { description: Created }
+        '400': { description: Invalid input }
+
+  /admin/projects/{id}:
+    post:
+      summary: Update project
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '200': { description: Updated }
+    delete:
+      summary: Delete project and all data
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+
+  /admin/projects/{id}/stats:
+    get:
+      summary: Basic project statistics
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Stats data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProjectStats' }
+
+  /admin/projects/{id}/report:
+    get:
+      summary: Full analytics report
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, enum: ['24h', '3d', '7d', '30d', '365d'], default: '7d' }
+      responses:
+        '200': { description: Full report }
+
+  /admin/projects/{id}/report/comparison:
+    get:
+      summary: Comparison report (current vs previous period)
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, enum: ['24h', '3d', '7d', '30d', '365d'], default: '7d' }
+      responses:
+        '200': { description: Comparison report with time series }
+
+  /admin/projects/{id}/calendar:
+    get:
+      summary: 365-day contribution calendar
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Calendar data }
+
+  /admin/projects/{id}/live:
+    get:
+      summary: Live visitor feed (last 5 minutes)
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Live visitors
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/VisitSnippet' }
+
+  /admin/projects/{id}/events:
+    get:
+      summary: Raw events with pagination
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: page
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, maximum: 1000 }
+        - name: filter
+          in: query
+          schema: { type: string, enum: ['pageview', 'heartbeat', 'custom'] }
+        - name: sortBy
+          in: query
+          schema: { type: string, enum: ['timestamp', 'path', 'country', 'browser'] }
+        - name: order
+          in: query
+          schema: { type: string, enum: ['asc', 'desc'] }
+      responses:
+        '200':
+          description: Paginated events
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RawEventsResponse' }
+
+  /admin/projects/{id}/goals:
+    get:
+      summary: List conversion goals
+      tags: [Goals]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Goals list }
+    post:
+      summary: Create conversion goal
+      tags: [Goals]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, goalType, matchValue]
+              properties:
+                name: { type: string }
+                goalType: { type: string, enum: ['url', 'event'] }
+                matchValue: { type: string }
+      responses:
+        '201': { description: Created }
+
+  /admin/projects/{id}/goals/stats:
+    get:
+      summary: Goal conversion statistics
+      tags: [Goals]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d' }
+      responses:
+        '200': { description: Goal stats }
+
+  /admin/projects/{id}/funnels:
+    get:
+      summary: List funnels
+      tags: [Funnels]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Funnels list }
+    post:
+      summary: Create funnel
+      tags: [Funnels]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Created }
+
+  /admin/projects/{id}/funnels/{funnelId}/analysis:
+    get:
+      summary: Funnel analysis with drop-off rates
+      tags: [Funnels]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: funnelId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d' }
+      responses:
+        '200': { description: Funnel analysis }
+
+  /admin/projects/{id}/segments:
+    get:
+      summary: List user segments
+      tags: [Segments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Segments list }
+    post:
+      summary: Create segment with AND/OR filters
+      tags: [Segments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SegmentRequest' }
+      responses:
+        '201': { description: Created }
+
+  /admin/projects/{id}/segments/{segmentId}/analysis:
+    get:
+      summary: Segment analysis
+      tags: [Segments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: segmentId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d' }
+      responses:
+        '200': { description: Segment analysis }
+
+components:
+  schemas:
+    ApiError:
+      type: object
+      required: [error, code]
+      properties:
+        error: { type: string }
+        code: { type: string }
+        details: { type: array, items: { type: string } }
+
+    PageViewPayload:
+      type: object
+      required: [path, sessionId, type]
+      properties:
+        path: { type: string, maxLength: 512 }
+        referrer: { type: string, nullable: true, maxLength: 512 }
+        sessionId: { type: string, maxLength: 64 }
+        type: { type: string, enum: ['pageview', 'heartbeat', 'custom'] }
+        eventName: { type: string, nullable: true, maxLength: 100 }
+
+    Project:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        domain: { type: string }
+        apiKey: { type: string }
+
+    ProjectStats:
+      type: object
+      properties:
+        totalViews: { type: integer }
+        uniqueVisitors: { type: integer }
+        topPages: { type: array, items: { $ref: '#/components/schemas/TopPage' } }
+
+    TopPage:
+      type: object
+      properties:
+        path: { type: string }
+        count: { type: integer }
+
+    VisitSnippet:
+      type: object
+      properties:
+        path: { type: string }
+        timestamp: { type: string }
+        city: { type: string, nullable: true }
+
+    RawEventsResponse:
+      type: object
+      properties:
+        events: { type: array, items: { $ref: '#/components/schemas/RawEvent' } }
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+
+    RawEvent:
+      type: object
+      properties:
+        id: { type: integer }
+        timestamp: { type: string }
+        eventType: { type: string }
+        eventName: { type: string, nullable: true }
+        path: { type: string }
+        referrer: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        browser: { type: string, nullable: true }
+        os: { type: string, nullable: true }
+        device: { type: string, nullable: true }
+        sessionId: { type: string }
+        duration: { type: integer }
+
+    SegmentRequest:
+      type: object
+      required: [name, filters]
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentFilter'
+
+    SegmentFilter:
+      type: object
+      required: [field, operator, value]
+      properties:
+        field: { type: string, enum: ['browser', 'os', 'device', 'country', 'city', 'path', 'referrer', 'eventType'] }
+        operator: { type: string, enum: ['equals', 'not_equals', 'contains', 'starts_with'] }
+        value: { type: string }
+        logic: { type: string, enum: ['AND', 'OR'], default: 'AND' }

@@ -78,6 +78,9 @@ const Dashboard = {
     this.setupGeographicDrillDown();
     this.updateTimeFilterLabels();
 
+    // Initialize segments modal
+    this.setupSegmentsInit();
+
     // Initialize geographic state
     this.state.geoState = {
       view: 'countries',
@@ -440,6 +443,9 @@ const Dashboard = {
       // Load goals and funnels
       this.loadGoalsAndFunnels();
 
+      // Load segments
+      this.loadSegments();
+
       // Hide loading state
       this.hideLoadingState();
     } catch (error) {
@@ -453,15 +459,39 @@ const Dashboard = {
    * Show loading skeleton states
    */
   showLoadingState() {
-    // In a full implementation, this would show skeleton loaders
-    // For now, we'll just add a subtle loading indicator
+    // Show skeletons on stat card values
+    document.querySelectorAll('.stat-card__value').forEach(el => {
+      el.dataset.originalText = el.textContent;
+      el.innerHTML = '<span class="skeleton skeleton-text" style="width: 80px; display: inline-block;">&nbsp;</span>';
+    });
+
+    // Show skeletons on chart containers
+    document.querySelectorAll('.chart-card__container').forEach(el => {
+      if (!el.querySelector('.skeleton-chart')) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'skeleton skeleton-chart';
+        skeleton.style.width = '100%';
+        el.prepend(skeleton);
+      }
+    });
+
+    // Dim comparisons
+    document.querySelectorAll('.stat-card__comparison').forEach(el => {
+      el.style.opacity = '0.3';
+    });
   },
 
   /**
    * Hide loading states
    */
   hideLoadingState() {
-    // Remove loading indicators
+    // Remove chart skeletons
+    document.querySelectorAll('.skeleton-chart').forEach(el => el.remove());
+
+    // Restore comparison opacity
+    document.querySelectorAll('.stat-card__comparison').forEach(el => {
+      el.style.opacity = '';
+    });
   },
 
   /**
@@ -1291,6 +1321,31 @@ const Dashboard = {
       GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
     } catch (error) {
       console.error('Failed to load goals and funnels:', error);
+    }
+  },
+
+  /**
+   * Initialize segments modal when project is available
+   */
+  setupSegmentsInit() {
+    // Will be initialized per-project in loadSegments
+  },
+
+  /**
+   * Load and render segments for current project
+   */
+  async loadSegments() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      // Initialize modal once per project
+      if (typeof SegmentsManager !== 'undefined') {
+        SegmentsManager.initModal(this.state.currentProjectId);
+        const segments = await SegmentsManager.loadSegments(this.state.currentProjectId);
+        SegmentsManager.renderSegments(segments, this.state.currentProjectId, this.state.currentFilter);
+      }
+    } catch (error) {
+      console.error('Failed to load segments:', error);
     }
   },
 

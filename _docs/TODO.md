@@ -39,10 +39,12 @@
 ## Phase 2: Easy Deployment — COMPLETED
 
 ### Docker Optimization
-- [x] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user)
+- [x] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user, JVM container tuning)
 - [x] docker-compose.yml in repo (SQLite + PostgreSQL variants, volume mounts)
 - [x] GHCR automated builds with version tagging (GitHub Actions)
 - [x] Multi-platform builds (linux/amd64, linux/arm64)
+- [x] Health check endpoint (`GET /health` — JSON status with uptime, version, service state)
+- [x] Metrics endpoint (`GET /metrics` — event counts, cache stats, privacy config)
 
 ### Other
 - [x] GeoIP database bundled — works from filesystem and classpath (fat JAR)
@@ -67,6 +69,7 @@
 
 ### Monitoring
 - [x] Health check endpoint (`GET /health` — JSON status with servicesReady flag)
+- [x] Metrics endpoint (`GET /metrics` — uptime, event counts, cache stats, privacy config)
 
 ---
 
@@ -76,8 +79,8 @@
 - [x] Configuration reference (all environment variables) — in DEPLOYMENT.md
 - [x] Deployment guide (reverse proxy, SSL, backups, upgrading) — in DEPLOYMENT.md
 - [x] Tracking integration guide (setup, SPA, custom events) — in DEPLOYMENT.md
+- [x] API documentation — OpenAPI 3.0.3 spec at `/admin-panel/openapi.yaml`
 - [ ] Dashboard user guide
-- [ ] API documentation
 - [ ] Privacy architecture explanation
 - [ ] Contributing guidelines and code of conduct
 - [ ] License selection (MIT recommended)
@@ -87,9 +90,9 @@
 ## Phase 5: Polish & Launch Prep
 
 ### UI/UX
-- [ ] Loading states and skeleton screens
+- [x] Loading states and skeleton screens
 - [ ] Error handling improvements
-- [ ] Accessibility (ARIA labels, keyboard navigation, contrast)
+- [x] Accessibility (ARIA labels, keyboard navigation, skip-to-content link, semantic HTML roles)
 - [ ] Empty state designs
 
 ### First-Time Experience
@@ -97,9 +100,10 @@
 - [ ] In-app getting started checklist
 
 ### Performance
-- [ ] Database query optimization (additional indexes, caching)
+- [x] Database query optimization (8 composite indexes)
+- [x] Query result caching (Caffeine, 500 entries, 30s TTL, auto-invalidation)
+- [x] GeoIP lookup caching (Caffeine, 10K entries, 1h TTL)
 - [ ] Frontend optimization (lazy loading, debouncing)
-- [ ] GeoIP lookup caching
 
 ### Final Review
 - [ ] Manual testing across browsers and devices
@@ -127,6 +131,13 @@
 - [x] Custom event tracking — name-based tracking with `MiniNumbers.track()` API and dashboard card
 - [x] Conversion goals — URL-based and event-based goals with conversion rate tracking and management UI
 - [x] Basic funnels — multi-step conversion tracking with drop-off analysis and time between steps
+- [x] API pagination — backward-compatible `?page=&limit=` query parameters
+- [x] Query result caching — Caffeine cache with auto-invalidation
+- [x] Standardized error responses — `ApiError` model across all endpoints
+- [x] OpenAPI documentation — 3.0.3 spec documenting all endpoints
+- [x] Configurable privacy — hash rotation (1-8760h), 3 modes (STANDARD/STRICT/PARANOID), data retention
+- [x] User segments — visual filter builder with AND/OR logic, segment analysis
+- [x] Configurable tracker — heartbeat interval and SPA tracking toggle
 - [ ] Email reports
 - [ ] Webhooks
 - [ ] Retention and cohort analysis

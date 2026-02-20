@@ -20,6 +20,7 @@
 | Custom events | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Conversion goals | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Funnels | ✅ | ✅ (v3) | ❌ (paid) | ✅ | ✅ | ❌ | ❌ |
+| User segments | ✅ | ⚠️ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Cohort/retention | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Session replay | ❌ | ❌ | ❌ | ✅ (paid) | ✅ | ❌ | ❌ |
 | Activity heatmap | ✅ | ❌ | ❌ | ✅ (paid) | ❌ | ❌ | ❌ |
@@ -27,13 +28,22 @@
 | **Privacy** |
 | Cookie-free | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
 | No PII storage | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
-| Daily hash rotation | ✅ (unique) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Configurable hash rotation | ✅ (unique) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Privacy modes | ✅ (3 levels) | ❌ | ❌ | ⚠️ | ⚠️ | ❌ | ❌ |
+| Data retention policies | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | No consent needed | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
+| **API & Integration** |
+| API pagination | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ |
+| OpenAPI documentation | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Query caching | ✅ | ⚠️ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ |
+| Health check endpoint | ✅ | ✅ | ✅ | ✅ | ✅ | N/A | N/A |
 | **UI & UX** |
 | Dark mode | ✅ | ✅ | ❌ | ⚠️ | ✅ | ❌ | ❌ |
 | Contribution calendar | ✅ (unique) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Multiple chart types | ✅ (6) | ⚠️ (3) | ⚠️ | ✅ | ✅ | ⚠️ | ⚠️ |
 | Interactive maps | ✅ | ❌ | ❌ | ✅ | ⚠️ | ❌ | ❌ |
+| Loading skeletons | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ |
+| Accessibility (ARIA) | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ | ⚠️ |
 | **Technical** |
 | Self-hosted | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Cloud option | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -48,8 +58,8 @@
 | Platform | Basic | Advanced | Privacy | Integration | UI/UX | Overall |
 |----------|-------|----------|---------|-------------|-------|---------|
 | **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
+| **Mini Numbers** | 9/10 | 8.5/10 | 10/10 | 8.5/10 | 9.5/10 | **8.8/10** |
 | **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
-| **Mini Numbers** | 9/10 | 7.5/10 | 9/10 | 7/10 | 9/10 | **8.3/10** |
 | **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
 | **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
 | **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
@@ -62,14 +72,14 @@
 ### Umami — Primary Competitor
 - **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
 - **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events, goals
-- **Weaknesses**: No activity heatmap, no contribution calendar, no daily hash rotation
-- **vs Mini Numbers**: Umami wins on community size; Mini Numbers wins on privacy (daily hash rotation), unique visualizations, comparable tracker size (~1.3KB), JVM stack, and now matches on custom events, goals, and funnels
+- **Weaknesses**: No activity heatmap, no contribution calendar, no configurable hash rotation, no segments
+- **vs Mini Numbers**: Umami wins on community size and tracker size; Mini Numbers wins on privacy (configurable hash rotation, 3 privacy modes), unique visualizations, user segments, OpenAPI docs, JVM stack, and matches on custom events, goals, and funnels
 
 ### Plausible CE
 - **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
 - **Strengths**: Strong brand, <1KB tracker, EU-focused, high performance
-- **Weaknesses**: AGPL restricts commercial use, CE updated only twice/year, limited multi-project
-- **vs Mini Numbers**: Plausible wins on brand and performance; Mini Numbers wins on daily hash rotation, contribution calendar, license flexibility
+- **Weaknesses**: AGPL restricts commercial use, CE updated only twice/year, limited multi-project, no segments
+- **vs Mini Numbers**: Plausible wins on brand and performance; Mini Numbers wins on configurable hash rotation, contribution calendar, segments, OpenAPI docs, license flexibility
 
 ### Matomo — Enterprise Leader
 - **Stack**: PHP, MySQL | **License**: GPL | **Stars**: ~19,000
@@ -87,7 +97,7 @@
 - **Type**: Closed-source, cloud-only | **Pricing**: From $15/month
 - **Strengths**: Simple, excellent privacy, ad-blocker bypass, great support
 - **Weaknesses**: Closed-source, no self-hosted option, limited features, vendor lock-in
-- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features (custom events, heatmap, calendar), no recurring costs
+- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features (custom events, heatmap, calendar, segments), no recurring costs
 
 ### Simple Analytics — EU SaaS
 - **Type**: Closed-source, cloud-only | **Pricing**: From EUR 19/month
@@ -100,15 +110,21 @@
 ## Mini Numbers — Competitive Position
 
 **Advantages**:
-- Daily hash rotation (unique, strongest privacy)
+- Configurable hash rotation (unique, strongest privacy)
+- Three privacy modes: STANDARD, STRICT, PARANOID
+- Data retention policies with auto-purge
 - Contribution calendar (unique visualization)
 - Activity heatmap (rare feature)
 - Custom event tracking with `MiniNumbers.track()` API
 - Conversion goals (URL and event-based) with conversion rate tracking
 - Basic funnels with drop-off analysis and time between steps
+- User segments with AND/OR visual filter builder
+- API pagination, query caching, OpenAPI documentation
+- Health check and metrics endpoints for production monitoring
 - JVM/Kotlin stack (underserved market)
-- Beautiful UI with dark mode and 6 chart types
+- Beautiful UI with dark mode, 6 chart types, loading skeletons, accessibility
 - Comprehensive deployment documentation
+- Production Dockerfile with JVM container tuning
 
 **Disadvantages**:
 - No community or ecosystem yet

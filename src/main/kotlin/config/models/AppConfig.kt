@@ -9,5 +9,7 @@ data class AppConfig(
     val database: DatabaseConfig,
     val server: ServerConfig,
     val geoip: GeoIPConfig,
-    val rateLimit: RateLimitConfig
+    val rateLimit: RateLimitConfig,
+    val privacy: PrivacyConfig = PrivacyConfig(),
+    val tracker: TrackerConfig = TrackerConfig()
 )
