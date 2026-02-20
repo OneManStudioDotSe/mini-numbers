@@ -91,7 +91,9 @@ object ConfigLoader {
             database = loadDatabaseConfig(),
             server = loadServerConfig(),
             geoip = loadGeoIPConfig(),
-            rateLimit = loadRateLimitConfig()
+            rateLimit = loadRateLimitConfig(),
+            privacy = loadPrivacyConfig(),
+            tracker = loadTrackerConfig()
         )
     }
 
@@ -318,6 +320,39 @@ object ConfigLoader {
         return RateLimitConfig(
             perIpRequestsPerMinute = perIp,
             perApiKeyRequestsPerMinute = perApiKey
+        )
+    }
+
+    /**
+     * Load privacy configuration
+     */
+    private fun loadPrivacyConfig(): PrivacyConfig {
+        val hashRotationHours = getEnvOrDefault("HASH_ROTATION_HOURS", "24").toIntOrNull() ?: 24
+        val privacyModeStr = getEnvOrDefault("PRIVACY_MODE", "STANDARD").uppercase()
+        val privacyMode = try {
+            PrivacyMode.valueOf(privacyModeStr)
+        } catch (e: IllegalArgumentException) {
+            PrivacyMode.STANDARD
+        }
+        val dataRetentionDays = getEnvOrDefault("DATA_RETENTION_DAYS", "0").toIntOrNull() ?: 0
+
+        return PrivacyConfig(
+            hashRotationHours = hashRotationHours.coerceIn(1, 8760),
+            privacyMode = privacyMode,
+            dataRetentionDays = dataRetentionDays.coerceAtLeast(0)
+        )
+    }
+
+    /**
+     * Load tracker configuration
+     */
+    private fun loadTrackerConfig(): TrackerConfig {
+        val heartbeatInterval = getEnvOrDefault("TRACKER_HEARTBEAT_INTERVAL", "30").toIntOrNull() ?: 30
+        val spaTracking = getEnvOrDefault("TRACKER_SPA_ENABLED", "true").lowercase() == "true"
+
+        return TrackerConfig(
+            heartbeatIntervalSeconds = heartbeatInterval.coerceIn(5, 300),
+            spaTrackingEnabled = spaTracking
         )
     }
 }

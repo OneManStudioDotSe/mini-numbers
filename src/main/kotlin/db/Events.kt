@@ -23,11 +23,17 @@ object Events : Table("events") {
 
     override val primaryKey = PrimaryKey(id)
 
-    // Performance indexes for time-based and project-specific queries
+    // Performance indexes for time-based, project-specific, and analytics queries
     init {
         index("idx_events_timestamp", false, timestamp)
         index("idx_events_project_timestamp", false, projectId, timestamp)
         index("idx_events_project_session", false, projectId, sessionId)
         index("idx_events_project_eventname", false, projectId, eventName)
+        // Additional indexes for analytics query performance
+        index("idx_events_project_visitor", false, projectId, visitorHash)
+        index("idx_events_project_path", false, projectId, path)
+        index("idx_events_project_type_ts", false, projectId, eventType, timestamp)
+        index("idx_events_project_country", false, projectId, country)
+        index("idx_events_project_browser", false, projectId, browser)
     }
 }

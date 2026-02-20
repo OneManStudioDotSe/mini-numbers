@@ -1,19 +1,26 @@
 package se.onemanstudio.services
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.maxmind.geoip2.DatabaseReader
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 
 object GeoLocationService {
     private val logger = LoggerFactory.getLogger(GeoLocationService::class.java)
     private var reader: DatabaseReader? = null
 
+    // GeoIP result cache: IP -> (country, city)
+    private val geoCache = Caffeine.newBuilder()
+        .maximumSize(10_000)
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build<String, Pair<String?, String?>>()
+
     fun init(dbPath: String) {
-        // Close existing reader if reinitializing
         close()
 
-        // 1. Try filesystem path first (works in dev mode and custom paths)
+        // 1. Try filesystem path first
         val database = File(dbPath)
         if (database.exists()) {
             reader = DatabaseReader.Builder(database).build()
@@ -41,7 +48,6 @@ object GeoLocationService {
             }
         }
 
-        // 3. Neither worked
         logger.warn("GeoIP database not found at '$dbPath' or on classpath. Location tracking will be disabled.")
     }
 
@@ -50,26 +56,35 @@ object GeoLocationService {
             return null to null
         }
 
-        return try {
-            val ipAddress = InetAddress.getByName(ipString)
-            val response = reader?.city(ipAddress)
-            val country = response?.country()?.isoCode() // e.g., "US", "GR"
-            val city = response?.city()?.name() // e.g., "Athens"
-            country to city
-        } catch (e: Exception) {
-            // IP not in database or private IP
-            null to null
+        // Check cache first
+        return geoCache.get(ipString) {
+            try {
+                val ipAddress = InetAddress.getByName(ipString)
+                val response = reader?.city(ipAddress)
+                val country = response?.country()?.isoCode()
+                val city = response?.city()?.name()
+                country to city
+            } catch (e: Exception) {
+                null to null
+            }
         }
     }
 
     /**
-     * Close GeoIP database reader and release resources
-     * Safe to call multiple times
+     * Get cache statistics for monitoring
      */
+    fun cacheStats(): Map<String, Any> {
+        return mapOf(
+            "size" to geoCache.estimatedSize(),
+            "hitRate" to geoCache.stats().hitRate()
+        )
+    }
+
     fun close() {
         try {
             reader?.close()
             reader = null
+            geoCache.invalidateAll()
             logger.debug("GeoIP database reader closed")
         } catch (e: Exception) {
             logger.error("Error closing GeoIP database reader: ${e.message}")

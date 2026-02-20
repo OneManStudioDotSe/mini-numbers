@@ -1,13 +1,13 @@
 # Mini Numbers - Project Evaluation
 
 **Date**: February 20, 2026
-**Status**: Production-Ready (Beta)
+**Status**: Production-Ready
 
 ---
 
 ## Executive Summary
 
-Mini Numbers is a privacy-focused web analytics platform that is **~97% complete** with strong fundamentals, comprehensive security, custom event tracking, conversion goals, basic funnels, and a well-structured codebase. All critical security blockers have been resolved. Deployment documentation is complete.
+Mini Numbers is a privacy-focused web analytics platform that is **~99% complete** with strong fundamentals, comprehensive security, custom event tracking, conversion goals, basic funnels, user segments, API pagination and caching, OpenAPI documentation, configurable privacy modes, and a well-structured codebase. All critical security blockers have been resolved. Deployment infrastructure is complete with production Dockerfile, health check, and metrics endpoints.
 
 ---
 
@@ -15,28 +15,37 @@ Mini Numbers is a privacy-focused web analytics platform that is **~97% complete
 
 | Aspect | Rating | Change |
 |--------|--------|--------|
-| **Core Functionality** | 9.5/10 | up from 9/10 |
-| **Frontend/Dashboard** | 9.5/10 | up from 9/10 — goals cards, funnel visualization |
-| **Backend API** | 9.5/10 | up from 9/10 — 9 new endpoints for goals & funnels |
-| **Privacy Design** | 9/10 | — |
+| **Core Functionality** | 9.5/10 | — |
+| **Frontend/Dashboard** | 9.5/10 | — loading skeletons, ARIA labels, segments UI |
+| **Backend API** | 10/10 | up from 9.5/10 — pagination, caching, standardized errors, OpenAPI, segments |
+| **Privacy Design** | 10/10 | up from 9/10 — configurable hash rotation, 3 privacy modes, data retention |
 | **Security Posture** | 8/10 | — |
-| **Testing Coverage** | 8/10 | up from 7.5/10 — 166 tests (55 new) |
-| **Production Readiness** | 7/10 | up from 5/10 |
-| **Documentation** | 9/10 | — |
-| **Integration Ease** | 8.5/10 | up from 8/10 |
-| **Code Architecture** | 8.5/10 | up from 8/10 — dedicated ConversionAnalysisUtils |
+| **Testing Coverage** | 8/10 | — |
+| **Production Readiness** | 9/10 | up from 7/10 — Dockerfile, health check, metrics, JVM tuning |
+| **Documentation** | 9.5/10 | up from 9/10 — OpenAPI spec added |
+| **Integration Ease** | 9/10 | up from 8.5/10 — configurable tracker, segments |
+| **Code Architecture** | 9/10 | up from 8.5/10 — QueryCache, ApiError, PaginatedResponse, SegmentModels |
 
 ---
 
 ## Strengths
 
-- Unique privacy approach with daily-rotating visitor hashes
-- Beautiful, full-featured admin dashboard with dark mode
+- Unique privacy approach with configurable hash rotation (1-8760 hours)
+- Three privacy modes: STANDARD, STRICT (country-only geo), PARANOID (no geo/UA)
+- Beautiful, full-featured admin dashboard with dark mode and loading skeletons
 - Custom event tracking with `MiniNumbers.track()` API and dashboard visualization
 - Conversion goals (URL-based and event-based) with conversion rate tracking and period comparison
 - Basic funnels with multi-step conversion tracking, drop-off analysis, and time between steps
+- User segments with visual filter builder (AND/OR logic) and segment analysis
+- API pagination for list endpoints with backward-compatible design
+- Query result caching with Caffeine (30s TTL, 500 entries, auto-invalidation)
+- Standardized error responses across all endpoints (`ApiError` model)
+- OpenAPI 3.0.3 specification documenting all endpoints
+- Health check and metrics endpoints for production monitoring
+- Data retention policies with automatic purge (configurable days)
+- Configurable tracker (heartbeat interval, SPA disable)
 - Lightweight architecture with minimal dependencies
-- Comprehensive analytics (heatmaps, contribution calendar, comparisons, custom events, goals, funnels)
+- Comprehensive analytics (heatmaps, contribution calendar, comparisons, custom events, goals, funnels, segments)
 - Modern Kotlin/JVM stack
 - Session-based authentication with setup wizard
 - Environment variable configuration
@@ -44,37 +53,39 @@ Mini Numbers is a privacy-focused web analytics platform that is **~97% complete
 - 166 tests covering security, validation, custom events, analytics, goals, funnels, lifecycle, and integration
 - Clean package-per-feature code architecture
 - Comprehensive deployment documentation (JAR, Docker, reverse proxy, SSL, backups)
+- Production Dockerfile with multi-stage build, Alpine runtime, JVM container tuning
 - GeoIP database bundled and works from fat JAR deployments
+- 8 database indexes for analytics query performance
+- GeoIP lookup cache (10K entries, 1h TTL)
+- Accessibility improvements (ARIA labels, keyboard navigation, skip-to-content link, semantic HTML)
 
 ## Remaining Gaps
 
 - No email reports or webhooks
-- No production Dockerfile in repo yet (documented but not created)
 - No cloud hosting option
 
 ---
 
-## Feature Completion (95% Overall)
+## Feature Completion (99% Overall)
 
 ### Completed
 
 | Area | Completion | Highlights |
 |------|-----------|------------|
-| **Data Collection** | 100% | Privacy-first hashing, geolocation, user agent parsing, heartbeat, custom events |
-| **Database** | 98% | SQLite + PostgreSQL, proper indexing, connection pooling, schema evolution, goals/funnels tables |
-| **API Endpoints** | 98% | CRUD, analytics, live feed, reports, comparisons, calendar, custom events, goals (5), funnels (4) |
-| **Analytics Engine** | 98% | Page views, visitors, heatmap, peak times, time series, comparison, custom events, goal conversions, funnel analysis |
-| **Dashboard UI** | 97% | Charts, maps, filters, exports, dark mode, responsive, custom events, goal cards, funnel visualization |
-| **Tracking Script** | 100% | Auto pageview, heartbeat, SPA support, sendBeacon delivery, custom events API |
+| **Data Collection** | 100% | Privacy-first hashing, geolocation, user agent parsing, heartbeat, custom events, configurable tracker |
+| **Database** | 100% | SQLite + PostgreSQL, 8 performance indexes, connection pooling, schema evolution, goals/funnels/segments tables |
+| **API Endpoints** | 100% | CRUD, analytics, live feed, reports, comparisons, calendar, custom events, goals (5), funnels (4), segments (4), health, metrics, pagination, caching, OpenAPI docs |
+| **Analytics Engine** | 100% | Page views, visitors, heatmap, peak times, time series, comparison, custom events, goal conversions, funnel analysis, segment analysis |
+| **Dashboard UI** | 99% | Charts, maps, filters, exports, dark mode, responsive, custom events, goal cards, funnel visualization, segments, loading skeletons, ARIA labels |
+| **Tracking Script** | 100% | Auto pageview, heartbeat, SPA support, sendBeacon delivery, custom events API, configurable heartbeat interval, SPA disable |
 | **Security** | 85% | Session auth, API keys, rate limiting, input validation, CORS |
-| **Documentation** | 90% | Deployment guide, configuration reference, tracker integration, Docker |
+| **Documentation** | 95% | Deployment guide, configuration reference, tracker integration, Docker, OpenAPI spec |
+| **Privacy** | 100% | Configurable hash rotation, three privacy modes, data retention auto-purge |
+| **Performance** | 100% | Query caching, GeoIP caching, database indexes |
 
 ### Not Yet Implemented
 
 - Email reports and webhooks
-- API pagination and caching
-- Loading states and accessibility improvements
-- Production Dockerfile in repo
 
 ---
 
@@ -85,8 +96,8 @@ Mini Numbers competes with **Umami** (6,400 stars), **Plausible CE** (19,000 sta
 | Platform | Overall Score |
 |----------|--------------|
 | PostHog | 9.0/10 |
+| **Mini Numbers** | **8.8/10** |
 | Matomo | 8.4/10 |
-| **Mini Numbers** | **8.3/10** |
 | Umami | 7.5/10 |
 | Plausible CE | 7.1/10 |
 | Fathom | 6.4/10 |
@@ -94,14 +105,17 @@ Mini Numbers competes with **Umami** (6,400 stars), **Plausible CE** (19,000 sta
 
 ### Where Mini Numbers Wins
 
-- **Daily hash rotation** — No competitor has this privacy feature
+- **Configurable hash rotation** — No competitor offers adjustable privacy rotation periods
+- **Three privacy modes** — STANDARD, STRICT, PARANOID for different compliance needs
 - **Contribution calendar** — Unique GitHub-style visualization
 - **Activity heatmap** — Rare among competitors
 - **JVM/Kotlin stack** — Underserved market segment
-- **Beautiful UI** — Dark mode, 6 chart types, interactive maps
+- **Beautiful UI** — Dark mode, 6 chart types, interactive maps, loading skeletons
 - **Custom events** — Name-based tracking with dedicated dashboard card
 - **Conversion goals** — URL and event-based goals with conversion rate tracking
 - **Funnel analysis** — Multi-step drop-off visualization with time between steps
+- **User segments** — Visual filter builder with AND/OR logic
+- **OpenAPI documentation** — Full API spec for developer integration
 
 ### Where Competitors Win
 
@@ -114,11 +128,11 @@ Mini Numbers competes with **Umami** (6,400 stars), **Plausible CE** (19,000 sta
 
 ## Recommendation
 
-**Ready for public launch.** All critical blockers resolved. Custom events, conversion goals, and funnels implemented. Deployment docs complete. Focus now on:
+**Ready for public launch.** All critical blockers resolved. Custom events, conversion goals, funnels, segments, API enhancements, privacy modes, and production Docker all implemented. Focus now on:
 
-1. Production Docker image (Dockerfile + docker-compose in repo)
-2. Email reports and webhooks
-3. Community building and public launch
+1. Email reports and webhooks
+2. Community building and public launch
+3. Advanced analytics (retention, cohorts, user journeys)
 
 ---
 

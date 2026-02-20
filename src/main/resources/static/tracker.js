@@ -5,6 +5,10 @@
     var endpoint = s.getAttribute('data-api-endpoint') || window.location.origin + '/collect';
     if (!key) return;
 
+    // Configurable options via data attributes
+    var heartbeatInterval = parseInt(s.getAttribute('data-heartbeat-interval')) || 30000;
+    var spaEnabled = s.getAttribute('data-disable-spa') !== 'true';
+
     // Session ID (per tab, no cookies)
     var sid = sessionStorage.getItem('mn_sid');
     if (!sid) {
@@ -30,30 +34,32 @@
     send('pageview');
 
     // Heartbeat (pauses when tab is hidden)
-    var hb = setInterval(function() { send('heartbeat'); }, 30000);
+    var hb = setInterval(function() { send('heartbeat'); }, heartbeatInterval);
 
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
             clearInterval(hb);
         } else {
-            hb = setInterval(function() { send('heartbeat'); }, 30000);
+            hb = setInterval(function() { send('heartbeat'); }, heartbeatInterval);
         }
     });
 
-    // SPA support via History API
-    var lastPath = location.pathname;
-    function onNav() {
-        if (lastPath !== location.pathname) {
-            lastPath = location.pathname;
-            send('pageview');
+    // SPA support via History API (can be disabled)
+    if (spaEnabled) {
+        var lastPath = location.pathname;
+        function onNav() {
+            if (lastPath !== location.pathname) {
+                lastPath = location.pathname;
+                send('pageview');
+            }
         }
-    }
 
-    var origPush = history.pushState;
-    var origReplace = history.replaceState;
-    history.pushState = function() { origPush.apply(this, arguments); onNav(); };
-    history.replaceState = function() { origReplace.apply(this, arguments); onNav(); };
-    window.addEventListener('popstate', onNav);
+        var origPush = history.pushState;
+        var origReplace = history.replaceState;
+        history.pushState = function() { origPush.apply(this, arguments); onNav(); };
+        history.replaceState = function() { origReplace.apply(this, arguments); onNav(); };
+        window.addEventListener('popstate', onNav);
+    }
 
     // Public API for custom event tracking
     window.MiniNumbers = { track: function(name) { send('custom', name); } };

@@ -49,7 +49,7 @@ object DatabaseFactory {
 
         transaction(database) {
             // Create tables and add any missing columns (supports schema evolution)
-            SchemaUtils.createMissingTablesAndColumns(Projects, Events, ConversionGoals, Funnels, FunnelSteps)
+            SchemaUtils.createMissingTablesAndColumns(Projects, Events, ConversionGoals, Funnels, FunnelSteps, Segments)
         }
     }
 

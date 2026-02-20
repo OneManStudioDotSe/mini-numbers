@@ -5,6 +5,54 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2026-02-20
+
+### Added
+
+- **API Enhancements**
+  - Pagination for list endpoints with backward-compatible `?page=&limit=` query parameters
+  - Query result caching with Caffeine (30-second TTL, 500 max entries, automatic invalidation on data changes)
+  - Standardized error responses (`ApiError` model with error code, message, and details across all endpoints)
+  - OpenAPI 3.0.3 specification at `/admin-panel/openapi.yaml` documenting all endpoints
+- **Enhanced Privacy**
+  - Configurable hash rotation period (1-8760 hours via `HASH_ROTATION_HOURS` env var, default 24)
+  - Three privacy modes via `PRIVACY_MODE` env var: STANDARD (full data), STRICT (country-only geo), PARANOID (no geo/UA)
+  - Data retention policies with auto-purge via `DATA_RETENTION_DAYS` env var (background timer every 6 hours)
+- **Performance Optimization**
+  - 5 new database indexes for analytics query performance (project+visitor, project+path, project+type+timestamp, project+country, project+browser)
+  - GeoIP lookup cache with Caffeine (10,000 entries, 1-hour TTL)
+  - Query result cache for dashboard endpoints (stats, reports, calendar, goal stats)
+- **User Segments**
+  - Visual filter builder with AND/OR logic operators
+  - Filter fields: browser, OS, device, country, city, path, referrer, event type
+  - Filter operators: equals, not_equals, contains, starts_with
+  - Segment analysis endpoint with in-memory filter evaluation
+  - Segment management modal (create, list, delete)
+  - Segment cards rendered on dashboard with analyze button
+- **Production Monitoring**
+  - Health check endpoint (`GET /health`) with uptime, version, and service state
+  - Metrics endpoint (`GET /metrics`) with event counts, cache statistics, and privacy configuration
+- **Tracker Configuration**
+  - Configurable heartbeat interval via `data-heartbeat-interval` attribute (default 30s)
+  - SPA tracking toggle via `data-disable-spa="true"` attribute
+  - Server-side tracker config endpoint (`GET /tracker/config`)
+- **Dashboard UI Improvements**
+  - Loading skeleton screens during data fetching (stat cards, chart containers)
+  - Accessibility: ARIA labels on interactive elements, `role` attributes, skip-to-content link, semantic HTML (`<nav>`, `<main>`)
+  - Keyboard navigation focus-visible styles
+  - Segment section and management modal in admin panel
+- **Docker Improvements**
+  - JVM container tuning (`-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC`)
+  - Configurable `JAVA_OPTS` environment variable
+
+### Changed
+
+- `AnalyticsSecurity` hash rotation now uses configurable epoch-hour-based buckets instead of fixed daily date strings
+- `GeoLocationService` now caches lookups in Caffeine cache before hitting MaxMind database
+- `ServiceManager` tracks uptime and manages data retention cleanup timer
+- `/collect` endpoint applies privacy mode restrictions (PARANOID: no geo/UA, STRICT: country-only)
+- Admin dashboard sidebar changed from `<div>` to semantic `<nav>` element
+
 ## [0.0.4] - 2026-02-20
 
 ### Added

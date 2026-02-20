@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" role="application">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,13 +22,16 @@
     <link rel="stylesheet" href="/admin-panel/css/components.css">
 </head>
 <body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main" class="skip-link" tabindex="0">Skip to main content</a>
+
     <!-- Mobile Menu Toggle -->
     <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
         <i data-feather="menu"></i>
     </button>
 
     <!-- Sidebar -->
-    <div id="sidebar">
+    <nav id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
             <h2>Analytics</h2>
             <div class="sidebar-inspiration" id="sidebar-inspiration"></div>
@@ -42,7 +45,7 @@
             <div class="sidebar-hint">
                 Click to switch between projects
             </div>
-            <div id="project-menu" class="project-menu">
+            <div id="project-menu" class="project-menu" role="listbox" aria-label="Projects list">
                 Loading projects...
             </div>
         </div>
@@ -60,7 +63,7 @@
     </div>
 
     <!-- Main Content -->
-    <div id="main">
+    <main id="main" role="main">
         <!-- Header -->
         <div class="dashboard-header">
             <h1 id="active-title">Select a Project</h1>
@@ -73,7 +76,7 @@
                     <i data-feather="list"></i>
                     <span>Raw Events</span>
                 </button>
-                <select class="select" id="time-filter">
+                <select class="select" id="time-filter" aria-label="Time period filter">
                     <option value="24h">Last 24 Hours</option>
                     <option value="3d">Last 3 Days</option>
                     <option value="7d" selected>Last 7 Days</option>
@@ -130,16 +133,16 @@
             </div>
 
             <!-- Stat Cards -->
-            <div class="grid grid-cols-3 mt-lg">
+            <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Key metrics">
                 <!-- Total Page Views -->
-                <div class="card stat-card">
+                <div class="card stat-card" role="status" aria-label="Total page views">
                     <div class="stat-card__header">
-                        <div class="stat-card__icon">
+                        <div class="stat-card__icon" aria-hidden="true">
                             <i data-feather="eye"></i>
                         </div>
                         <small>Total page views</small>
                     </div>
-                    <div class="stat-card__value" id="total-views">0</div>
+                    <div class="stat-card__value" id="total-views"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
                     <canvas id="sparkline-views" class="stat-card__sparkline"></canvas>
                     <div class="stat-card__comparison" id="views-comparison">
                         Loading...
@@ -147,14 +150,14 @@
                 </div>
 
                 <!-- Unique Visitors -->
-                <div class="card stat-card">
+                <div class="card stat-card" role="status" aria-label="Unique visitors">
                     <div class="stat-card__header">
-                        <div class="stat-card__icon">
+                        <div class="stat-card__icon" aria-hidden="true">
                             <i data-feather="users"></i>
                         </div>
                         <small>Unique visitors</small>
                     </div>
-                    <div class="stat-card__value" id="unique-visitors">0</div>
+                    <div class="stat-card__value" id="unique-visitors"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
                     <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
                     <div class="stat-card__comparison" id="visitors-comparison">
                         Loading...
@@ -162,14 +165,14 @@
                 </div>
 
                 <!-- Bounce Rate -->
-                <div class="card stat-card">
+                <div class="card stat-card" role="status" aria-label="Bounce rate">
                     <div class="stat-card__header">
-                        <div class="stat-card__icon">
+                        <div class="stat-card__icon" aria-hidden="true">
                             <i data-feather="log-out"></i>
                         </div>
                         <small>Bounce rate</small>
                     </div>
-                    <div class="stat-card__value" id="bounce-rate">0%</div>
+                    <div class="stat-card__value" id="bounce-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
                     <div class="stat-card__comparison" id="bounce-comparison">
                         Loading...
                     </div>
@@ -493,13 +496,27 @@
                 <div id="funnels-list">Loading...</div>
             </div>
 
+            <!-- User Segments -->
+            <div class="card mt-lg" id="segments-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i data-feather="sliders"></i> User Segments
+                    </h3>
+                    <button class="btn btn-primary btn-sm" id="manage-segments-btn" aria-label="Manage user segments">
+                        <i data-feather="settings"></i>
+                        <span>Manage Segments</span>
+                    </button>
+                </div>
+                <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
+            </div>
+
             <!-- Live Feed -->
-            <div class="card mt-lg">
+            <div class="card mt-lg" role="region" aria-label="Live visitor feed">
                 <h3>
-                    <span class="live-indicator"></span>
+                    <span class="live-indicator" aria-hidden="true"></span>
                     Live feed (last 5 minutes)
                 </h3>
-                <div id="live-feed" class="live-feed">
+                <div id="live-feed" class="live-feed" role="log" aria-live="polite" aria-label="Real-time visitor activity">
                     Waiting for data...
                 </div>
             </div>
@@ -813,6 +830,59 @@
         </div>
     </div>
 
+    <!-- Segments Management Modal -->
+    <div id="segments-modal" class="modal" role="dialog" aria-labelledby="segments-modal-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2 id="segments-modal-title">Manage User Segments</h2>
+                <button class="modal-close" id="close-segments-modal" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <h3 style="margin-top: 0;">Create New Segment</h3>
+                    <div class="form-group">
+                        <label for="segment-name">Segment Name</label>
+                        <input type="text" id="segment-name" class="input" placeholder="e.g. Mobile Chrome Users" aria-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="segment-description">Description (Optional)</label>
+                        <input type="text" id="segment-description" class="input" placeholder="e.g. Users on Chrome mobile browser">
+                    </div>
+
+                    <label style="display: block; margin-bottom: var(--spacing-sm); font-weight: var(--font-weight-medium);">Filters</label>
+                    <div id="segment-filters-container" role="list" aria-label="Segment filters">
+                        <!-- Filters rendered dynamically -->
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
+                        <button class="btn btn-ghost btn-sm" id="add-segment-filter-btn" aria-label="Add filter condition">
+                            <i data-feather="plus"></i> Add Filter
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="create-segment-btn">Create Segment</button>
+                    </div>
+                </div>
+
+                <h3>Existing Segments</h3>
+                <div class="table-container">
+                    <table aria-label="Existing segments">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Filters</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="segments-table-body">
+                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Modules -->
     <script src="/admin-panel/js/theme.js"></script>
     <script src="/admin-panel/js/settings.js"></script>
@@ -820,6 +890,7 @@
     <script src="/admin-panel/js/charts.js"></script>
     <script src="/admin-panel/js/map.js"></script>
     <script src="/admin-panel/js/goals.js"></script>
+    <script src="/admin-panel/js/segments.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
     <!-- Initialize Feather Icons -->

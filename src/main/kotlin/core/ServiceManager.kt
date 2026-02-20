@@ -1,23 +1,28 @@
 package se.onemanstudio.core
 
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.db.DatabaseFactory
+import se.onemanstudio.db.Events
 import se.onemanstudio.services.GeoLocationService
+import java.time.LocalDateTime
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Centralized service lifecycle management with state tracking and reload capability
- *
- * This manager handles initialization and reloading of all application services
- * (database, security, GeoIP) in a thread-safe manner.
  */
 object ServiceManager {
 
     enum class State {
-        UNINITIALIZED,  // Before setup complete
-        INITIALIZING,   // Services being initialized
-        READY,          // All services ready
-        ERROR           // Initialization failed
+        UNINITIALIZED,
+        INITIALIZING,
+        READY,
+        ERROR
     }
 
     @Volatile
@@ -26,20 +31,16 @@ object ServiceManager {
     @Volatile
     private var lastError: Throwable? = null
 
+    @Volatile
+    private var startTime: Long = 0
+
+    private var retentionTimer: Timer? = null
+
     fun isReady(): Boolean = currentState == State.READY
     fun getState(): State = currentState
     fun getLastError(): Throwable? = lastError
+    fun getUptimeSeconds(): Long = if (startTime > 0) (System.currentTimeMillis() - startTime) / 1000 else 0
 
-    /**
-     * Initialize all application services with the given configuration
-     *
-     * This method is idempotent - safe to call multiple times.
-     * Thread-safe via @Synchronized annotation.
-     *
-     * @param config Application configuration
-     * @param logger Logger for tracking initialization progress
-     * @return true if initialization successful, false otherwise
-     */
     @Synchronized
     fun initialize(config: AppConfig, logger: Logger): Boolean {
         if (currentState == State.READY) {
@@ -51,17 +52,17 @@ object ServiceManager {
         lastError = null
 
         try {
-            // 1. Initialize security module
+            // 1. Initialize security module with configurable rotation
             logger.info("Initializing security module...")
-            AnalyticsSecurity.init(config.security.serverSalt)
-            logger.info("Security module initialized successfully")
+            AnalyticsSecurity.init(config.security.serverSalt, config.privacy.hashRotationHours)
+            logger.info("Security module initialized (hash rotation: ${config.privacy.hashRotationHours}h, privacy mode: ${config.privacy.privacyMode})")
 
             // 2. Initialize database
             logger.info("Initializing database...")
             DatabaseFactory.init(config.database)
             logger.info("Database initialized successfully")
 
-            // 3. Initialize GeoIP service (optional - failure is non-fatal)
+            // 3. Initialize GeoIP service (optional)
             logger.info("Initializing GeoIP service...")
             try {
                 GeoLocationService.init(config.geoip.databasePath)
@@ -71,7 +72,14 @@ object ServiceManager {
                 logger.warn("Location tracking will be disabled")
             }
 
+            // 4. Start data retention cleanup if configured
+            if (config.privacy.dataRetentionDays > 0) {
+                startRetentionCleanup(config.privacy.dataRetentionDays, logger)
+                logger.info("Data retention policy active: ${config.privacy.dataRetentionDays} days")
+            }
+
             currentState = State.READY
+            startTime = System.currentTimeMillis()
             logger.info("All services initialized successfully")
             return true
 
@@ -83,50 +91,58 @@ object ServiceManager {
         }
     }
 
-    /**
-     * Reload all services with new configuration
-     *
-     * This resets the state and reinitializes all services.
-     *
-     * @param config New application configuration
-     * @param logger Logger for tracking reload progress
-     * @return true if reload successful, false otherwise
-     */
     @Synchronized
     fun reload(config: AppConfig, logger: Logger): Boolean {
         logger.info("Reloading services with new configuration...")
+        stopRetentionCleanup()
         currentState = State.UNINITIALIZED
         return initialize(config, logger)
     }
 
-    /**
-     * Shutdown all services and release resources
-     *
-     * This method should be called on application shutdown to properly
-     * close database connections, GeoIP readers, and other resources.
-     *
-     * Thread-safe via @Synchronized annotation.
-     *
-     * @param logger Logger for tracking shutdown progress
-     */
     @Synchronized
     fun shutdown(logger: Logger) {
         logger.info("Shutting down services...")
 
         try {
-            // Close GeoIP service
-            logger.info("Closing GeoIP service...")
+            stopRetentionCleanup()
             GeoLocationService.close()
-
-            // Close database connections
-            logger.info("Closing database connections...")
             DatabaseFactory.close()
-
             currentState = State.UNINITIALIZED
+            startTime = 0
             logger.info("All services shut down successfully")
-
         } catch (e: Exception) {
             logger.error("Error during shutdown: ${e.message}", e)
         }
+    }
+
+    /**
+     * Start periodic data retention cleanup
+     */
+    private fun startRetentionCleanup(retentionDays: Int, logger: Logger) {
+        stopRetentionCleanup()
+
+        retentionTimer = Timer("data-retention", true).apply {
+            // Run cleanup every 6 hours
+            scheduleAtFixedRate(object : TimerTask() {
+                override fun run() {
+                    try {
+                        val cutoff = LocalDateTime.now().minusDays(retentionDays.toLong())
+                        val deleted = transaction {
+                            Events.deleteWhere { Events.timestamp less cutoff }
+                        }
+                        if (deleted > 0) {
+                            logger.info("Data retention cleanup: deleted $deleted events older than $retentionDays days")
+                        }
+                    } catch (e: Exception) {
+                        logger.error("Data retention cleanup failed: ${e.message}")
+                    }
+                }
+            }, 60_000L, 6 * 60 * 60 * 1000L) // Start after 1 min, run every 6h
+        }
+    }
+
+    private fun stopRetentionCleanup() {
+        retentionTimer?.cancel()
+        retentionTimer = null
     }
 }
