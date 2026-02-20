@@ -1,44 +1,114 @@
 # Mini Numbers
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+A **privacy-first, minimalist web analytics platform** built with Kotlin and Ktor. Track your website traffic without compromising visitor privacy — a lightweight, self-hosted alternative to Google Analytics.
 
-Here are some useful links to get you started:
+## Why Mini Numbers?
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+- **No cookies** — No consent banners needed
+- **No PII stored** — IP addresses are never persisted
+- **Daily-rotating visitor hashes** — Prevents cross-day tracking
+- **Self-hosted** — Complete data ownership
+- **Lightweight** — < 2KB tracking script
+- **GDPR-friendly** — Privacy by design
 
 ## Features
 
-Here's a list of features included in this project:
+- Real-time analytics dashboard with time series charts
+- Multi-project support with unique API keys
+- Activity heatmap (7 days x 24 hours)
+- GitHub-style contribution calendar (365 days)
+- Live visitor feed with geographic data
+- Browser, OS, device, and referrer breakdowns
+- SPA support via MutationObserver
+- GeoIP-based country/city detection (MaxMind GeoLite2)
+- Light/dark theme support
+- Demo data generator for testing
 
-| Name                                                               | Description                                                                        |
-|--------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [AsyncAPI](https://start.ktor.io/p/asyncapi)                       | Generates and serves AsyncAPI documentation                                        |
-| [CORS](https://start.ktor.io/p/cors)                               | Enables Cross-Origin Resource Sharing (CORS)                                       |
-| [Routing](https://start.ktor.io/p/routing)                         | Provides a structured routing DSL                                                  |
-| [Authentication](https://start.ktor.io/p/auth)                     | Provides extension point for handling the Authorization header                     |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation) | Provides automatic content conversion according to Content-Type and Accept headers |
+## Quick Start
+
+### 1. Run the application
+
+```bash
+./gradlew run
+```
+
+### 2. Complete the setup wizard
+
+Visit `http://localhost:8080` — the web-based setup wizard will guide you through:
+
+1. **Security** — Admin credentials and server salt (auto-generated)
+2. **Database** — SQLite (simple) or PostgreSQL (production)
+3. **Server** — Port, CORS origins, development mode
+4. **Advanced** — GeoIP path, rate limiting
+5. **Review** — Confirm and save
+
+No restart required — the app transitions seamlessly to the admin panel.
+
+### 3. Add the tracking script
+
+```html
+<script
+  async
+  src="https://your-domain.com/admin-panel/tracker.js"
+  data-project-key="YOUR_API_KEY">
+</script>
+```
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Framework | Ktor 3.4.0 |
+| Language | Kotlin 2.3.0 (JDK 21) |
+| Database | SQLite or PostgreSQL (Exposed ORM) |
+| Server | Netty (embedded) |
+| GeoIP | MaxMind GeoLite2 |
+| Build | Gradle with Kotlin DSL |
 
 ## Building & Running
 
-To build or run the project, use one of the following tasks:
+| Task | Description |
+|------|-------------|
+| `./gradlew run` | Run the server (development) |
+| `./gradlew test` | Run the test suite (103 tests) |
+| `./gradlew build` | Build everything |
+| `./gradlew buildFatJar` | Build executable JAR with all dependencies |
+| `./gradlew buildImage` | Build Docker image |
+| `./gradlew runDocker` | Run using local Docker image |
+| `./gradlew reset` | Reset database and re-seed demo data |
 
-| Task                                    | Description                                                          |
-|-----------------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+## Configuration
 
-If the server starts successfully, you'll see the following output:
+Configuration is managed via `.env` file (created by the setup wizard) or environment variables:
 
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ADMIN_PASSWORD` | Yes | — | Admin panel password |
+| `SERVER_SALT` | Yes | — | Server salt for visitor hashing (min 32 chars) |
+| `ADMIN_USERNAME` | No | `admin` | Admin panel username |
+| `DB_TYPE` | No | `SQLITE` | Database type (`SQLITE` or `POSTGRESQL`) |
+| `DB_SQLITE_PATH` | No | `./stats.db` | SQLite database file path |
+| `SERVER_PORT` | No | `8080` | Server port |
+| `KTOR_DEVELOPMENT` | No | `false` | Development mode (relaxes CORS) |
+| `ALLOWED_ORIGINS` | No | — | Comma-separated allowed CORS origins |
+| `RATE_LIMIT_PER_IP` | No | `1000` | Max requests per IP per minute |
+| `RATE_LIMIT_PER_API_KEY` | No | `10000` | Max requests per API key per minute |
+
+## Testing
+
+```bash
+./gradlew test
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
-```
 
+103 tests covering security, input validation, service lifecycle, data collection, and edge cases. See [CLAUDE.md](CLAUDE.md) for detailed test organization.
+
+## Documentation
+
+- [CLAUDE.md](CLAUDE.md) — Full technical architecture and API reference
+- [_docs/CHANGELOG.md](_docs/CHANGELOG.md) — Version history
+- [_docs/ROADMAP.md](_docs/ROADMAP.md) — Development roadmap
+- [_docs/TODO.md](_docs/TODO.md) — Task tracking
+
+## License
+
+All rights reserved. See LICENSE for details.
