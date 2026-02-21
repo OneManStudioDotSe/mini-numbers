@@ -231,12 +231,20 @@ const Dashboard = {
           data-id="${project.id}"
           onclick="Dashboard.selectProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')"
         >
-          <div class="project-menu__name">${Utils.escapeHtml(project.name)}</div>
-          <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
+          <div class="project-menu__info">
+            <div class="project-menu__name">${Utils.escapeHtml(project.name)}</div>
+            <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
+          </div>
+          <button class="project-menu__delete" onclick="event.stopPropagation(); Dashboard.confirmDeleteProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')" title="Delete project" aria-label="Delete ${Utils.escapeHtml(project.name)}">
+            <i data-feather="trash-2"></i>
+          </button>
         </div>
       `
         )
         .join('');
+
+      // Render feather icons for delete buttons
+      if (window.feather) feather.replace();
 
       // Restore active state if a project is selected
       if (this.state.currentProjectId) {
@@ -249,6 +257,47 @@ const Dashboard = {
     } catch (error) {
       console.error('Failed to load projects:', error);
       Utils.toast.error('Failed to load projects');
+    }
+  },
+
+  /**
+   * Show confirmation modal before deleting a project
+   */
+  confirmDeleteProject(projectId, projectName) {
+    const modal = document.getElementById('delete-project-modal');
+    if (!modal) return;
+
+    document.getElementById('delete-project-name').textContent = projectName;
+    modal.dataset.projectId = projectId;
+    modal.classList.add('show');
+  },
+
+  /**
+   * Delete a project after confirmation
+   */
+  async deleteProject(projectId) {
+    try {
+      await fetch(`/admin/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: Utils.auth.getHeader(),
+      });
+
+      const modal = document.getElementById('delete-project-modal');
+      if (modal) modal.classList.remove('show');
+
+      // If we deleted the currently selected project, clear the view
+      if (this.state.currentProjectId === projectId) {
+        this.state.currentProjectId = null;
+        const dashboardContent = document.getElementById('dashboard-content');
+        if (dashboardContent) Utils.dom.hide(dashboardContent);
+      }
+
+      Utils.cache.clear('/admin/projects');
+      await this.loadProjects();
+      Utils.toast.success('Project deleted');
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      Utils.toast.error('Failed to delete project');
     }
   },
 
@@ -848,6 +897,21 @@ const Dashboard = {
 
         const topCountEl = document.getElementById('top-custom-event-count');
         if (topCountEl) topCountEl.textContent = `${Utils.format.number(topEvent.value)} occurrences`;
+
+        // Populate custom events breakdown
+        const breakdownList = customEventsCards.querySelector('.custom-events-breakdown__list');
+        if (breakdownList) {
+          breakdownList.innerHTML = data.customEvents.map(e => {
+            const pct = totalEvents > 0 ? ((e.value / totalEvents) * 100).toFixed(1) : 0;
+            return `<div class="custom-events-breakdown__item">
+              <div class="custom-events-breakdown__name">${Utils.escapeHtml(e.label)}</div>
+              <div class="custom-events-breakdown__bar-wrap">
+                <div class="custom-events-breakdown__bar" style="width: ${pct}%"></div>
+              </div>
+              <div class="custom-events-breakdown__count">${Utils.format.number(e.value)}<span class="custom-events-breakdown__pct">${pct}%</span></div>
+            </div>`;
+          }).join('');
+        }
       }
     } else {
       if (customEventsSection) customEventsSection.style.display = 'none';

@@ -537,6 +537,9 @@ tbody tr:nth-child(even):hover td {
 }
 
 .project-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--spacing-md);
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -546,6 +549,12 @@ tbody tr:nth-child(even):hover td {
   border: 1px solid transparent;
   border-left: 3px solid transparent;
   position: relative;
+  gap: var(--spacing-sm);
+}
+
+.project-menu__info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -588,6 +597,37 @@ tbody tr:nth-child(even):hover td {
 
 .project-menu__item.active .project-menu__domain {
   opacity: 0.8;
+}
+
+.project-menu__delete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-sidebar-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.project-menu__item:hover .project-menu__delete {
+  opacity: 0.6;
+}
+
+.project-menu__delete:hover {
+  opacity: 1 !important;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-danger);
+}
+
+.project-menu__delete svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* Empty State */
@@ -1494,6 +1534,65 @@ tbody tr:nth-child(even):hover td {
 .show-more-btn:hover {
   background: var(--color-primary-light);
   border-color: var(--color-primary);
+}
+
+/* ============================================
+   CUSTOM EVENTS BREAKDOWN
+   ============================================ */
+
+.custom-events-breakdown__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.custom-events-breakdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.custom-events-breakdown__name {
+  flex: 0 0 120px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-events-breakdown__bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.custom-events-breakdown__bar {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  min-width: 2px;
+  transition: width var(--transition-normal);
+}
+
+.custom-events-breakdown__count {
+  flex: 0 0 auto;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-align: right;
+  min-width: 50px;
+}
+
+.custom-events-breakdown__pct {
+  margin-left: var(--spacing-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 }
 
 /* ============================================
