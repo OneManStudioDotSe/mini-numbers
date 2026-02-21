@@ -1,6 +1,6 @@
 # Mini Numbers - Market Viability Assessment
 
-**Date**: February 20, 2026
+**Date**: February 21, 2026
 
 ---
 
@@ -16,14 +16,14 @@
 | Unique Features | 9/10 |
 | Documentation | 9.5/10 |
 
-**Key strengths**: Configurable hash rotation (unique), three privacy modes, Kotlin/JVM stack, beautiful dashboard with dark mode, contribution calendar (unique), activity heatmap (rare), custom event tracking, conversion goals, funnels, user segments, comprehensive deployment documentation, GeoIP bundled for JAR deployments, OpenAPI documentation, loading skeletons, accessibility improvements.
+**Key strengths**: Configurable hash rotation (unique), three privacy modes, Kotlin/JVM stack, beautiful dashboard with dark mode, contribution calendar (unique), activity heatmap (rare), custom event tracking, conversion goals, funnels, user segments, custom events breakdown with summary cards, comprehensive deployment documentation, GeoIP bundled for JAR deployments, OpenAPI documentation, loading skeletons, accessibility improvements.
 
 ### Weaknesses
 
 | Category | Rating | Notes |
 |----------|--------|-------|
 | Security | 8/10 | Resolved (previously 3/10) |
-| Testing | 8/10 | 166 tests (previously 2/10) |
+| Testing | 9/10 | 250 tests, all passing (previously 2/10) |
 | Features | 9/10 | Custom events, goals, funnels, segments done; email reports pending |
 | Deployment | 9/10 | Dockerfile, docker-compose, health check, metrics all in repo |
 | Community | 0/10 | New project, no ecosystem yet |
@@ -40,6 +40,7 @@
 7. **Open source** — Transparency and trust vs closed-source SaaS
 8. **Custom events** — Now competitive with Umami and Plausible on event tracking
 9. **Segments** — Visual filter builder with AND/OR logic for advanced analytics
+10. **Demo experience** — One-click demo project with pre-seeded goals, funnels, and segments
 
 ### Threats
 

@@ -5,6 +5,41 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2026-02-21
+
+### Added
+
+- **Dashboard UI Overhaul**
+  - Merged date range display with filter bar into a unified row
+  - "Show more" / "Show less" toggle for horizontal bar charts with more than 5 entries
+  - Custom events summary cards: total events count and top event with occurrence count
+  - Custom events breakdown list with proportional progress bars and percentages
+  - Activity heatmap now shows actual dates next to day names (e.g., "Mon Feb 17")
+  - Dynamic bar chart height based on data count for consistent 20px spacing between bars
+- **Project Management**
+  - Delete button on sidebar project items (appears on hover)
+  - Confirmation modal before project deletion with project name and data warning
+- **Demo Data Improvements**
+  - Expanded custom event names from 6 to 10 (added add_to_cart, video_play, search, scroll_depth)
+  - Demo data generator now seeds 5 conversion goals, 2 funnels with steps, and 3 user segments
+  - Idempotent seeding: skips if goals/funnels/segments already exist
+- **Extended Test Suite** — 84 new tests (250 total, up from 166)
+  - Setup wizard tests (10 tests in SetupWizardTest)
+  - Expanded coverage for security, analytics, admin endpoints, and end-to-end workflows
+
+### Changed
+
+- Custom event generation probability increased from 15% to 25% for richer demo data
+- "Views over time" chart limited to 3-day window for better readability
+- Activity heatmap uses linear y-axis instead of category axis for accurate tooltip data
+- Heatmap color setting now dynamically reads from SettingsManager and rebuilds chart on change
+
+### Fixed
+
+- Activity heatmap tooltip showing wrong day names when hovering over cells
+- Heatmap color setting in Settings having no visual effect
+- All 250 tests passing (previously 166 with some failures)
+
 ## [0.0.5] - 2026-02-20
 
 ### Added
@@ -67,7 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dashboard: Horizontal funnel visualization with drop-off percentages and avg time between steps
   - Analysis: Session-based sequential step completion (events must occur in chronological order)
   - Funnel management modal with dynamic step builder (add/remove steps)
-- **Expanded test suite** — 55 new tests (166 total, up from 111)
+- **Expanded test suite** — 55 new tests (166 total, up from 111; later expanded to 250 in v0.0.6)
   - Analytics calculation tests (22 tests) — period calculations, report generation, bounce rate, heatmap, time series, contribution calendar
   - Admin endpoint integration tests (14 tests) — authentication, project CRUD, analytics endpoints
   - End-to-end tracking workflow tests (9 tests) — create project, collect events, verify analytics
@@ -104,8 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Tracker script** — Internal `track()` renamed to `send(type, eventName)` to support custom event payloads
-- **Demo data generator** — Now includes custom events (~15% of engaged session events)
-  - Event names: signup, download, purchase, newsletter_subscribe, share, contact_form
+- **Demo data generator** — Now includes custom events (~25% of engaged session events)
+  - Event names: signup, download, purchase, newsletter_subscribe, share, contact_form, add_to_cart, video_play, search, scroll_depth
 - **Raw events table** — Shows event name in badge for custom events (e.g., "custom: signup")
 - **Dashboard badges** — New color scheme: primary (pageview), secondary (heartbeat), accent (custom)
 

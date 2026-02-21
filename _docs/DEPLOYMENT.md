@@ -281,6 +281,11 @@ All configuration is stored in the `.env` file in the application root. Environm
 | `GEOIP_DATABASE_PATH` | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path |
 | `RATE_LIMIT_PER_IP` | `1000` | Max requests per minute per IP |
 | `RATE_LIMIT_PER_API_KEY` | `10000` | Max requests per minute per API key |
+| `HASH_ROTATION_HOURS` | `24` | Hash rotation period in hours (1-8760) |
+| `PRIVACY_MODE` | `STANDARD` | Privacy mode: `STANDARD`, `STRICT`, or `PARANOID` |
+| `DATA_RETENTION_DAYS` | `0` | Auto-delete events older than N days (0 = disabled) |
+| `TRACKER_HEARTBEAT_INTERVAL` | `30` | Default heartbeat interval in seconds |
+| `TRACKER_SPA_ENABLED` | `true` | Enable SPA tracking by default |
 
 ### PostgreSQL Variables (required when `DB_TYPE=POSTGRESQL`)
 
@@ -313,6 +318,15 @@ DB_SQLITE_PATH=./stats.db
 # Rate Limiting
 RATE_LIMIT_PER_IP=1000
 RATE_LIMIT_PER_API_KEY=10000
+
+# Privacy
+HASH_ROTATION_HOURS=24
+PRIVACY_MODE=STANDARD
+DATA_RETENTION_DAYS=0
+
+# Tracker
+TRACKER_HEARTBEAT_INTERVAL=30
+TRACKER_SPA_ENABLED=true
 ```
 
 ---
@@ -375,8 +389,8 @@ If your analytics server is on a different domain:
 
 ### Tracker Size
 
-- Source: ~2 KB
-- Minified: ~1.5 KB (auto-generated during build)
+- Source: ~1.9 KB
+- Minified: ~1.3 KB (auto-generated during build via `./gradlew minifyTracker`)
 - No external dependencies
 
 ---

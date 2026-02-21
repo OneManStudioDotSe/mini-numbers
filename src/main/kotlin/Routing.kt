@@ -441,7 +441,9 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
             }
 
             val generated = transaction {
-                generateDemoData(id, count, timeScope)
+                val eventCount = generateDemoData(id, count, timeScope)
+                seedDemoGoalsFunnelsSegments(id)
+                eventCount
             }
             QueryCache.invalidateProject(id.toString())
 
@@ -1006,7 +1008,10 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
         "https://linkedin.com", "https://news.ycombinator.com"
     )
 
-    val customEventNames = listOf("signup", "download", "purchase", "newsletter_subscribe", "share", "contact_form")
+    val customEventNames = listOf(
+        "signup", "download", "purchase", "newsletter_subscribe", "share",
+        "contact_form", "add_to_cart", "video_play", "search", "scroll_depth"
+    )
     val browsers = listOf("Chrome", "Firefox", "Safari", "Edge", "Opera")
     val oses = listOf("Windows", "macOS", "Linux", "iOS", "Android")
     val devices = listOf("Desktop", "Mobile", "Tablet")
@@ -1069,7 +1074,7 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
                 eventType = "pageview"
                 path = firstPath
                 customEventName = null
-            } else if (!isBounce && random.nextDouble() < 0.15) {
+            } else if (!isBounce && random.nextDouble() < 0.25) {
                 eventType = "custom"
                 path = firstPath
                 customEventName = customEventNames.random()
@@ -1107,4 +1112,113 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
     }
 
     return inserted
+}
+
+/**
+ * Seed demo conversion goals, funnels, and segments for a project.
+ * Skips creation if goals/funnels/segments already exist for the project.
+ */
+private fun seedDemoGoalsFunnelsSegments(projectId: java.util.UUID) {
+    // Only seed if none exist yet
+    val hasGoals = ConversionGoals.selectAll().where { ConversionGoals.projectId eq projectId }.count() > 0
+    val hasFunnels = Funnels.selectAll().where { Funnels.projectId eq projectId }.count() > 0
+    val hasSegments = Segments.selectAll().where { Segments.projectId eq projectId }.count() > 0
+
+    if (!hasGoals) {
+        // Conversion goals matching the demo event names and paths
+        val goals = listOf(
+            Triple("Signups", "event", "signup"),
+            Triple("Purchases", "event", "purchase"),
+            Triple("Newsletter subscribers", "event", "newsletter_subscribe"),
+            Triple("Pricing page visits", "url", "/pricing"),
+            Triple("Blog readers", "url", "/blog"),
+        )
+        for ((name, type, matchValue) in goals) {
+            ConversionGoals.insert {
+                it[id] = UUID.randomUUID()
+                it[ConversionGoals.projectId] = projectId
+                it[ConversionGoals.name] = name
+                it[goalType] = type
+                it[ConversionGoals.matchValue] = matchValue
+            }
+        }
+    }
+
+    if (!hasFunnels) {
+        // Funnel 1: Product purchase funnel
+        val purchaseFunnelId = UUID.randomUUID()
+        Funnels.insert {
+            it[id] = purchaseFunnelId
+            it[Funnels.projectId] = projectId
+            it[name] = "Product Purchase"
+        }
+        val purchaseSteps = listOf(
+            Triple(1, "View products", "/products" to "url"),
+            Triple(2, "View product detail", "/products/item-1" to "url"),
+            Triple(3, "Add to cart", "add_to_cart" to "event"),
+            Triple(4, "Complete purchase", "purchase" to "event"),
+        )
+        for ((order, stepName, matchPair) in purchaseSteps) {
+            FunnelSteps.insert {
+                it[id] = UUID.randomUUID()
+                it[funnelId] = purchaseFunnelId
+                it[stepNumber] = order
+                it[name] = stepName
+                it[stepType] = matchPair.second
+                it[matchValue] = matchPair.first
+            }
+        }
+
+        // Funnel 2: Signup funnel
+        val signupFunnelId = UUID.randomUUID()
+        Funnels.insert {
+            it[id] = signupFunnelId
+            it[Funnels.projectId] = projectId
+            it[name] = "User Signup"
+        }
+        val signupSteps = listOf(
+            Triple(1, "Visit homepage", "/" to "url"),
+            Triple(2, "View pricing", "/pricing" to "url"),
+            Triple(3, "Sign up", "signup" to "event"),
+        )
+        for ((order, stepName, matchPair) in signupSteps) {
+            FunnelSteps.insert {
+                it[id] = UUID.randomUUID()
+                it[funnelId] = signupFunnelId
+                it[stepNumber] = order
+                it[name] = stepName
+                it[stepType] = matchPair.second
+                it[matchValue] = matchPair.first
+            }
+        }
+    }
+
+    if (!hasSegments) {
+        val segments = listOf(
+            Triple(
+                "Mobile visitors",
+                "Visitors using mobile devices",
+                """[{"field":"device","operator":"equals","value":"Mobile","logic":"AND"}]"""
+            ),
+            Triple(
+                "US traffic",
+                "Visitors from the United States",
+                """[{"field":"country","operator":"equals","value":"United States","logic":"AND"}]"""
+            ),
+            Triple(
+                "Chrome desktop users",
+                "Desktop visitors using Chrome",
+                """[{"field":"browser","operator":"equals","value":"Chrome","logic":"AND"},{"field":"device","operator":"equals","value":"Desktop","logic":"AND"}]"""
+            ),
+        )
+        for ((name, description, filtersJson) in segments) {
+            Segments.insert {
+                it[id] = UUID.randomUUID()
+                it[Segments.projectId] = projectId
+                it[Segments.name] = name
+                it[Segments.description] = description
+                it[Segments.filtersJson] = filtersJson
+            }
+        }
+    }
 }

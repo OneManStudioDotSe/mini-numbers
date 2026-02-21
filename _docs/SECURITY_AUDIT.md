@@ -1,6 +1,6 @@
 # Mini Numbers - Security Audit
 
-**Date**: February 20, 2026
+**Date**: February 21, 2026
 **Scope**: Full application review
 
 ---
@@ -44,6 +44,8 @@
 - **FIXED**: `updateTables()` now uses `Utils.escapeHtml()` for `visit.path` and `visit.city`
 - **FIXED**: `updateLiveFeed()` now uses `Utils.escapeHtml()` for `visit.path` and `visit.city`
 - **LOW**: Project name in `loadProjects()` onclick handler uses `replace(/'/g, "\\'")` — partial mitigation. The name comes from the authenticated admin API, so risk is minimal.
+- **PASS**: Project delete confirmation modal uses `textContent` for project name (no innerHTML injection)
+- **PASS**: Custom events breakdown uses `Utils.escapeHtml()` for event labels
 
 ---
 
@@ -124,6 +126,7 @@
 - **PASS**: No stack traces or internal details in error responses
 - **PASS**: API endpoints properly check authentication
 - **INFO**: No CSRF tokens, but mitigated by JSON API (not form-based)
+- **PASS**: Project deletion requires confirmation dialog before API call
 
 ---
 

@@ -42,6 +42,8 @@
 - [ ] API key can be copied to clipboard
 - [ ] Select project loads dashboard data
 - [ ] Delete project removes all associated data
+- [ ] Delete button appears on hover over sidebar project items
+- [ ] Delete confirmation modal shows project name and warning
 - [ ] Empty state shows when no projects exist
 
 ### Dashboard
@@ -51,6 +53,7 @@
 - [ ] Comparison metrics show percentage change
 - [ ] Time filter switching updates all data
 - [ ] Date range display updates correctly
+- [ ] Filter bar shows date range and filter controls in a unified row
 
 ### Charts & Visualizations
 
@@ -66,6 +69,10 @@
 - [ ] Activity heatmap renders with peak highlighting
 - [ ] Contribution calendar renders 365 days
 - [ ] Custom events section appears only when events exist
+- [ ] Custom events summary cards show total count and top event
+- [ ] Custom events breakdown list shows all events with progress bars
+- [ ] Show more/less button works on bar charts with >5 entries
+- [ ] Activity heatmap shows actual dates next to day names
 - [ ] Empty states show when no data exists for each chart
 
 ### Data Export
@@ -106,7 +113,7 @@
 
 - [ ] Time format toggle (12h/24h) applies to all timestamps
 - [ ] Date format changes apply
-- [ ] Heatmap color scheme changes
+- [ ] Heatmap color scheme changes apply to both activity heatmap and contribution calendar
 - [ ] Project rename works
 - [ ] API key display and copy
 
