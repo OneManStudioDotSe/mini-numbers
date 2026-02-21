@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard</title>
+    <title>Mini Numbers - Dashboard</title>
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -33,17 +33,14 @@
     <!-- Sidebar -->
     <nav id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-            <h2>Analytics</h2>
-            <div class="sidebar-inspiration" id="sidebar-inspiration"></div>
+            <h2>Mini Numbers</h2>
+            <div class="sidebar-subtitle">Privacy-First Analytics</div>
         </div>
 
-        <div class="sidebar-section">
+        <div class="sidebar-section" id="projects-section">
             <div class="sidebar-section__title">
                 <i data-feather="folder"></i>
                 <span>Your Projects</span>
-            </div>
-            <div class="sidebar-hint">
-                Click to switch between projects
             </div>
             <div id="project-menu" class="project-menu" role="listbox" aria-label="Projects list">
                 Loading projects...
@@ -51,6 +48,10 @@
         </div>
 
         <div class="sidebar-footer">
+            <button class="btn btn-ghost sidebar-btn" id="demo-project-btn" onclick="Dashboard.createOrBrowseDemoProject()">
+                <i data-feather="play-circle"></i>
+                <span>Demo Project</span>
+            </button>
             <button class="btn btn-primary sidebar-btn" id="new-project-btn" onclick="Dashboard.showCreateProjectDialog()">
                 <i data-feather="plus"></i>
                 <span>New Project</span>
@@ -60,7 +61,7 @@
                 <span>Sign Out</span>
             </button>
         </div>
-    </div>
+    </nav>
 
     <!-- Main Content -->
     <main id="main" role="main">
@@ -522,7 +523,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <!-- Demo Data Generator Modal -->
     <div id="demo-data-modal" class="modal">
@@ -561,34 +562,75 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Create New Project</h2>
+                <h2 id="create-project-title">Create New Project</h2>
                 <button class="modal-close" id="close-create-project">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="project-name">Project Name*</label>
-                    <input type="text" id="project-name" class="input" placeholder="My Website" required />
-                    <small class="help-text">A friendly name for your project</small>
+                <!-- Step indicator -->
+                <div class="step-indicator" id="create-step-indicator">
+                    <div class="step-dot active" data-step="1"></div>
+                    <div class="step-dot" data-step="2"></div>
                 </div>
-                <div class="form-group">
-                    <label for="project-subtitle">Subtitle (Optional)</label>
-                    <input type="text" id="project-subtitle" class="input" placeholder="Production" />
-                    <small class="help-text">Environment or short description</small>
+
+                <!-- Step 1: Project details -->
+                <div id="create-step-1">
+                    <div class="form-group">
+                        <label for="project-name">
+                            <i data-feather="tag" class="form-icon"></i>
+                            Project Name
+                        </label>
+                        <input type="text" id="project-name" class="input" placeholder="My Website" required />
+                        <small class="help-text">A friendly name to identify your project</small>
+                        <div class="field-error" id="project-name-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-domain">
+                            <i data-feather="globe" class="form-icon"></i>
+                            Domain
+                        </label>
+                        <input type="text" id="project-domain" class="input" placeholder="example.com" required />
+                        <small class="help-text">Enter without https:// or www. prefix</small>
+                        <div class="field-error" id="project-domain-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i data-feather="key" class="form-icon"></i>
+                            API Key (pre-generated)
+                        </label>
+                        <div class="api-key-display">
+                            <code id="generated-api-key">...</code>
+                            <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key" title="Copy to clipboard">
+                                <i data-feather="copy"></i>
+                            </button>
+                        </div>
+                        <small class="help-text">This key will be assigned to your project</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="project-domain">Domain*</label>
-                    <input type="text" id="project-domain" class="input" placeholder="example.com" required />
-                    <small class="help-text">Primary domain for this project</small>
-                </div>
-                <div id="api-key-preview" class="form-group" style="display: none;">
-                    <label>API Key (Generated)</label>
-                    <div class="api-key-display">
-                        <code id="generated-api-key">...</code>
-                        <button class="btn btn-ghost btn-icon" id="copy-api-key" title="Copy to clipboard">
+
+                <!-- Step 2: Success + tracking snippet -->
+                <div id="create-step-2" style="display: none;">
+                    <div class="create-success">
+                        <div class="create-success__icon">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <h3>Project Created!</h3>
+                        <p class="text-muted">Add this snippet to your website's <code>&lt;head&gt;</code> to start tracking:</p>
+                    </div>
+                    <div class="snippet-block">
+                        <pre id="tracking-snippet-code"></pre>
+                        <button type="button" class="btn btn-ghost btn-icon snippet-copy" id="copy-snippet" title="Copy snippet">
                             <i data-feather="copy"></i>
                         </button>
                     </div>
-                    <small class="help-text">Save this key - you'll need it to configure tracking</small>
+                    <div class="form-group" style="margin-top: var(--spacing-md);">
+                        <label>API Key</label>
+                        <div class="api-key-display">
+                            <code id="generated-api-key-final">...</code>
+                            <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key-final" title="Copy API key">
+                                <i data-feather="copy"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -929,6 +971,24 @@
             <div class="modal-footer">
                 <button class="btn btn-ghost" id="dismiss-onboarding">Skip for now</button>
                 <button class="btn btn-primary" id="close-onboarding-done">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--compact">
+            <div class="logout-dialog">
+                <div class="logout-dialog__icon">
+                    <i data-feather="log-out"></i>
+                </div>
+                <h2 class="logout-dialog__title">Sign Out</h2>
+                <p class="logout-dialog__message">Are you sure you want to sign out of your account?</p>
+                <div class="logout-dialog__actions">
+                    <button class="btn btn-ghost" id="cancel-logout">Cancel</button>
+                    <button class="btn btn-danger" id="confirm-logout">Sign Out</button>
+                </div>
             </div>
         </div>
     </div>

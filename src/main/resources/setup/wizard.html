@@ -286,12 +286,18 @@
 
     <!-- Success Modal -->
     <div id="success-modal" class="modal" style="display: none;">
-        <div class="modal-content success">
-            <h2>✓ Setup Complete!</h2>
-            <p>Your configuration has been saved successfully.</p>
-            <p>The application is restarting... You'll be redirected to the admin panel shortly.</p>
-            <div class="loading-dots">
-                <span>.</span><span>.</span><span>.</span>
+        <div class="modal-content success" style="background: transparent; box-shadow: none;">
+            <div class="countdown-card">
+                <div class="countdown-card__icon">&#10003;</div>
+                <h2 class="countdown-card__title">Setup Complete!</h2>
+                <p class="countdown-card__text">Your configuration has been saved successfully.</p>
+                <p class="countdown-card__text">You will be taken to the <strong>login screen</strong> to sign in.</p>
+                <div class="countdown-card__timer">
+                    Redirecting in <span id="countdown-number" class="countdown-number">5</span>
+                </div>
+                <div class="countdown-card__progress">
+                    <div class="countdown-card__bar" id="countdown-bar"></div>
+                </div>
             </div>
         </div>
     </div>

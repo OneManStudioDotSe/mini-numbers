@@ -23,7 +23,13 @@
       "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/gradlew:*)",
       "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew test:*)",
       "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew detekt:*)",
-      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew detektBaseline:*)"
+      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew detektBaseline:*)",
+      "WebFetch(domain:plausible.io)",
+      "WebFetch(domain:umami.is)",
+      "WebFetch(domain:usefathom.com)",
+      "WebFetch(domain:posthog.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:pageflows.com)"
     ]
   }
 }

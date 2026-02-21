@@ -74,7 +74,6 @@ const Dashboard = {
     this.setupDemoDataGenerator();
 
     // New features: UI/UX improvements
-    this.setupInspirationalMessage();
     this.setupModals();
     this.setupSettingsPanel();
     this.setupRawEventsViewer();
@@ -159,42 +158,38 @@ const Dashboard = {
   },
 
   /**
-   * Setup sign out button
+   * Setup sign out button with styled modal
    */
   setupSignOut() {
     const signOutBtn = document.getElementById('sign-out-btn');
-    if (!signOutBtn) return;
+    const modal = document.getElementById('logout-modal');
+    const confirmBtn = document.getElementById('confirm-logout');
+    const cancelBtn = document.getElementById('cancel-logout');
 
-    signOutBtn.addEventListener('click', async () => {
+    if (!signOutBtn || !modal) return;
+
+    signOutBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+    });
+
+    cancelBtn?.addEventListener('click', () => {
+      modal.classList.remove('show');
+    });
+
+    confirmBtn?.addEventListener('click', async () => {
       // Stop live feed updates
       this.stopLiveFeed();
-
-      // Clear cache
       Utils.cache.clearAll();
 
-      // Show confirmation
-      if (confirm('Are you sure you want to sign out?')) {
-        try {
-          // Call logout endpoint
-          await fetch('/api/logout', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          // Redirect to login page
-          window.location.href = '/login';
-        } catch (error) {
-          console.error('Logout error:', error);
-          // Fallback: redirect anyway
-          window.location.href = '/login';
-        }
-      } else {
-        // Restart live feed if user cancels
-        if (this.state.currentProjectId) {
-          this.startLiveFeed();
-        }
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login';
       }
     });
   },
@@ -207,20 +202,15 @@ const Dashboard = {
       const projects = await Utils.api.fetch('/admin/projects');
 
       const menu = document.getElementById('project-menu');
+      const section = document.getElementById('projects-section');
       if (!menu) return;
 
       // Handle empty state (no projects)
       if (!projects || projects.length === 0) {
-        menu.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state__icon">📊</div>
-            <div class="empty-state__message">No projects yet</div>
-            <div class="empty-state__hint">Create your first project to start tracking analytics</div>
-            <button class="btn btn-primary btn-sm" onclick="Dashboard.showCreateProjectDialog()">
-              Create Project
-            </button>
-          </div>
-        `;
+        // Hide the entire projects section when empty
+        if (section) section.style.display = 'none';
+        menu.innerHTML = '';
+
         // Hide dashboard content when no projects
         const dashboardContent = document.getElementById('dashboard-content');
         if (dashboardContent) {
@@ -229,20 +219,33 @@ const Dashboard = {
         return;
       }
 
-      // Show projects list
+      // Show the projects section
+      if (section) section.style.display = '';
+
+      // Show projects list with domain info
       menu.innerHTML = projects
         .map(
           (project) => `
         <div
           class="project-menu__item"
           data-id="${project.id}"
-          onclick="Dashboard.selectProject('${project.id}', '${project.name.replace(/'/g, "\\'")}')"
+          onclick="Dashboard.selectProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')"
         >
-          ${project.name}
+          <div class="project-menu__name">${Utils.escapeHtml(project.name)}</div>
+          <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
         </div>
       `
         )
         .join('');
+
+      // Restore active state if a project is selected
+      if (this.state.currentProjectId) {
+        document.querySelectorAll('.project-menu__item').forEach((item) => {
+          if (item.dataset.id === this.state.currentProjectId) {
+            item.classList.add('active');
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to load projects:', error);
       Utils.toast.error('Failed to load projects');
@@ -250,107 +253,252 @@ const Dashboard = {
   },
 
   /**
-   * Show enhanced modal to create a new project
+   * Generate a UUID-style API key (32-char hex, matching server format)
+   */
+  generateApiKey() {
+    const hex = '0123456789abcdef';
+    let key = '';
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    array.forEach(b => {
+      key += hex[b >> 4] + hex[b & 0x0f];
+    });
+    return key;
+  },
+
+  /**
+   * Normalize and validate a domain string
+   * @param {string} input - Raw domain input
+   * @returns {{ domain: string, valid: boolean, error: string }}
+   */
+  validateDomain(input) {
+    let domain = input.trim();
+
+    // Strip protocol
+    domain = domain.replace(/^https?:\/\//i, '');
+    // Strip www.
+    domain = domain.replace(/^www\./i, '');
+    // Strip trailing slashes and paths
+    domain = domain.replace(/\/.*$/, '');
+    // Strip port
+    domain = domain.replace(/:\d+$/, '');
+
+    if (!domain) {
+      return { domain: '', valid: false, error: 'Domain is required' };
+    }
+
+    // Basic domain pattern: something.tld or sub.something.tld (also allow localhost)
+    const domainPattern = /^(localhost|([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})$/;
+    if (!domainPattern.test(domain)) {
+      return { domain, valid: false, error: 'Enter a valid domain (e.g. example.com)' };
+    }
+
+    return { domain, valid: true, error: '' };
+  },
+
+  /**
+   * Show enhanced two-step modal to create a new project
    */
   async showCreateProjectDialog() {
     const modal = document.getElementById('create-project-modal');
-    if (!modal) {
-      console.error('Create project modal not found!');
-      return;
-    }
+    if (!modal) return;
 
     const nameInput = document.getElementById('project-name');
-    const subtitleInput = document.getElementById('project-subtitle');
     const domainInput = document.getElementById('project-domain');
-    const apiKeyPreview = document.getElementById('api-key-preview');
     const confirmBtn = document.getElementById('confirm-create-project');
     const cancelBtn = document.getElementById('cancel-create-project');
-    const copyBtn = document.getElementById('copy-api-key');
+    const step1 = document.getElementById('create-step-1');
+    const step2 = document.getElementById('create-step-2');
+    const titleEl = document.getElementById('create-project-title');
+    const stepDots = document.querySelectorAll('#create-step-indicator .step-dot');
 
-    // Reset form
+    // Reset to step 1
     if (nameInput) nameInput.value = '';
-    if (subtitleInput) subtitleInput.value = '';
     if (domainInput) domainInput.value = '';
-    if (apiKeyPreview) apiKeyPreview.style.display = 'none';
+    if (step1) step1.style.display = '';
+    if (step2) step2.style.display = 'none';
     if (confirmBtn) confirmBtn.textContent = 'Create Project';
+    if (titleEl) titleEl.textContent = 'Create New Project';
+    stepDots.forEach((dot, i) => dot.classList.toggle('active', i === 0));
+
+    // Clear validation errors
+    document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.input--error').forEach(el => el.classList.remove('input--error'));
+
+    // Pre-generate API key
+    const preGeneratedKey = this.generateApiKey();
+    const apiKeyEl = document.getElementById('generated-api-key');
+    if (apiKeyEl) apiKeyEl.textContent = preGeneratedKey;
+
+    this._createProjectStep = 1;
+    this._createProjectKey = preGeneratedKey;
+    this._createProjectId = null;
 
     modal.classList.add('show');
-
-    // Store original state for cleanup
-    if (!this._createProjectHandlers) {
-      this._createProjectHandlers = { confirm: null, cancel: null, copy: null };
-    }
+    if (window.feather) feather.replace();
 
     // Clean up old handlers
-    if (confirmBtn && this._createProjectHandlers.confirm) {
-      confirmBtn.removeEventListener('click', this._createProjectHandlers.confirm);
+    if (this._createProjectHandlers) {
+      if (confirmBtn && this._createProjectHandlers.confirm) {
+        confirmBtn.removeEventListener('click', this._createProjectHandlers.confirm);
+      }
+      if (cancelBtn && this._createProjectHandlers.cancel) {
+        cancelBtn.removeEventListener('click', this._createProjectHandlers.cancel);
+      }
     }
-    if (cancelBtn && this._createProjectHandlers.cancel) {
-      cancelBtn.removeEventListener('click', this._createProjectHandlers.cancel);
-    }
-    if (copyBtn && this._createProjectHandlers.copy) {
-      copyBtn.removeEventListener('click', this._createProjectHandlers.copy);
-    }
+    this._createProjectHandlers = {};
+
+    // Domain input: live normalization feedback
+    const domainHandler = () => {
+      const raw = domainInput.value;
+      const errorEl = document.getElementById('project-domain-error');
+      if (raw.trim()) {
+        const result = this.validateDomain(raw);
+        if (!result.valid) {
+          domainInput.classList.add('input--error');
+          if (errorEl) errorEl.textContent = result.error;
+        } else {
+          domainInput.classList.remove('input--error');
+          if (errorEl) errorEl.textContent = '';
+          // Show normalized hint if different
+          if (result.domain !== raw.trim()) {
+            if (errorEl) {
+              errorEl.textContent = '';
+              errorEl.innerHTML = `<span class="field-hint-normalized">Will be saved as: ${Utils.escapeHtml(result.domain)}</span>`;
+            }
+          }
+        }
+      } else {
+        domainInput.classList.remove('input--error');
+        if (errorEl) errorEl.textContent = '';
+      }
+    };
+    domainInput?.addEventListener('input', domainHandler);
 
     // Cancel handler
-    const cancelHandler = () => modal.classList.remove('show');
+    const cancelHandler = () => {
+      modal.classList.remove('show');
+      domainInput?.removeEventListener('input', domainHandler);
+    };
     if (cancelBtn) {
       cancelBtn.addEventListener('click', cancelHandler);
       this._createProjectHandlers.cancel = cancelHandler;
     }
 
-    // Create handler
+    // Copy handlers
+    document.getElementById('copy-api-key')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(preGeneratedKey);
+      Utils.toast.success('API key copied!');
+    });
+
+    document.getElementById('copy-api-key-final')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(preGeneratedKey);
+      Utils.toast.success('API key copied!');
+    });
+
+    document.getElementById('copy-snippet')?.addEventListener('click', () => {
+      const snippetEl = document.getElementById('tracking-snippet-code');
+      if (snippetEl) {
+        navigator.clipboard.writeText(snippetEl.textContent);
+        Utils.toast.success('Tracking snippet copied!');
+      }
+    });
+
+    // Confirm handler
     const confirmHandler = async () => {
-      // If already showing API key, close modal
-      if (apiKeyPreview && apiKeyPreview.style.display !== 'none') {
+      if (this._createProjectStep === 2) {
+        // Step 2: Go to dashboard
         modal.classList.remove('show');
-        await this.loadProjects();
+        domainInput?.removeEventListener('input', domainHandler);
+        if (this._createProjectId) {
+          const name = nameInput?.value.trim() || 'New Project';
+          this.selectProject(this._createProjectId, name);
+        }
         return;
       }
 
+      // Step 1: Validate and create
       const name = nameInput?.value.trim() || '';
-      const subtitle = subtitleInput?.value.trim() || '';
-      const domain = domainInput?.value.trim() || '';
+      const domainResult = this.validateDomain(domainInput?.value || '');
+      const nameErrorEl = document.getElementById('project-name-error');
+      const domainErrorEl = document.getElementById('project-domain-error');
 
-      if (!name || !domain) {
-        Utils.toast.error('Name and domain are required');
-        return;
+      let hasError = false;
+
+      if (!name) {
+        nameInput?.classList.add('input--error');
+        if (nameErrorEl) nameErrorEl.textContent = 'Project name is required';
+        hasError = true;
+      } else {
+        nameInput?.classList.remove('input--error');
+        if (nameErrorEl) nameErrorEl.textContent = '';
       }
+
+      if (!domainResult.valid) {
+        domainInput?.classList.add('input--error');
+        if (domainErrorEl) domainErrorEl.textContent = domainResult.error;
+        hasError = true;
+      } else {
+        domainInput?.classList.remove('input--error');
+        if (domainErrorEl) domainErrorEl.textContent = '';
+      }
+
+      if (hasError) return;
+
+      // Disable button during creation
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Creating...';
 
       try {
-        const displayName = subtitle ? `${name} - ${subtitle}` : name;
-        await Utils.api.post('/admin/projects', { name: displayName, domain });
+        await Utils.api.post('/admin/projects', {
+          name,
+          domain: domainResult.domain,
+          apiKey: this._createProjectKey,
+        });
 
+        // Refresh projects sidebar immediately
+        Utils.cache.clear('/admin/projects');
+        await this.loadProjects();
+
+        // Find the new project ID
         const projects = await Utils.api.fetch('/admin/projects');
-        const newProject = projects[projects.length - 1];
+        const newProject = projects?.find(p => p.apiKey === this._createProjectKey);
+        this._createProjectId = newProject?.id || null;
 
-        document.getElementById('generated-api-key').textContent = newProject.apiKey;
-        if (apiKeyPreview) apiKeyPreview.style.display = 'block';
-        if (confirmBtn) confirmBtn.textContent = 'Done';
+        // Transition to step 2
+        this._createProjectStep = 2;
+        if (step1) step1.style.display = 'none';
+        if (step2) step2.style.display = '';
+        if (titleEl) titleEl.textContent = 'Project Ready!';
+        if (confirmBtn) {
+          confirmBtn.textContent = 'Go to Dashboard';
+          confirmBtn.disabled = false;
+        }
+        stepDots.forEach((dot, i) => dot.classList.toggle('active', i === 1));
+
+        // Fill in tracking snippet
+        const origin = window.location.origin;
+        const snippet = `<script async src="${origin}/admin-panel/tracker.min.js"\n  data-project-key="${this._createProjectKey}"><\/script>`;
+        const snippetEl = document.getElementById('tracking-snippet-code');
+        if (snippetEl) snippetEl.textContent = snippet;
+
+        // Fill in final API key
+        const finalKeyEl = document.getElementById('generated-api-key-final');
+        if (finalKeyEl) finalKeyEl.textContent = this._createProjectKey;
 
         Utils.toast.success('Project created!');
-        feather.replace();
+        if (window.feather) feather.replace();
       } catch (error) {
         console.error('Failed to create project:', error);
         Utils.toast.error('Failed to create project');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Create Project';
       }
     };
+
     if (confirmBtn) {
       confirmBtn.addEventListener('click', confirmHandler);
       this._createProjectHandlers.confirm = confirmHandler;
-    }
-
-    // Copy API key handler
-    const copyHandler = () => {
-      const key = document.getElementById('generated-api-key')?.textContent;
-      if (key) {
-        navigator.clipboard.writeText(key);
-        Utils.toast.success('API key copied!');
-      }
-    };
-    if (copyBtn) {
-      copyBtn.addEventListener('click', copyHandler);
-      this._createProjectHandlers.copy = copyHandler;
     }
   },
 
@@ -1574,27 +1722,48 @@ const Dashboard = {
   },
 
   /**
-   * Setup inspirational message display in sidebar
+   * Create or browse an existing demo project
    */
-  setupInspirationalMessage() {
-    const messages = [
-      "Data tells stories. Listen carefully.",
-      "Privacy matters. You're doing it right.",
-      "Small insights, big impact.",
-      "Know your visitors, respect their privacy.",
-      "Analytics without compromise.",
-      "Understanding beats guessing every time.",
-      "Your data, your rules.",
-      "Minimal tracking, maximum insight.",
-      "Numbers with meaning.",
-      "Privacy-first is future-proof.",
-    ];
+  async createOrBrowseDemoProject() {
+    try {
+      // Check if a demo project already exists
+      const projects = await Utils.api.fetch('/admin/projects');
+      const demoProject = projects?.find(p => p.name === 'Demo Project');
 
-    const container = document.getElementById('sidebar-inspiration');
-    if (!container) return;
+      if (demoProject) {
+        // Navigate to existing demo project
+        this.selectProject(demoProject.id, demoProject.name);
+        return;
+      }
 
-    const randomIndex = Math.floor(Math.random() * messages.length);
-    container.textContent = messages[randomIndex];
+      // Create a new demo project
+      Utils.toast.info('Creating demo project...');
+      await Utils.api.post('/admin/projects', {
+        name: 'Demo Project',
+        domain: 'demo.example.com',
+      });
+
+      // Reload and find the new demo project
+      Utils.cache.clear('/admin/projects');
+      const updatedProjects = await Utils.api.fetch('/admin/projects');
+      const newDemo = updatedProjects?.find(p => p.name === 'Demo Project');
+
+      if (newDemo) {
+        // Generate demo data
+        await fetch(`/admin/projects/${newDemo.id}/demo-data`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ count: 500, timeScope: 30 }),
+        });
+
+        await this.loadProjects();
+        this.selectProject(newDemo.id, newDemo.name);
+        Utils.toast.success('Demo project created with sample data!');
+      }
+    } catch (error) {
+      console.error('Failed to create demo project:', error);
+      Utils.toast.error('Failed to create demo project');
+    }
   },
 
   /**
