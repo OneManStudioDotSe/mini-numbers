@@ -1,6 +1,6 @@
 # Mini Numbers - Competitive Analysis
 
-**Date**: February 20, 2026
+**Date**: February 21, 2026
 
 ---
 
@@ -116,6 +116,7 @@
 - Contribution calendar (unique visualization)
 - Activity heatmap (rare feature)
 - Custom event tracking with `MiniNumbers.track()` API
+- Custom events breakdown with summary cards and progress bar visualization
 - Conversion goals (URL and event-based) with conversion rate tracking
 - Basic funnels with drop-off analysis and time between steps
 - User segments with AND/OR visual filter builder
@@ -123,6 +124,8 @@
 - Health check and metrics endpoints for production monitoring
 - JVM/Kotlin stack (underserved market)
 - Beautiful UI with dark mode, 6 chart types, loading skeletons, accessibility
+- Enhanced demo data generator with auto-seeded goals, funnels, and segments
+- Project management with delete confirmation from sidebar
 - Comprehensive deployment documentation
 - Production Dockerfile with JVM container tuning
 

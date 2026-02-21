@@ -1,6 +1,6 @@
 # Mini Numbers - Roadmap
 
-**Date**: February 20, 2026
+**Date**: February 21, 2026
 
 ---
 
@@ -12,7 +12,7 @@
 |------|--------|
 | Security hardening (env vars, CORS, rate limiting, validation) | COMPLETED |
 | Setup wizard (zero-restart, interactive) | COMPLETED |
-| Test suite (166 tests) | COMPLETED |
+| Test suite (250 tests) | COMPLETED |
 | Code architecture (package-per-feature) | COMPLETED |
 | Session-based authentication | COMPLETED |
 | Bounce rate calculation and dashboard | COMPLETED |
@@ -53,6 +53,7 @@
 | Performance optimization (8 database indexes, query cache, GeoIP cache) | COMPLETED |
 | User segments (visual filter builder with AND/OR logic) | COMPLETED |
 | Loading states and accessibility (skeletons, ARIA, keyboard nav) | COMPLETED |
+| Dashboard UI polish (merged filter bar, show more, custom events breakdown, project delete) | COMPLETED |
 | Advanced analytics (retention, cohorts, user journeys) | Not Started |
 | Enterprise features (multi-user, roles) | Not Started |
 

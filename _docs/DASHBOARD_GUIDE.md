@@ -38,13 +38,15 @@ Optional attributes:
 
 ### Layout
 
-- **Sidebar** (left) - Project list, create project button, sign out
+- **Sidebar** (left) - Project list with delete buttons, create project button, demo project, sign out
 - **Header** (top) - Project title, time filter, theme toggle, settings, demo data
 - **Main content** - Analytics cards, charts, tables, and visualizations
 
 ### Selecting a Project
 
 Click any project in the sidebar to load its analytics. The selected project is highlighted with a checkmark.
+
+To delete a project, hover over it in the sidebar and click the trash icon. A confirmation dialog will appear warning that all analytics data, goals, funnels, and segments will be permanently removed.
 
 ---
 
@@ -67,7 +69,7 @@ Each card includes:
 
 ## Time Filtering
 
-Use the dropdown in the header to select a time period:
+The filter dropdown and date range are displayed together in a unified filter bar at the top of the dashboard:
 
 | Filter | Description |
 |--------|-------------|
@@ -85,11 +87,11 @@ The date range is displayed next to the filter dropdown.
 
 ### Time Series
 
-Line chart showing views over time. Granularity adjusts automatically based on the selected time period.
+Line chart showing views over time, limited to a 3-day window for readability. Granularity adjusts automatically based on the selected time period.
 
 ### Activity Heatmap
 
-A 7-day x 24-hour grid showing traffic intensity. Darker cells = more traffic. Peak hour and peak day are highlighted.
+A 7-day x 24-hour grid showing traffic intensity with actual dates displayed next to day names (e.g., "Mon Feb 17"). Darker cells = more traffic. Peak hour and peak day are highlighted. The heatmap color scheme can be changed in Settings.
 
 ### Peak Times
 
@@ -101,11 +103,11 @@ The top entry in each list is marked with a "Peak" badge.
 
 ### Top Pages
 
-Bar chart showing the 10 most visited pages. Click the export button to download as CSV.
+Bar chart showing the top visited pages with consistent spacing between bars. If more than 5 entries exist, a "Show more" button appears to expand the full list. Click the export button to download as CSV.
 
 ### Referrers
 
-Bar chart showing the top 10 traffic sources. "Direct / None" represents visitors who typed the URL directly.
+Bar chart showing the top traffic sources with consistent spacing between bars. If more than 5 entries exist, a "Show more" button expands the full list. "Direct / None" represents visitors who typed the URL directly.
 
 ### Browsers, OS, Devices
 
@@ -119,7 +121,12 @@ Two view modes (toggle in the header):
 
 ### Custom Events
 
-Appears only when custom events exist. Shows a bar chart of event names and their counts. Track custom events with:
+Appears only when custom events exist. The section includes:
+- **Summary cards** — Total custom events count and top event with occurrence count
+- **Breakdown list** — All custom events with proportional progress bars showing relative volume and percentages
+- **Bar chart** — Visual representation of event names and their counts
+
+Track custom events with:
 
 ```javascript
 MiniNumbers.track("signup");
@@ -220,7 +227,7 @@ Click the gear icon in the header to open settings:
 |---------|-------------|
 | **Time Format** | 12-hour or 24-hour clock |
 | **Date Format** | Short (Jan 1) or long (January 1, 2026) |
-| **Heatmap Colors** | Blue (default), green, purple, or orange |
+| **Heatmap Colors** | Blue (default), green, purple, or orange — applies to both the activity heatmap and contribution calendar |
 | **API Key** | View the project's API key with copy button |
 | **Tracking Script** | Copy-paste snippet for your website |
 | **Rename Project** | Change the project name |
@@ -235,7 +242,7 @@ Click **Generate Demo Data** in the header to create realistic test data:
 2. Choose a **time scope** (7 days to 1 year)
 3. Click **Generate**
 
-Generated data includes realistic paths, referrers, browsers, locations, and session patterns with ~40% bounce rate and ~60% engaged sessions.
+Generated data includes realistic paths, referrers, browsers, locations, and session patterns with ~40% bounce rate and ~60% engaged sessions. The generator also creates 5 conversion goals, 2 funnels with steps, and 3 user segments. Custom events are generated with ~25% probability per engaged session event across 10 event types.
 
 ---
 

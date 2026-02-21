@@ -1,6 +1,6 @@
 # Mini Numbers - TODO List
 
-**Last Updated**: February 20, 2026
+**Last Updated**: February 21, 2026
 
 ---
 
@@ -14,13 +14,13 @@
 - [x] Interactive setup wizard (WordPress-style, zero-restart)
 - [x] Demo data generator
 - [x] Session-based authentication with login page
-- [x] Comprehensive test suite (166 tests)
+- [x] Comprehensive test suite (250 tests)
 - [x] Code architecture restructuring (package-per-feature)
 - [x] Configurable tracker endpoint
 - [x] Bounce rate calculation and dashboard display
 - [x] Tracker optimization (1.9KB source, 1.3KB minified, History API SPA detection, visibility-aware heartbeat)
 - [x] Gradle minification task (`minifyTracker`)
-- [x] Realistic demo data generator (multi-event sessions, bounce/engaged mix)
+- [x] Realistic demo data generator (multi-event sessions, bounce/engaged mix, auto-seeds goals/funnels/segments)
 - [x] Custom event tracking with `MiniNumbers.track()` API and dashboard visualization
 - [x] GeoIP database bundling (classpath fallback for fat JAR deployments)
 - [x] Comprehensive deployment documentation (JAR, Docker, reverse proxy, SSL, backups)
@@ -57,6 +57,7 @@
 - [x] GitHub Actions: test + build workflow (on push/PR to main)
 - [x] GitHub Actions: Docker multi-platform publish to GHCR (on push/tag)
 - [x] Code quality checks (Detekt static analysis with baseline, integrated in CI)
+- [x] Extended test suite (250 tests, up from 166)
 
 ### Monitoring
 - [x] Health check endpoint (`GET /health` — JSON status with servicesReady flag)
@@ -85,6 +86,9 @@
 - [x] Error handling improvements (global error handlers, API retry with exponential backoff, error states with retry)
 - [x] Accessibility (ARIA labels, keyboard navigation, skip-to-content link, semantic HTML roles)
 - [x] Empty state designs (contextual empty states for all charts, tables, and data sections)
+- [x] Dashboard UI overhaul (merged filter bar, show more buttons, custom events breakdown, heatmap dates and color fix)
+- [x] Project delete from sidebar with confirmation dialog
+- [x] Enhanced demo data (10 custom event types, auto-seeds goals/funnels/segments)
 
 ### First-Time Experience
 - [x] Onboarding flow after first login (modal with checklist, localStorage persistence)
