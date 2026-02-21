@@ -1,14 +1,14 @@
-# Mini Numbers - Dashboard User Guide
+# Mini Numbers - Dashboard user guide
 
-## Getting Started
+## Getting started
 
-### First Login
+### First login
 
 1. Visit your Mini Numbers instance (e.g., `http://localhost:8080`)
 2. Log in with your admin credentials (configured during setup)
 3. You'll see an empty project list with a "Create Project" button
 
-### Creating Your First Project
+### Creating your first project
 
 1. Click **Create Project** in the sidebar
 2. Enter a **Project Name** (e.g., "My Website")
@@ -16,7 +16,7 @@
 4. Click **Create** - an API key is generated automatically
 5. Copy the API key from the confirmation dialog
 
-### Installing the Tracker
+### Installing the tracker
 
 Add the tracking script to your website's `<head>` or before `</body>`:
 
@@ -34,7 +34,7 @@ Optional attributes:
 
 ---
 
-## Dashboard Overview
+## Dashboard overview
 
 ### Layout
 
@@ -42,7 +42,7 @@ Optional attributes:
 - **Header** (top) - Project title, time filter, theme toggle, settings, demo data
 - **Main content** - Analytics cards, charts, tables, and visualizations
 
-### Selecting a Project
+### Selecting a project
 
 Click any project in the sidebar to load its analytics. The selected project is highlighted with a checkmark.
 
@@ -50,7 +50,7 @@ To delete a project, hover over it in the sidebar and click the trash icon. A co
 
 ---
 
-## Key Metrics
+## Key metrics
 
 The top row shows four stat cards:
 
@@ -67,7 +67,7 @@ Each card includes:
 
 ---
 
-## Time Filtering
+## Time filtering
 
 The filter dropdown and date range are displayed together in a unified filter bar at the top of the dashboard:
 
@@ -83,17 +83,17 @@ The date range is displayed next to the filter dropdown.
 
 ---
 
-## Charts & Visualizations
+## Charts & visualizations
 
-### Time Series
+### Time series
 
 Line chart showing views over time, limited to a 3-day window for readability. Granularity adjusts automatically based on the selected time period.
 
-### Activity Heatmap
+### Activity heatmap
 
 A 7-day x 24-hour grid showing traffic intensity with actual dates displayed next to day names (e.g., "Mon Feb 17"). Darker cells = more traffic. Peak hour and peak day are highlighted. The heatmap color scheme can be changed in Settings.
 
-### Peak Times
+### Peak times
 
 Two cards showing:
 - **Peak Hours** - Top 5 busiest hours of the day
@@ -101,7 +101,7 @@ Two cards showing:
 
 The top entry in each list is marked with a "Peak" badge.
 
-### Top Pages
+### Top pages
 
 Bar chart showing the top visited pages with consistent spacing between bars. If more than 5 entries exist, a "Show more" button appears to expand the full list. Click the export button to download as CSV.
 
@@ -109,17 +109,17 @@ Bar chart showing the top visited pages with consistent spacing between bars. If
 
 Bar chart showing the top traffic sources with consistent spacing between bars. If more than 5 entries exist, a "Show more" button expands the full list. "Direct / None" represents visitors who typed the URL directly.
 
-### Browsers, OS, Devices
+### Browsers, OS, devices
 
 Each has a toggle between **doughnut** and **bar** chart views. Shows the top 8 entries with the rest grouped as "Other". Your chart type preference is saved in localStorage.
 
-### Geographic Distribution
+### Geographic distribution
 
 Two view modes (toggle in the header):
 - **Bar chart** - Top countries by visits. Click a country to drill down into cities.
 - **Map view** - Interactive Leaflet map with markers sized by visit count.
 
-### Custom Events
+### Custom events
 
 Appears only when custom events exist. The section includes:
 - **Summary cards** — Total custom events count and top event with occurrence count
@@ -133,22 +133,22 @@ MiniNumbers.track("signup");
 MiniNumbers.track("purchase");
 ```
 
-### Contribution Calendar
+### Contribution calendar
 
 A GitHub-style 365-day activity grid at the bottom of the dashboard. Intensity levels (0-4) show daily activity. Hover over a cell to see the exact date and visit count.
 
 ---
 
-## Conversion Goals
+## Conversion goals
 
-### Viewing Goals
+### Viewing goals
 
 The Goals section shows cards for each configured goal:
 - **Conversion rate** - Large percentage display
 - **Completions** - Number of goal completions in the period
 - **Comparison** - Change vs. previous period
 
-### Managing Goals
+### Managing goals
 
 Click **Manage Goals** to open the goals modal:
 1. Enter a **Goal Name** (e.g., "Sign Up")
@@ -164,7 +164,7 @@ Goals can be toggled active/inactive or deleted from the management table.
 
 ## Funnels
 
-### Viewing Funnels
+### Viewing funnels
 
 Each funnel shows:
 - **Step-by-step progression** with colored bars
@@ -172,7 +172,7 @@ Each funnel shows:
 - **Average time** between steps
 - **Overall conversion rate**
 
-### Creating Funnels
+### Creating funnels
 
 Click **Manage Funnels** to open the funnels modal:
 1. Enter a **Funnel Name** (e.g., "Checkout Flow")
@@ -182,13 +182,13 @@ Click **Manage Funnels** to open the funnels modal:
 
 ---
 
-## User Segments
+## User segments
 
-### Viewing Segments
+### Viewing segments
 
 Segment cards show filter criteria and visitor counts. Each segment applies its filters to the analytics data.
 
-### Creating Segments
+### Creating segments
 
 Click **Manage Segments** to open the segments modal:
 1. Enter **Segment Name** and optional **Description**
@@ -201,16 +201,16 @@ Click **Manage Segments** to open the segments modal:
 
 ---
 
-## Data Export
+## Data export
 
-### CSV Export
+### CSV export
 
 Each chart card has an export button (download icon) that exports the visible data as CSV. Available for:
 - Top pages, referrers, browsers, OS, devices, countries
 - Recent activity table
 - Contribution calendar
 
-### Raw Events
+### Raw events
 
 Click the **Raw Events** button to open a paginated viewer of all collected events. Features:
 - Search/filter by any field
@@ -235,7 +235,7 @@ Click the gear icon in the header to open settings:
 
 ---
 
-## Demo Data
+## Demo data
 
 Click **Generate Demo Data** in the header to create realistic test data:
 1. Set the **number of events** (0-3000)
@@ -246,7 +246,7 @@ Generated data includes realistic paths, referrers, browsers, locations, and ses
 
 ---
 
-## Live Feed
+## Live feed
 
 The bottom-right section shows real-time visitor activity:
 - Updates every 5 seconds

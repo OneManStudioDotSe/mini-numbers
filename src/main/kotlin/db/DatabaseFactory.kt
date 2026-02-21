@@ -82,7 +82,7 @@ object DatabaseFactory {
         // Create demo project
         Projects.insert {
             it[id] = demoId
-            it[name] = "Professional Demo"
+            it[name] = "Professional demo"
             it[domain] = "localhost"
             it[apiKey] = "demo-key-123"
         }

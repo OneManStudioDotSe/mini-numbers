@@ -1,10 +1,10 @@
-# Mini Numbers - Competitive Analysis
+# Mini Numbers - Competitive analysis
 
 **Date**: February 21, 2026
 
 ---
 
-## Feature Comparison Matrix
+## Feature comparison matrix
 
 | Feature | Mini Numbers | Umami | Plausible CE | Matomo | PostHog | Fathom | Simple Analytics |
 |---------|-------------|-------|-------------|--------|---------|--------|-----------------|
@@ -53,7 +53,7 @@
 
 ---
 
-## Scoring Summary
+## Scoring summary
 
 | Platform | Basic | Advanced | Privacy | Integration | UI/UX | Overall |
 |----------|-------|----------|---------|-------------|-------|---------|
@@ -67,9 +67,9 @@
 
 ---
 
-## Competitor Profiles
+## Competitor profiles
 
-### Umami — Primary Competitor
+### Umami — primary competitor
 - **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
 - **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events, goals
 - **Weaknesses**: No activity heatmap, no contribution calendar, no configurable hash rotation, no segments
@@ -81,19 +81,19 @@
 - **Weaknesses**: AGPL restricts commercial use, CE updated only twice/year, limited multi-project, no segments
 - **vs Mini Numbers**: Plausible wins on brand and performance; Mini Numbers wins on configurable hash rotation, contribution calendar, segments, OpenAPI docs, license flexibility
 
-### Matomo — Enterprise Leader
+### Matomo — enterprise leader
 - **Stack**: PHP, MySQL | **License**: GPL | **Stars**: ~19,000
 - **Strengths**: 100+ features, 1,000+ plugins, 15+ years maturity, session replay, A/B testing
 - **Weaknesses**: Heavy tracker (21KB), cookie-based by default, complex UI, many paid features
 - **vs Mini Numbers**: Matomo wins on feature breadth and enterprise capabilities; Mini Numbers wins on simplicity, lightweight tracker, modern stack, and privacy-by-default
 
-### PostHog — All-in-One Platform
+### PostHog — all-in-one platform
 - **Stack**: Python/TypeScript, ClickHouse | **License**: MIT | **Stars**: ~20,000
 - **Strengths**: Complete platform (analytics + feature flags + session replay + A/B testing), generous free tier, mobile SDKs
 - **Weaknesses**: Overkill for simple analytics, heavy tracker (44KB), complex to self-host
 - **vs Mini Numbers**: PostHog wins on feature breadth; Mini Numbers wins on simplicity, lightweight tracker, and focused web analytics approach
 
-### Fathom Analytics — Privacy SaaS
+### Fathom Analytics — privacy SaaS
 - **Type**: Closed-source, cloud-only | **Pricing**: From $15/month
 - **Strengths**: Simple, excellent privacy, ad-blocker bypass, great support
 - **Weaknesses**: Closed-source, no self-hosted option, limited features, vendor lock-in
@@ -107,7 +107,7 @@
 
 ---
 
-## Mini Numbers — Competitive Position
+## Mini Numbers — competitive position
 
 **Advantages**:
 - Configurable hash rotation (unique, strongest privacy)

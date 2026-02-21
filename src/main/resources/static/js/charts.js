@@ -558,7 +558,7 @@ const ChartManager = {
         labels: labels,
         datasets: [
           {
-            label: 'Page Views',
+            label: 'Page views',
             data: values,
             borderColor: colors.chart[0],
             backgroundColor: colors.chartBg[0],

@@ -319,15 +319,15 @@ const SetupWizard = {
             <div class="review-section">
                 <h3>Security</h3>
                 <div class="review-item">
-                    <span class="review-label">Admin Username:</span>
+                    <span class="review-label">Admin username:</span>
                     <span class="review-value">${this.escapeHtml(config.adminUsername)}</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Admin Password:</span>
+                    <span class="review-label">Admin password:</span>
                     <span class="review-value">••••••••</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Server Salt:</span>
+                    <span class="review-label">Server salt:</span>
                     <span class="review-value">${this.escapeHtml(config.serverSalt.substring(0, 16))}... (${config.serverSalt.length} characters)</span>
                 </div>
             </div>
@@ -340,7 +340,7 @@ const SetupWizard = {
                 </div>
                 ${config.database.type === 'SQLITE' ? `
                     <div class="review-item">
-                        <span class="review-label">Database Path:</span>
+                        <span class="review-label">Database path:</span>
                         <span class="review-value">${this.escapeHtml(config.database.sqlitePath)}</span>
                     </div>
                 ` : `
@@ -349,7 +349,7 @@ const SetupWizard = {
                         <span class="review-value">${this.escapeHtml(config.database.pgHost)}:${config.database.pgPort}</span>
                     </div>
                     <div class="review-item">
-                        <span class="review-label">Database Name:</span>
+                        <span class="review-label">Database name:</span>
                         <span class="review-value">${this.escapeHtml(config.database.pgName)}</span>
                     </div>
                     <div class="review-item">
@@ -361,7 +361,7 @@ const SetupWizard = {
                         <span class="review-value">••••••••</span>
                     </div>
                     <div class="review-item">
-                        <span class="review-label">Pool Size:</span>
+                        <span class="review-label">Pool size:</span>
                         <span class="review-value">${config.database.pgMaxPoolSize || 3}</span>
                     </div>
                 `}
@@ -374,11 +374,11 @@ const SetupWizard = {
                     <span class="review-value">${config.server.port}</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Allowed Origins:</span>
+                    <span class="review-label">Allowed origins:</span>
                     <span class="review-value">${config.allowedOrigins || '(none)'}</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Development Mode:</span>
+                    <span class="review-label">Development mode:</span>
                     <span class="review-value">${config.server.isDevelopment ? 'Yes' : 'No'}</span>
                 </div>
             </div>
@@ -386,15 +386,15 @@ const SetupWizard = {
             <div class="review-section">
                 <h3>Advanced</h3>
                 <div class="review-item">
-                    <span class="review-label">GeoIP Database:</span>
+                    <span class="review-label">GeoIP database:</span>
                     <span class="review-value">${this.escapeHtml(config.geoip.databasePath)}</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Rate Limit (per IP):</span>
+                    <span class="review-label">Rate limit (per IP):</span>
                     <span class="review-value">${config.rateLimit.perIp} req/min</span>
                 </div>
                 <div class="review-item">
-                    <span class="review-label">Rate Limit (per API Key):</span>
+                    <span class="review-label">Rate limit (per API key):</span>
                     <span class="review-value">${config.rateLimit.perApiKey} req/min</span>
                 </div>
             </div>
@@ -528,7 +528,7 @@ const SetupWizard = {
                 // Timeout - show manual recovery
                 document.getElementById('success-modal').innerHTML = `
                     <div class="modal-content warning">
-                        <h2>Service Initialization Timeout</h2>
+                        <h2>Service initialization timeout</h2>
                         <p>Configuration was saved successfully, but services are taking longer than expected to initialize.</p>
                         <p><strong>Please try:</strong></p>
                         <ol style="text-align: left; margin: 20px auto; max-width: 400px;">
@@ -537,7 +537,7 @@ const SetupWizard = {
                             <li>Visit <a href="/login">/login</a> directly</li>
                         </ol>
                         <button class="btn btn-primary" onclick="window.location.href='/login'">
-                            Go to Login
+                            Go to login
                         </button>
                     </div>
                 `;

@@ -1,10 +1,10 @@
-# Mini Numbers - Market Viability Assessment
+# Mini Numbers - Market viability assessment
 
 **Date**: February 21, 2026
 
 ---
 
-## SWOT Analysis
+## SWOT analysis
 
 ### Strengths
 
@@ -53,7 +53,7 @@
 
 ---
 
-## Overall Verdict
+## Overall verdict
 
 **Status**: Production-Ready
 
@@ -63,7 +63,7 @@
 
 ---
 
-## Go/No-Go Decision
+## Go/no-go decision
 
 | Criteria | Weight | Score | Weighted |
 |----------|--------|-------|----------|
@@ -85,7 +85,7 @@
 
 ---
 
-## Conditions for Launch
+## Conditions for launch
 
 1. ~~Tracker optimization~~ — DONE (1.3KB minified)
 2. ~~Custom events~~ — DONE (`MiniNumbers.track()` API with dashboard visualization)
@@ -95,7 +95,7 @@
 
 ---
 
-## Competitive Positioning
+## Competitive positioning
 
 **Mini Numbers CAN compete if:**
 - It doubles down on configurable hash rotation as the key privacy differentiator
@@ -108,7 +108,7 @@
 
 ---
 
-## Bottom Line
+## Bottom line
 
 Mini Numbers has strong potential to become a respected player in the privacy-focused analytics space, particularly within the JVM ecosystem. The core platform is production-ready with custom events, conversion goals, funnels, user segments, comprehensive API documentation, production Docker configuration, and a lightweight tracker. The unique privacy approach (configurable hash rotation with three privacy modes) and beautiful UI give it a strong competitive edge against established players. Remaining work focuses on email reports, webhooks, and community building.
 

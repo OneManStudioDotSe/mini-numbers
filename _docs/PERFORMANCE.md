@@ -1,12 +1,12 @@
-# Mini Numbers - Performance Benchmarking
+# Mini Numbers - Performance benchmarking
 
-## Backend Benchmarking
+## Backend benchmarking
 
 ### Tools
 - **wrk** - HTTP benchmarking tool
 - **Apache Benchmark (ab)** - Simple load testing
 
-### Data Collection Endpoint (`POST /collect`)
+### Data collection endpoint (`POST /collect`)
 
 ```bash
 # Basic throughput test (4 threads, 100 connections, 30 seconds)
@@ -19,7 +19,7 @@ wrk.headers["X-Project-Key"] = "your-api-key"
 wrk.body = '{"path":"/test","sessionId":"abc123","eventType":"pageview"}'
 ```
 
-### Analytics Report Endpoint (`GET /admin/projects/{id}/report`)
+### Analytics report endpoint (`GET /admin/projects/{id}/report`)
 
 ```bash
 # With session cookie authentication
@@ -27,7 +27,7 @@ ab -n 1000 -c 10 -C "mini_numbers_session=your-session-cookie" \
   http://localhost:8080/admin/projects/{id}/report?filter=7d
 ```
 
-### Expected Metrics
+### Expected metrics
 
 | Endpoint | Target | Notes |
 |----------|--------|-------|
@@ -38,7 +38,7 @@ ab -n 1000 -c 10 -C "mini_numbers_session=your-session-cookie" \
 
 ---
 
-## Frontend Performance
+## Frontend performance
 
 ### Lighthouse CI
 
@@ -49,7 +49,7 @@ npx lighthouse http://localhost:8080/admin-panel \
   --output=json --output-path=./lighthouse-report.json
 ```
 
-### Key Metrics
+### Key metrics
 
 | Metric | Target | Description |
 |--------|--------|-------------|
@@ -58,7 +58,7 @@ npx lighthouse http://localhost:8080/admin-panel \
 | TBT (Total Blocking Time) | < 300ms | Time main thread is blocked |
 | CLS (Cumulative Layout Shift) | < 0.1 | Visual stability score |
 
-### Current Architecture
+### Current architecture
 
 **External Libraries (loaded synchronously):**
 - Chart.js 4.4.0 (~200KB)
@@ -72,7 +72,7 @@ npx lighthouse http://localhost:8080/admin-panel \
 2. Lazy-load map library only when map view is activated
 3. Use CDN with proper cache headers for external libraries
 
-### Current Optimizations
+### Current optimizations
 
 - `Promise.allSettled()` for parallel secondary data loading
 - Debounced time filter changes (300ms)
@@ -81,7 +81,7 @@ npx lighthouse http://localhost:8080/admin-panel \
 
 ---
 
-## Database Performance
+## Database performance
 
 ### SQLite
 
@@ -108,7 +108,7 @@ idx_events_project_country     — projectId + country
 idx_events_project_browser     — projectId + browser
 ```
 
-### Query Performance Tips
+### Query performance tips
 
 - Reports use `filter` parameter to limit time range (reduces scan size)
 - Contribution calendar queries 365 days with GROUP BY date
@@ -116,7 +116,7 @@ idx_events_project_browser     — projectId + browser
 
 ---
 
-## Caching Architecture
+## Caching architecture
 
 ### Backend (Caffeine)
 
@@ -136,19 +136,19 @@ idx_events_project_browser     — projectId + browser
 
 ---
 
-## Optimization Recommendations
+## Optimization recommendations
 
-### High Impact
+### High impact
 1. **PostgreSQL for production** — SQLite single-writer lock limits write throughput
 2. **CDN for static assets** — External libraries total ~480KB, benefit from edge caching
 3. **HTTP/2** — Multiplexing reduces connection overhead for parallel API calls
 
-### Medium Impact
+### Medium impact
 4. **Lazy-load Leaflet** — Only load ~150KB map library when user toggles to map view
 5. **Database partitioning** — For > 1M events, partition by month
 6. **Response compression** — Enable gzip/brotli for API responses
 
-### Low Impact (Already Implemented)
+### Low impact (already implemented)
 7. Query caching with auto-invalidation
 8. GeoIP result caching
 9. Database indexes on all query patterns

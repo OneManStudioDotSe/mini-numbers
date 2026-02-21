@@ -1,4 +1,4 @@
-# Mini Numbers - Security Audit
+# Mini Numbers - Security audit
 
 **Date**: February 21, 2026
 **Scope**: Full application review
@@ -20,7 +20,7 @@
 
 ---
 
-## 2. Input Validation
+## 2. Input validation
 
 ### Implementation
 - `InputValidator` class handles all `/collect` endpoint payloads
@@ -34,7 +34,7 @@
 
 ---
 
-## 3. XSS Prevention
+## 3. XSS prevention
 
 ### Implementation
 - `Utils.escapeHtml()` used in goals and segments rendering
@@ -49,7 +49,7 @@
 
 ---
 
-## 4. SQL Injection
+## 4. SQL injection
 
 ### Implementation
 - Exposed ORM parameterizes all queries automatically
@@ -60,7 +60,7 @@
 
 ---
 
-## 5. Rate Limiting
+## 5. Rate limiting
 
 ### Implementation
 - Per-IP and per-API-key token bucket rate limiting
@@ -85,7 +85,7 @@
 
 ---
 
-## 7. Privacy & Data Protection
+## 7. Privacy & data protection
 
 ### Implementation
 - Visitor hashing with SHA-256 and configurable rotation (1-8760 hours)
@@ -102,7 +102,7 @@
 
 ## 8. Dependencies
 
-### Current Stack
+### Current stack
 - Ktor 3.4.0, Kotlin 2.3.0, JDK 21
 - Exposed 0.56.0, HikariCP 5.0.1
 - jBCrypt 0.4, Caffeine 3.1.8
@@ -115,7 +115,7 @@
 
 ---
 
-## 9. API Security
+## 9. API security
 
 ### Implementation
 - All admin endpoints require session authentication
@@ -144,7 +144,7 @@
 | Dependencies | Good | No known vulnerabilities |
 | API Security | Good | Proper auth checks, no data leaks |
 
-### Recommendations (Priority Order)
+### Recommendations (priority order)
 
 1. Document bcrypt password usage in deployment guide
 2. Enable secure cookie flag for HTTPS deployments

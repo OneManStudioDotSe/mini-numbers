@@ -3,6 +3,33 @@
  * Handles project selection, data fetching, and UI updates
  */
 
+/**
+ * Animate a number counting up from 0 to target
+ * Respects prefers-reduced-motion
+ */
+function animateCountUp(element, target, duration = 800, formatter) {
+  if (!element) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    element.textContent = formatter ? formatter(target) : target.toLocaleString();
+    return;
+  }
+  const start = performance.now();
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const current = Math.round(target * eased);
+    element.textContent = formatter ? formatter(current) : current.toLocaleString();
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      element.classList.add('counting');
+      element.addEventListener('animationend', () => element.classList.remove('counting'), { once: true });
+    }
+  }
+  requestAnimationFrame(update);
+}
+
 const Dashboard = {
   // Application state
   state: {
@@ -122,13 +149,8 @@ const Dashboard = {
 
     const isDark = ThemeManager.isDark();
     slider.innerHTML = isDark
-      ? '<i data-feather="moon"></i>'
-      : '<i data-feather="sun"></i>';
-
-    // Re-initialize feather icons
-    if (window.feather) {
-      feather.replace();
-    }
+      ? '<i class="ph-duotone ph-moon"></i>'
+      : '<i class="ph-duotone ph-sun"></i>';
   },
 
   /**
@@ -236,15 +258,13 @@ const Dashboard = {
             <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
           </div>
           <button class="project-menu__delete" onclick="event.stopPropagation(); Dashboard.confirmDeleteProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')" title="Delete project" aria-label="Delete ${Utils.escapeHtml(project.name)}">
-            <i data-feather="trash-2"></i>
+            <i class="ph-duotone ph-trash"></i>
           </button>
         </div>
       `
         )
         .join('');
 
-      // Render feather icons for delete buttons
-      if (window.feather) feather.replace();
 
       // Restore active state if a project is selected
       if (this.state.currentProjectId) {
@@ -366,8 +386,8 @@ const Dashboard = {
     if (domainInput) domainInput.value = '';
     if (step1) step1.style.display = '';
     if (step2) step2.style.display = 'none';
-    if (confirmBtn) confirmBtn.textContent = 'Create Project';
-    if (titleEl) titleEl.textContent = 'Create New Project';
+    if (confirmBtn) confirmBtn.textContent = 'Create project';
+    if (titleEl) titleEl.textContent = 'Create new project';
     stepDots.forEach((dot, i) => dot.classList.toggle('active', i === 0));
 
     // Clear validation errors
@@ -384,7 +404,6 @@ const Dashboard = {
     this._createProjectId = null;
 
     modal.classList.add('show');
-    if (window.feather) feather.replace();
 
     // Clean up old handlers
     if (this._createProjectHandlers) {
@@ -460,7 +479,7 @@ const Dashboard = {
         modal.classList.remove('show');
         domainInput?.removeEventListener('input', domainHandler);
         if (this._createProjectId) {
-          const name = nameInput?.value.trim() || 'New Project';
+          const name = nameInput?.value.trim() || 'New project';
           this.selectProject(this._createProjectId, name);
         }
         return;
@@ -518,9 +537,9 @@ const Dashboard = {
         this._createProjectStep = 2;
         if (step1) step1.style.display = 'none';
         if (step2) step2.style.display = '';
-        if (titleEl) titleEl.textContent = 'Project Ready!';
+        if (titleEl) titleEl.textContent = 'Project ready!';
         if (confirmBtn) {
-          confirmBtn.textContent = 'Go to Dashboard';
+          confirmBtn.textContent = 'Go to dashboard';
           confirmBtn.disabled = false;
         }
         stepDots.forEach((dot, i) => dot.classList.toggle('active', i === 1));
@@ -536,12 +555,11 @@ const Dashboard = {
         if (finalKeyEl) finalKeyEl.textContent = this._createProjectKey;
 
         Utils.toast.success('Project created!');
-        if (window.feather) feather.replace();
-      } catch (error) {
+          } catch (error) {
         console.error('Failed to create project:', error);
         Utils.toast.error('Failed to create project');
         confirmBtn.disabled = false;
-        confirmBtn.textContent = 'Create Project';
+        confirmBtn.textContent = 'Create project';
       }
     };
 
@@ -704,23 +722,18 @@ const Dashboard = {
    * @param {Object} data - Report data
    */
   updateStats(data) {
-    // Update total views
+    // Animate total views
     const viewsEl = document.getElementById('total-views');
-    if (viewsEl) {
-      viewsEl.textContent = Utils.format.number(data.totalViews);
-    }
+    animateCountUp(viewsEl, data.totalViews || 0, 800, v => Utils.format.number(v));
 
-    // Update unique visitors
+    // Animate unique visitors
     const visitorsEl = document.getElementById('unique-visitors');
-    if (visitorsEl) {
-      visitorsEl.textContent = Utils.format.number(data.uniqueVisitors);
-    }
+    animateCountUp(visitorsEl, data.uniqueVisitors || 0, 800, v => Utils.format.number(v));
 
-    // Update bounce rate
+    // Animate bounce rate
     const bounceEl = document.getElementById('bounce-rate');
-    if (bounceEl) {
-      bounceEl.textContent = (data.bounceRate != null ? data.bounceRate.toFixed(1) : '0') + '%';
-    }
+    const bounceVal = data.bounceRate != null ? Math.round(data.bounceRate * 10) : 0;
+    animateCountUp(bounceEl, bounceVal, 800, v => (v / 10).toFixed(1) + '%');
   },
 
   /**
@@ -1034,9 +1047,6 @@ const Dashboard = {
         )
         .join('');
 
-      if (window.feather) {
-        feather.replace();
-      }
     } else {
       tableBody.innerHTML = `
         <tr>
@@ -1516,8 +1526,8 @@ const Dashboard = {
 
     // Summary section
     lines.push('ANALYTICS SUMMARY');
-    lines.push(`Total Views,${data.totalViews}`);
-    lines.push(`Unique Visitors,${data.uniqueVisitors}`);
+    lines.push(`Total views,${data.totalViews}`);
+    lines.push(`Unique visitors,${data.uniqueVisitors}`);
     lines.push('');
 
     // Top Pages
@@ -1815,7 +1825,7 @@ const Dashboard = {
     try {
       // Check if a demo project already exists
       const projects = await Utils.api.fetch('/admin/projects');
-      const demoProject = projects?.find(p => p.name === 'Demo Project');
+      const demoProject = projects?.find(p => p.name === 'Demo project');
 
       if (demoProject) {
         // Navigate to existing demo project
@@ -1826,14 +1836,14 @@ const Dashboard = {
       // Create a new demo project
       Utils.toast.info('Creating demo project...');
       await Utils.api.post('/admin/projects', {
-        name: 'Demo Project',
+        name: 'Demo project',
         domain: 'demo.example.com',
       });
 
       // Reload and find the new demo project
       Utils.cache.clear('/admin/projects');
       const updatedProjects = await Utils.api.fetch('/admin/projects');
-      const newDemo = updatedProjects?.find(p => p.name === 'Demo Project');
+      const newDemo = updatedProjects?.find(p => p.name === 'Demo project');
 
       if (newDemo) {
         // Generate demo data
@@ -1909,7 +1919,6 @@ const Dashboard = {
             document.getElementById('setting-project-name').value = currentProject.name;
             document.getElementById('setting-project-domain').value = currentProject.domain;
             document.getElementById('setting-project-api-key').textContent = currentProject.apiKey;
-            feather.replace();
           } else {
             projectSection.style.display = 'none';
           }
@@ -1921,7 +1930,6 @@ const Dashboard = {
         projectSection.style.display = 'none';
       }
 
-      feather.replace();
     });
 
     saveBtn.addEventListener('click', async () => {
@@ -2087,7 +2095,6 @@ const Dashboard = {
       document.getElementById('raw-events-prev').disabled = page === 0;
       document.getElementById('raw-events-next').disabled = (page + 1) * limit >= data.total;
 
-      feather.replace();
     } catch (error) {
       console.error('Failed to load raw events:', error);
       Utils.toast.error('Failed to load events');
