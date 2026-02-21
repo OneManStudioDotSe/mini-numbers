@@ -40,7 +40,7 @@ const SegmentsManager = {
             ${segment.description ? `<div class="text-muted text-sm">${Utils.escapeHtml(segment.description)}</div>` : ''}
           </div>
           <button class="btn btn-ghost btn-sm" onclick="SegmentsManager.analyzeSegment('${projectId}', '${segment.id}', '${filter}')" aria-label="Analyze segment ${Utils.escapeHtml(segment.name)}">
-            <i class="ph-duotone ph-chart-bar"></i> Analyze
+            <i class="ri-bar-chart-line"></i> Analyze
           </button>
         </div>
         <div class="segment-card__filters">
@@ -145,7 +145,7 @@ const SegmentsManager = {
       </select>
       <input type="text" class="input" data-filter="value" placeholder="Value..." style="flex: 1;" aria-label="Filter value">
       <button class="btn btn-ghost btn-icon" onclick="this.parentElement.remove()" aria-label="Remove filter">
-        <i class="ph-duotone ph-x"></i>
+        <i class="ri-close-line"></i>
       </button>
     `;
     container.appendChild(row);
@@ -225,7 +225,7 @@ const SegmentsManager = {
           <td>${s.filters.map(f => `<span class="badge badge-secondary">${f.field} ${f.operator} "${f.value}"</span>`).join(' ')}</td>
           <td>
             <button class="btn btn-ghost btn-icon" onclick="SegmentsManager.deleteSegment('${projectId}', '${s.id}')" aria-label="Delete segment ${Utils.escapeHtml(s.name)}">
-              <i class="ph-duotone ph-trash"></i>
+              <i class="ri-delete-bin-line"></i>
             </button>
           </td>
         </tr>
