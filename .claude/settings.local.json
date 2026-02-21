@@ -29,7 +29,8 @@
       "WebFetch(domain:usefathom.com)",
       "WebFetch(domain:posthog.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:pageflows.com)"
+      "WebFetch(domain:pageflows.com)",
+      "Bash(echo \"checking XML...\" ls /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/build/test-results/test/*.xml)"
     ]
   }
 }

@@ -111,7 +111,8 @@ class ServiceManagerTest {
             )
         )
 
-        val success = ServiceManager.initialize(config, logger)
+        // Use reload() to force re-initialization (initialize() is a no-op when already READY)
+        val success = ServiceManager.reload(config, logger)
 
         assertFalse(success, "Initialization should fail with invalid database config")
         assertFalse(ServiceManager.isReady())
@@ -136,7 +137,7 @@ class ServiceManagerTest {
             security = SecurityConfig(
                 adminUsername = "test",
                 adminPassword = "testpassword123",
-                serverSalt = "short", // Too short, will fail
+                serverSalt = "short", // Too short, will fail AnalyticsSecurity.init
                 allowedOrigins = emptyList()
             ),
             database = DatabaseConfig(
@@ -147,7 +148,6 @@ class ServiceManagerTest {
                 name = null,
                 username = null,
                 password = null,
-                // maxPoolSize has default value for PostgreSQL
             ),
             server = ServerConfig(
                 port = 8080,
@@ -162,7 +162,8 @@ class ServiceManagerTest {
             )
         )
 
-        val success = ServiceManager.initialize(config, logger)
+        // Use reload() to force re-initialization (initialize() is a no-op when already READY)
+        val success = ServiceManager.reload(config, logger)
 
         assertFalse(success)
         assertNotNull(ServiceManager.getLastError())

@@ -126,7 +126,21 @@ fun Application.configureSetupRouting() {
         post("/setup/api/save") {
             try {
                 // Parse configuration from request
-                val config = call.receive<SetupConfigDTO>()
+                val config = try {
+                    call.receive<SetupConfigDTO>()
+                } catch (e: kotlinx.serialization.SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest,
+                        ErrorResponse(error = "Invalid JSON format: ${e.message}"))
+                    return@post
+                } catch (e: io.ktor.server.plugins.BadRequestException) {
+                    call.respond(HttpStatusCode.BadRequest,
+                        ErrorResponse(error = "Invalid request format"))
+                    return@post
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest,
+                        ErrorResponse(error = "Invalid configuration data: ${e.message}"))
+                    return@post
+                }
 
                 // Validate configuration server-side
                 val validation = SetupValidation.validateSetupConfig(config)
