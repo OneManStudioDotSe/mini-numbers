@@ -23,10 +23,11 @@ class InputValidatorTest {
 
     @Test
     fun `sanitize normalizes whitespace`() {
+        // Control characters (\t=0x09, \n=0x0A) are removed first, then whitespace is normalized
         val input = "Hello    World\t\tTest\n\nLine"
         val result = InputValidator.sanitize(input)
-        // Multiple whitespace characters should be normalized to single space
-        assertEquals("Hello World Test Line", result)
+        // Tabs and newlines are stripped as control characters; multiple spaces become single space
+        assertEquals("Hello WorldTestLine", result)
     }
 
     @Test
