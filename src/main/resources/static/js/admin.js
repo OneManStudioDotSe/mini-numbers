@@ -761,20 +761,20 @@ const Dashboard = {
    * @param {Object} data - Report data
    */
   updateCharts(data) {
-    // Top Pages - Bar Chart
+    // Top Pages - Bar Chart with show more
     const pagesEl = document.getElementById('chart-pages');
     if (data.topPages?.length && pagesEl) {
-      const topPages = Utils.aggregate.groupTopN(data.topPages, 10);
-      ChartManager.createBarChart('chart-pages', topPages);
+      const allPages = Utils.aggregate.groupTopN(data.topPages, 10);
+      this.renderBarChartWithShowMore('chart-pages', allPages, 5);
     } else if (pagesEl) {
       Utils.dom.showEmptyState(pagesEl.parentElement, { icon: '&#128196;', message: 'No page views yet', hint: 'Page views will appear once visitors arrive' });
     }
 
-    // Referrers - Bar Chart
+    // Referrers - Bar Chart with show more
     const referrersEl = document.getElementById('chart-referrers');
     if (data.referrers?.length && referrersEl) {
-      const topReferrers = Utils.aggregate.groupTopN(data.referrers, 10);
-      ChartManager.createBarChart('chart-referrers', topReferrers);
+      const allReferrers = Utils.aggregate.groupTopN(data.referrers, 10);
+      this.renderBarChartWithShowMore('chart-referrers', allReferrers, 5);
     } else if (referrersEl) {
       Utils.dom.showEmptyState(referrersEl.parentElement, { icon: '&#128279;', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
     }
@@ -829,11 +829,29 @@ const Dashboard = {
 
     // Custom Events - Bar Chart (show section only when data exists)
     const customEventsSection = document.getElementById('custom-events-section');
+    const customEventsCards = document.getElementById('custom-events-cards');
     if (data.customEvents?.length && document.getElementById('chart-custom-events')) {
       if (customEventsSection) customEventsSection.style.display = '';
       ChartManager.createBarChart('chart-custom-events', data.customEvents);
-    } else if (customEventsSection) {
-      customEventsSection.style.display = 'none';
+
+      // Update custom events summary cards
+      if (customEventsCards) {
+        customEventsCards.style.display = '';
+        const totalEvents = data.customEvents.reduce((sum, e) => sum + e.value, 0);
+        const topEvent = data.customEvents[0];
+
+        const totalEl = document.getElementById('total-custom-events');
+        if (totalEl) totalEl.textContent = Utils.format.number(totalEvents);
+
+        const topNameEl = document.getElementById('top-custom-event');
+        if (topNameEl) topNameEl.textContent = topEvent.label;
+
+        const topCountEl = document.getElementById('top-custom-event-count');
+        if (topCountEl) topCountEl.textContent = `${Utils.format.number(topEvent.value)} occurrences`;
+      }
+    } else {
+      if (customEventsSection) customEventsSection.style.display = 'none';
+      if (customEventsCards) customEventsCards.style.display = 'none';
     }
 
     // Countries - Geographic visualization
@@ -861,11 +879,15 @@ const Dashboard = {
       Utils.dom.showEmptyState(countriesEl.parentElement, { icon: '&#127758;', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
 
-    // Time Series - Line Chart
+    // Time Series - Line Chart (last 3 days)
     const timeseriesEl = document.getElementById('chart-timeseries');
     if (data.lastVisits?.length && timeseriesEl) {
       const granularity = this.state.currentFilter === '24h' ? 'hour' : 'day';
-      const timeData = Utils.aggregate.groupByTime(data.lastVisits, granularity);
+      // Limit to last 3 days of data
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+      const recentVisits = data.lastVisits.filter(v => new Date(v.timestamp) >= threeDaysAgo);
+      const timeData = Utils.aggregate.groupByTime(recentVisits, granularity);
       if (timeData.length) {
         ChartManager.createLineChart('chart-timeseries', timeData);
       }
@@ -873,12 +895,13 @@ const Dashboard = {
       Utils.dom.showEmptyState(timeseriesEl.parentElement, { icon: '&#128200;', message: 'No time series data' });
     }
 
-    // Activity Heatmap with peak highlighting
+    // Activity Heatmap with peak highlighting and date labels
     const heatmapEl = document.getElementById('chart-heatmap');
     if (data.activityHeatmap?.length && heatmapEl) {
       const peakHour = data.peakTimeAnalysis?.peakHour;
       const peakDay = data.peakTimeAnalysis?.peakDay;
-      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, peakHour, peakDay);
+      const dateLabels = this.getHeatmapDateLabels();
+      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, peakHour, peakDay, dateLabels);
     } else if (heatmapEl) {
       Utils.dom.showEmptyState(heatmapEl.parentElement, { icon: '&#128197;', message: 'No activity data yet' });
     }
@@ -1895,9 +1918,18 @@ const Dashboard = {
 
     // Listen for settings changes and update heatmap colors
     window.addEventListener('settingsChanged', (e) => {
+      // Update contribution calendar colors
       const calendar = document.getElementById('contribution-calendar');
       if (calendar) {
         calendar.className = `heatmap-${e.detail.heatmapColors}`;
+      }
+
+      // Rebuild activity heatmap with new color
+      if (this.state.data?.current?.activityHeatmap?.length) {
+        const peakHour = this.state.data.current.peakTimeAnalysis?.peakHour;
+        const peakDay = this.state.data.current.peakTimeAnalysis?.peakDay;
+        const dateLabels = this.getHeatmapDateLabels();
+        ChartManager.createHeatmap('chart-heatmap', this.state.data.current.activityHeatmap, peakHour, peakDay, dateLabels);
       }
     });
   },
@@ -2144,6 +2176,80 @@ const Dashboard = {
     };
 
     displayEl.textContent = `${formatDate(start)} — ${formatDate(now)}`;
+  },
+
+  /**
+   * Get heatmap date labels (day name + most recent date for each day of week)
+   * @returns {Array} Array of 7 labels like "Mon Feb 17"
+   */
+  getHeatmapDateLabels() {
+    const labels = [];
+    const now = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    for (let dow = 0; dow < 7; dow++) {
+      for (let offset = 0; offset < 7; offset++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - offset);
+        if (d.getDay() === dow) {
+          const month = d.toLocaleDateString('en-US', { month: 'short' });
+          const day = d.getDate();
+          labels[dow] = `${dayNames[dow]} ${month} ${day}`;
+          break;
+        }
+      }
+    }
+
+    return labels;
+  },
+
+  /**
+   * Render a bar chart with "show more" button if items exceed visible count
+   * @param {string} chartId - Canvas element ID
+   * @param {Array} allItems - All items to display
+   * @param {number} visibleCount - Number of items to show initially
+   */
+  renderBarChartWithShowMore(chartId, allItems, visibleCount = 5) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    const card = container.parentElement;
+
+    // Remove existing show more button
+    const existingBtn = card.querySelector('.show-more-btn');
+    if (existingBtn) existingBtn.remove();
+
+    const needsShowMore = allItems.length > visibleCount;
+    const itemsToShow = needsShowMore ? allItems.slice(0, visibleCount) : allItems;
+
+    // Set dynamic height: 40px per item (20px bar + 20px gap) + 40px padding
+    container.style.height = `${Math.max(200, itemsToShow.length * 40 + 40)}px`;
+    ChartManager.createBarChart(chartId, itemsToShow);
+
+    if (needsShowMore) {
+      const btn = document.createElement('button');
+      btn.className = 'show-more-btn';
+      btn.textContent = `Show ${allItems.length - visibleCount} more`;
+      btn.dataset.expanded = 'false';
+
+      btn.addEventListener('click', () => {
+        const expanded = btn.dataset.expanded === 'true';
+        if (expanded) {
+          container.style.height = `${Math.max(200, visibleCount * 40 + 40)}px`;
+          ChartManager.createBarChart(chartId, allItems.slice(0, visibleCount));
+          btn.textContent = `Show ${allItems.length - visibleCount} more`;
+          btn.dataset.expanded = 'false';
+        } else {
+          container.style.height = `${Math.max(200, allItems.length * 40 + 40)}px`;
+          ChartManager.createBarChart(chartId, allItems);
+          btn.textContent = 'Show less';
+          btn.dataset.expanded = 'true';
+        }
+      });
+
+      card.appendChild(btn);
+    }
   },
 
   /**

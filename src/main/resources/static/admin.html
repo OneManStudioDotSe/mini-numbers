@@ -98,18 +98,15 @@
         <!-- Dashboard Content (hidden until project selected) -->
         <div id="dashboard-content" class="hidden">
 
-            <!-- Date Range Display -->
-            <div class="card" style="padding: var(--spacing-sm); margin-bottom: var(--spacing-md); text-align: center; background: var(--color-bg-tertiary);">
-                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
-                    Showing data from
-                </div>
-                <div id="date-range-display" style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-top: var(--spacing-xs);">
-                    Loading...
-                </div>
-            </div>
-
-            <!-- Filter Bar -->
+            <!-- Unified Filter Bar with Date Range -->
             <div class="filter-bar" id="filter-bar">
+                <div class="filter-bar__date-range">
+                    <i data-feather="calendar"></i>
+                    <span id="date-range-display">Loading...</span>
+                </div>
+
+                <div class="filter-bar__divider"></div>
+
                 <div class="filter-selector">
                     <label>Filter by:</label>
                     <select id="filter-dimension" class="select">
@@ -177,6 +174,29 @@
                     <div class="stat-card__comparison" id="bounce-comparison">
                         Loading...
                     </div>
+                </div>
+            </div>
+
+            <!-- Custom Events Summary Cards -->
+            <div class="grid grid-cols-2 mt-lg" id="custom-events-cards" style="display: none;" role="region" aria-label="Custom events metrics">
+                <div class="card stat-card" role="status" aria-label="Total custom events">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon" aria-hidden="true">
+                            <i data-feather="zap"></i>
+                        </div>
+                        <small>Total custom events</small>
+                    </div>
+                    <div class="stat-card__value" id="total-custom-events">0</div>
+                </div>
+                <div class="card stat-card" role="status" aria-label="Top custom event">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon" aria-hidden="true">
+                            <i data-feather="star"></i>
+                        </div>
+                        <small>Top custom event</small>
+                    </div>
+                    <div class="stat-card__value" id="top-custom-event" style="font-size: var(--font-size-2xl);">&mdash;</div>
+                    <div class="stat-card__comparison" id="top-custom-event-count"></div>
                 </div>
             </div>
 
