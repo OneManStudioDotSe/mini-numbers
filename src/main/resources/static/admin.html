@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/chartjs-chart-geo@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2/src/duotone/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
 
     <!-- Leaflet for interactive maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -27,7 +27,7 @@
 
     <!-- Mobile Menu Toggle -->
     <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
-        <i class="ph-duotone ph-list"></i>
+        <i class="ri-menu-line"></i>
     </button>
 
     <!-- Sidebar -->
@@ -39,7 +39,7 @@
 
         <div class="sidebar-section" id="projects-section">
             <div class="sidebar-section__title">
-                <i class="ph-duotone ph-folder"></i>
+                <i class="ri-folder-line"></i>
                 <span>Your projects</span>
             </div>
             <div id="project-menu" class="project-menu" role="listbox" aria-label="Projects list">
@@ -49,15 +49,15 @@
 
         <div class="sidebar-footer">
             <button class="btn btn-ghost sidebar-btn" id="demo-project-btn" onclick="Dashboard.createOrBrowseDemoProject()">
-                <i class="ph-duotone ph-play-circle"></i>
+                <i class="ri-play-circle-line"></i>
                 <span>Demo project</span>
             </button>
             <button class="btn btn-primary sidebar-btn" id="new-project-btn" onclick="Dashboard.showCreateProjectDialog()">
-                <i class="ph-duotone ph-plus"></i>
+                <i class="ri-add-line"></i>
                 <span>New project</span>
             </button>
             <button class="btn btn-ghost sidebar-btn" id="sign-out-btn">
-                <i class="ph-duotone ph-sign-out"></i>
+                <i class="ri-logout-box-r-line"></i>
                 <span>Sign out</span>
             </button>
         </div>
@@ -70,11 +70,11 @@
             <h1 id="active-title">Select a project</h1>
             <div class="flex items-center gap-md">
                 <button class="btn btn-secondary btn-sm" id="generate-demo-btn" style="display: none;">
-                    <i class="ph-duotone ph-database"></i>
+                    <i class="ri-database-2-line"></i>
                     <span>Generate demo data</span>
                 </button>
                 <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none;">
-                    <i class="ph-duotone ph-list-bullets"></i>
+                    <i class="ri-list-unordered"></i>
                     <span>Raw events</span>
                 </button>
                 <select class="select" id="time-filter" aria-label="Time period filter">
@@ -86,11 +86,11 @@
                 </select>
                 <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                     <div class="theme-toggle__slider">
-                        <i class="ph-duotone ph-sun"></i>
+                        <i class="ri-sun-line"></i>
                     </div>
                 </button>
                 <button class="btn btn-ghost btn-icon" id="open-settings-btn" title="Settings">
-                    <i class="ph-duotone ph-gear"></i>
+                    <i class="ri-settings-3-line"></i>
                 </button>
             </div>
         </div>
@@ -101,7 +101,7 @@
             <!-- Unified Filter Bar with Date Range -->
             <div class="filter-bar" id="filter-bar">
                 <div class="filter-bar__date-range">
-                    <i class="ph-duotone ph-calendar"></i>
+                    <i class="ri-calendar-line"></i>
                     <span id="date-range-display">Loading...</span>
                 </div>
 
@@ -125,7 +125,7 @@
                 </div>
 
                 <div class="filter-warning" style="display: none;">
-                    <i class="ph-duotone ph-warning-circle"></i>
+                    <i class="ri-error-warning-line"></i>
                     <span>Filtered view - totals show all traffic</span>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                 <div class="card stat-card" role="status" aria-label="Total page views">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ph-duotone ph-eye"></i>
+                            <i class="ri-eye-line"></i>
                         </div>
                         <small>Total page views</small>
                     </div>
@@ -151,7 +151,7 @@
                 <div class="card stat-card" role="status" aria-label="Unique visitors">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ph-duotone ph-users"></i>
+                            <i class="ri-group-line"></i>
                         </div>
                         <small>Unique visitors</small>
                     </div>
@@ -166,7 +166,7 @@
                 <div class="card stat-card" role="status" aria-label="Bounce rate">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ph-duotone ph-sign-out"></i>
+                            <i class="ri-logout-box-r-line"></i>
                         </div>
                         <small>Bounce rate</small>
                     </div>
@@ -183,7 +183,7 @@
                     <div class="card stat-card" role="status" aria-label="Total custom events">
                         <div class="stat-card__header">
                             <div class="stat-card__icon" aria-hidden="true">
-                                <i class="ph-duotone ph-lightning"></i>
+                                <i class="ri-flashlight-line"></i>
                             </div>
                             <small>Total custom events</small>
                         </div>
@@ -192,7 +192,7 @@
                     <div class="card stat-card" role="status" aria-label="Top custom event">
                         <div class="stat-card__header">
                             <div class="stat-card__icon" aria-hidden="true">
-                                <i class="ph-duotone ph-star"></i>
+                                <i class="ri-star-line"></i>
                             </div>
                             <small>Top custom event</small>
                         </div>
@@ -209,7 +209,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i class="ph-duotone ph-trend-up"></i> Views over time
+                        <i class="ri-line-chart-line"></i> Views over time
                     </h3>
                 </div>
                 <div class="chart-card__container">
@@ -221,7 +221,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i class="ph-duotone ph-calendar"></i> Activity heatmap
+                        <i class="ri-calendar-line"></i> Activity heatmap
                     </h3>
                     <div class="heatmap-legend">
                         <span class="text-muted text-xs">Less</span>
@@ -239,7 +239,7 @@
                 <!-- Peak Hours -->
                 <div class="card">
                     <h3>
-                        <i class="ph-duotone ph-clock"></i> Peak hours
+                        <i class="ri-time-line"></i> Peak hours
                     </h3>
                     <div class="peak-list" id="peak-hours">
                         Loading...
@@ -249,7 +249,7 @@
                 <!-- Peak Days -->
                 <div class="card">
                     <h3>
-                        <i class="ph-duotone ph-calendar"></i> Peak days
+                        <i class="ri-calendar-line"></i> Peak days
                     </h3>
                     <div class="peak-list" id="peak-days">
                         Loading...
@@ -263,10 +263,10 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-file-text"></i> Top pages
+                            <i class="ri-file-text-line"></i> Top pages
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="top-pages" title="Export to CSV">
-                            <i class="ph-duotone ph-download-simple"></i>
+                            <i class="ri-download-line"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -278,10 +278,10 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-arrow-square-out"></i> Referrers
+                            <i class="ri-external-link-line"></i> Referrers
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="referrers" title="Export to CSV">
-                            <i class="ph-duotone ph-download-simple"></i>
+                            <i class="ri-download-line"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -296,21 +296,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-globe"></i> Browsers
+                            <i class="ri-global-line"></i> Browsers
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="browsers" title="Export to CSV">
-                                <i class="ph-duotone ph-download-simple"></i>
+                                <i class="ri-download-line"></i>
                             </button>
                             <div class="view-toggle" data-chart="browsers">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ph-duotone ph-chart-pie-slice"></i>
+                                    <i class="ri-pie-chart-2-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ph-duotone ph-chart-bar"></i>
+                                    <i class="ri-bar-chart-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ph-duotone ph-crosshair"></i>
+                                    <i class="ri-focus-3-line"></i>
                                 </button>
                             </div>
                         </div>
@@ -324,21 +324,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-monitor"></i> Operating systems
+                            <i class="ri-computer-line"></i> Operating systems
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="os" title="Export to CSV">
-                                <i class="ph-duotone ph-download-simple"></i>
+                                <i class="ri-download-line"></i>
                             </button>
                             <div class="view-toggle" data-chart="os">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ph-duotone ph-chart-pie-slice"></i>
+                                    <i class="ri-pie-chart-2-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ph-duotone ph-chart-bar"></i>
+                                    <i class="ri-bar-chart-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ph-duotone ph-crosshair"></i>
+                                    <i class="ri-focus-3-line"></i>
                                 </button>
                             </div>
                         </div>
@@ -355,21 +355,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-device-mobile"></i> Devices
+                            <i class="ri-smartphone-line"></i> Devices
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="devices" title="Export to CSV">
-                                <i class="ph-duotone ph-download-simple"></i>
+                                <i class="ri-download-line"></i>
                             </button>
                             <div class="view-toggle" data-chart="devices">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ph-duotone ph-chart-pie-slice"></i>
+                                    <i class="ri-pie-chart-2-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ph-duotone ph-chart-bar"></i>
+                                    <i class="ri-bar-chart-line"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ph-duotone ph-crosshair"></i>
+                                    <i class="ri-focus-3-line"></i>
                                 </button>
                             </div>
                         </div>
@@ -383,10 +383,10 @@
                 <div class="card chart-card" id="custom-events-section" style="display: none;">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i class="ph-duotone ph-lightning"></i> Custom events
+                            <i class="ri-flashlight-line"></i> Custom events
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="custom-events" title="Export to CSV">
-                            <i class="ph-duotone ph-download-simple"></i>
+                            <i class="ri-download-line"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -400,21 +400,21 @@
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
                         <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
-                            <i class="ph-duotone ph-arrow-left"></i>
+                            <i class="ri-arrow-left-line"></i>
                         </button>
-                        <i class="ph-duotone ph-map-trifold"></i>
+                        <i class="ri-map-2-line"></i>
                         <span id="geo-title">Geographic distribution</span>
                     </h3>
                     <div class="chart-card__actions">
                         <button class="btn btn-ghost btn-icon" data-export="countries" title="Export to CSV">
-                            <i class="ph-duotone ph-download-simple"></i>
+                            <i class="ri-download-line"></i>
                         </button>
                         <div class="view-toggle" id="geo-view-toggle">
                             <button class="view-toggle__btn active" data-view="chart" title="Chart view">
-                                <i class="ph-duotone ph-chart-bar"></i>
+                                <i class="ri-bar-chart-line"></i>
                             </button>
                             <button class="view-toggle__btn" data-view="map" title="Map view">
-                                <i class="ph-duotone ph-map-pin"></i>
+                                <i class="ri-map-pin-line"></i>
                             </button>
                         </div>
                     </div>
@@ -429,14 +429,14 @@
             <div class="card mt-lg">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i class="ph-duotone ph-activity"></i> Recent activity
+                        <i class="ri-pulse-line"></i> Recent activity
                     </h3>
                     <div class="flex items-center" style="gap: var(--spacing-sm);">
                         <button class="btn btn-primary btn-sm" data-export="full-report">
-                            <i class="ph-duotone ph-download-simple"></i> Export full report
+                            <i class="ri-download-line"></i> Export full report
                         </button>
                         <button class="btn btn-ghost btn-icon" data-export="recent-activity" title="Export recent activity">
-                            <i class="ph-duotone ph-download-simple"></i>
+                            <i class="ri-download-line"></i>
                         </button>
                         <input
                             type="text"
@@ -452,13 +452,13 @@
                         <thead>
                             <tr>
                                 <th class="sortable" data-sort="path">
-                                    Path <i class="ph-duotone ph-caret-down sort-icon"></i>
+                                    Path <i class="ri-arrow-down-s-line sort-icon"></i>
                                 </th>
                                 <th class="sortable" data-sort="city">
-                                    City <i class="ph-duotone ph-caret-down sort-icon"></i>
+                                    City <i class="ri-arrow-down-s-line sort-icon"></i>
                                 </th>
                                 <th class="sortable" data-sort="time">
-                                    Time <i class="ph-duotone ph-caret-down sort-icon"></i>
+                                    Time <i class="ri-arrow-down-s-line sort-icon"></i>
                                 </th>
                             </tr>
                         </thead>
@@ -475,7 +475,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i class="ph-duotone ph-activity"></i> Activity calendar (last 365 days)
+                        <i class="ri-pulse-line"></i> Activity calendar (last 365 days)
                     </h3>
                     <div class="contribution-legend">
                         <span class="text-muted text-xs">Less</span>
@@ -498,10 +498,10 @@
             <div class="card mt-lg" id="goals-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i class="ph-duotone ph-crosshair"></i> Conversion goals
+                        <i class="ri-focus-3-line"></i> Conversion goals
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-goals-btn">
-                        <i class="ph-duotone ph-gear"></i>
+                        <i class="ri-settings-3-line"></i>
                         <span>Manage goals</span>
                     </button>
                 </div>
@@ -512,10 +512,10 @@
             <div class="card mt-lg" id="funnels-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i class="ph-duotone ph-funnel"></i> Funnels
+                        <i class="ri-filter-3-line"></i> Funnels
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-funnels-btn">
-                        <i class="ph-duotone ph-gear"></i>
+                        <i class="ri-settings-3-line"></i>
                         <span>Manage funnels</span>
                     </button>
                 </div>
@@ -526,10 +526,10 @@
             <div class="card mt-lg" id="segments-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i class="ph-duotone ph-sliders-horizontal"></i> User segments
+                        <i class="ri-equalizer-line"></i> User segments
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-segments-btn" aria-label="Manage user segments">
-                        <i class="ph-duotone ph-gear"></i>
+                        <i class="ri-settings-3-line"></i>
                         <span>Manage segments</span>
                     </button>
                 </div>
@@ -601,7 +601,7 @@
                 <div id="create-step-1">
                     <div class="form-group">
                         <label for="project-name">
-                            <i class="ph-duotone ph-tag form-icon"></i>
+                            <i class="ri-price-tag-3-line form-icon"></i>
                             Project name
                         </label>
                         <input type="text" id="project-name" class="input" placeholder="My Website" required />
@@ -610,7 +610,7 @@
                     </div>
                     <div class="form-group">
                         <label for="project-domain">
-                            <i class="ph-duotone ph-globe form-icon"></i>
+                            <i class="ri-global-line form-icon"></i>
                             Domain
                         </label>
                         <input type="text" id="project-domain" class="input" placeholder="example.com" required />
@@ -619,13 +619,13 @@
                     </div>
                     <div class="form-group">
                         <label>
-                            <i class="ph-duotone ph-key form-icon"></i>
+                            <i class="ri-key-line form-icon"></i>
                             API key (pre-generated)
                         </label>
                         <div class="api-key-display">
                             <code id="generated-api-key">...</code>
                             <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key" title="Copy to clipboard">
-                                <i class="ph-duotone ph-copy"></i>
+                                <i class="ri-file-copy-line"></i>
                             </button>
                         </div>
                         <small class="help-text">This key will be assigned to your project</small>
@@ -636,7 +636,7 @@
                 <div id="create-step-2" style="display: none;">
                     <div class="create-success">
                         <div class="create-success__icon">
-                            <i class="ph-duotone ph-check-circle"></i>
+                            <i class="ri-checkbox-circle-line"></i>
                         </div>
                         <h3>Project created!</h3>
                         <p class="text-muted">Add this snippet to your website's <code>&lt;head&gt;</code> to start tracking:</p>
@@ -644,7 +644,7 @@
                     <div class="snippet-block">
                         <pre id="tracking-snippet-code"></pre>
                         <button type="button" class="btn btn-ghost btn-icon snippet-copy" id="copy-snippet" title="Copy snippet">
-                            <i class="ph-duotone ph-copy"></i>
+                            <i class="ri-file-copy-line"></i>
                         </button>
                     </div>
                     <div class="form-group" style="margin-top: var(--spacing-md);">
@@ -652,7 +652,7 @@
                         <div class="api-key-display">
                             <code id="generated-api-key-final">...</code>
                             <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key-final" title="Copy API key">
-                                <i class="ph-duotone ph-copy"></i>
+                                <i class="ri-file-copy-line"></i>
                             </button>
                         </div>
                     </div>
@@ -693,7 +693,7 @@
                         <div class="api-key-display">
                             <code id="setting-project-api-key">...</code>
                             <button class="btn btn-ghost btn-icon" id="copy-project-api-key" title="Copy to clipboard">
-                                <i class="ph-duotone ph-copy"></i>
+                                <i class="ri-file-copy-line"></i>
                             </button>
                         </div>
                     </div>
@@ -742,7 +742,7 @@
                 <h2>Raw Events</h2>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
-                        <i class="ph-duotone ph-download-simple"></i>
+                        <i class="ri-download-line"></i>
                     </button>
                     <button class="modal-close" id="close-raw-events">&times;</button>
                 </div>
@@ -868,7 +868,7 @@
 
                     <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
                         <button class="btn btn-ghost btn-sm" id="add-funnel-step-btn">
-                            <i class="ph-duotone ph-plus"></i> Add step
+                            <i class="ri-add-line"></i> Add step
                         </button>
                         <button class="btn btn-primary btn-sm" id="create-funnel-btn">Create funnel</button>
                     </div>
@@ -921,7 +921,7 @@
 
                     <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
                         <button class="btn btn-ghost btn-sm" id="add-segment-filter-btn" aria-label="Add filter condition">
-                            <i class="ph-duotone ph-plus"></i> Add filter
+                            <i class="ri-add-line"></i> Add filter
                         </button>
                         <button class="btn btn-primary btn-sm" id="create-segment-btn">Create segment</button>
                     </div>
@@ -1003,7 +1003,7 @@
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon">
-                    <i class="ph-duotone ph-sign-out"></i>
+                    <i class="ri-logout-box-r-line"></i>
                 </div>
                 <h2 class="logout-dialog__title">Sign out</h2>
                 <p class="logout-dialog__message">Are you sure you want to sign out of your account?</p>
@@ -1021,7 +1021,7 @@
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon" style="color: var(--color-danger);">
-                    <i class="ph-duotone ph-trash"></i>
+                    <i class="ri-delete-bin-line"></i>
                 </div>
                 <h2 class="logout-dialog__title">Delete project</h2>
                 <p class="logout-dialog__message">Are you sure you want to delete <strong id="delete-project-name"></strong>? This will permanently remove all analytics data, goals, funnels, and segments.</p>

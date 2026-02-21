@@ -149,8 +149,8 @@ const Dashboard = {
 
     const isDark = ThemeManager.isDark();
     slider.innerHTML = isDark
-      ? '<i class="ph-duotone ph-moon"></i>'
-      : '<i class="ph-duotone ph-sun"></i>';
+      ? '<i class="ri-moon-line"></i>'
+      : '<i class="ri-sun-line"></i>';
   },
 
   /**
@@ -258,7 +258,7 @@ const Dashboard = {
             <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
           </div>
           <button class="project-menu__delete" onclick="event.stopPropagation(); Dashboard.confirmDeleteProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')" title="Delete project" aria-label="Delete ${Utils.escapeHtml(project.name)}">
-            <i class="ph-duotone ph-trash"></i>
+            <i class="ri-delete-bin-line"></i>
           </button>
         </div>
       `

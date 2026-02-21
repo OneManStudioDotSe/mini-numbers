@@ -137,13 +137,13 @@ const GoalsManager = {
           const change = stat.conversionRate - stat.previousConversionRate;
           const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
           const changeIcon = change > 0 ? '&uarr;' : change < 0 ? '&darr;' : '';
-          const typeIcon = stat.goal.goalType === 'url' ? 'ph-link' : 'ph-lightning';
+          const typeIcon = stat.goal.goalType === 'url' ? 'ri-link' : 'ri-flashlight-line';
 
           return `
             <div class="goal-card">
               <div class="goal-card__header">
                 <div class="goal-card__icon">
-                  <i class="ph-duotone ${typeIcon}"></i>
+                  <i class="${typeIcon}"></i>
                 </div>
                 <div>
                   <div class="goal-card__name">${Utils.escapeHtml(stat.goal.name)}</div>
@@ -295,7 +295,7 @@ const GoalsManager = {
         </td>
         <td>
           <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteGoal('${projectId}', '${goal.id}', '${Utils.escapeHtml(goal.name)}')" title="Delete">
-            <i class="ph-duotone ph-trash"></i>
+            <i class="ri-delete-bin-line"></i>
           </button>
         </td>
       </tr>
@@ -320,7 +320,7 @@ const GoalsManager = {
         <td>${funnel.steps.map(s => Utils.escapeHtml(s.name)).join(' &rarr; ')}</td>
         <td>
           <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteFunnel('${projectId}', '${funnel.id}', '${Utils.escapeHtml(funnel.name)}')" title="Delete">
-            <i class="ph-duotone ph-trash"></i>
+            <i class="ri-delete-bin-line"></i>
           </button>
         </td>
       </tr>
@@ -388,7 +388,7 @@ const GoalsManager = {
       <div class="funnel-step-input" id="funnel-step-${num}">
         <div class="funnel-step-input__header">
           <span class="funnel-step-input__number">Step ${num}</span>
-          ${num > 2 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.removeFunnelStep(${num})" title="Remove step"><i class="ph-duotone ph-x"></i></button>` : ''}
+          ${num > 2 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.removeFunnelStep(${num})" title="Remove step"><i class="ri-close-line"></i></button>` : ''}
         </div>
         <div class="funnel-step-input__fields">
           <input type="text" class="input" placeholder="Step name" id="funnel-step-name-${num}">
