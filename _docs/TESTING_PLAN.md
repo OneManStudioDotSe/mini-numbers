@@ -1,6 +1,6 @@
-# Mini Numbers - Testing Plan
+# Mini Numbers - Testing plan
 
-## Browser Matrix
+## Browser matrix
 
 | Browser | Windows | macOS | Linux | iOS | Android |
 |---------|---------|-------|-------|-----|---------|
@@ -9,7 +9,7 @@
 | Safari (latest) | - | Yes | - | Yes | - |
 | Edge (latest) | Yes | - | - | - | - |
 
-## Device Breakpoints
+## Device breakpoints
 
 | Device | Width | Priority |
 |--------|-------|----------|
@@ -18,7 +18,7 @@
 | Tablet | 768px-1024px | Medium |
 | Mobile | 320px-767px | Medium |
 
-## Test Scenarios
+## Test scenarios
 
 ### Authentication
 
@@ -28,14 +28,14 @@
 - [ ] Session persistence across page refresh
 - [ ] Sign out clears session and redirects to login
 
-### Setup Wizard
+### Setup wizard
 
 - [ ] First-run setup wizard displays correctly
 - [ ] Salt generation produces valid 128-char hex string
 - [ ] Configuration saves and initializes services without restart
 - [ ] Setup redirects to login after completion
 
-### Project Management
+### Project management
 
 - [ ] Create project with valid name and domain
 - [ ] API key is generated and displayed
@@ -55,7 +55,7 @@
 - [ ] Date range display updates correctly
 - [ ] Filter bar shows date range and filter controls in a unified row
 
-### Charts & Visualizations
+### Charts & visualizations
 
 - [ ] Top Pages bar chart renders with data
 - [ ] Referrers bar chart renders with data
@@ -75,14 +75,14 @@
 - [ ] Activity heatmap shows actual dates next to day names
 - [ ] Empty states show when no data exists for each chart
 
-### Data Export
+### Data export
 
 - [ ] CSV export works for each chart type
 - [ ] Full report export includes all sections
 - [ ] Raw events export with pagination
 - [ ] Exported CSV files are valid and parseable
 
-### Conversion Goals
+### Conversion goals
 
 - [ ] Create URL-based goal
 - [ ] Create event-based goal
@@ -96,14 +96,14 @@
 - [ ] Funnel visualization shows drop-off percentages
 - [ ] Delete funnel
 
-### User Segments
+### User segments
 
 - [ ] Create segment with single filter
 - [ ] Create segment with multiple AND/OR filters
 - [ ] Segment analysis returns filtered data
 - [ ] Delete segment
 
-### Live Feed
+### Live feed
 
 - [ ] Live feed updates every 5 seconds
 - [ ] Live feed shows visitor path, location, and time
@@ -130,7 +130,7 @@
 - [ ] All charts and maps respect theme colors
 - [ ] System `prefers-color-scheme` works on first visit
 
-## Responsive Layout Testing
+## Responsive layout testing
 
 - [ ] Sidebar collapses on mobile (<640px)
 - [ ] Mobile menu toggle shows/hides sidebar
@@ -139,7 +139,7 @@
 - [ ] Tables scroll horizontally on small screens
 - [ ] Modals are usable on mobile
 
-## Accessibility Testing
+## Accessibility testing
 
 - [ ] Tab navigation through all interactive elements
 - [ ] Enter/Space activates buttons and links
@@ -149,7 +149,7 @@
 - [ ] Color contrast meets WCAG AA (4.5:1 for text)
 - [ ] Focus indicators are visible
 
-## Performance Checks
+## Performance checks
 
 - [ ] Initial page load < 3 seconds
 - [ ] Time to interactive < 5 seconds

@@ -72,6 +72,14 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     }
 }
 
+// Test configuration: provide required config via system properties
+// so tests work without a .env file (matches CI environment)
+tasks.withType<Test> {
+    systemProperty("ADMIN_PASSWORD", "testpassword123")
+    systemProperty("SERVER_SALT", "a]4k9Bp!2sLq8Fz#7mXr0Wd6Yh3NcEv5JtGu1PxAoKiRnMlHfCjQwSyTbUeOgZd")
+    systemProperty("DB_SQLITE_PATH", "test-dbs/ci-test.db")
+}
+
 // Minify tracker.js (strip comments and collapse whitespace)
 tasks.register("minifyTracker") {
     group = "build"
@@ -127,7 +135,7 @@ tasks.register<JavaExec>("reset") {
         println("=" .repeat(70))
         println()
         println("Demo project created:")
-        println("  - Name: Professional Demo")
+        println("  - Name: Professional demo")
         println("  - Domain: localhost")
         println("  - API Key: demo-key-123")
         println("  - Events: 1000 sample events")

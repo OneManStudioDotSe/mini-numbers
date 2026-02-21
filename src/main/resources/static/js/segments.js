@@ -40,7 +40,7 @@ const SegmentsManager = {
             ${segment.description ? `<div class="text-muted text-sm">${Utils.escapeHtml(segment.description)}</div>` : ''}
           </div>
           <button class="btn btn-ghost btn-sm" onclick="SegmentsManager.analyzeSegment('${projectId}', '${segment.id}', '${filter}')" aria-label="Analyze segment ${Utils.escapeHtml(segment.name)}">
-            <i data-feather="bar-chart-2"></i> Analyze
+            <i class="ph-duotone ph-chart-bar"></i> Analyze
           </button>
         </div>
         <div class="segment-card__filters">
@@ -52,7 +52,6 @@ const SegmentsManager = {
       </div>
     `).join('');
 
-    if (window.feather) feather.replace();
   },
 
   /**
@@ -136,7 +135,7 @@ const SegmentsManager = {
         <option value="city">City</option>
         <option value="path">Path</option>
         <option value="referrer">Referrer</option>
-        <option value="eventType">Event Type</option>
+        <option value="eventType">Event type</option>
       </select>
       <select class="select" data-filter="operator" aria-label="Filter operator">
         <option value="equals">equals</option>
@@ -146,11 +145,10 @@ const SegmentsManager = {
       </select>
       <input type="text" class="input" data-filter="value" placeholder="Value..." style="flex: 1;" aria-label="Filter value">
       <button class="btn btn-ghost btn-icon" onclick="this.parentElement.remove()" aria-label="Remove filter">
-        <i data-feather="x"></i>
+        <i class="ph-duotone ph-x"></i>
       </button>
     `;
     container.appendChild(row);
-    if (window.feather) feather.replace();
   },
 
   /**
@@ -227,13 +225,12 @@ const SegmentsManager = {
           <td>${s.filters.map(f => `<span class="badge badge-secondary">${f.field} ${f.operator} "${f.value}"</span>`).join(' ')}</td>
           <td>
             <button class="btn btn-ghost btn-icon" onclick="SegmentsManager.deleteSegment('${projectId}', '${s.id}')" aria-label="Delete segment ${Utils.escapeHtml(s.name)}">
-              <i data-feather="trash-2"></i>
+              <i class="ph-duotone ph-trash"></i>
             </button>
           </td>
         </tr>
       `).join('');
 
-      if (window.feather) feather.replace();
     } catch (error) {
       console.error('Failed to load segments table:', error);
     }

@@ -1,10 +1,10 @@
-# Mini Numbers - TODO List
+# Mini Numbers - TODO list
 
 **Last Updated**: February 21, 2026
 
 ---
 
-## Phase 1: Security & Foundation — COMPLETED
+## Phase 1: Security & foundation — COMPLETED
 
 - [x] Remove all hardcoded credentials
 - [x] Environment variable system with `.env` support
@@ -27,9 +27,9 @@
 
 ---
 
-## Phase 2: Easy Deployment — COMPLETED
+## Phase 2: Easy deployment — COMPLETED
 
-### Docker Optimization
+### Docker optimization
 - [x] Production Dockerfile in repo (multi-stage build, Alpine-based, non-root user, JVM container tuning)
 - [x] docker-compose.yml in repo (SQLite + PostgreSQL variants, volume mounts)
 - [x] GHCR automated builds with version tagging (GitHub Actions)
@@ -44,16 +44,16 @@
 
 ---
 
-## Phase 3: Testing & Quality — COMPLETED
+## Phase 3: Testing & quality — COMPLETED
 
-### Additional Tests
+### Additional tests
 - [x] Analytics calculation tests (22 tests in DataAnalysisUtilsTest)
 - [x] Admin endpoint integration tests (14 tests in AdminEndpointTest)
 - [x] End-to-end tests (9 tests in TrackingWorkflowTest)
 - [x] Health endpoint tests (6 tests in HealthEndpointTest)
 - [x] Docker build and deployment tests (CI verifies Docker build + health check)
 
-### CI/CD Pipeline
+### CI/CD pipeline
 - [x] GitHub Actions: test + build workflow (on push/PR to main)
 - [x] GitHub Actions: Docker multi-platform publish to GHCR (on push/tag)
 - [x] Code quality checks (Detekt static analysis with baseline, integrated in CI)
@@ -79,7 +79,7 @@
 
 ---
 
-## Phase 5: Polish & Launch Prep — COMPLETED
+## Phase 5: Polish & launch prep — COMPLETED
 
 ### UI/UX
 - [x] Loading states and skeleton screens
@@ -90,7 +90,7 @@
 - [x] Project delete from sidebar with confirmation dialog
 - [x] Enhanced demo data (10 custom event types, auto-seeds goals/funnels/segments)
 
-### First-Time Experience
+### First-time experience
 - [x] Onboarding flow after first login (modal with checklist, localStorage persistence)
 - [x] In-app getting started checklist (4-step checklist: create project, install tracker, first visit, explore)
 
@@ -100,7 +100,7 @@
 - [x] GeoIP lookup caching (Caffeine, 10K entries, 1h TTL)
 - [x] Frontend optimization (Promise.allSettled for parallel loads, debounced filter changes)
 
-### Final Review
+### Final review
 - [x] Manual testing across browsers and devices — `_docs/TESTING_PLAN.md`
 - [x] Security audit — `_docs/SECURITY_AUDIT.md`
 - [x] Performance benchmarking — `_docs/PERFORMANCE.md`
@@ -120,9 +120,9 @@
 
 ---
 
-## Phase 7: Post-Launch Features
+## Phase 7: Post-launch features
 
-### High Priority (Next 3 months)
+### High priority (next 3 months)
 - [x] Custom event tracking — name-based tracking with `MiniNumbers.track()` API and dashboard card
 - [x] Conversion goals — URL-based and event-based goals with conversion rate tracking and management UI
 - [x] Basic funnels — multi-step conversion tracking with drop-off analysis and time between steps

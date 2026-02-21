@@ -1150,7 +1150,7 @@ private fun seedDemoGoalsFunnelsSegments(projectId: java.util.UUID) {
         Funnels.insert {
             it[id] = purchaseFunnelId
             it[Funnels.projectId] = projectId
-            it[name] = "Product Purchase"
+            it[name] = "Product purchase"
         }
         val purchaseSteps = listOf(
             Triple(1, "View products", "/products" to "url"),
@@ -1174,7 +1174,7 @@ private fun seedDemoGoalsFunnelsSegments(projectId: java.util.UUID) {
         Funnels.insert {
             it[id] = signupFunnelId
             it[Funnels.projectId] = projectId
-            it[name] = "User Signup"
+            it[name] = "User signup"
         }
         val signupSteps = listOf(
             Triple(1, "Visit homepage", "/" to "url"),

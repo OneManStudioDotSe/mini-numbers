@@ -17,30 +17,23 @@ object ConfigLoader {
 
     /**
      * Check if setup wizard is needed
-     * Returns true if .env file is missing or required configuration is incomplete
+     * Returns true if required configuration is missing from all sources
+     * (environment variables, system properties, and .env file)
      */
     fun isSetupNeeded(): Boolean {
-        val envFile = File(ENV_FILE_PATH)
-
-        // If .env doesn't exist, setup is needed
-        if (!envFile.exists()) {
-            return true
-        }
-
-        // Try to load .env and check for required fields
+        // Try to load .env file if it exists (sets system properties)
         try {
             loadDotEnvFile()
-
-            // Check for required configuration
-            val hasAdminPassword = getEnvOrNull("ADMIN_PASSWORD")?.isNotBlank() == true
-            val hasServerSalt = getEnvOrNull("SERVER_SALT")?.isNotBlank() == true
-
-            // Setup is needed if either required field is missing
-            return !(hasAdminPassword && hasServerSalt)
-        } catch (e: Exception) {
-            // If any error occurs reading .env, treat as needs setup
-            return true
+        } catch (_: Exception) {
+            // .env loading failed - fall through to check other sources
         }
+
+        // Check for required configuration from any source (env vars, system properties, or .env)
+        val hasAdminPassword = getEnvOrNull("ADMIN_PASSWORD")?.isNotBlank() == true
+        val hasServerSalt = getEnvOrNull("SERVER_SALT")?.isNotBlank() == true
+
+        // Setup is needed if either required field is missing
+        return !(hasAdminPassword && hasServerSalt)
     }
 
     /**

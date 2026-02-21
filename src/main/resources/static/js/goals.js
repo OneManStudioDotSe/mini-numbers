@@ -126,7 +126,7 @@ const GoalsManager = {
       container.innerHTML = `
         <div style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-muted);">
           <p>No conversion goals configured yet.</p>
-          <p style="font-size: var(--font-size-sm);">Click "Manage Goals" to create your first goal.</p>
+          <p style="font-size: var(--font-size-sm);">Click "Manage goals" to create your first goal.</p>
         </div>`;
       return;
     }
@@ -137,13 +137,13 @@ const GoalsManager = {
           const change = stat.conversionRate - stat.previousConversionRate;
           const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
           const changeIcon = change > 0 ? '&uarr;' : change < 0 ? '&darr;' : '';
-          const typeIcon = stat.goal.goalType === 'url' ? 'link' : 'zap';
+          const typeIcon = stat.goal.goalType === 'url' ? 'ph-link' : 'ph-lightning';
 
           return `
             <div class="goal-card">
               <div class="goal-card__header">
                 <div class="goal-card__icon">
-                  <i data-feather="${typeIcon}"></i>
+                  <i class="ph-duotone ${typeIcon}"></i>
                 </div>
                 <div>
                   <div class="goal-card__name">${Utils.escapeHtml(stat.goal.name)}</div>
@@ -163,7 +163,6 @@ const GoalsManager = {
         }).join('')}
       </div>`;
 
-    if (window.feather) feather.replace();
   },
 
   renderFunnels(funnels, projectId, filter) {
@@ -178,7 +177,7 @@ const GoalsManager = {
       container.innerHTML = `
         <div style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-muted);">
           <p>No funnels configured yet.</p>
-          <p style="font-size: var(--font-size-sm);">Click "Manage Funnels" to create your first funnel.</p>
+          <p style="font-size: var(--font-size-sm);">Click "Manage funnels" to create your first funnel.</p>
         </div>`;
       return;
     }
@@ -296,13 +295,12 @@ const GoalsManager = {
         </td>
         <td>
           <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteGoal('${projectId}', '${goal.id}', '${Utils.escapeHtml(goal.name)}')" title="Delete">
-            <i data-feather="trash-2"></i>
+            <i class="ph-duotone ph-trash"></i>
           </button>
         </td>
       </tr>
     `).join('');
 
-    if (window.feather) feather.replace();
   },
 
   async refreshFunnelList(projectId) {
@@ -322,13 +320,12 @@ const GoalsManager = {
         <td>${funnel.steps.map(s => Utils.escapeHtml(s.name)).join(' &rarr; ')}</td>
         <td>
           <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteFunnel('${projectId}', '${funnel.id}', '${Utils.escapeHtml(funnel.name)}')" title="Delete">
-            <i data-feather="trash-2"></i>
+            <i class="ph-duotone ph-trash"></i>
           </button>
         </td>
       </tr>
     `).join('');
 
-    if (window.feather) feather.replace();
   },
 
   async handleCreateGoal(projectId) {
@@ -391,13 +388,13 @@ const GoalsManager = {
       <div class="funnel-step-input" id="funnel-step-${num}">
         <div class="funnel-step-input__header">
           <span class="funnel-step-input__number">Step ${num}</span>
-          ${num > 2 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.removeFunnelStep(${num})" title="Remove step"><i data-feather="x"></i></button>` : ''}
+          ${num > 2 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.removeFunnelStep(${num})" title="Remove step"><i class="ph-duotone ph-x"></i></button>` : ''}
         </div>
         <div class="funnel-step-input__fields">
           <input type="text" class="input" placeholder="Step name" id="funnel-step-name-${num}">
           <select class="select" id="funnel-step-type-${num}">
-            <option value="url">URL Path</option>
-            <option value="event">Custom Event</option>
+            <option value="url">URL path</option>
+            <option value="event">Custom event</option>
           </select>
           <input type="text" class="input" placeholder="Match value (e.g. /pricing)" id="funnel-step-match-${num}">
         </div>
@@ -409,7 +406,6 @@ const GoalsManager = {
     const container = document.getElementById('funnel-steps-container');
     if (!container) return;
     container.insertAdjacentHTML('beforeend', this.renderStepInput(this.funnelStepCount));
-    if (window.feather) feather.replace();
   },
 
   removeFunnelStep(num) {

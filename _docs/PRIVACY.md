@@ -1,4 +1,4 @@
-# Mini Numbers - Privacy Architecture
+# Mini Numbers - Privacy architecture
 
 ## Philosophy
 
@@ -12,9 +12,9 @@ Mini Numbers is designed around a core principle: **collect useful analytics wit
 
 ---
 
-## Visitor Identification
+## Visitor identification
 
-### How the Rotating Hash Works
+### How the rotating hash works
 
 Mini Numbers identifies unique visitors using a one-way SHA-256 hash that rotates on a configurable schedule.
 
@@ -35,7 +35,7 @@ rotationBucket = hoursSinceEpoch / HASH_ROTATION_HOURS
 - The **server salt** (128-char hex string) ensures hashes are unique to your instance
 - **Cross-instance tracking is impossible** - different salts produce different hashes
 
-### Configurable Rotation
+### Configurable rotation
 
 The `HASH_ROTATION_HOURS` environment variable controls how often hashes rotate:
 
@@ -50,7 +50,7 @@ Shorter rotation = more privacy but less accurate unique visitor counts (same pe
 
 ---
 
-## Privacy Modes
+## Privacy modes
 
 Three privacy modes control what data is collected. Set via `PRIVACY_MODE` environment variable.
 
@@ -78,7 +78,7 @@ Minimal data collection:
 
 ---
 
-## Data Retention
+## Data retention
 
 The `DATA_RETENTION_DAYS` environment variable controls automatic data purging:
 
@@ -104,7 +104,7 @@ A background timer runs every 6 hours to purge expired events.
 
 ---
 
-## User Agent Parsing
+## User agent parsing
 
 - Browser, OS, and device type are extracted **server-side** from the User-Agent header
 - The **raw User-Agent string is never stored** in the database
@@ -113,7 +113,7 @@ A background timer runs every 6 hours to purge expired events.
 
 ---
 
-## Session Management
+## Session management
 
 - Sessions use `sessionStorage` (browser tab-scoped, not cookies)
 - Session IDs are generated client-side using `crypto.getRandomValues()`
@@ -123,7 +123,7 @@ A background timer runs every 6 hours to purge expired events.
 
 ---
 
-## What IS Stored
+## What IS stored
 
 The `Events` table stores:
 
@@ -144,7 +144,7 @@ The `Events` table stores:
 
 ---
 
-## What is NOT Stored
+## What is NOT stored
 
 - IP addresses
 - Raw User-Agent strings
@@ -157,7 +157,7 @@ The `Events` table stores:
 
 ---
 
-## GDPR Compliance
+## GDPR compliance
 
 Mini Numbers is designed to be GDPR-friendly:
 
@@ -172,7 +172,7 @@ Mini Numbers is designed to be GDPR-friendly:
 
 ---
 
-## Comparison with Other Analytics Tools
+## Comparison with other analytics tools
 
 | Feature | Mini Numbers | Google Analytics | Plausible | Umami |
 |---------|-------------|-----------------|-----------|-------|

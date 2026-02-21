@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/chartjs-chart-geo@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2/src/duotone/style.css">
 
     <!-- Leaflet for interactive maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -27,20 +27,20 @@
 
     <!-- Mobile Menu Toggle -->
     <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
-        <i data-feather="menu"></i>
+        <i class="ph-duotone ph-list"></i>
     </button>
 
     <!-- Sidebar -->
     <nav id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
             <h2>Mini Numbers</h2>
-            <div class="sidebar-subtitle">Privacy-First Analytics</div>
+            <div class="sidebar-subtitle">Privacy-first analytics</div>
         </div>
 
         <div class="sidebar-section" id="projects-section">
             <div class="sidebar-section__title">
-                <i data-feather="folder"></i>
-                <span>Your Projects</span>
+                <i class="ph-duotone ph-folder"></i>
+                <span>Your projects</span>
             </div>
             <div id="project-menu" class="project-menu" role="listbox" aria-label="Projects list">
                 Loading projects...
@@ -49,16 +49,16 @@
 
         <div class="sidebar-footer">
             <button class="btn btn-ghost sidebar-btn" id="demo-project-btn" onclick="Dashboard.createOrBrowseDemoProject()">
-                <i data-feather="play-circle"></i>
-                <span>Demo Project</span>
+                <i class="ph-duotone ph-play-circle"></i>
+                <span>Demo project</span>
             </button>
             <button class="btn btn-primary sidebar-btn" id="new-project-btn" onclick="Dashboard.showCreateProjectDialog()">
-                <i data-feather="plus"></i>
-                <span>New Project</span>
+                <i class="ph-duotone ph-plus"></i>
+                <span>New project</span>
             </button>
             <button class="btn btn-ghost sidebar-btn" id="sign-out-btn">
-                <i data-feather="log-out"></i>
-                <span>Sign Out</span>
+                <i class="ph-duotone ph-sign-out"></i>
+                <span>Sign out</span>
             </button>
         </div>
     </nav>
@@ -67,30 +67,30 @@
     <main id="main" role="main">
         <!-- Header -->
         <div class="dashboard-header">
-            <h1 id="active-title">Select a Project</h1>
+            <h1 id="active-title">Select a project</h1>
             <div class="flex items-center gap-md">
                 <button class="btn btn-secondary btn-sm" id="generate-demo-btn" style="display: none;">
-                    <i data-feather="database"></i>
-                    <span>Generate Demo Data</span>
+                    <i class="ph-duotone ph-database"></i>
+                    <span>Generate demo data</span>
                 </button>
                 <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none;">
-                    <i data-feather="list"></i>
-                    <span>Raw Events</span>
+                    <i class="ph-duotone ph-list-bullets"></i>
+                    <span>Raw events</span>
                 </button>
                 <select class="select" id="time-filter" aria-label="Time period filter">
-                    <option value="24h">Last 24 Hours</option>
-                    <option value="3d">Last 3 Days</option>
-                    <option value="7d" selected>Last 7 Days</option>
-                    <option value="30d">Last 30 Days</option>
-                    <option value="365d">Last Year</option>
+                    <option value="24h">Last 24 hours</option>
+                    <option value="3d">Last 3 days</option>
+                    <option value="7d" selected>Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="365d">Last year</option>
                 </select>
                 <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                     <div class="theme-toggle__slider">
-                        <i data-feather="sun"></i>
+                        <i class="ph-duotone ph-sun"></i>
                     </div>
                 </button>
                 <button class="btn btn-ghost btn-icon" id="open-settings-btn" title="Settings">
-                    <i data-feather="settings"></i>
+                    <i class="ph-duotone ph-gear"></i>
                 </button>
             </div>
         </div>
@@ -101,7 +101,7 @@
             <!-- Unified Filter Bar with Date Range -->
             <div class="filter-bar" id="filter-bar">
                 <div class="filter-bar__date-range">
-                    <i data-feather="calendar"></i>
+                    <i class="ph-duotone ph-calendar"></i>
                     <span id="date-range-display">Loading...</span>
                 </div>
 
@@ -110,9 +110,9 @@
                 <div class="filter-selector">
                     <label>Filter by:</label>
                     <select id="filter-dimension" class="select">
-                        <option value="">All Traffic</option>
+                        <option value="">All traffic</option>
                         <option value="browser">Browser</option>
-                        <option value="os">Operating System</option>
+                        <option value="os">Operating system</option>
                         <option value="device">Device</option>
                         <option value="country">Country</option>
                         <option value="referrer">Referrer</option>
@@ -125,7 +125,7 @@
                 </div>
 
                 <div class="filter-warning" style="display: none;">
-                    <i data-feather="alert-circle"></i>
+                    <i class="ph-duotone ph-warning-circle"></i>
                     <span>Filtered view - totals show all traffic</span>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                 <div class="card stat-card" role="status" aria-label="Total page views">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i data-feather="eye"></i>
+                            <i class="ph-duotone ph-eye"></i>
                         </div>
                         <small>Total page views</small>
                     </div>
@@ -151,7 +151,7 @@
                 <div class="card stat-card" role="status" aria-label="Unique visitors">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i data-feather="users"></i>
+                            <i class="ph-duotone ph-users"></i>
                         </div>
                         <small>Unique visitors</small>
                     </div>
@@ -166,7 +166,7 @@
                 <div class="card stat-card" role="status" aria-label="Bounce rate">
                     <div class="stat-card__header">
                         <div class="stat-card__icon" aria-hidden="true">
-                            <i data-feather="log-out"></i>
+                            <i class="ph-duotone ph-sign-out"></i>
                         </div>
                         <small>Bounce rate</small>
                     </div>
@@ -183,7 +183,7 @@
                     <div class="card stat-card" role="status" aria-label="Total custom events">
                         <div class="stat-card__header">
                             <div class="stat-card__icon" aria-hidden="true">
-                                <i data-feather="zap"></i>
+                                <i class="ph-duotone ph-lightning"></i>
                             </div>
                             <small>Total custom events</small>
                         </div>
@@ -192,7 +192,7 @@
                     <div class="card stat-card" role="status" aria-label="Top custom event">
                         <div class="stat-card__header">
                             <div class="stat-card__icon" aria-hidden="true">
-                                <i data-feather="star"></i>
+                                <i class="ph-duotone ph-star"></i>
                             </div>
                             <small>Top custom event</small>
                         </div>
@@ -209,7 +209,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i data-feather="trending-up"></i> Views over time
+                        <i class="ph-duotone ph-trend-up"></i> Views over time
                     </h3>
                 </div>
                 <div class="chart-card__container">
@@ -221,7 +221,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i data-feather="calendar"></i> Activity heatmap
+                        <i class="ph-duotone ph-calendar"></i> Activity heatmap
                     </h3>
                     <div class="heatmap-legend">
                         <span class="text-muted text-xs">Less</span>
@@ -239,7 +239,7 @@
                 <!-- Peak Hours -->
                 <div class="card">
                     <h3>
-                        <i data-feather="clock"></i> Peak hours
+                        <i class="ph-duotone ph-clock"></i> Peak hours
                     </h3>
                     <div class="peak-list" id="peak-hours">
                         Loading...
@@ -249,7 +249,7 @@
                 <!-- Peak Days -->
                 <div class="card">
                     <h3>
-                        <i data-feather="calendar"></i> Peak days
+                        <i class="ph-duotone ph-calendar"></i> Peak days
                     </h3>
                     <div class="peak-list" id="peak-days">
                         Loading...
@@ -263,10 +263,10 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="file-text"></i> Top pages
+                            <i class="ph-duotone ph-file-text"></i> Top pages
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="top-pages" title="Export to CSV">
-                            <i data-feather="download"></i>
+                            <i class="ph-duotone ph-download-simple"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -278,10 +278,10 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="external-link"></i> Referrers
+                            <i class="ph-duotone ph-arrow-square-out"></i> Referrers
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="referrers" title="Export to CSV">
-                            <i data-feather="download"></i>
+                            <i class="ph-duotone ph-download-simple"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -296,21 +296,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="globe"></i> Browsers
+                            <i class="ph-duotone ph-globe"></i> Browsers
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="browsers" title="Export to CSV">
-                                <i data-feather="download"></i>
+                                <i class="ph-duotone ph-download-simple"></i>
                             </button>
                             <div class="view-toggle" data-chart="browsers">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i data-feather="pie-chart"></i>
+                                    <i class="ph-duotone ph-chart-pie-slice"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i data-feather="bar-chart"></i>
+                                    <i class="ph-duotone ph-chart-bar"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i data-feather="target"></i>
+                                    <i class="ph-duotone ph-crosshair"></i>
                                 </button>
                             </div>
                         </div>
@@ -324,21 +324,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="monitor"></i> Operating systems
+                            <i class="ph-duotone ph-monitor"></i> Operating systems
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="os" title="Export to CSV">
-                                <i data-feather="download"></i>
+                                <i class="ph-duotone ph-download-simple"></i>
                             </button>
                             <div class="view-toggle" data-chart="os">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i data-feather="pie-chart"></i>
+                                    <i class="ph-duotone ph-chart-pie-slice"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i data-feather="bar-chart"></i>
+                                    <i class="ph-duotone ph-chart-bar"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i data-feather="target"></i>
+                                    <i class="ph-duotone ph-crosshair"></i>
                                 </button>
                             </div>
                         </div>
@@ -355,21 +355,21 @@
                 <div class="card chart-card">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="smartphone"></i> Devices
+                            <i class="ph-duotone ph-device-mobile"></i> Devices
                         </h3>
                         <div class="chart-card__actions">
                             <button class="btn btn-ghost btn-icon" data-export="devices" title="Export to CSV">
-                                <i data-feather="download"></i>
+                                <i class="ph-duotone ph-download-simple"></i>
                             </button>
                             <div class="view-toggle" data-chart="devices">
                                 <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i data-feather="pie-chart"></i>
+                                    <i class="ph-duotone ph-chart-pie-slice"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i data-feather="bar-chart"></i>
+                                    <i class="ph-duotone ph-chart-bar"></i>
                                 </button>
                                 <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i data-feather="target"></i>
+                                    <i class="ph-duotone ph-crosshair"></i>
                                 </button>
                             </div>
                         </div>
@@ -383,10 +383,10 @@
                 <div class="card chart-card" id="custom-events-section" style="display: none;">
                     <div class="chart-card__header">
                         <h3 class="chart-card__title">
-                            <i data-feather="zap"></i> Custom events
+                            <i class="ph-duotone ph-lightning"></i> Custom events
                         </h3>
                         <button class="btn btn-ghost btn-icon" data-export="custom-events" title="Export to CSV">
-                            <i data-feather="download"></i>
+                            <i class="ph-duotone ph-download-simple"></i>
                         </button>
                     </div>
                     <div class="chart-card__container chart-card__container--short">
@@ -400,21 +400,21 @@
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
                         <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
-                            <i data-feather="arrow-left"></i>
+                            <i class="ph-duotone ph-arrow-left"></i>
                         </button>
-                        <i data-feather="map"></i>
+                        <i class="ph-duotone ph-map-trifold"></i>
                         <span id="geo-title">Geographic distribution</span>
                     </h3>
                     <div class="chart-card__actions">
                         <button class="btn btn-ghost btn-icon" data-export="countries" title="Export to CSV">
-                            <i data-feather="download"></i>
+                            <i class="ph-duotone ph-download-simple"></i>
                         </button>
                         <div class="view-toggle" id="geo-view-toggle">
-                            <button class="view-toggle__btn active" data-view="chart" title="Chart View">
-                                <i data-feather="bar-chart-2"></i>
+                            <button class="view-toggle__btn active" data-view="chart" title="Chart view">
+                                <i class="ph-duotone ph-chart-bar"></i>
                             </button>
-                            <button class="view-toggle__btn" data-view="map" title="Map View">
-                                <i data-feather="map-pin"></i>
+                            <button class="view-toggle__btn" data-view="map" title="Map view">
+                                <i class="ph-duotone ph-map-pin"></i>
                             </button>
                         </div>
                     </div>
@@ -429,14 +429,14 @@
             <div class="card mt-lg">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i data-feather="activity"></i> Recent activity
+                        <i class="ph-duotone ph-activity"></i> Recent activity
                     </h3>
                     <div class="flex items-center" style="gap: var(--spacing-sm);">
                         <button class="btn btn-primary btn-sm" data-export="full-report">
-                            <i data-feather="download"></i> Export Full Report
+                            <i class="ph-duotone ph-download-simple"></i> Export full report
                         </button>
-                        <button class="btn btn-ghost btn-icon" data-export="recent-activity" title="Export Recent Activity">
-                            <i data-feather="download"></i>
+                        <button class="btn btn-ghost btn-icon" data-export="recent-activity" title="Export recent activity">
+                            <i class="ph-duotone ph-download-simple"></i>
                         </button>
                         <input
                             type="text"
@@ -452,13 +452,13 @@
                         <thead>
                             <tr>
                                 <th class="sortable" data-sort="path">
-                                    Path <i data-feather="chevron-down" class="sort-icon"></i>
+                                    Path <i class="ph-duotone ph-caret-down sort-icon"></i>
                                 </th>
                                 <th class="sortable" data-sort="city">
-                                    City <i data-feather="chevron-down" class="sort-icon"></i>
+                                    City <i class="ph-duotone ph-caret-down sort-icon"></i>
                                 </th>
                                 <th class="sortable" data-sort="time">
-                                    Time <i data-feather="chevron-down" class="sort-icon"></i>
+                                    Time <i class="ph-duotone ph-caret-down sort-icon"></i>
                                 </th>
                             </tr>
                         </thead>
@@ -475,7 +475,7 @@
             <div class="card chart-card mt-lg">
                 <div class="chart-card__header">
                     <h3 class="chart-card__title">
-                        <i data-feather="activity"></i> Activity calendar (last 365 days)
+                        <i class="ph-duotone ph-activity"></i> Activity calendar (last 365 days)
                     </h3>
                     <div class="contribution-legend">
                         <span class="text-muted text-xs">Less</span>
@@ -498,11 +498,11 @@
             <div class="card mt-lg" id="goals-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i data-feather="target"></i> Conversion Goals
+                        <i class="ph-duotone ph-crosshair"></i> Conversion goals
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-goals-btn">
-                        <i data-feather="settings"></i>
-                        <span>Manage Goals</span>
+                        <i class="ph-duotone ph-gear"></i>
+                        <span>Manage goals</span>
                     </button>
                 </div>
                 <div id="goals-list">Loading...</div>
@@ -512,11 +512,11 @@
             <div class="card mt-lg" id="funnels-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i data-feather="filter"></i> Funnels
+                        <i class="ph-duotone ph-funnel"></i> Funnels
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-funnels-btn">
-                        <i data-feather="settings"></i>
-                        <span>Manage Funnels</span>
+                        <i class="ph-duotone ph-gear"></i>
+                        <span>Manage funnels</span>
                     </button>
                 </div>
                 <div id="funnels-list">Loading...</div>
@@ -526,11 +526,11 @@
             <div class="card mt-lg" id="segments-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
                     <h3 class="mb-0">
-                        <i data-feather="sliders"></i> User Segments
+                        <i class="ph-duotone ph-sliders-horizontal"></i> User segments
                     </h3>
                     <button class="btn btn-primary btn-sm" id="manage-segments-btn" aria-label="Manage user segments">
-                        <i data-feather="settings"></i>
-                        <span>Manage Segments</span>
+                        <i class="ph-duotone ph-gear"></i>
+                        <span>Manage segments</span>
                     </button>
                 </div>
                 <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
@@ -587,7 +587,7 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="create-project-title">Create New Project</h2>
+                <h2 id="create-project-title">Create new project</h2>
                 <button class="modal-close" id="close-create-project">&times;</button>
             </div>
             <div class="modal-body">
@@ -601,8 +601,8 @@
                 <div id="create-step-1">
                     <div class="form-group">
                         <label for="project-name">
-                            <i data-feather="tag" class="form-icon"></i>
-                            Project Name
+                            <i class="ph-duotone ph-tag form-icon"></i>
+                            Project name
                         </label>
                         <input type="text" id="project-name" class="input" placeholder="My Website" required />
                         <small class="help-text">A friendly name to identify your project</small>
@@ -610,7 +610,7 @@
                     </div>
                     <div class="form-group">
                         <label for="project-domain">
-                            <i data-feather="globe" class="form-icon"></i>
+                            <i class="ph-duotone ph-globe form-icon"></i>
                             Domain
                         </label>
                         <input type="text" id="project-domain" class="input" placeholder="example.com" required />
@@ -619,13 +619,13 @@
                     </div>
                     <div class="form-group">
                         <label>
-                            <i data-feather="key" class="form-icon"></i>
-                            API Key (pre-generated)
+                            <i class="ph-duotone ph-key form-icon"></i>
+                            API key (pre-generated)
                         </label>
                         <div class="api-key-display">
                             <code id="generated-api-key">...</code>
                             <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key" title="Copy to clipboard">
-                                <i data-feather="copy"></i>
+                                <i class="ph-duotone ph-copy"></i>
                             </button>
                         </div>
                         <small class="help-text">This key will be assigned to your project</small>
@@ -636,23 +636,23 @@
                 <div id="create-step-2" style="display: none;">
                     <div class="create-success">
                         <div class="create-success__icon">
-                            <i data-feather="check-circle"></i>
+                            <i class="ph-duotone ph-check-circle"></i>
                         </div>
-                        <h3>Project Created!</h3>
+                        <h3>Project created!</h3>
                         <p class="text-muted">Add this snippet to your website's <code>&lt;head&gt;</code> to start tracking:</p>
                     </div>
                     <div class="snippet-block">
                         <pre id="tracking-snippet-code"></pre>
                         <button type="button" class="btn btn-ghost btn-icon snippet-copy" id="copy-snippet" title="Copy snippet">
-                            <i data-feather="copy"></i>
+                            <i class="ph-duotone ph-copy"></i>
                         </button>
                     </div>
                     <div class="form-group" style="margin-top: var(--spacing-md);">
-                        <label>API Key</label>
+                        <label>API key</label>
                         <div class="api-key-display">
                             <code id="generated-api-key-final">...</code>
                             <button type="button" class="btn btn-ghost btn-icon" id="copy-api-key-final" title="Copy API key">
-                                <i data-feather="copy"></i>
+                                <i class="ph-duotone ph-copy"></i>
                             </button>
                         </div>
                     </div>
@@ -660,7 +660,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-ghost" id="cancel-create-project">Cancel</button>
-                <button class="btn btn-primary" id="confirm-create-project">Create Project</button>
+                <button class="btn btn-primary" id="confirm-create-project">Create project</button>
             </div>
         </div>
     </div>
@@ -676,41 +676,41 @@
             <div class="modal-body">
                 <!-- Project Information Section -->
                 <div id="project-settings-section" style="display: none;">
-                    <h3 style="margin-top: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Project Information</h3>
+                    <h3 style="margin-top: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Project information</h3>
 
                     <div class="form-group">
-                        <label for="setting-project-name">Project Name*</label>
+                        <label for="setting-project-name">Project name*</label>
                         <input type="text" id="setting-project-name" class="input" placeholder="My Website" />
                     </div>
 
                     <div class="form-group">
-                        <label>Domain (Read-only)</label>
+                        <label>Domain (read-only)</label>
                         <input type="text" id="setting-project-domain" class="input" readonly style="background: var(--color-bg-tertiary); cursor: not-allowed;" />
                     </div>
 
                     <div class="form-group">
-                        <label>Tracking ID (Read-only)</label>
+                        <label>Tracking ID (read-only)</label>
                         <div class="api-key-display">
                             <code id="setting-project-api-key">...</code>
                             <button class="btn btn-ghost btn-icon" id="copy-project-api-key" title="Copy to clipboard">
-                                <i data-feather="copy"></i>
+                                <i class="ph-duotone ph-copy"></i>
                             </button>
                         </div>
                     </div>
 
-                    <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Dashboard Preferences</h3>
+                    <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Dashboard preferences</h3>
                 </div>
 
                 <!-- Dashboard Settings Section -->
                 <div class="form-group">
-                    <label for="setting-time-format">Time Format</label>
+                    <label for="setting-time-format">Time format</label>
                     <select id="setting-time-format" class="select">
                         <option value="24h">24-hour (13:00)</option>
                         <option value="12h">12-hour (1:00 PM)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="setting-date-format">Date Format</label>
+                    <label for="setting-date-format">Date format</label>
                     <select id="setting-date-format" class="select">
                         <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
                         <option value="DD/MM/YYYY">DD/MM/YYYY (EU)</option>
@@ -718,7 +718,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="setting-heatmap-colors">Activity Heatmap Colors</label>
+                    <label for="setting-heatmap-colors">Activity heatmap colors</label>
                     <select id="setting-heatmap-colors" class="select">
                         <option value="blue">Blue (Default)</option>
                         <option value="green">Green (GitHub-style)</option>
@@ -729,7 +729,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-ghost" id="cancel-settings">Cancel</button>
-                <button class="btn btn-primary" id="save-settings">Save Settings</button>
+                <button class="btn btn-primary" id="save-settings">Save settings</button>
             </div>
         </div>
     </div>
@@ -742,7 +742,7 @@
                 <h2>Raw Events</h2>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
-                        <i data-feather="download"></i>
+                        <i class="ph-duotone ph-download-simple"></i>
                     </button>
                     <button class="modal-close" id="close-raw-events">&times;</button>
                 </div>
@@ -750,14 +750,14 @@
             <div class="modal-body">
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
                     <select id="raw-events-type" class="select">
-                        <option value="">All Event Types</option>
+                        <option value="">All event types</option>
                         <option value="pageview">Pageviews</option>
                         <option value="heartbeat">Heartbeats</option>
-                        <option value="custom">Custom Events</option>
+                        <option value="custom">Custom events</option>
                     </select>
                     <select id="raw-events-sort" class="select">
-                        <option value="timestamp-desc">Newest First</option>
-                        <option value="timestamp-asc">Oldest First</option>
+                        <option value="timestamp-desc">Newest first</option>
+                        <option value="timestamp-asc">Oldest first</option>
                         <option value="path-asc">Path (A-Z)</option>
                         <option value="country-asc">Country (A-Z)</option>
                     </select>
@@ -798,12 +798,12 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Manage Conversion Goals</h2>
+                <h2>Manage conversion goals</h2>
                 <button class="modal-close" id="close-goals-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Create New Goal</h3>
+                    <h3 style="margin-top: 0;">Create new goal</h3>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
                         <div class="form-group" style="flex: 1; min-width: 150px;">
                             <label for="goal-name">Name</label>
@@ -812,26 +812,26 @@
                         <div class="form-group" style="min-width: 120px;">
                             <label for="goal-type">Type</label>
                             <select id="goal-type" class="select">
-                                <option value="url">URL Path</option>
-                                <option value="event">Custom Event</option>
+                                <option value="url">URL path</option>
+                                <option value="event">Custom event</option>
                             </select>
                         </div>
                         <div class="form-group" style="flex: 1; min-width: 150px;">
-                            <label for="goal-match-value">Match Value</label>
+                            <label for="goal-match-value">Match value</label>
                             <input type="text" id="goal-match-value" class="input" placeholder="e.g. /pricing or signup">
                         </div>
                         <button class="btn btn-primary" id="create-goal-btn" style="margin-bottom: var(--spacing-md);">Create</button>
                     </div>
                 </div>
 
-                <h3>Existing Goals</h3>
+                <h3>Existing goals</h3>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Type</th>
-                                <th>Match Value</th>
+                                <th>Match value</th>
                                 <th>Active</th>
                                 <th></th>
                             </tr>
@@ -850,14 +850,14 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Manage Funnels</h2>
+                <h2>Manage funnels</h2>
                 <button class="modal-close" id="close-funnels-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Create New Funnel</h3>
+                    <h3 style="margin-top: 0;">Create new funnel</h3>
                     <div class="form-group">
-                        <label for="funnel-name">Funnel Name</label>
+                        <label for="funnel-name">Funnel name</label>
                         <input type="text" id="funnel-name" class="input" placeholder="e.g. Purchase Flow">
                     </div>
 
@@ -868,13 +868,13 @@
 
                     <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
                         <button class="btn btn-ghost btn-sm" id="add-funnel-step-btn">
-                            <i data-feather="plus"></i> Add Step
+                            <i class="ph-duotone ph-plus"></i> Add step
                         </button>
-                        <button class="btn btn-primary btn-sm" id="create-funnel-btn">Create Funnel</button>
+                        <button class="btn btn-primary btn-sm" id="create-funnel-btn">Create funnel</button>
                     </div>
                 </div>
 
-                <h3>Existing Funnels</h3>
+                <h3>Existing funnels</h3>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -899,18 +899,18 @@
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2 id="segments-modal-title">Manage User Segments</h2>
+                <h2 id="segments-modal-title">Manage user segments</h2>
                 <button class="modal-close" id="close-segments-modal" aria-label="Close dialog">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Create New Segment</h3>
+                    <h3 style="margin-top: 0;">Create new segment</h3>
                     <div class="form-group">
-                        <label for="segment-name">Segment Name</label>
+                        <label for="segment-name">Segment name</label>
                         <input type="text" id="segment-name" class="input" placeholder="e.g. Mobile Chrome Users" aria-required="true">
                     </div>
                     <div class="form-group">
-                        <label for="segment-description">Description (Optional)</label>
+                        <label for="segment-description">Description (optional)</label>
                         <input type="text" id="segment-description" class="input" placeholder="e.g. Users on Chrome mobile browser">
                     </div>
 
@@ -921,13 +921,13 @@
 
                     <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
                         <button class="btn btn-ghost btn-sm" id="add-segment-filter-btn" aria-label="Add filter condition">
-                            <i data-feather="plus"></i> Add Filter
+                            <i class="ph-duotone ph-plus"></i> Add filter
                         </button>
-                        <button class="btn btn-primary btn-sm" id="create-segment-btn">Create Segment</button>
+                        <button class="btn btn-primary btn-sm" id="create-segment-btn">Create segment</button>
                     </div>
                 </div>
 
-                <h3>Existing Segments</h3>
+                <h3>Existing segments</h3>
                 <div class="table-container">
                     <table aria-label="Existing segments">
                         <thead>
@@ -1003,13 +1003,13 @@
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon">
-                    <i data-feather="log-out"></i>
+                    <i class="ph-duotone ph-sign-out"></i>
                 </div>
-                <h2 class="logout-dialog__title">Sign Out</h2>
+                <h2 class="logout-dialog__title">Sign out</h2>
                 <p class="logout-dialog__message">Are you sure you want to sign out of your account?</p>
                 <div class="logout-dialog__actions">
                     <button class="btn btn-ghost" id="cancel-logout">Cancel</button>
-                    <button class="btn btn-danger" id="confirm-logout">Sign Out</button>
+                    <button class="btn btn-danger" id="confirm-logout">Sign out</button>
                 </div>
             </div>
         </div>
@@ -1021,13 +1021,13 @@
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon" style="color: var(--color-danger);">
-                    <i data-feather="trash-2"></i>
+                    <i class="ph-duotone ph-trash"></i>
                 </div>
-                <h2 class="logout-dialog__title">Delete Project</h2>
+                <h2 class="logout-dialog__title">Delete project</h2>
                 <p class="logout-dialog__message">Are you sure you want to delete <strong id="delete-project-name"></strong>? This will permanently remove all analytics data, goals, funnels, and segments.</p>
                 <div class="logout-dialog__actions">
                     <button class="btn btn-ghost" onclick="document.getElementById('delete-project-modal').classList.remove('show')">Cancel</button>
-                    <button class="btn btn-danger" onclick="Dashboard.deleteProject(document.getElementById('delete-project-modal').dataset.projectId)">Delete Project</button>
+                    <button class="btn btn-danger" onclick="Dashboard.deleteProject(document.getElementById('delete-project-modal').dataset.projectId)">Delete project</button>
                 </div>
             </div>
         </div>
@@ -1043,9 +1043,5 @@
     <script src="/admin-panel/js/segments.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
-    <!-- Initialize Feather Icons -->
-    <script>
-        feather.replace();
-    </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 
 ---
 
-## Phase 1: Production Ready (Weeks 1-6) — COMPLETE
+## Phase 1: Production ready (Weeks 1-6) — COMPLETE
 
 **Goal**: Security hardened, tested, and ready for beta testers
 
@@ -26,7 +26,7 @@
 
 ---
 
-## Phase 2: Feature Parity (Weeks 7-16) — COMPLETE
+## Phase 2: Feature parity (Weeks 7-16) — COMPLETE
 
 **Goal**: Match Umami and basic Plausible features
 
@@ -42,7 +42,7 @@
 
 ---
 
-## Phase 3: Competitive Edge (Weeks 17-32) — Mostly Complete
+## Phase 3: Competitive edge (Weeks 17-32) — Mostly complete
 
 **Goal**: Differentiate with unique features and enterprise capabilities
 
@@ -61,7 +61,7 @@
 
 ---
 
-## Phase 4: Ecosystem Growth (Weeks 32+)
+## Phase 4: Ecosystem growth (Weeks 32+)
 
 **Goal**: Build community, plugins, and ecosystem
 
@@ -77,7 +77,7 @@
 
 ---
 
-## Risk Mitigation
+## Risk mitigation
 
 | Risk | Mitigation |
 |------|------------|

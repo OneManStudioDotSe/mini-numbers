@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to Mini Numbers! This guide will help you get started.
 
-## Development Setup
+## Development setup
 
 ### Prerequisites
 
@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Mini Numbers! This guide will hel
 - **Gradle** (included via wrapper)
 - **Git**
 
-### Getting Started
+### Getting started
 
 ```bash
 # Clone the repository
@@ -23,7 +23,7 @@ cd mini-numbers
 # Visit http://localhost:8080 to complete the setup wizard
 ```
 
-### Running Tests
+### Running tests
 
 ```bash
 ./gradlew test          # Run all tests
@@ -33,7 +33,7 @@ cd mini-numbers
 
 ---
 
-## Project Structure
+## Project structure
 
 See [CLAUDE.md](CLAUDE.md) for a full technical architecture reference. Key directories:
 
@@ -56,7 +56,7 @@ src/test/kotlin/        # Test suite (166 tests)
 
 ---
 
-## Code Style
+## Code style
 
 ### Kotlin
 
@@ -78,7 +78,7 @@ src/test/kotlin/        # Test suite (166 tests)
 
 ## Testing
 
-### Test Organization
+### Test organization
 
 Tests are organized by package mirroring the source structure:
 
@@ -90,7 +90,7 @@ Tests are organized by package mirroring the source structure:
 | `analytics/` | Analytics calculations |
 | `integration/` | HTTP endpoints, end-to-end flows |
 
-### Writing Tests
+### Writing tests
 
 - Use descriptive test names: `` `init with valid salt succeeds` ``
 - Use Ktor's `testApplication` for integration tests
@@ -99,7 +99,7 @@ Tests are organized by package mirroring the source structure:
 
 ---
 
-## Pull Request Process
+## Pull request process
 
 1. **Fork** the repository and create a feature branch from `main`
 2. **Write clear commit messages** - focus on the "why", not the "what"
@@ -110,7 +110,7 @@ Tests are organized by package mirroring the source structure:
    - A description explaining what changed and why
    - Any relevant screenshots for UI changes
 
-### PR Checklist
+### PR checklist
 
 - [ ] Tests pass (`./gradlew test`)
 - [ ] Detekt passes (`./gradlew detekt`)
@@ -120,9 +120,9 @@ Tests are organized by package mirroring the source structure:
 
 ---
 
-## Reporting Issues
+## Reporting issues
 
-### Bug Reports
+### Bug reports
 
 Please include:
 - Steps to reproduce
@@ -130,7 +130,7 @@ Please include:
 - Environment details (OS, JDK version, browser)
 - Relevant log output
 
-### Feature Requests
+### Feature requests
 
 Please include:
 - Description of the feature
@@ -139,7 +139,7 @@ Please include:
 
 ---
 
-## Code Review
+## Code review
 
 Reviewers look for:
 - **Correctness** - Does the code do what it claims?
