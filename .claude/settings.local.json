@@ -30,7 +30,8 @@
       "WebFetch(domain:posthog.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:pageflows.com)",
-      "Bash(echo \"checking XML...\" ls /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/build/test-results/test/*.xml)"
+      "Bash(echo \"checking XML...\" ls /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/build/test-results/test/*.xml)",
+      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew cleanTest test:*)"
     ]
   }
 }

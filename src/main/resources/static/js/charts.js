@@ -209,7 +209,7 @@ const ChartManager = {
    * @param {number} peakDay - Peak day (0-6) for highlighting (optional)
    * @returns {Chart} Chart instance
    */
-  createHeatmap(id, heatmapData, peakHour = null, peakDay = null) {
+  createHeatmap(id, heatmapData, peakHour = null, peakDay = null, dateLabels = null) {
     const colors = this.getColors();
     const isDark = ThemeManager.isDark();
 
@@ -225,9 +225,31 @@ const ChartManager = {
       });
     });
 
-    // Primary color for heatmap (adjust based on theme)
-    const baseColor = isDark ? [96, 165, 250] : [37, 99, 235]; // primary color RGB
+    // Get heatmap color from settings
+    const heatmapColor = typeof SettingsManager !== 'undefined'
+      ? SettingsManager.get('heatmapColors') || 'blue'
+      : 'blue';
+
+    const colorMap = {
+      blue:   { light: [37, 99, 235],   dark: [96, 165, 250] },
+      green:  { light: [34, 197, 94],   dark: [74, 222, 128] },
+      purple: { light: [139, 92, 246],  dark: [167, 139, 250] },
+      orange: { light: [249, 115, 22],  dark: [251, 146, 60] },
+    };
+
+    const scheme = colorMap[heatmapColor] || colorMap.blue;
+    const baseColor = isDark ? scheme.dark : scheme.light;
     const peakColor = [239, 68, 68]; // Red for peak cells
+
+    // Update legend gradient to match selected color
+    const legendEl = document.querySelector('.legend-gradient');
+    if (legendEl) {
+      legendEl.style.background = `linear-gradient(to right, rgba(${baseColor.join(',')}, 0.1), rgba(${baseColor.join(',')}, 1))`;
+    }
+
+    // Day labels with optional dates
+    const defaultLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const yLabels = dateLabels || defaultLabels;
 
     return this.create(
       id,
@@ -241,13 +263,11 @@ const ChartManager = {
             const x = context.dataset.data[context.dataIndex]?.x;
             const y = context.dataset.data[context.dataIndex]?.y;
 
-            // Check if this is the peak cell
             const isPeak = (peakHour !== null && peakDay !== null && x === peakHour && y === peakDay);
 
             const alpha = value / maxValue;
             const color = isPeak ? peakColor : baseColor;
 
-            // Ensure peak cells are always visible with at least 60% opacity
             const minAlpha = isPeak ? 0.6 : 0.1;
             return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${Math.max(alpha, minAlpha)})`;
           },
@@ -271,12 +291,13 @@ const ChartManager = {
           tooltip: {
             callbacks: {
               title: (items) => {
+                const dayIndex = items[0].raw.y;
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const day = days[items[0].parsed.y] || 'Unknown';
-                const hour = items[0].parsed.x;
+                const day = days[dayIndex] || 'Unknown';
+                const hour = items[0].raw.x;
                 const isPeak = (peakHour !== null && peakDay !== null &&
-                               items[0].parsed.x === peakHour && items[0].parsed.y === peakDay);
-                return `${day} at ${hour}:00${isPeak ? ' 🔥 PEAK' : ''}`;
+                               items[0].raw.x === peakHour && dayIndex === peakDay);
+                return `${day} at ${hour}:00${isPeak ? ' \uD83D\uDD25 PEAK' : ''}`;
               },
               label: (context) => `${context.raw.v} visits`
             }
@@ -295,8 +316,14 @@ const ChartManager = {
             grid: { display: false }
           },
           y: {
-            type: 'category',
-            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            type: 'linear',
+            min: 0,
+            max: 6,
+            reverse: true,
+            ticks: {
+              stepSize: 1,
+              callback: (val) => yLabels[val] || ''
+            },
             title: { display: true, text: 'Day of Week' },
             grid: { display: false }
           }
