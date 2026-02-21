@@ -544,41 +544,50 @@ tbody tr:nth-child(even):hover td {
   transition: all var(--transition-fast);
   font-size: var(--font-size-sm);
   border: 1px solid transparent;
+  border-left: 3px solid transparent;
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.project-menu__item::after {
-  content: '›';
-  font-size: var(--font-size-xl);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-  color: var(--color-primary);
+.project-menu__item + .project-menu__item {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.project-menu__name {
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+.project-menu__domain {
+  font-size: var(--font-size-xs);
+  color: var(--color-sidebar-text-muted);
+  opacity: 0.6;
+  line-height: 1.2;
 }
 
 .project-menu__item:hover {
   background-color: var(--color-sidebar-hover);
-  border-color: var(--color-sidebar-active);
+  border-left-color: var(--color-primary);
   transform: translateX(2px);
 }
 
-.project-menu__item:hover::after {
-  opacity: 1;
+.project-menu__item:hover .project-menu__domain {
+  opacity: 0.8;
 }
 
 .project-menu__item.active {
   background-color: var(--color-sidebar-active);
-  font-weight: var(--font-weight-semibold);
-  border-color: var(--color-primary);
-  border-left-width: 3px;
+  border-left-color: var(--color-primary);
 }
 
-.project-menu__item.active::after {
-  content: '✓';
-  opacity: 1;
-  font-size: var(--font-size-base);
+.project-menu__item.active .project-menu__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.project-menu__item.active .project-menu__domain {
+  opacity: 0.8;
 }
 
 /* Empty State */
@@ -1392,20 +1401,13 @@ tbody tr:nth-child(even):hover td {
   color: var(--color-primary);
 }
 
-/* Sidebar inspirational message */
-.sidebar-inspiration {
+/* Sidebar subtitle */
+.sidebar-subtitle {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-style: italic;
-  margin-top: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-sm);
-  line-height: 1.4;
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-  animation: fadeIn 0.5s ease;
+  color: var(--color-sidebar-text-muted);
+  margin-top: 24px;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
 }
 
 /* Heatmap color schemes */
@@ -1866,4 +1868,181 @@ tbody tr:nth-child(even):hover td {
 
 .empty-state__retry {
   margin-top: var(--spacing-md);
+}
+
+/* ============================================
+   LOGOUT DIALOG
+   ============================================ */
+
+.modal-content--compact {
+  max-width: 400px;
+}
+
+.logout-dialog {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.logout-dialog__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-lg);
+  color: #fff;
+}
+
+.logout-dialog__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.logout-dialog__title {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.logout-dialog__message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.5;
+}
+
+.logout-dialog__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #fff;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base);
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================
+   CREATE PROJECT - STEP INDICATOR
+   ============================================ */
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.step-dot.active {
+  background-color: var(--color-primary);
+  transform: scale(1.2);
+}
+
+/* ============================================
+   CREATE PROJECT - FORM ENHANCEMENTS
+   ============================================ */
+
+.form-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+  color: var(--color-primary);
+}
+
+.field-error {
+  font-size: var(--font-size-xs);
+  color: var(--color-error, #ef4444);
+  margin-top: var(--spacing-xs);
+  min-height: 16px;
+}
+
+.field-hint-normalized {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.input--error {
+  border-color: var(--color-error, #ef4444) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* ============================================
+   CREATE PROJECT - SUCCESS & SNIPPET
+   ============================================ */
+
+.create-success {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.create-success__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-md);
+  color: #fff;
+}
+
+.create-success__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.create-success h3 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.snippet-block {
+  position: relative;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  padding-right: 48px;
+}
+
+.snippet-block pre {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.snippet-copy {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
 }

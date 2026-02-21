@@ -494,7 +494,7 @@ const SetupWizard = {
     },
 
     /**
-     * Poll server to detect when services are ready
+     * Poll server to detect when services are ready, then show countdown
      * No restart needed - services initialize in-place
      */
     async pollForServiceReady() {
@@ -513,8 +513,8 @@ const SetupWizard = {
 
                     // Check if services are ready
                     if (!data.setupNeeded && data.servicesReady) {
-                        // Services ready - redirect to admin panel!
-                        window.location.href = '/admin-panel';
+                        // Services ready - start the countdown to login
+                        this.startCountdown();
                         return;
                     }
                 }
@@ -528,16 +528,16 @@ const SetupWizard = {
                 // Timeout - show manual recovery
                 document.getElementById('success-modal').innerHTML = `
                     <div class="modal-content warning">
-                        <h2>⚠️ Service Initialization Timeout</h2>
+                        <h2>Service Initialization Timeout</h2>
                         <p>Configuration was saved successfully, but services are taking longer than expected to initialize.</p>
                         <p><strong>Please try:</strong></p>
                         <ol style="text-align: left; margin: 20px auto; max-width: 400px;">
                             <li>Check the server logs for errors</li>
                             <li>Refresh this page manually</li>
-                            <li>Visit <a href="/admin-panel">/admin-panel</a> directly</li>
+                            <li>Visit <a href="/login">/login</a> directly</li>
                         </ol>
-                        <button class="btn btn-primary" onclick="window.location.reload()">
-                            Refresh Page
+                        <button class="btn btn-primary" onclick="window.location.href='/login'">
+                            Go to Login
                         </button>
                     </div>
                 `;
@@ -546,6 +546,41 @@ const SetupWizard = {
 
         // Start polling immediately
         poll();
+    },
+
+    /**
+     * Start a visible 5-second countdown before redirecting to login
+     */
+    startCountdown() {
+        let seconds = 5;
+        const numberEl = document.getElementById('countdown-number');
+        const barEl = document.getElementById('countdown-bar');
+
+        if (numberEl) numberEl.textContent = seconds;
+        if (barEl) barEl.style.width = '0%';
+
+        // Animate progress bar immediately
+        requestAnimationFrame(() => {
+            if (barEl) barEl.style.width = '20%';
+        });
+
+        const tick = () => {
+            seconds--;
+            if (numberEl) {
+                numberEl.style.transform = 'scale(1.3)';
+                setTimeout(() => { numberEl.style.transform = 'scale(1)'; }, 150);
+                numberEl.textContent = seconds;
+            }
+            if (barEl) barEl.style.width = `${((5 - seconds) / 5) * 100}%`;
+
+            if (seconds <= 0) {
+                window.location.href = '/login';
+            } else {
+                setTimeout(tick, 1000);
+            }
+        };
+
+        setTimeout(tick, 1000);
     },
 
     /**

@@ -313,12 +313,26 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
             val newDomain = params["domain"] ?: return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Project domain is required"))
 
+            // Accept client-generated API key if valid (32-char hex), otherwise generate one
+            val clientKey = params["apiKey"]
+            val resolvedApiKey = if (clientKey != null && clientKey.matches(Regex("^[0-9a-f]{32}$"))) {
+                clientKey
+            } else {
+                java.util.UUID.randomUUID().toString().replace("-", "")
+            }
+
+            // Normalize domain: strip protocol, www prefix, trailing slashes
+            val normalizedDomain = newDomain
+                .removePrefix("https://").removePrefix("http://")
+                .removePrefix("www.")
+                .trimEnd('/')
+
             transaction {
                 Projects.insert {
                     it[id] = java.util.UUID.randomUUID()
                     it[name] = newName
-                    it[domain] = newDomain
-                    it[apiKey] = java.util.UUID.randomUUID().toString().replace("-", "")
+                    it[domain] = normalizedDomain
+                    it[apiKey] = resolvedApiKey
                 }
             }
             call.respond(HttpStatusCode.Created)

@@ -786,3 +786,75 @@ input[type="text"]:read-only {
         width: 100%;
     }
 }
+
+/* ============================================
+   Countdown Card (Setup Complete)
+   ============================================ */
+
+.countdown-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 48px 40px;
+    max-width: 440px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.countdown-card__icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #00a32a 0%, #0a8a2a 100%);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px;
+}
+
+.countdown-card__title {
+    font-size: 24px;
+    color: #2c3338;
+    margin-bottom: 12px;
+}
+
+.countdown-card__text {
+    font-size: 15px;
+    color: #646970;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.countdown-card__timer {
+    font-size: 16px;
+    color: #2c3338;
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
+.countdown-number {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 700;
+    color: #667eea;
+    min-width: 40px;
+    transition: transform 0.3s ease;
+}
+
+.countdown-card__progress {
+    width: 100%;
+    height: 4px;
+    background: #e2e4e7;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.countdown-card__bar {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 1s linear;
+}
