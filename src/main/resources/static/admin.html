@@ -177,6 +177,45 @@
                 </div>
             </div>
 
+            <!-- Extended Metrics Row -->
+            <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Extended metrics">
+                <!-- Total Sessions -->
+                <div class="card stat-card" role="status" aria-label="Total sessions">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon" aria-hidden="true">
+                            <i class="ri-stack-line"></i>
+                        </div>
+                        <small>Total sessions</small>
+                    </div>
+                    <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                    <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
+                </div>
+
+                <!-- Avg Session Duration -->
+                <div class="card stat-card" role="status" aria-label="Average session duration">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon" aria-hidden="true">
+                            <i class="ri-timer-line"></i>
+                        </div>
+                        <small>Avg. session duration</small>
+                    </div>
+                    <div class="stat-card__value" id="avg-session-duration"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                    <div class="stat-card__comparison" id="session-duration-comparison">Loading...</div>
+                </div>
+
+                <!-- Conversion Rate -->
+                <div class="card stat-card" role="status" aria-label="Conversion rate">
+                    <div class="stat-card__header">
+                        <div class="stat-card__icon" aria-hidden="true">
+                            <i class="ri-exchange-funds-line"></i>
+                        </div>
+                        <small>Conversion rate</small>
+                    </div>
+                    <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                    <div class="stat-card__comparison" id="conversion-rate-comparison">Loading...</div>
+                </div>
+            </div>
+
             <!-- Custom Events Summary Cards -->
             <div id="custom-events-cards" style="display: none;" role="region" aria-label="Custom events metrics">
                 <div class="grid grid-cols-2 mt-lg">
@@ -413,8 +452,8 @@
                             <button class="view-toggle__btn active" data-view="chart" title="Chart view">
                                 <i class="ri-bar-chart-line"></i>
                             </button>
-                            <button class="view-toggle__btn" data-view="map" title="Map view">
-                                <i class="ri-map-pin-line"></i>
+                            <button class="view-toggle__btn" data-view="globe" title="Globe view">
+                                <i class="ri-earth-line"></i>
                             </button>
                         </div>
                     </div>
@@ -422,6 +461,138 @@
                 <div class="chart-card__container chart-card__container--tall">
                     <canvas id="chart-countries"></canvas>
                     <div id="map-countries" class="map-container hidden"></div>
+                    <div id="globe-container" class="globe-container hidden">
+                        <div class="globe-range-selector" id="globe-range-selector">
+                            <button class="globe-range-btn active" data-range="realtime">
+                                <span class="live-indicator" aria-hidden="true"></span> Real-time
+                            </button>
+                            <button class="globe-range-btn" data-range="1m">1 min</button>
+                            <button class="globe-range-btn" data-range="1h">1 hour</button>
+                            <button class="globe-range-btn" data-range="1d">1 day</button>
+                        </div>
+                        <div id="globe-canvas" class="globe-canvas"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UTM Campaigns -->
+            <div class="card chart-card mt-lg" id="utm-section" style="display: none;">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i class="ri-megaphone-line"></i> UTM campaigns
+                    </h3>
+                    <button class="btn btn-ghost btn-icon" data-export="utm-campaigns" title="Export to CSV">
+                        <i class="ri-download-line"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-3" style="gap: var(--spacing-md); padding: var(--spacing-md);">
+                    <div>
+                        <h4 class="text-sm text-muted mb-sm">Sources</h4>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-utm-sources"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-muted mb-sm">Mediums</h4>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-utm-mediums"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-muted mb-sm">Campaigns</h4>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-utm-campaigns"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll Depth -->
+            <div class="card chart-card mt-lg" id="scroll-depth-section" style="display: none;">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i class="ri-arrow-down-double-line"></i> Scroll depth
+                    </h3>
+                </div>
+                <div class="chart-card__container chart-card__container--short">
+                    <canvas id="chart-scroll-depth"></canvas>
+                </div>
+            </div>
+
+            <!-- Entry & Exit Pages -->
+            <div class="grid grid-cols-2 mt-lg" id="entry-exit-section" style="display: none;">
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i class="ri-login-box-line"></i> Entry pages
+                        </h3>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-entry-pages"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i class="ri-logout-box-line"></i> Exit pages
+                        </h3>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-exit-pages"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outbound Links & File Downloads -->
+            <div class="grid grid-cols-2 mt-lg" id="outbound-section" style="display: none;">
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i class="ri-external-link-line"></i> Outbound links
+                        </h3>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-outbound-links"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <div class="chart-card__header">
+                        <h3 class="chart-card__title">
+                            <i class="ri-download-2-line"></i> File downloads
+                        </h3>
+                    </div>
+                    <div class="chart-card__container chart-card__container--short">
+                        <canvas id="chart-file-downloads"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regions / States -->
+            <div class="card chart-card mt-lg" id="regions-section" style="display: none;">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <i class="ri-map-pin-2-line"></i> Regions / States
+                    </h3>
+                    <button class="btn btn-ghost btn-icon" data-export="regions" title="Export to CSV">
+                        <i class="ri-download-line"></i>
+                    </button>
+                </div>
+                <div class="chart-card__container chart-card__container--short">
+                    <canvas id="chart-regions"></canvas>
+                </div>
+            </div>
+
+            <!-- Real-time Visitor Count -->
+            <div class="card mt-lg" id="realtime-section">
+                <div class="flex items-center justify-between">
+                    <h3 class="mb-0">
+                        <span class="live-indicator" aria-hidden="true"></span>
+                        Real-time visitors
+                    </h3>
+                    <div class="realtime-count">
+                        <span class="realtime-count__number" id="realtime-number">0</span>
+                        <span class="realtime-count__label">active now</span>
+                    </div>
                 </div>
             </div>
 
@@ -1039,6 +1210,7 @@
     <script src="/admin-panel/js/utils.js"></script>
     <script src="/admin-panel/js/charts.js"></script>
     <script src="/admin-panel/js/map.js"></script>
+    <script src="/admin-panel/js/globe.js"></script>
     <script src="/admin-panel/js/goals.js"></script>
     <script src="/admin-panel/js/segments.js"></script>
     <script src="/admin-panel/js/admin.js"></script>

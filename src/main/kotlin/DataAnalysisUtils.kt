@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import se.onemanstudio.db.Events
 import se.onemanstudio.api.models.ProjectReport
@@ -163,6 +164,92 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             .limit(10)
             .map { StatEntry(it[Events.eventName] ?: "Unknown", it[customEventsCountCol]) }
 
+        // UTM campaign breakdowns
+        val utmSources = getBreakdown(Events.utmSource).filter { it.label != "Unknown" }
+        val utmMediums = getBreakdown(Events.utmMedium).filter { it.label != "Unknown" }
+        val utmCampaigns = getBreakdown(Events.utmCampaign).filter { it.label != "Unknown" }
+
+        // Scroll depth distribution
+        val scrollDepthCountCol = Events.scrollDepth.count()
+        val scrollDepthDistribution = Events.select(Events.scrollDepth, scrollDepthCountCol).where {
+            (Events.projectId eq id) and
+            (Events.timestamp greaterEq start) and
+            (Events.timestamp lessEq end) and
+            (Events.eventType eq "scroll") and
+            Events.scrollDepth.isNotNull()
+        }.groupBy(Events.scrollDepth)
+            .orderBy(Events.scrollDepth, SortOrder.ASC)
+            .map { StatEntry("${it[Events.scrollDepth]}%", it[scrollDepthCountCol]) }
+
+        // Session metrics: count, duration, entry/exit pages, conversion rate
+        val allEvents = baseQuery.copy().toList()
+        val sessions = allEvents.groupBy { it[Events.sessionId] }
+        val totalSessions = sessions.size.toLong()
+
+        val avgSessionDuration = if (sessions.isNotEmpty()) {
+            sessions.values.map { sessionEvents ->
+                val heartbeats = sessionEvents.count { it[Events.eventType] == "heartbeat" }
+                (heartbeats * 30).toLong() // 30s heartbeat interval
+            }.average()
+        } else 0.0
+
+        // Entry pages: first pageview per session
+        val entryPages = sessions.values.mapNotNull { sessionEvents ->
+            sessionEvents.filter { it[Events.eventType] == "pageview" }
+                .minByOrNull { it[Events.timestamp] }
+                ?.get(Events.path)
+        }.groupingBy { it }.eachCount()
+            .entries.sortedByDescending { it.value }
+            .take(10)
+            .map { StatEntry(it.key, it.value.toLong()) }
+
+        // Exit pages: last pageview per session
+        val exitPages = sessions.values.mapNotNull { sessionEvents ->
+            sessionEvents.filter { it[Events.eventType] == "pageview" }
+                .maxByOrNull { it[Events.timestamp] }
+                ?.get(Events.path)
+        }.groupingBy { it }.eachCount()
+            .entries.sortedByDescending { it.value }
+            .take(10)
+            .map { StatEntry(it.key, it.value.toLong()) }
+
+        // Outbound links
+        val outboundCountCol = Events.targetUrl.count()
+        val outboundLinks = Events.select(Events.targetUrl, outboundCountCol).where {
+            (Events.projectId eq id) and
+            (Events.timestamp greaterEq start) and
+            (Events.timestamp lessEq end) and
+            (Events.eventType eq "outbound") and
+            Events.targetUrl.isNotNull()
+        }.groupBy(Events.targetUrl)
+            .orderBy(outboundCountCol, SortOrder.DESC)
+            .limit(10)
+            .map { StatEntry(it[Events.targetUrl] ?: "Unknown", it[outboundCountCol]) }
+
+        // File downloads
+        val downloadCountCol = Events.targetUrl.count()
+        val fileDownloads = Events.select(Events.targetUrl, downloadCountCol).where {
+            (Events.projectId eq id) and
+            (Events.timestamp greaterEq start) and
+            (Events.timestamp lessEq end) and
+            (Events.eventType eq "download") and
+            Events.targetUrl.isNotNull()
+        }.groupBy(Events.targetUrl)
+            .orderBy(downloadCountCol, SortOrder.DESC)
+            .limit(10)
+            .map { StatEntry(it[Events.targetUrl] ?: "Unknown", it[downloadCountCol]) }
+
+        // Regions/states
+        val regions = getBreakdown(Events.region).filter { it.label != "Unknown" }
+
+        // Overall conversion rate: sessions with at least one custom event / total sessions
+        val sessionsWithConversion = sessions.count { (_, events) ->
+            events.any { it[Events.eventType] == "custom" }
+        }
+        val conversionRate = if (totalSessions > 0) {
+            (sessionsWithConversion.toDouble() / totalSessions) * 100.0
+        } else 0.0
+
         ProjectReport(
             totalViews = totalViews,
             uniqueVisitors = uniqueVisitors,
@@ -180,12 +267,25 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
                     VisitSnippet(
                         path = it[Events.path],
                         timestamp = it[Events.timestamp].toString(),
-                        city = it[Events.city]
+                        city = it[Events.city],
+                        country = it[Events.country]
                     )
                 },
             activityHeatmap = activityHeatmap,
             peakTimeAnalysis = peakTimeAnalysis,
-            bounceRate = bounceRate
+            bounceRate = bounceRate,
+            utmSources = utmSources,
+            utmMediums = utmMediums,
+            utmCampaigns = utmCampaigns,
+            scrollDepthDistribution = scrollDepthDistribution,
+            totalSessions = totalSessions,
+            avgSessionDuration = avgSessionDuration,
+            entryPages = entryPages,
+            exitPages = exitPages,
+            outboundLinks = outboundLinks,
+            fileDownloads = fileDownloads,
+            regions = regions,
+            conversionRate = conversionRate
         )
     }
 }

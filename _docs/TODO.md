@@ -133,9 +133,30 @@
 - [x] Configurable privacy — hash rotation (1-8760h), 3 modes (STANDARD/STRICT/PARANOID), data retention
 - [x] User segments — visual filter builder with AND/OR logic, segment analysis
 - [x] Configurable tracker — heartbeat interval and SPA tracking toggle
+- [x] UTM campaign tracking — source, medium, campaign breakdown with dashboard cards
+- [x] Scroll depth tracking — threshold-based (25/50/75/100%) with distribution chart
+- [x] Session duration & session count — top-level stat cards with period comparisons
+- [x] Entry & exit pages — first/last page per session analysis
+- [x] Outbound link & file download tracking — automatic detection with dashboard cards
+- [x] Region/state geography — subdivision-level geolocation below country data
+- [x] Real-time visitor count — live counter badge polling every 5 seconds
+- [x] Conversion rate metric — top-level stat card (sessions with custom events / total)
+- [x] Event properties — `MiniNumbers.track("name", { key: "value" })` with JSON storage
 - [ ] Email reports
 - [ ] Webhooks
 - [ ] Retention and cohort analysis
 - [ ] User journey visualization
 - [ ] Plugin system
 - [ ] Integrations (Slack, Discord, Zapier)
+
+### Nice to have (future consideration)
+- [ ] Hashed page path tracking — anonymize URL paths for additional privacy
+- [ ] Cross-domain tracking — track users across multiple domains as single sessions
+- [ ] Subdomain tracking — unified tracking across subdomains
+- [ ] Public/shared dashboard links — read-only shareable analytics views
+- [ ] Email/webhook alerts — threshold-based notifications (traffic spikes, goal completions)
+- [ ] Data import — migrate from Plausible, Google Analytics, or CSV
+- [ ] Annotations/event markers — mark deployments, campaigns, or events on time-series charts
+- [ ] Page performance / Web Vitals — track LCP, FID, CLS, TTFB metrics
+- [ ] A/B test tracking — variant assignment and conversion tracking
+- [ ] Custom dashboards — user-configurable widget layouts

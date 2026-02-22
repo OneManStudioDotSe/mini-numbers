@@ -14,9 +14,15 @@ object InputValidator {
     private const val MAX_SESSION_ID_LENGTH = 64
     private const val MAX_EVENT_TYPE_LENGTH = 20
     private const val MAX_EVENT_NAME_LENGTH = 100
+    private const val MAX_UTM_LENGTH = 200
+    private const val MAX_TARGET_URL_LENGTH = 1024
+    private const val MAX_PROPERTIES_LENGTH = 2048
 
     // Valid event types
-    private val VALID_EVENT_TYPES = setOf("pageview", "heartbeat", "custom")
+    private val VALID_EVENT_TYPES = setOf("pageview", "heartbeat", "custom", "scroll", "outbound", "download")
+
+    // Event types that support eventName
+    private val EVENT_TYPES_WITH_NAME = setOf("custom", "outbound", "download")
 
     // Regex patterns for validation
     // Path: alphanumeric + common URL characters
@@ -30,6 +36,9 @@ object InputValidator {
 
     // Event name: alphanumeric + underscores, hyphens, dots, spaces
     private val EVENT_NAME_REGEX = Regex("^[a-zA-Z0-9_\\-. ]+$")
+
+    // UTM fields: alphanumeric + common campaign characters
+    private val UTM_REGEX = Regex("^[a-zA-Z0-9_\\-. +%()]+$")
 
     /**
      * Validation result with error details
@@ -99,10 +108,10 @@ object InputValidator {
             }
         }
 
-        // Validate eventName (required for custom events, must be absent otherwise)
-        if (payload.type == "custom") {
+        // Validate eventName (required for custom/outbound/download events)
+        if (payload.type in EVENT_TYPES_WITH_NAME) {
             if (payload.eventName.isNullOrBlank()) {
-                errors.add("Event name is required for custom events")
+                errors.add("Event name is required for ${payload.type} events")
             } else {
                 if (payload.eventName.length > MAX_EVENT_NAME_LENGTH) {
                     errors.add("Event name exceeds maximum length of $MAX_EVENT_NAME_LENGTH characters")
@@ -112,13 +121,60 @@ object InputValidator {
                 }
             }
         } else if (!payload.eventName.isNullOrBlank()) {
-            errors.add("Event name should only be provided for custom event type")
+            errors.add("Event name should only be provided for custom, outbound, or download event types")
+        }
+
+        // Validate UTM fields (all optional)
+        validateUtmField(payload.utmSource, "UTM source", errors)
+        validateUtmField(payload.utmMedium, "UTM medium", errors)
+        validateUtmField(payload.utmCampaign, "UTM campaign", errors)
+        validateUtmField(payload.utmTerm, "UTM term", errors)
+        validateUtmField(payload.utmContent, "UTM content", errors)
+
+        // Validate scrollDepth (required for scroll events, must be 0-100)
+        if (payload.type == "scroll") {
+            if (payload.scrollDepth == null) {
+                errors.add("Scroll depth is required for scroll events")
+            } else if (payload.scrollDepth < 0 || payload.scrollDepth > 100) {
+                errors.add("Scroll depth must be between 0 and 100")
+            }
+        } else if (payload.scrollDepth != null && (payload.scrollDepth < 0 || payload.scrollDepth > 100)) {
+            errors.add("Scroll depth must be between 0 and 100")
+        }
+
+        // Validate targetUrl (required for outbound/download events)
+        if (payload.type in setOf("outbound", "download")) {
+            if (payload.targetUrl.isNullOrBlank()) {
+                errors.add("Target URL is required for ${payload.type} events")
+            } else if (payload.targetUrl.length > MAX_TARGET_URL_LENGTH) {
+                errors.add("Target URL exceeds maximum length of $MAX_TARGET_URL_LENGTH characters")
+            }
+        } else if (payload.targetUrl != null && payload.targetUrl.length > MAX_TARGET_URL_LENGTH) {
+            errors.add("Target URL exceeds maximum length of $MAX_TARGET_URL_LENGTH characters")
+        }
+
+        // Validate properties (optional JSON string)
+        payload.properties?.let { props ->
+            if (props.length > MAX_PROPERTIES_LENGTH) {
+                errors.add("Properties exceeds maximum length of $MAX_PROPERTIES_LENGTH characters")
+            }
         }
 
         return if (errors.isEmpty()) {
             ValidationResult.success()
         } else {
             ValidationResult.failure(errors)
+        }
+    }
+
+    private fun validateUtmField(value: String?, fieldName: String, errors: MutableList<String>) {
+        value?.let {
+            if (it.length > MAX_UTM_LENGTH) {
+                errors.add("$fieldName exceeds maximum length of $MAX_UTM_LENGTH characters")
+            }
+            if (it.isNotEmpty() && !UTM_REGEX.matches(it)) {
+                errors.add("$fieldName contains invalid characters")
+            }
         }
     }
 

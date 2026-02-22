@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class VisitSnippet(
     val path: String,
     val timestamp: String,
-    val city: String?
+    val city: String?,
+    val country: String? = null
 )

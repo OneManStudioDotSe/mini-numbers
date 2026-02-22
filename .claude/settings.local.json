@@ -33,7 +33,10 @@
       "Bash(echo \"checking XML...\" ls /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/build/test-results/test/*.xml)",
       "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew cleanTest test:*)",
       "WebFetch(domain:unpkg.com)",
-      "WebFetch(domain:cdn.jsdelivr.net)"
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:datafa.st)",
+      "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew:*)",
+      "Bash(cat:*)"
     ]
   }
 }

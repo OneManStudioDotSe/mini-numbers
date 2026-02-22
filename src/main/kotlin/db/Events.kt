@@ -21,6 +21,29 @@ object Events : Table("events") {
     val os = varchar("os", 50).nullable()
     val device = varchar("device", 50).nullable()
 
+    // UTM campaign tracking fields
+    val utmSource = varchar("utm_source", 200).nullable()
+    val utmMedium = varchar("utm_medium", 200).nullable()
+    val utmCampaign = varchar("utm_campaign", 200).nullable()
+    val utmTerm = varchar("utm_term", 200).nullable()
+    val utmContent = varchar("utm_content", 200).nullable()
+
+    // Scroll depth tracking (percentage 0-100)
+    val scrollDepth = integer("scroll_depth").nullable()
+
+    // Region/state for geography (between country and city)
+    val region = varchar("region", 100).nullable()
+
+    // Geolocation coordinates (city-level from GeoIP)
+    val latitude = double("latitude").nullable()
+    val longitude = double("longitude").nullable()
+
+    // Target URL for outbound link and file download tracking
+    val targetUrl = varchar("target_url", 1024).nullable()
+
+    // Custom event properties as JSON string
+    val properties = varchar("properties", 2048).nullable()
+
     override val primaryKey = PrimaryKey(id)
 
     // Performance indexes for time-based, project-specific, and analytics queries
@@ -35,5 +58,8 @@ object Events : Table("events") {
         index("idx_events_project_type_ts", false, projectId, eventType, timestamp)
         index("idx_events_project_country", false, projectId, country)
         index("idx_events_project_browser", false, projectId, browser)
+        // Indexes for new features
+        index("idx_events_project_utm", false, projectId, utmSource, utmCampaign)
+        index("idx_events_project_region", false, projectId, country, region)
     }
 }

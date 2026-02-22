@@ -7,7 +7,7 @@ const MapManager = {
   instance: null,
   topologyData: null,
   leafletMap: null,
-  currentView: 'chart', // 'chart' or 'map'
+  currentView: 'chart', // 'chart' or 'globe'
 
   // Country coordinates (approximate center points)
   countryCoordinates: {
@@ -263,14 +263,12 @@ const MapManager = {
    * @returns {Promise<Chart>} Chart instance
    */
   async createMap(canvasId, countryData) {
-    // Destroy existing map
+    // Destroy existing Chart.js instance
     if (this.instance) {
       this.instance.destroy();
       this.instance = null;
     }
 
-    // For now, use a horizontal bar chart as it's more reliable
-    // TODO: Implement proper Chart.Geo integration
     try {
       const canvas = document.getElementById(canvasId);
       if (!canvas) {
@@ -280,86 +278,22 @@ const MapManager = {
 
       // Limit to top 15 countries for better visualization
       const topCountries = countryData.slice(0, 15);
-      const colors = ChartManager.getColors();
+      this._countryData = topCountries;
 
-      // Create a gradient color scale based on value
-      const maxValue = Math.max(...topCountries.map(c => c.value));
-      const backgroundColors = topCountries.map((country, index) => {
-        const intensity = country.value / maxValue;
-        const colorIndex = Math.floor(intensity * (colors.chart.length - 1));
-        return colors.chart[colorIndex];
-      });
+      // Use icon bar chart with country flags
+      const container = canvas.parentElement;
+      container.style.height = `${Math.max(300, topCountries.length * 36 + 16)}px`;
+      ChartManager.createIconBarChart(canvasId, topCountries, 'country');
 
-      const ctx = canvas.getContext('2d');
-
-      this.instance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: topCountries.map(c => c.label),
-          datasets: [{
-            label: 'Visitors',
-            data: topCountries.map(c => c.value),
-            backgroundColor: backgroundColors,
-            borderRadius: 6,
-            barThickness: 30,
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              callbacks: {
-                label: function(context) {
-                  return `Visitors: ${Utils.format.number(context.parsed.x)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              grid: {
-                display: true,
-                color: colors.border
-              },
-              ticks: {
-                color: colors.textSecondary,
-                callback: function(value) {
-                  return Utils.format.compact(value);
-                }
-              }
-            },
-            y: {
-              grid: {
-                display: false
-              },
-              ticks: {
-                color: colors.text,
-                font: {
-                  size: 12
-                }
-              }
-            }
-          }
-        }
-      });
-
-      return this.instance;
+      return null;
     } catch (error) {
       console.error('Failed to create geographic chart:', error);
 
-      // Fallback: show error message
       const container = document.getElementById(canvasId)?.parentElement;
       if (container) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state__icon">🗺️</div>
+            <div class="empty-state__icon">&#x1f5fa;&#xfe0f;</div>
             <div class="empty-state__message">Geographic visualization unavailable</div>
             <div class="empty-state__suggestion">${error.message}</div>
           </div>
@@ -375,29 +309,15 @@ const MapManager = {
    * @param {Array} countryData - Array of {label: country, value: count}
    */
   async updateMap(countryData) {
-    if (!this.instance) {
-      console.warn('Map instance not found');
-      return;
-    }
-
-    // Limit to top 15 countries
     const topCountries = countryData.slice(0, 15);
-    const colors = ChartManager.getColors();
+    this._countryData = topCountries;
 
-    // Create gradient colors based on values
-    const maxValue = Math.max(...topCountries.map(c => c.value));
-    const backgroundColors = topCountries.map((country) => {
-      const intensity = country.value / maxValue;
-      const colorIndex = Math.floor(intensity * (colors.chart.length - 1));
-      return colors.chart[colorIndex];
-    });
-
-    // Update chart data
-    this.instance.data.labels = topCountries.map(c => c.label);
-    this.instance.data.datasets[0].data = topCountries.map(c => c.value);
-    this.instance.data.datasets[0].backgroundColor = backgroundColors;
-
-    this.instance.update();
+    const canvas = document.getElementById('chart-countries');
+    if (canvas) {
+      const container = canvas.parentElement;
+      container.style.height = `${Math.max(300, topCountries.length * 36 + 16)}px`;
+      ChartManager.createIconBarChart('chart-countries', topCountries, 'country');
+    }
   },
 
   /**
@@ -513,13 +433,11 @@ const MapManager = {
     const toggle = document.getElementById('geo-view-toggle');
     if (!toggle) return;
 
-    // Load saved preference
+    // Load saved preference — migrate old 'map' preference to 'chart'
     const savedView = localStorage.getItem('geo-view-preference') || 'chart';
-    this.currentView = savedView;
+    this.currentView = (savedView === 'map') ? 'chart' : savedView;
 
     const buttons = toggle.querySelectorAll('.view-toggle__btn');
-    const chartCanvas = document.getElementById('chart-countries');
-    const mapContainer = document.getElementById('map-countries');
 
     // Set initial state
     buttons.forEach((btn) => {
@@ -532,15 +450,8 @@ const MapManager = {
     });
 
     // Apply initial view
-    if (this.currentView === 'map') {
-      chartCanvas.style.display = 'none';
-      mapContainer.classList.remove('hidden');
-      // Create map if needed
-      if (!this.leafletMap) {
-        setTimeout(() => {
-          this.createLeafletMap('map-countries', countryData);
-        }, 100);
-      }
+    if (this.currentView === 'globe') {
+      this.switchView('globe', countryData);
     }
 
     // Add click handlers
@@ -560,37 +471,79 @@ const MapManager = {
   },
 
   /**
-   * Switch between chart and map views
-   * @param {string} view - 'chart' or 'map'
+   * Switch between chart and globe views
+   * @param {string} view - 'chart' or 'globe'
    * @param {Array} countryData - Country data
    */
   switchView(view, countryData) {
     const chartCanvas = document.getElementById('chart-countries');
+    const chartContainer = chartCanvas?.parentElement;
+    const iconBarChart = chartContainer?.querySelector('.icon-bar-chart');
     const mapContainer = document.getElementById('map-countries');
+    const globeContainer = document.getElementById('globe-container');
 
-    if (view === 'map') {
-      // Show map, hide chart
+    if (view === 'globe') {
+      // Hide chart (canvas + icon bar chart) and old map, show globe
       chartCanvas.style.display = 'none';
-      mapContainer.classList.remove('hidden');
-
-      // Create or update map
-      if (!this.leafletMap) {
-        setTimeout(() => {
-          this.createLeafletMap('map-countries', countryData);
-        }, 100);
-      } else {
-        // Invalidate size to fix display issues
-        setTimeout(() => {
-          this.leafletMap.invalidateSize();
-        }, 100);
-      }
-    } else {
-      // Show chart, hide map
-      chartCanvas.style.display = 'block';
+      if (iconBarChart) iconBarChart.style.display = 'none';
       mapContainer.classList.add('hidden');
+      if (globeContainer) globeContainer.classList.remove('hidden');
+
+      // Initialize globe lazily
+      if (!GlobeManager.instance) {
+        GlobeManager.init('globe-canvas', []).then(() => {
+          const projectId = typeof Dashboard !== 'undefined' && Dashboard.state
+            ? Dashboard.state.currentProjectId : null;
+          if (projectId) {
+            GlobeManager.startPolling(projectId, 'realtime');
+          }
+        });
+      } else {
+        // Globe already initialized — ensure polling
+        const projectId = typeof Dashboard !== 'undefined' && Dashboard.state
+          ? Dashboard.state.currentProjectId : null;
+        if (projectId && !GlobeManager.pollInterval) {
+          GlobeManager.startPolling(projectId, GlobeManager.currentRange);
+        }
+      }
+
+      // Setup range selector event handlers
+      this.setupGlobeRangeSelector();
+    } else {
+      // Show chart (icon bar chart), hide globe and old map
+      if (iconBarChart) iconBarChart.style.display = '';
+      mapContainer.classList.add('hidden');
+      if (globeContainer) globeContainer.classList.add('hidden');
+
+      // Stop globe polling when not visible
+      GlobeManager.stopPolling();
     }
 
     this.currentView = view;
+  },
+
+  /**
+   * Setup globe range selector button handlers
+   */
+  setupGlobeRangeSelector() {
+    const selector = document.getElementById('globe-range-selector');
+    if (!selector || selector.dataset.initialized) return;
+    selector.dataset.initialized = 'true';
+
+    const buttons = selector.querySelectorAll('.globe-range-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const range = btn.dataset.range;
+        const projectId = typeof Dashboard !== 'undefined' && Dashboard.state
+          ? Dashboard.state.currentProjectId : null;
+        if (projectId) {
+          GlobeManager.startPolling(projectId, range);
+        }
+      });
+    });
   },
 
   /**
@@ -621,25 +574,5 @@ window.addEventListener('themeChange', () => {
     }
   }
 
-  // Update Leaflet map tiles if map view is active
-  if (MapManager.leafletMap) {
-    const isDark = ThemeManager.isDark();
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-
-    // Remove old tile layer
-    MapManager.leafletMap.eachLayer((layer) => {
-      if (layer instanceof L.TileLayer) {
-        MapManager.leafletMap.removeLayer(layer);
-      }
-    });
-
-    // Add new tile layer with correct theme
-    L.tileLayer(tileUrl, {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    }).addTo(MapManager.leafletMap);
-  }
+  // Globe theme is handled by GlobeManager's own themeChange listener
 });
