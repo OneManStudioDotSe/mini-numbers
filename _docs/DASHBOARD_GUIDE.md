@@ -23,7 +23,7 @@ Add the tracking script to your website's `<head>` or before `</body>`:
 ```html
 <script
   async
-  src="https://your-analytics-domain.com/admin-panel/tracker.js"
+  src="https://your-analytics-domain.com/tracker/tracker.js"
   data-project-key="YOUR_API_KEY">
 </script>
 ```

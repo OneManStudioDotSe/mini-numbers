@@ -18,5 +18,24 @@ data class ProjectReport(
     val lastVisits: List<VisitSnippet>,
     val activityHeatmap: List<ActivityCell>,
     val peakTimeAnalysis: PeakTimeAnalysis,
-    val bounceRate: Double // Percentage of single-page sessions with no heartbeat
+    val bounceRate: Double, // Percentage of single-page sessions with no heartbeat
+    // UTM campaign tracking
+    val utmSources: List<StatEntry> = emptyList(),
+    val utmMediums: List<StatEntry> = emptyList(),
+    val utmCampaigns: List<StatEntry> = emptyList(),
+    // Scroll depth distribution
+    val scrollDepthDistribution: List<StatEntry> = emptyList(),
+    // Session metrics
+    val totalSessions: Long = 0,
+    val avgSessionDuration: Double = 0.0,
+    // Entry and exit pages
+    val entryPages: List<StatEntry> = emptyList(),
+    val exitPages: List<StatEntry> = emptyList(),
+    // Outbound links and file downloads
+    val outboundLinks: List<StatEntry> = emptyList(),
+    val fileDownloads: List<StatEntry> = emptyList(),
+    // Region/state geography
+    val regions: List<StatEntry> = emptyList(),
+    // Overall conversion rate
+    val conversionRate: Double = 0.0
 )

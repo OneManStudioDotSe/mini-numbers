@@ -286,6 +286,11 @@ const ChartManager = {
       {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: {
+            bottom: 10
+          }
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -306,23 +311,25 @@ const ChartManager = {
         scales: {
           x: {
             type: 'linear',
-            min: 0,
-            max: 23,
+            min: -0.5,
+            max: 23.5,
+            offset: true,
             ticks: {
               stepSize: 1,
-              callback: (val) => val % 3 === 0 ? `${val}h` : ''
+              callback: (val) => val % 3 === 0 && val >= 0 ? `${val}h` : ''
             },
             title: { display: true, text: 'Hour of Day' },
             grid: { display: false }
           },
           y: {
             type: 'linear',
-            min: 0,
-            max: 6,
+            min: -0.5,
+            max: 6.5,
+            offset: true,
             reverse: true,
             ticks: {
               stepSize: 1,
-              callback: (val) => yLabels[val] || ''
+              callback: (val) => val >= 0 && val <= 6 ? (yLabels[val] || '') : ''
             },
             title: { display: true, text: 'Day of Week' },
             grid: { display: false }
@@ -476,6 +483,157 @@ const ChartManager = {
         ...options,
       }
     );
+  },
+
+  /**
+   * Create HTML-based horizontal bar chart with icons
+   * Replaces Canvas chart with styled HTML bars for icon support
+   * @param {string} id - Canvas element ID (canvas will be hidden, HTML placed alongside)
+   * @param {Array} items - Array of {label, value} objects
+   * @param {string} iconType - Icon category: 'browser', 'os', 'device', 'referrer', 'country'
+   */
+  createIconBarChart(id, items, iconType) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+
+    // Destroy any existing Chart.js instance on this canvas
+    if (this.instances[id]) {
+      this.instances[id].destroy();
+      delete this.instances[id];
+    }
+
+    // Hide canvas
+    canvas.style.display = 'none';
+
+    // Remove any existing icon bar chart
+    const existingChart = container.querySelector('.icon-bar-chart');
+    if (existingChart) existingChart.remove();
+
+    if (!items || items.length === 0) return;
+
+    const maxValue = Math.max(...items.map(d => d.value));
+    const total = items.reduce((sum, d) => sum + d.value, 0);
+
+    const chartEl = document.createElement('div');
+    chartEl.className = 'icon-bar-chart';
+
+    chartEl.innerHTML = items.map(item => {
+      const pct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+      const pctOfTotal = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+      let iconHtml = '';
+
+      if (iconType === 'country') {
+        const flag = Utils.icons.countryFlag(item.label);
+        iconHtml = flag ? `<span class="icon-bar-chart__flag">${flag}</span>` : '';
+      } else if (iconType && Utils.icons[iconType]) {
+        const iconClass = Utils.icons[iconType](item.label);
+        iconHtml = `<i class="${iconClass} icon-bar-chart__icon"></i>`;
+      }
+
+      return `
+        <div class="icon-bar-chart__item" data-label="${Utils.escapeHtml(item.label)}" data-value="${item.value}">
+          <div class="icon-bar-chart__label">
+            ${iconHtml}
+            <span class="icon-bar-chart__name">${Utils.escapeHtml(item.label)}</span>
+          </div>
+          <div class="icon-bar-chart__bar-wrap">
+            <div class="icon-bar-chart__bar" style="width: ${pct}%"></div>
+          </div>
+          <div class="icon-bar-chart__value">
+            ${Utils.format.compact(item.value)}<span class="icon-bar-chart__pct">${pctOfTotal}%</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Make items clickable (dispatch chartBarClick for country drill-down etc.)
+    chartEl.addEventListener('click', (e) => {
+      const item = e.target.closest('.icon-bar-chart__item');
+      if (item) {
+        window.dispatchEvent(new CustomEvent('chartBarClick', {
+          detail: { label: item.dataset.label, value: parseInt(item.dataset.value), chartId: id }
+        }));
+      }
+    });
+
+    container.appendChild(chartEl);
+  },
+
+  /**
+   * Create doughnut chart with custom HTML icon legend
+   * @param {string} id - Canvas element ID
+   * @param {Array} items - Array of {label, value} objects
+   * @param {string} iconType - Icon category for legend: 'browser', 'os', 'device'
+   * @param {Object} options - Additional options
+   * @returns {Chart} Chart instance
+   */
+  createIconDoughnutChart(id, items, iconType, options = {}) {
+    const colors = this.getColors();
+    const labels = items.map(item => item.label);
+    const values = items.map(item => item.value);
+    const total = values.reduce((a, b) => a + b, 0);
+
+    const backgroundColors = labels.map(
+      (_, index) => colors.chart[index % colors.chart.length]
+    );
+
+    const chart = this.create(
+      id,
+      'doughnut',
+      {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: backgroundColors,
+          borderWidth: 2,
+          borderColor: colors.bgSecondary,
+        }],
+      },
+      {
+        plugins: {
+          legend: { display: false }, // We'll use custom HTML legend
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${label}: ${Utils.format.number(value)} (${percentage}%)`;
+              },
+            },
+          },
+        },
+        ...options,
+      }
+    );
+
+    // Build custom HTML legend with icons
+    const canvas = document.getElementById(id);
+    if (canvas) {
+      const container = canvas.parentElement;
+      let legendEl = container.querySelector('.icon-legend');
+      if (legendEl) legendEl.remove();
+
+      legendEl = document.createElement('div');
+      legendEl.className = 'icon-legend';
+      legendEl.innerHTML = items.map((item, i) => {
+        const color = backgroundColors[i % backgroundColors.length];
+        const iconClass = Utils.icons[iconType] ? Utils.icons[iconType](item.label) : '';
+        const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+        return `
+          <div class="icon-legend__item">
+            <span class="icon-legend__color" style="background: ${color}"></span>
+            ${iconClass ? `<i class="${iconClass} icon-legend__icon"></i>` : ''}
+            <span class="icon-legend__label">${Utils.escapeHtml(item.label)}</span>
+            <span class="icon-legend__value">${pct}%</span>
+          </div>`;
+      }).join('');
+
+      container.appendChild(legendEl);
+    }
+
+    return chart;
   },
 
   /**

@@ -719,6 +719,86 @@ tbody tr:nth-child(even):hover td {
   }
 }
 
+.realtime-count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+}
+
+.realtime-count__number {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+}
+
+.realtime-count__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   GLOBE VISUALIZATION
+   ============================================ */
+
+.globe-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+}
+
+.globe-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+.globe-range-selector {
+  display: flex;
+  gap: var(--spacing-xs);
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  z-index: 10;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xs);
+}
+
+.globe-range-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.globe-range-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.globe-range-btn.active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.globe-range-btn .live-indicator {
+  width: 6px;
+  height: 6px;
+}
+
 .live-feed {
   display: flex;
   flex-direction: column;
@@ -1210,14 +1290,21 @@ tbody tr:nth-child(even):hover td {
 .contribution-calendar {
   overflow-x: auto;
   padding: var(--spacing-md) 0;
+  width: 100%;
+}
+
+/* Allow calendar container to grow to fit the responsive grid */
+.chart-card__container:has(.contribution-calendar) {
+  height: auto;
+  min-height: 140px;
 }
 
 .contribution-grid {
-  display: inline-grid;
-  grid-template-columns: 40px repeat(53, 12px);
-  grid-template-rows: 20px repeat(7, 12px);
+  display: grid;
+  grid-template-columns: 40px repeat(53, 1fr);
+  grid-template-rows: 20px repeat(7, auto);
   gap: 3px;
-  min-width: 100%;
+  width: 100%;
 }
 
 .contribution-months {
@@ -1253,8 +1340,8 @@ tbody tr:nth-child(even):hover td {
 }
 
 .contribution-cell {
-  width: 12px;
-  height: 12px;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1317,15 +1404,9 @@ tbody tr:nth-child(even):hover td {
 /* Responsive */
 @media (max-width: 768px) {
   .contribution-grid {
-    grid-template-columns: 30px repeat(53, 10px);
-    grid-template-rows: 18px repeat(7, 10px);
+    grid-template-columns: 30px repeat(53, 1fr);
+    grid-template-rows: 18px repeat(7, auto);
     gap: 2px;
-  }
-
-  .contribution-cell,
-  .contribution-level {
-    width: 10px;
-    height: 10px;
   }
 
   .peak-item {
@@ -2225,6 +2306,164 @@ tbody tr:nth-child(even):hover td {
   position: absolute;
   top: var(--spacing-sm);
   right: var(--spacing-sm);
+}
+
+/* ============================================
+   ICON BAR CHARTS
+   ============================================ */
+
+.icon-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--spacing-xs) 0;
+}
+
+.icon-bar-chart__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 4px var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.icon-bar-chart__item:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.icon-bar-chart__label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.icon-bar-chart__icon {
+  font-size: 1rem;
+  color: var(--color-primary);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.icon-bar-chart__flag {
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.icon-bar-chart__name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+
+.icon-bar-chart__bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  min-width: 40px;
+}
+
+.icon-bar-chart__bar {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+
+.icon-bar-chart__value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-align: right;
+  min-width: 64px;
+  white-space: nowrap;
+}
+
+.icon-bar-chart__pct {
+  margin-left: var(--spacing-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+/* Icon Legend (for doughnut charts) */
+.icon-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  margin-top: var(--spacing-sm);
+}
+
+.icon-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+.icon-legend__color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.icon-legend__icon {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.icon-legend__label {
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.icon-legend__value {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Flag emoji in tables and feeds */
+.flag-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .icon-bar-chart__label {
+    min-width: 100px;
+  }
+
+  .icon-bar-chart__name {
+    max-width: 80px;
+  }
+
+  .icon-bar-chart__value {
+    min-width: 50px;
+  }
+
+  .icon-legend {
+    gap: var(--spacing-xs) var(--spacing-sm);
+  }
 }
 
 /* ============================================

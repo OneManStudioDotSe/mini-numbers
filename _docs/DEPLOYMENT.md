@@ -340,7 +340,7 @@ Add the tracking script to your website's `<head>` or before `</body>`:
 ```html
 <script
   async
-  src="https://your-analytics-domain.com/admin-panel/tracker.js"
+  src="https://your-analytics-domain.com/tracker/tracker.js"
   data-project-key="YOUR_PROJECT_API_KEY">
 </script>
 ```
@@ -381,7 +381,7 @@ If your analytics server is on a different domain:
 ```html
 <script
   async
-  src="https://your-analytics-domain.com/admin-panel/tracker.js"
+  src="https://your-analytics-domain.com/tracker/tracker.js"
   data-project-key="YOUR_PROJECT_API_KEY"
   data-api-endpoint="https://your-analytics-domain.com/collect">
 </script>
@@ -432,7 +432,7 @@ server {
     }
 
     # Cache tracker script
-    location = /admin-panel/tracker.min.js {
+    location = /tracker/tracker.min.js {
         proxy_pass http://127.0.0.1:8080;
         proxy_set_header Host $host;
         expires 1d;
@@ -450,7 +450,7 @@ analytics.example.com {
     @static path /admin-panel/*
     header @static Cache-Control "public, max-age=3600, immutable"
 
-    @tracker path /admin-panel/tracker.min.js
+    @tracker path /tracker/tracker.min.js
     header @tracker Cache-Control "public, max-age=86400, immutable"
 }
 ```

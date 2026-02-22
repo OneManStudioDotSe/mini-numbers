@@ -546,7 +546,7 @@ const Dashboard = {
 
         // Fill in tracking snippet
         const origin = window.location.origin;
-        const snippet = `<script async src="${origin}/admin-panel/tracker.min.js"\n  data-project-key="${this._createProjectKey}"><\/script>`;
+        const snippet = `<script async src="${origin}/tracker/tracker.min.js"\n  data-project-key="${this._createProjectKey}"><\/script>`;
         const snippetEl = document.getElementById('tracking-snippet-code');
         if (snippetEl) snippetEl.textContent = snippet;
 
@@ -610,6 +610,11 @@ const Dashboard = {
     // Load data
     await this.refreshReport();
     this.startLiveFeed();
+
+    // If globe view is active, restart polling for the new project
+    if (MapManager.currentView === 'globe' && GlobeManager.instance) {
+      GlobeManager.startPolling(this.state.currentProjectId, GlobeManager.currentRange);
+    }
   },
 
   /**
@@ -734,6 +739,24 @@ const Dashboard = {
     const bounceEl = document.getElementById('bounce-rate');
     const bounceVal = data.bounceRate != null ? Math.round(data.bounceRate * 10) : 0;
     animateCountUp(bounceEl, bounceVal, 800, v => (v / 10).toFixed(1) + '%');
+
+    // Animate total sessions
+    const sessionsEl = document.getElementById('total-sessions');
+    if (sessionsEl) animateCountUp(sessionsEl, data.totalSessions || 0, 800, v => Utils.format.number(v));
+
+    // Animate avg session duration
+    const durationEl = document.getElementById('avg-session-duration');
+    if (durationEl) {
+      const durSec = Math.round(data.avgSessionDuration || 0);
+      animateCountUp(durationEl, durSec, 800, v => Utils.format.duration(v));
+    }
+
+    // Animate conversion rate
+    const convRateEl = document.getElementById('overall-conversion-rate');
+    if (convRateEl) {
+      const convVal = data.conversionRate != null ? Math.round(data.conversionRate * 10) : 0;
+      animateCountUp(convRateEl, convVal, 800, v => (v / 10).toFixed(1) + '%');
+    }
   },
 
   /**
@@ -816,6 +839,33 @@ const Dashboard = {
       `;
       bounceCompEl.className = `stat-card__comparison ${className}`;
     }
+
+    // Sessions comparison
+    const sessionsCompEl = document.getElementById('sessions-comparison');
+    if (sessionsCompEl && current.totalSessions != null && previous.totalSessions != null) {
+      const sessionsChange = this.calculatePercentChange(current.totalSessions, previous.totalSessions);
+      const { text, className } = Utils.format.percentageChange(sessionsChange);
+      sessionsCompEl.innerHTML = `${text} vs previous period`;
+      sessionsCompEl.className = `stat-card__comparison ${className}`;
+    }
+
+    // Session duration comparison
+    const durationCompEl = document.getElementById('session-duration-comparison');
+    if (durationCompEl && current.avgSessionDuration != null && previous.avgSessionDuration != null) {
+      const durationChange = this.calculatePercentChange(current.avgSessionDuration, previous.avgSessionDuration);
+      const { text, className } = Utils.format.percentageChange(durationChange);
+      durationCompEl.innerHTML = `${text} vs previous period`;
+      durationCompEl.className = `stat-card__comparison ${className}`;
+    }
+
+    // Conversion rate comparison
+    const convCompEl = document.getElementById('conversion-rate-comparison');
+    if (convCompEl && current.conversionRate != null && previous.conversionRate != null) {
+      const convChange = this.calculatePercentChange(current.conversionRate, previous.conversionRate);
+      const { text, className } = Utils.format.percentageChange(convChange);
+      convCompEl.innerHTML = `${text} vs previous period`;
+      convCompEl.className = `stat-card__comparison ${className}`;
+    }
   },
 
   /**
@@ -832,16 +882,16 @@ const Dashboard = {
       Utils.dom.showEmptyState(pagesEl.parentElement, { icon: '&#128196;', message: 'No page views yet', hint: 'Page views will appear once visitors arrive' });
     }
 
-    // Referrers - Bar Chart with show more
+    // Referrers - Icon Bar Chart with show more
     const referrersEl = document.getElementById('chart-referrers');
     if (data.referrers?.length && referrersEl) {
       const allReferrers = Utils.aggregate.groupTopN(data.referrers, 10);
-      this.renderBarChartWithShowMore('chart-referrers', allReferrers, 5);
+      this.renderIconBarChartWithShowMore('chart-referrers', allReferrers, 'referrer', 5);
     } else if (referrersEl) {
       Utils.dom.showEmptyState(referrersEl.parentElement, { icon: '&#128279;', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
     }
 
-    // Browsers - Chart with toggle
+    // Browsers - Chart with toggle (icons)
     const browsersEl = document.getElementById('chart-browsers');
     if (data.browsers?.length && browsersEl) {
       this.state.browsersData = data.browsers;
@@ -849,15 +899,15 @@ const Dashboard = {
       const chartType = localStorage.getItem('chart-view-browsers') || 'doughnut';
 
       if (chartType === 'bar') {
-        ChartManager.createBarChart('chart-browsers', topBrowsers);
+        ChartManager.createIconBarChart('chart-browsers', topBrowsers, 'browser');
       } else {
-        ChartManager.createDoughnutChart('chart-browsers', topBrowsers);
+        ChartManager.createIconDoughnutChart('chart-browsers', topBrowsers, 'browser');
       }
     } else if (browsersEl) {
       Utils.dom.showEmptyState(browsersEl.parentElement, { icon: '&#127760;', message: 'No browser data' });
     }
 
-    // Operating Systems - Chart with toggle
+    // Operating Systems - Chart with toggle (icons)
     const osEl = document.getElementById('chart-os');
     if (data.oss?.length && osEl) {
       this.state.osData = data.oss;
@@ -865,15 +915,15 @@ const Dashboard = {
       const chartType = localStorage.getItem('chart-view-os') || 'doughnut';
 
       if (chartType === 'bar') {
-        ChartManager.createBarChart('chart-os', topOS);
+        ChartManager.createIconBarChart('chart-os', topOS, 'os');
       } else {
-        ChartManager.createDoughnutChart('chart-os', topOS);
+        ChartManager.createIconDoughnutChart('chart-os', topOS, 'os');
       }
     } else if (osEl) {
       Utils.dom.showEmptyState(osEl.parentElement, { icon: '&#128187;', message: 'No OS data' });
     }
 
-    // Devices - Chart with toggle
+    // Devices - Chart with toggle (icons)
     const devicesEl = document.getElementById('chart-devices');
     if (data.devices?.length && devicesEl) {
       this.state.devicesData = data.devices;
@@ -881,9 +931,9 @@ const Dashboard = {
       const chartType = localStorage.getItem('chart-view-devices') || 'doughnut';
 
       if (chartType === 'bar') {
-        ChartManager.createBarChart('chart-devices', topDevices);
+        ChartManager.createIconBarChart('chart-devices', topDevices, 'device');
       } else {
-        ChartManager.createDoughnutChart('chart-devices', topDevices);
+        ChartManager.createIconDoughnutChart('chart-devices', topDevices, 'device');
       }
     } else if (devicesEl) {
       Utils.dom.showEmptyState(devicesEl.parentElement, { icon: '&#128241;', message: 'No device data' });
@@ -987,6 +1037,72 @@ const Dashboard = {
     if (data.peakTimeAnalysis) {
       this.updatePeakTimes(data.peakTimeAnalysis);
     }
+
+    // UTM Campaigns
+    const utmSection = document.getElementById('utm-section');
+    const hasUtm = data.utmSources?.length || data.utmMediums?.length || data.utmCampaigns?.length;
+    if (utmSection) {
+      utmSection.style.display = hasUtm ? '' : 'none';
+      if (hasUtm) {
+        if (data.utmSources?.length) ChartManager.createBarChart('chart-utm-sources', Utils.aggregate.groupTopN(data.utmSources, 8));
+        if (data.utmMediums?.length) ChartManager.createBarChart('chart-utm-mediums', Utils.aggregate.groupTopN(data.utmMediums, 8));
+        if (data.utmCampaigns?.length) ChartManager.createBarChart('chart-utm-campaigns', Utils.aggregate.groupTopN(data.utmCampaigns, 8));
+      }
+    }
+
+    // Scroll Depth
+    const scrollSection = document.getElementById('scroll-depth-section');
+    if (scrollSection) {
+      if (data.scrollDepthDistribution?.length) {
+        scrollSection.style.display = '';
+        ChartManager.createBarChart('chart-scroll-depth', data.scrollDepthDistribution);
+      } else {
+        scrollSection.style.display = 'none';
+      }
+    }
+
+    // Entry & Exit Pages
+    const entryExitSection = document.getElementById('entry-exit-section');
+    if (entryExitSection) {
+      if (data.entryPages?.length || data.exitPages?.length) {
+        entryExitSection.style.display = '';
+        if (data.entryPages?.length) {
+          this.renderBarChartWithShowMore('chart-entry-pages', data.entryPages, 5);
+        }
+        if (data.exitPages?.length) {
+          this.renderBarChartWithShowMore('chart-exit-pages', data.exitPages, 5);
+        }
+      } else {
+        entryExitSection.style.display = 'none';
+      }
+    }
+
+    // Outbound Links & File Downloads
+    const outboundSection = document.getElementById('outbound-section');
+    if (outboundSection) {
+      if (data.outboundLinks?.length || data.fileDownloads?.length) {
+        outboundSection.style.display = '';
+        if (data.outboundLinks?.length) {
+          this.renderBarChartWithShowMore('chart-outbound-links', data.outboundLinks, 5);
+        }
+        if (data.fileDownloads?.length) {
+          this.renderBarChartWithShowMore('chart-file-downloads', data.fileDownloads, 5);
+        }
+      } else {
+        outboundSection.style.display = 'none';
+      }
+    }
+
+    // Regions / States
+    const regionsSection = document.getElementById('regions-section');
+    if (regionsSection) {
+      if (data.regions?.length) {
+        regionsSection.style.display = '';
+        this.renderBarChartWithShowMore('chart-regions', data.regions, 5);
+      } else {
+        regionsSection.style.display = 'none';
+      }
+    }
   },
 
   /**
@@ -1037,13 +1153,16 @@ const Dashboard = {
     if (data.lastVisits?.length) {
       tableBody.innerHTML = data.lastVisits
         .map(
-          (visit) => `
+          (visit) => {
+            const flag = visit.country ? Utils.icons.countryFlag(visit.country) : '';
+            const location = Utils.escapeHtml(visit.city || 'Unknown');
+            return `
         <tr>
           <td>${Utils.escapeHtml(visit.path)}</td>
-          <td>${Utils.escapeHtml(visit.city || 'Unknown')}</td>
+          <td>${flag ? `<span class="flag-emoji">${flag}</span> ` : ''}${location}</td>
           <td>${Utils.time.formatTime(visit.timestamp)}</td>
-        </tr>
-      `
+        </tr>`;
+          }
         )
         .join('');
 
@@ -1073,11 +1192,27 @@ const Dashboard = {
 
     // Initial load
     this.updateLiveFeed();
+    this.updateRealtimeCount();
 
     // Update every 5 seconds
     this.state.liveInterval = setInterval(() => {
       this.updateLiveFeed();
+      this.updateRealtimeCount();
     }, 5000);
+  },
+
+  async updateRealtimeCount() {
+    if (!this.state.currentProjectId) return;
+    try {
+      const data = await Utils.api.fetch(
+        `/admin/projects/${this.state.currentProjectId}/realtime-count`,
+        { useCache: false }
+      );
+      const el = document.getElementById('realtime-number');
+      if (el) {
+        animateCountUp(el, data.activeVisitors || 0, 400, v => v.toString());
+      }
+    } catch (e) { /* silent fail for realtime */ }
   },
 
   /**
@@ -1102,14 +1237,17 @@ const Dashboard = {
 
       feedEl.innerHTML = data
         .map(
-          (visit) => `
+          (visit) => {
+            const flag = visit.country ? Utils.icons.countryFlag(visit.country) : '';
+            const location = Utils.escapeHtml(visit.city || 'Unknown');
+            return `
         <div class="live-feed__item">
           <div class="live-feed__path">${Utils.escapeHtml(visit.path)}</div>
           <div class="live-feed__meta">
-            ${Utils.escapeHtml(visit.city || 'Unknown')} • ${Utils.time.relative(visit.timestamp)}
+            ${flag ? `<span class="flag-emoji">${flag}</span> ` : ''}${location} • ${Utils.time.relative(visit.timestamp)}
           </div>
-        </div>
-      `
+        </div>`;
+          }
         )
         .join('');
     } catch (error) {
@@ -1126,6 +1264,7 @@ const Dashboard = {
       clearInterval(this.state.liveInterval);
       this.state.liveInterval = null;
     }
+    GlobeManager.stopPolling();
   },
 
   /**
@@ -2314,6 +2453,56 @@ const Dashboard = {
         } else {
           container.style.height = `${Math.max(200, allItems.length * 40 + 40)}px`;
           ChartManager.createBarChart(chartId, allItems);
+          btn.textContent = 'Show less';
+          btn.dataset.expanded = 'true';
+        }
+      });
+
+      card.appendChild(btn);
+    }
+  },
+
+  /**
+   * Render an icon bar chart with "show more" button if items exceed visible count
+   * @param {string} chartId - Canvas element ID
+   * @param {Array} allItems - All items to display
+   * @param {string} iconType - Icon category: 'browser', 'os', 'device', 'referrer', 'country'
+   * @param {number} visibleCount - Number of items to show initially
+   */
+  renderIconBarChartWithShowMore(chartId, allItems, iconType, visibleCount = 5) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    const card = container.parentElement;
+
+    // Remove existing show more button
+    const existingBtn = card.querySelector('.show-more-btn');
+    if (existingBtn) existingBtn.remove();
+
+    const needsShowMore = allItems.length > visibleCount;
+    const itemsToShow = needsShowMore ? allItems.slice(0, visibleCount) : allItems;
+
+    // Set dynamic height for icon bar chart (36px per item + 8px padding)
+    container.style.height = `${Math.max(200, itemsToShow.length * 36 + 16)}px`;
+    ChartManager.createIconBarChart(chartId, itemsToShow, iconType);
+
+    if (needsShowMore) {
+      const btn = document.createElement('button');
+      btn.className = 'show-more-btn';
+      btn.textContent = `Show ${allItems.length - visibleCount} more`;
+      btn.dataset.expanded = 'false';
+
+      btn.addEventListener('click', () => {
+        const expanded = btn.dataset.expanded === 'true';
+        if (expanded) {
+          container.style.height = `${Math.max(200, visibleCount * 36 + 16)}px`;
+          ChartManager.createIconBarChart(chartId, allItems.slice(0, visibleCount), iconType);
+          btn.textContent = `Show ${allItems.length - visibleCount} more`;
+          btn.dataset.expanded = 'false';
+        } else {
+          container.style.height = `${Math.max(200, allItems.length * 36 + 16)}px`;
+          ChartManager.createIconBarChart(chartId, allItems, iconType);
           btn.textContent = 'Show less';
           btn.dataset.expanded = 'true';
         }

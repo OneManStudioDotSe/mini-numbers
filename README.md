@@ -76,7 +76,7 @@ No restart required — the app transitions seamlessly to the admin panel.
 ```html
 <script
   async
-  src="https://your-domain.com/admin-panel/tracker.js"
+  src="https://your-domain.com/tracker/tracker.js"
   data-project-key="YOUR_API_KEY">
 </script>
 ```
@@ -86,7 +86,7 @@ No restart required — the app transitions seamlessly to the admin panel.
 ```html
 <script
   async
-  src="https://your-domain.com/admin-panel/tracker.js"
+  src="https://your-domain.com/tracker/tracker.js"
   data-project-key="YOUR_API_KEY"
   data-heartbeat-interval="30000"
   data-disable-spa="false">

@@ -85,8 +85,8 @@ tasks.register("minifyTracker") {
     group = "build"
     description = "Minify tracker.js for production"
 
-    val srcFile = file("src/main/resources/static/tracker.js")
-    val outFile = file("src/main/resources/static/tracker.min.js")
+    val srcFile = file("src/main/resources/tracker/tracker.js")
+    val outFile = file("src/main/resources/tracker/tracker.min.js")
 
     inputs.file(srcFile)
     outputs.file(outFile)

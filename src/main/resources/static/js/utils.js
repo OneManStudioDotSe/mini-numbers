@@ -128,6 +128,20 @@ const Utils = {
       if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
       return (num / 1000000).toFixed(1) + 'M';
     },
+
+    /**
+     * Format seconds into human-readable duration (e.g., "2m 15s")
+     * @param {number} seconds - Duration in seconds
+     * @returns {string} Formatted duration
+     */
+    duration(seconds) {
+      if (seconds === null || seconds === undefined || seconds === 0) return '0s';
+      if (seconds < 60) return seconds + 's';
+      var m = Math.floor(seconds / 60);
+      var s = seconds % 60;
+      if (s === 0) return m + 'm';
+      return m + 'm ' + s + 's';
+    },
   },
 
   // Date/Time formatting
@@ -618,5 +632,101 @@ const Utils = {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  },
+
+  // Icon mappings for chart labels (Remix Icon classes)
+  icons: {
+    browser(name) {
+      if (!name) return 'ri-global-line';
+      const n = name.toLowerCase();
+      if (n.includes('chrome')) return 'ri-chrome-line';
+      if (n.includes('firefox')) return 'ri-firefox-line';
+      if (n.includes('safari')) return 'ri-safari-line';
+      if (n.includes('edge')) return 'ri-edge-line';
+      if (n.includes('opera')) return 'ri-opera-line';
+      if (n.includes('brave')) return 'ri-shield-line';
+      if (n.includes('samsung')) return 'ri-smartphone-line';
+      return 'ri-global-line';
+    },
+    os(name) {
+      if (!name) return 'ri-terminal-line';
+      const n = name.toLowerCase();
+      if (n.includes('windows')) return 'ri-windows-line';
+      if (n.includes('mac') || n.includes('ios')) return 'ri-apple-line';
+      if (n.includes('android')) return 'ri-android-line';
+      if (n.includes('linux') || n.includes('ubuntu')) return 'ri-ubuntu-line';
+      if (n.includes('chrome')) return 'ri-chrome-line';
+      return 'ri-terminal-line';
+    },
+    device(name) {
+      if (!name) return 'ri-device-line';
+      const n = name.toLowerCase();
+      if (n.includes('desktop') || n.includes('computer')) return 'ri-computer-line';
+      if (n.includes('mobile') || n.includes('phone')) return 'ri-smartphone-line';
+      if (n.includes('tablet')) return 'ri-tablet-line';
+      return 'ri-device-line';
+    },
+    referrer(name) {
+      if (!name) return 'ri-link';
+      const n = name.toLowerCase();
+      if (n.includes('google')) return 'ri-google-line';
+      if (n.includes('facebook') || n.includes('fb.')) return 'ri-facebook-line';
+      if (n.includes('twitter') || n.includes('t.co') || n.includes('x.com')) return 'ri-twitter-x-line';
+      if (n.includes('reddit')) return 'ri-reddit-line';
+      if (n.includes('linkedin')) return 'ri-linkedin-line';
+      if (n.includes('github')) return 'ri-github-line';
+      if (n.includes('youtube')) return 'ri-youtube-line';
+      if (n.includes('instagram')) return 'ri-instagram-line';
+      if (n.includes('tiktok')) return 'ri-tiktok-line';
+      if (n.includes('pinterest')) return 'ri-pinterest-line';
+      if (n === 'direct' || n === 'none') return 'ri-home-4-line';
+      return 'ri-external-link-line';
+    },
+    /**
+     * Convert country name or ISO code to flag emoji
+     * @param {string} country - Country name (e.g., "United States") or ISO 2-letter code (e.g., "US")
+     * @returns {string} Flag emoji or empty string
+     */
+    countryFlag(country) {
+      if (!country) return '';
+      // If already a 2-letter code, use directly
+      let code = country.length === 2 ? country.toUpperCase() : this._countryToCode(country);
+      if (!code) return '';
+      const base = 0x1F1E6;
+      const char1 = String.fromCodePoint(base + code.charCodeAt(0) - 65);
+      const char2 = String.fromCodePoint(base + code.charCodeAt(1) - 65);
+      return char1 + char2;
+    },
+    _countryToCode(name) {
+      const map = {
+        'afghanistan':'AF','albania':'AL','algeria':'DZ','argentina':'AR','armenia':'AM',
+        'australia':'AU','austria':'AT','azerbaijan':'AZ','bahrain':'BH','bangladesh':'BD',
+        'belarus':'BY','belgium':'BE','bolivia':'BO','bosnia and herzegovina':'BA',
+        'brazil':'BR','bulgaria':'BG','cambodia':'KH','cameroon':'CM','canada':'CA',
+        'chile':'CL','china':'CN','colombia':'CO','costa rica':'CR','croatia':'HR',
+        'cuba':'CU','cyprus':'CY','czech republic':'CZ','czechia':'CZ',
+        'denmark':'DK','dominican republic':'DO','ecuador':'EC','egypt':'EG',
+        'el salvador':'SV','estonia':'EE','ethiopia':'ET','finland':'FI','france':'FR',
+        'georgia':'GE','germany':'DE','ghana':'GH','greece':'GR','guatemala':'GT',
+        'honduras':'HN','hong kong':'HK','hungary':'HU','iceland':'IS','india':'IN',
+        'indonesia':'ID','iran':'IR','iraq':'IQ','ireland':'IE','israel':'IL',
+        'italy':'IT','jamaica':'JM','japan':'JP','jordan':'JO','kazakhstan':'KZ',
+        'kenya':'KE','korea':'KR','south korea':'KR','kuwait':'KW','latvia':'LV',
+        'lebanon':'LB','libya':'LY','lithuania':'LT','luxembourg':'LU','malaysia':'MY',
+        'mexico':'MX','moldova':'MD','mongolia':'MN','morocco':'MA','mozambique':'MZ',
+        'myanmar':'MM','nepal':'NP','netherlands':'NL','new zealand':'NZ','nicaragua':'NI',
+        'nigeria':'NG','north macedonia':'MK','norway':'NO','oman':'OM','pakistan':'PK',
+        'panama':'PA','paraguay':'PY','peru':'PE','philippines':'PH','poland':'PL',
+        'portugal':'PT','qatar':'QA','romania':'RO','russia':'RU','saudi arabia':'SA',
+        'senegal':'SN','serbia':'RS','singapore':'SG','slovakia':'SK','slovenia':'SI',
+        'south africa':'ZA','spain':'ES','sri lanka':'LK','sudan':'SD','sweden':'SE',
+        'switzerland':'CH','syria':'SY','taiwan':'TW','tanzania':'TZ','thailand':'TH',
+        'tunisia':'TN','turkey':'TR','turkiye':'TR','ukraine':'UA',
+        'united arab emirates':'AE','united kingdom':'GB','united states':'US',
+        'uruguay':'UY','uzbekistan':'UZ','venezuela':'VE','vietnam':'VN','yemen':'YE',
+        'zambia':'ZM','zimbabwe':'ZW'
+      };
+      return map[name.toLowerCase()] || '';
+    },
   },
 };

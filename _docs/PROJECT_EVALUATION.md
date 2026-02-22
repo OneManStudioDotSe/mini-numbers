@@ -15,16 +15,16 @@ Mini Numbers is a privacy-focused web analytics platform that is **100% complete
 
 | Aspect | Rating | Notes |
 |--------|--------|-------|
-| **Core Functionality** | 9.5/10 | All core endpoints, privacy-first design, bounce rate, custom events, goals, funnels, segments |
-| **Frontend/Dashboard** | 9.5/10 | Beautiful dashboard, loading skeletons, ARIA labels, segments UI |
-| **Backend API** | 10/10 | Pagination, caching, standardized errors, OpenAPI, segments, health/metrics |
-| **Privacy Design** | 10/10 | Configurable hash rotation, 3 privacy modes, data retention |
-| **Security Posture** | 8/10 | Environment variables, rate limiting, input validation, session auth |
-| **Testing Coverage** | 9/10 | 250 tests (all passing), unit + integration + end-to-end |
+| **Core Functionality** | 9.5/10 | Privacy-first design, bounce rate, custom events, goals, funnels, segments |
+| **Frontend/Dashboard** | 9.5/10 | Beautiful dashboard, ARIA labels |
+| **Backend API** | 10/10 | Pagination, caching, OpenAPI, segments, health/metrics |
+| **Privacy Design** | 10/10 | Hash rotation, 3 privacy modes, data retention |
+| **Security Posture** | 8/10 | Environment variables, rate limiting, session auth |
+| **Testing Coverage** | 9/10 | 250 tests (unit + integration + end-to-end) |
 | **Production Readiness** | 9/10 | Dockerfile, health check, metrics, JVM tuning |
-| **Documentation** | 9.5/10 | Deployment guide, OpenAPI 3.0.3 spec, configuration reference |
-| **Integration Ease** | 9/10 | Configurable tracker (~1.3KB minified), segments, OpenAPI docs |
-| **Code Architecture** | 9/10 | Package-per-feature, QueryCache, ApiError, PaginatedResponse, 65+ source files |
+| **Documentation** | 9.5/10 | Deployment guide, OpenAPI 3.0.3 spec |
+| **Integration Ease** | 9/10 | Tracker (~1.3KB minified), OpenAPI docs |
+| **Code Architecture** | 9/10 | Package-per-feature, QueryCache, ApiError |
 
 ---
 
@@ -45,15 +45,15 @@ Mini Numbers is a privacy-focused web analytics platform that is **100% complete
 - Three privacy modes: STANDARD, STRICT (country-only geo), PARANOID (no geo/UA)
 - Beautiful, full-featured admin dashboard with dark mode and loading skeletons
 - Custom event tracking with `MiniNumbers.track()` API and dashboard visualization
-- Conversion goals (URL-based and event-based) with conversion rate tracking and period comparison
-- Basic funnels with multi-step conversion tracking, drop-off analysis, and time between steps
+- Conversion goals with conversion rate tracking and period comparison
+- Basic funnels with multi-step conversion tracking, drop-off analysis
 - User segments with visual filter builder (AND/OR logic) and segment analysis
 - API pagination for list endpoints with backward-compatible design
 - Query result caching with Caffeine (30s TTL, 500 entries, auto-invalidation)
 - Standardized error responses across all endpoints (`ApiError` model)
 - OpenAPI 3.0.3 specification documenting all endpoints
 - Health check and metrics endpoints for production monitoring
-- Data retention policies with automatic purge (configurable days, background timer every 6 hours)
+- Data retention policies with automatic purge (configurable days)
 - Configurable tracker (heartbeat interval, SPA disable)
 - Lightweight architecture with minimal dependencies
 - Comprehensive analytics (heatmaps with date labels, contribution calendar, comparisons, custom events with breakdown, goals, funnels, segments)

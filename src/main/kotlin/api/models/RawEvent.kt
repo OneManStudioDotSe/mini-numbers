@@ -16,5 +16,13 @@ data class RawEvent(
     val os: String?,
     val device: String?,
     val sessionId: String,
-    val duration: Int
+    val duration: Int,
+    val utmSource: String? = null,
+    val utmCampaign: String? = null,
+    val scrollDepth: Int? = null,
+    val region: String? = null,
+    val targetUrl: String? = null,
+    val properties: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )
