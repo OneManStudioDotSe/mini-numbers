@@ -94,7 +94,7 @@
             <div class="wizard-step" data-step="2">
                 <h2>Database configuration</h2>
                 <p class="step-description">
-                    Choose your database type. SQLite is great for getting started, PostgreSQL for production.
+                    Choose where Mini Numbers stores your analytics data. Both options are fully supported &mdash; pick the one that fits your setup.
                 </p>
 
                 <div class="form-group">
@@ -104,14 +104,14 @@
                             <input type="radio" name="dbType" value="SQLITE" checked>
                             <div class="card-content">
                                 <div class="card-title">SQLite</div>
-                                <div class="card-description">Simple, file-based database. Perfect for small to medium sites.</div>
+                                <div class="card-description">Zero-setup, file-based database that runs embedded in the application. Ideal for single-server deployments, personal projects, and small to medium traffic sites. No external services needed &mdash; just pick a file path and go.</div>
                             </div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="dbType" value="POSTGRESQL">
                             <div class="card-content">
                                 <div class="card-title">PostgreSQL</div>
-                                <div class="card-description">Robust SQL database. Recommended for high-traffic production sites.</div>
+                                <div class="card-description">Full-featured relational database running as a separate service. Best for high-traffic sites, multi-instance deployments, or when you need advanced backup and replication capabilities.</div>
                             </div>
                         </label>
                     </div>
@@ -119,6 +119,10 @@
 
                 <!-- SQLite Fields -->
                 <div id="sqlite-fields" class="db-fields">
+                    <div class="db-info-box">
+                        <div class="db-info-title">Good to know</div>
+                        <p>SQLite stores all analytics data in a single file on the same server where Mini Numbers runs. There is nothing extra to install or configure &mdash; it works out of the box. Despite being file-based, SQLite handles thousands of writes per second and is trusted by countless production applications.</p>
+                    </div>
                     <div class="form-group">
                         <label for="db-sqlite-path">Database file path</label>
                         <input type="text" id="db-sqlite-path" name="dbSqlitePath" value="./stats.db">
@@ -129,6 +133,17 @@
 
                 <!-- PostgreSQL Fields -->
                 <div id="postgresql-fields" class="db-fields" style="display: none;">
+                    <div class="db-info-box db-info-box--prereq">
+                        <div class="db-info-title">Before you continue</div>
+                        <p>Make sure you have the following ready before filling in the fields below:</p>
+                        <ul>
+                            <li>A running PostgreSQL server (installed locally, on a remote host, or via a managed service)</li>
+                            <li>A database created for Mini Numbers (e.g. <code>mini_numbers</code>) &mdash; you can create one via phpMyAdmin, pgAdmin, the <code>psql</code> CLI, or your hosting provider's control panel</li>
+                            <li>A database user with full privileges on that database, along with its password</li>
+                            <li>The host address and port of the PostgreSQL server (defaults: <code>localhost</code> and <code>5432</code>)</li>
+                        </ul>
+                        <p>Mini Numbers will create the required tables automatically on first run &mdash; you only need to provide an empty database.</p>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="db-pg-host">Host</label>

@@ -17,8 +17,8 @@ object QueryCache {
      * Get cached result or compute and cache it
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T> getOrCompute(key: String, compute: () -> T): T {
-        return cache.get(key) { compute() } as T
+    fun <T : Any> getOrCompute(key: String, compute: () -> T): T {
+        return cache.get(key) { compute() as Any } as T
     }
 
     /**

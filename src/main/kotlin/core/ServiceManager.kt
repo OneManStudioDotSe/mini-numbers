@@ -3,15 +3,19 @@ package se.onemanstudio.core
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.db.DatabaseFactory
 import se.onemanstudio.db.Events
+import se.onemanstudio.db.Users
 import se.onemanstudio.services.GeoLocationService
 import java.time.LocalDateTime
 import java.util.Timer
 import java.util.TimerTask
+import java.util.UUID
 
 /**
  * Centralized service lifecycle management with state tracking and reload capability
@@ -62,6 +66,30 @@ object ServiceManager {
             DatabaseFactory.init(config.database)
             logger.info("Database initialized successfully")
 
+            // 2.5 Seed admin user if Users table is empty (backward compat migration)
+            transaction {
+                if (Users.selectAll().count() == 0L) {
+                    // If the config password is already BCrypt-hashed, store it directly;
+                    // otherwise hash it first (handles plain-text passwords in test/dev environments)
+                    val hashedPassword = if (config.security.adminPassword.startsWith("\$2a\$") ||
+                        config.security.adminPassword.startsWith("\$2b\$")) {
+                        config.security.adminPassword
+                    } else {
+                        org.mindrot.jbcrypt.BCrypt.hashpw(
+                            config.security.adminPassword,
+                            org.mindrot.jbcrypt.BCrypt.gensalt(12)
+                        )
+                    }
+                    Users.insert {
+                        it[id] = UUID.randomUUID()
+                        it[username] = config.security.adminUsername
+                        it[passwordHash] = hashedPassword
+                        it[role] = "admin"
+                    }
+                    logger.info("Admin user seeded from configuration")
+                }
+            }
+
             // 3. Initialize GeoIP service (optional)
             logger.info("Initializing GeoIP service...")
             try {
@@ -72,7 +100,12 @@ object ServiceManager {
                 logger.warn("Location tracking will be disabled")
             }
 
-            // 4. Start data retention cleanup if configured
+            // 4. Initialize JWT service
+            logger.info("Initializing JWT service...")
+            JwtService.init(config.security.serverSalt)
+            logger.info("JWT service initialized")
+
+            // 5. Start data retention cleanup if configured
             if (config.privacy.dataRetentionDays > 0) {
                 startRetentionCleanup(config.privacy.dataRetentionDays, logger)
                 logger.info("Data retention policy active: ${config.privacy.dataRetentionDays} days")

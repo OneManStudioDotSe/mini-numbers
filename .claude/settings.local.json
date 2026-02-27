@@ -36,7 +36,11 @@
       "WebFetch(domain:cdn.jsdelivr.net)",
       "WebFetch(domain:datafa.st)",
       "Bash(JAVA_HOME=/Users/sotirisfalieris/Library/Java/JavaVirtualMachines/corretto-21.0.10/Contents/Home ./gradlew:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(open:*)",
+      "WebFetch(domain:mvnrepository.com)",
+      "WebFetch(domain:blog.jetbrains.com)",
+      "WebFetch(domain:central.sonatype.com)"
     ]
   }
 }

@@ -114,8 +114,9 @@ object ConfigLoader {
                 val key = trimmed.substring(0, separatorIndex).trim()
                 val value = trimmed.substring(separatorIndex + 1).trim()
 
-                // Only set if not already in environment variables
-                if (System.getenv(key) == null) {
+                // Only set if not already provided via env vars or system properties
+                // (system properties from Gradle/test config take precedence over .env)
+                if (System.getenv(key) == null && System.getProperty(key) == null) {
                     System.setProperty(key, value)
                 }
             }

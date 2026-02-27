@@ -1,8 +1,13 @@
 package se.onemanstudio
 
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import kotlinx.serialization.SerializationException
+import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
 import se.onemanstudio.config.models.*
@@ -75,6 +80,24 @@ fun Application.module() {
         json()
     }
 
+    // Global error handler — catch unhandled exceptions and return generic messages
+    install(StatusPages) {
+        exception<SerializationException> { call, cause ->
+            call.application.environment.log.warn("Serialization error: ${cause.message}")
+            call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid request format"))
+        }
+        exception<Throwable> { call, cause ->
+            call.application.environment.log.error("Unhandled exception: ${cause.message}", cause)
+            call.respond(HttpStatusCode.InternalServerError,
+                ApiError.internalError("An unexpected error occurred"))
+        }
+        status(HttpStatusCode.NotFound) { call, _ ->
+            call.respond(HttpStatusCode.NotFound,
+                ApiError.notFound("Resource not found"))
+        }
+    }
+
     // Install authentication early (with dynamic config loading for zero-restart)
     // This must be installed before routing, even if config doesn't exist yet
     // The dynamic config loading in Security.kt will handle credential validation
@@ -126,8 +149,13 @@ private fun Application.configureUnifiedRouting() {
     // Configure HTTP and routing plugins if config available and services ready
     // Note: Authentication is installed early in module() for zero-restart capability
     if (config != null && ServiceManager.isReady()) {
+        val rateLimiter = se.onemanstudio.middleware.RateLimiter(
+            maxTokensPerIp = config.rateLimit.perIpRequestsPerMinute,
+            maxTokensPerApiKey = config.rateLimit.perApiKeyRequestsPerMinute
+        )
         configureHTTP(config)
-        configureRouting(config)
+        configureRouting(config, rateLimiter)
+        configureWidgetRouting(config, rateLimiter)
     }
 
     // Always install setup routes (they handle state-based redirects)
