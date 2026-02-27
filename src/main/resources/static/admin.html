@@ -707,6 +707,20 @@
                 <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
             </div>
 
+            <!-- Webhooks -->
+            <div class="card mt-lg" id="webhooks-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i class="ri-webhook-line"></i> Webhooks
+                    </h3>
+                    <button class="btn btn-primary btn-sm" id="manage-webhooks-btn" aria-label="Manage webhooks">
+                        <i class="ri-settings-3-line"></i>
+                        <span>Manage webhooks</span>
+                    </button>
+                </div>
+                <div id="webhooks-list">Loading...</div>
+            </div>
+
             <!-- Live Feed -->
             <div class="card mt-lg" role="region" aria-label="Live visitor feed">
                 <h3>
@@ -1118,6 +1132,152 @@
         </div>
     </div>
 
+    <!-- Webhooks Management Modal -->
+    <div id="webhooks-modal" class="modal" role="dialog" aria-labelledby="webhooks-modal-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2 id="webhooks-modal-title">Manage webhooks</h2>
+                <button class="modal-close" id="close-webhooks-modal" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Setup Guide (collapsible) -->
+                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
+                    <button id="webhook-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
+                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> How to set up webhooks</span>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div id="webhook-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Webhooks let Mini Numbers send real-time HTTP POST notifications to your server when important events occur. You can use them to trigger Slack alerts, update dashboards, or integrate with any external service.
+                        </p>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Supported event types</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>goal_conversion</strong> &mdash; Fires when a visitor triggers one of your active conversion goals (URL visit or custom event match).</li>
+                            <li><strong>traffic_spike</strong> &mdash; Fires when incoming traffic exceeds 2&times; the rolling average rate, indicating an unusual surge.</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Payload format</h4>
+                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;">{
+  "event": "goal_conversion",
+  "projectId": "uuid-here",
+  "goalName": "Signup",
+  "goalType": "event",
+  "matchValue": "signup",
+  "timestamp": "2026-02-27T14:30:00",
+  "path": "/pricing",
+  "eventName": "signup"
+}</pre>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">HMAC signature verification</h4>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">Every delivery includes an <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em;">X-MiniNumbers-Signature</code> header. Verify it to ensure the request is authentic:</p>
+                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;"><span style="color: var(--color-text-muted);">// Node.js</span>
+const crypto = require('crypto');
+const signature = req.headers['x-mininumbers-signature'];
+const expected = 'sha256=' + crypto
+  .createHmac('sha256', YOUR_WEBHOOK_SECRET)
+  .update(JSON.stringify(req.body))
+  .digest('hex');
+const valid = crypto.timingSafeEqual(
+  Buffer.from(signature), Buffer.from(expected)
+);
+
+<span style="color: var(--color-text-muted);"># Python</span>
+import hmac, hashlib
+signature = request.headers['X-MiniNumbers-Signature']
+expected = 'sha256=' + hmac.new(
+    SECRET.encode(), request.data, hashlib.sha256
+).hexdigest()
+valid = hmac.compare_digest(signature, expected)</pre>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup steps</h4>
+                        <ol style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li>Create an HTTPS endpoint on your server that accepts POST requests.</li>
+                            <li>Add the webhook URL below and select which events to subscribe to.</li>
+                            <li>Save the HMAC secret shown after creation &mdash; it&rsquo;s only displayed once.</li>
+                            <li>Use <strong>Send Test</strong> to verify your endpoint receives the delivery.</li>
+                            <li>Check the <strong>Delivery log</strong> to monitor success/failure status.</li>
+                        </ol>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Integration recipes</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>Slack:</strong> Use an <a href="https://api.slack.com/messaging/webhooks" target="_blank" rel="noopener">Incoming Webhook URL</a> &mdash; paste the Slack webhook URL directly.</li>
+                            <li><strong>Discord:</strong> Create a webhook in Channel Settings &rarr; Integrations &rarr; use the <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em;">/slack</code> suffix for Slack-compatible format.</li>
+                            <li><strong>Zapier:</strong> Create a &ldquo;Catch Hook&rdquo; trigger and paste the Zapier webhook URL.</li>
+                            <li><strong>Custom server:</strong> Any HTTPS endpoint that returns 2xx on success.</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Troubleshooting</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                            <li>URLs must use <strong>HTTPS</strong> &mdash; HTTP is rejected for security.</li>
+                            <li>Your endpoint must respond within <strong>10 seconds</strong> or the delivery is marked as failed.</li>
+                            <li>Failed deliveries are <strong>retried up to 3 times</strong> with exponential backoff (5s, 10s, 15s).</li>
+                            <li>Check the delivery log for response codes &mdash; 4xx errors are not retried.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Create Form -->
+                <div class="form-section">
+                    <h3 style="margin-top: 0;">Add new webhook</h3>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="flex: 2; min-width: 250px;">
+                            <label for="webhook-url">Webhook URL (HTTPS)</label>
+                            <input type="url" id="webhook-url" class="input" placeholder="https://your-server.com/webhook">
+                        </div>
+                        <button class="btn btn-primary" id="create-webhook-btn" style="margin-bottom: var(--spacing-md);">Add webhook</button>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: var(--spacing-xs);">
+                        <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <input type="checkbox" class="webhook-event-cb" value="goal_conversion" checked> goal_conversion
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <input type="checkbox" class="webhook-event-cb" value="traffic_spike" checked> traffic_spike
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Secret Display (shown once after creation) -->
+                <div id="webhook-secret-display" style="display: none; background: var(--color-warning-bg, #fef3c7); border: 1px solid var(--color-warning, #f59e0b); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <p style="font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                        <i class="ri-key-line" style="color: var(--color-warning, #f59e0b);"></i>
+                        Webhook secret (save it now &mdash; it won&rsquo;t be shown again):
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <code class="webhook-secret-value" style="flex: 1; background: var(--color-bg-primary); padding: var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-sm); word-break: break-all;"></code>
+                        <button class="btn btn-ghost btn-sm copy-secret-btn" onclick="WebhooksManager.copySecret()">Copy</button>
+                    </div>
+                </div>
+
+                <!-- Existing Webhooks Table -->
+                <h3>Existing webhooks</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>Events</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="webhooks-table-body">
+                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Delivery Log (shown when viewing a webhook's deliveries) -->
+                <div id="webhook-deliveries-section" style="display: none; margin-top: var(--spacing-lg);">
+                    <h3><i class="ri-file-list-line"></i> Delivery log</h3>
+                    <div id="webhook-deliveries-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Onboarding Checklist Modal -->
     <div id="onboarding-modal" class="modal">
         <div class="modal-backdrop"></div>
@@ -1213,6 +1373,7 @@
     <script src="/admin-panel/js/globe.js"></script>
     <script src="/admin-panel/js/goals.js"></script>
     <script src="/admin-panel/js/segments.js"></script>
+    <script src="/admin-panel/js/webhooks.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
 </body>
