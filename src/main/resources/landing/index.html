@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Numbers — Privacy-First Web Analytics</title>
+  <meta name="description" content="Self-hosted, privacy-first web analytics. 1.3KB tracker, zero cookies, three privacy modes. An open source alternative to Google Analytics.">
+  <meta property="og:title" content="Mini Numbers — Privacy-First Web Analytics">
+  <meta property="og:description" content="Self-hosted, privacy-first web analytics. 1.3KB tracker, zero cookies, three privacy modes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://github.com/OneManStudioDotSe/mini-numbers">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Remix Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+
+<!-- Skip to content -->
+<a href="#features" class="landing-skip">Skip to content</a>
+
+<!-- ============================================
+     1. NAVIGATION
+     ============================================ -->
+<nav class="landing-nav" role="navigation" aria-label="Main navigation">
+  <div class="landing-nav-inner">
+    <a href="#" class="landing-nav-brand" aria-label="Mini Numbers home">
+      <i class="ri-bar-chart-grouped-line"></i>
+      Mini Numbers
+      <span class="landing-nav-version">v1.0.0-beta</span>
+    </a>
+
+    <ul class="landing-nav-links" id="nav-links" role="list">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+      <li><a href="#tracker">Tracker</a></li>
+      <li><a href="#widgets">Widgets</a></li>
+      <li><a href="#installation">Installation</a></li>
+    </ul>
+
+    <div class="landing-nav-actions">
+      <button class="landing-btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+        <i class="ri-moon-line" id="theme-icon"></i>
+      </button>
+      <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn-ghost" aria-label="View on GitHub">
+        <i class="ri-github-fill"></i>
+      </a>
+      <a href="/login" class="landing-btn-ghost" aria-label="Login to dashboard">
+        <i class="ri-dashboard-line"></i>
+      </a>
+      <a href="#installation" class="landing-btn landing-btn-primary">Get Started</a>
+      <button class="landing-nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <i class="ri-menu-line" id="hamburger-icon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================
+     2. HERO
+     ============================================ -->
+<section class="landing-hero" aria-label="Introduction">
+  <canvas id="hero-particles" class="landing-hero-particles" aria-hidden="true"></canvas>
+  <div class="landing-hero-content">
+    <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-hero-badge">
+      <i class="ri-github-line"></i>
+      Open Source on GitHub
+      <i class="ri-arrow-right-up-line"></i>
+    </a>
+
+    <h1>Web analytics that <span class="landing-gradient-text">respect your visitors</span></h1>
+
+    <p class="landing-hero-sub">
+      Privacy-first, self-hosted analytics in a 1.3KB script. No cookies. No IP storage. No GDPR headaches. <strong>Now with revenue tracking and smart webhooks.</strong>
+    </p>
+
+    <div class="landing-hero-actions">
+      <a href="#installation" class="landing-btn landing-btn-primary landing-btn-lg">
+        Get Started — It's Free
+      </a>
+      <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn landing-btn-secondary landing-btn-lg">
+        <i class="ri-github-line"></i>
+        View on GitHub
+      </a>
+    </div>
+
+    <div class="landing-hero-trust">
+      <span><i class="ri-test-tube-line"></i> 288 tests</span>
+      <span><i class="ri-code-s-slash-line"></i> 1.3KB tracker</span>
+      <span><i class="ri-shield-check-line"></i> Zero cookies</span>
+      <span><i class="ri-open-source-line"></i> MIT License</span>
+    </div>
+
+    <!-- Dashboard mockup -->
+    <div class="landing-hero-mockup animate-on-scroll">
+      <div class="landing-mockup-bar">
+        <span class="landing-mockup-dot"></span>
+        <span class="landing-mockup-dot"></span>
+        <span class="landing-mockup-dot"></span>
+        <span class="landing-mockup-url">your-domain.com/admin-panel</span>
+      </div>
+      <div class="landing-mockup-body">
+        <div class="landing-mock-stats">
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Total Views</div>
+            <div class="landing-mock-stat-value">12,847</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +14.2%</div>
+          </div>
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Unique Visitors</div>
+            <div class="landing-mock-stat-value">3,291</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +8.7%</div>
+          </div>
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Bounce Rate</div>
+            <div class="landing-mock-stat-value">42.1%</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-down-s-line"></i> -3.1%</div>
+          </div>
+        </div>
+        <div class="landing-mock-chart">
+          <svg viewBox="0 0 400 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polygon points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10 400,100 0,100" fill="url(#chart-grad)"/>
+            <polyline points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10" fill="none" stroke="#6366f1" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-scroll-hint" aria-hidden="true">
+    <i class="ri-arrow-down-line"></i>
+  </div>
+</section>
+
+<!-- ============================================
+     3. METRICS STRIP
+     ============================================ -->
+<section class="landing-metrics" aria-label="Key metrics">
+  <div class="landing-container">
+    <div class="landing-metrics-grid">
+      <div class="landing-metric animate-on-scroll animate-delay-1">
+        <div class="landing-metric-icon"><i class="ri-code-s-slash-line"></i></div>
+        <div class="landing-metric-value" data-count="1.3" data-suffix="KB">0</div>
+        <div class="landing-metric-label">Minified Tracker</div>
+      </div>
+      <div class="landing-metric animate-on-scroll animate-delay-2">
+        <div class="landing-metric-icon"><i class="ri-shield-check-line"></i></div>
+        <div class="landing-metric-value" data-count="0" data-text="Zero">Zero</div>
+        <div class="landing-metric-label">Cookies Required</div>
+      </div>
+      <div class="landing-metric animate-on-scroll animate-delay-3">
+        <div class="landing-metric-icon"><i class="ri-test-tube-line"></i></div>
+        <div class="landing-metric-value" data-count="288">0</div>
+        <div class="landing-metric-label">Automated Tests</div>
+      </div>
+      <div class="landing-metric animate-on-scroll animate-delay-4">
+        <div class="landing-metric-icon"><i class="ri-lock-line"></i></div>
+        <div class="landing-metric-value" data-count="3">0</div>
+        <div class="landing-metric-label">Privacy Modes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     4. FEATURES SHOWCASE
+     ============================================ -->
+<section id="features" class="landing-section" aria-label="Features">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Everything you need, nothing you don't</h2>
+      <p class="landing-section-subtitle">Comprehensive analytics with a clean, focused feature set. No bloat, no complexity.</p>
+    </div>
+
+    <div class="landing-tabs" role="tablist">
+      <button class="landing-tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
+        <i class="ri-dashboard-line"></i> Dashboard
+      </button>
+      <button class="landing-tab-btn" data-tab="events" role="tab" aria-selected="false">
+        <i class="ri-flashlight-line"></i> Custom Events
+      </button>
+      <button class="landing-tab-btn" data-tab="viz" role="tab" aria-selected="false">
+        <i class="ri-bar-chart-2-line"></i> Visualizations
+      </button>
+      <button class="landing-tab-btn" data-tab="live" role="tab" aria-selected="false">
+        <i class="ri-live-line"></i> Live Monitoring
+      </button>
+      <button class="landing-tab-btn" data-tab="segments" role="tab" aria-selected="false">
+        <i class="ri-filter-3-line"></i> Segmentation
+      </button>
+      <button class="landing-tab-btn" data-tab="api" role="tab" aria-selected="false">
+        <i class="ri-code-box-line"></i> Export & API
+      </button>
+    </div>
+
+    <!-- Dashboard tab -->
+    <div class="landing-tab-content active" data-tab="dashboard" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Beautiful, actionable insights</h3>
+        <p>See your traffic at a glance with stat cards, comparison reports, and time series charts. Filter by time range and watch trends emerge.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> Page views, unique visitors, bounce rate</li>
+          <li><i class="ri-check-line"></i> Period-over-period comparison</li>
+          <li><i class="ri-check-line"></i> Browser, OS, and device breakdowns</li>
+          <li><i class="ri-check-line"></i> Referrer and traffic source analysis</li>
+          <li><i class="ri-check-line"></i> Light and dark theme support</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <div class="landing-mock-stats">
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Views</div>
+            <div class="landing-mock-stat-value" style="font-size:1.25rem">8,412</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +12%</div>
+          </div>
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Visitors</div>
+            <div class="landing-mock-stat-value" style="font-size:1.25rem">2,103</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +8%</div>
+          </div>
+          <div class="landing-mock-stat">
+            <div class="landing-mock-stat-label">Bounce</div>
+            <div class="landing-mock-stat-value" style="font-size:1.25rem">38%</div>
+            <div class="landing-mock-stat-change"><i class="ri-arrow-down-s-line"></i> -5%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Events tab -->
+    <div class="landing-tab-content" data-tab="events" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Track what matters</h3>
+        <p>Go beyond page views. Track signups, purchases, and any custom interaction with a single line of code.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> One-line custom event tracking</li>
+          <li><i class="ri-check-line"></i> Event-based conversion goals</li>
+          <li><i class="ri-check-line"></i> Multi-step funnel analysis</li>
+          <li><i class="ri-check-line"></i> Event summary cards with breakdown</li>
+          <li><i class="ri-check-line"></i> Auto-detect downloads and outbound links</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <div class="landing-code-block">
+          <div class="landing-code-bar">
+            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+            <span class="landing-code-title">script.js</span>
+            <button class="landing-copy-btn" data-code='MiniNumbers.track("signup");'><i class="ri-file-copy-line"></i> Copy</button>
+          </div>
+          <div class="landing-code-body">
+<pre><span class="hl-comment">// Track a signup event</span>
+<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"signup"</span>);
+
+<span class="hl-comment">// Track a purchase</span>
+<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"purchase"</span>);
+
+<span class="hl-comment">// Track any interaction</span>
+<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"cta_click"</span>);</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visualizations tab -->
+    <div class="landing-tab-content" data-tab="viz" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Data that tells a story</h3>
+        <p>Go beyond bar charts. See your data come alive with unique visualizations that help you spot patterns at a glance.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> GitHub-style contribution calendar (365 days)</li>
+          <li><i class="ri-check-line"></i> Activity heatmap (7 days &times; 24 hours)</li>
+          <li><i class="ri-check-line"></i> Interactive maps with Leaflet</li>
+          <li><i class="ri-check-line"></i> 3D globe visualization</li>
+          <li><i class="ri-check-line"></i> Line, doughnut, bar, and radar charts</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <!-- Mini heatmap illustration -->
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.8;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.9;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.7;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:1;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.7;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.8;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
+          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.9;border-radius:3px"></div>
+        </div>
+        <p style="text-align:center;font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:var(--spacing-md)">Activity heatmap — spot your peak hours</p>
+      </div>
+    </div>
+
+    <!-- Live Monitoring tab -->
+    <div class="landing-tab-content" data-tab="live" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>See your visitors in real-time</h3>
+        <p>Watch visitors arrive as they browse your site. See where they come from and what pages they view — all live.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> Real-time visitor feed (updates every 5s)</li>
+          <li><i class="ri-check-line"></i> Live location tracking on map</li>
+          <li><i class="ri-check-line"></i> Active visitor count</li>
+          <li><i class="ri-check-line"></i> Recent activity with search and sort</li>
+          <li><i class="ri-check-line"></i> Heartbeat-based time-on-page tracking</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <div style="display:flex;flex-direction:column;gap:var(--spacing-sm);">
+          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+            <span class="landing-w-dot"></span>
+            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/blog/getting-started</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Berlin, DE</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">2s ago</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+            <span class="landing-w-dot"></span>
+            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/pricing</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Tokyo, JP</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">15s ago</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+            <span class="landing-w-dot"></span>
+            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/docs/api</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">NYC, US</span>
+            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">28s ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Segmentation tab -->
+    <div class="landing-tab-content" data-tab="segments" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Slice your data any way you want</h3>
+        <p>Build segments with a visual filter builder, define conversion goals, and track multi-step funnels with drop-off analysis.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> Visual filter builder with AND/OR logic</li>
+          <li><i class="ri-check-line"></i> URL-based and event-based conversion goals</li>
+          <li><i class="ri-check-line"></i> Multi-step funnel analysis with drop-off rates</li>
+          <li><i class="ri-check-line"></i> Time-between-steps tracking</li>
+          <li><i class="ri-check-line"></i> Filter by country, browser, OS, device, path</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <!-- Funnel illustration -->
+        <div style="display:flex;flex-direction:column;gap:var(--spacing-sm);align-items:center;">
+          <div style="width:100%;padding:var(--spacing-md);background:var(--color-primary);color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Homepage — 1,000 visitors</div>
+          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
+          <div style="width:85%;padding:var(--spacing-md);background:var(--color-primary);opacity:0.8;color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Pricing — 620 <span style="opacity:0.7;font-weight:400">(62%)</span></div>
+          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
+          <div style="width:65%;padding:var(--spacing-md);background:var(--color-primary);opacity:0.6;color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Signup — 340 <span style="opacity:0.7;font-weight:400">(34%)</span></div>
+          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
+          <div style="width:40%;padding:var(--spacing-md);background:var(--color-success);color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Converted — 180 <span style="opacity:0.7;font-weight:400">(18%)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export & API tab -->
+    <div class="landing-tab-content" data-tab="api" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Your data, your way</h3>
+        <p>Export any report as CSV, integrate with your tools via the REST API, or explore with the built-in OpenAPI documentation.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> CSV export for all data types</li>
+          <li><i class="ri-check-line"></i> OpenAPI 3.0.3 specification</li>
+          <li><i class="ri-check-line"></i> RESTful endpoints with pagination</li>
+          <li><i class="ri-check-line"></i> Standardized error responses</li>
+          <li><i class="ri-check-line"></i> Raw event access with filtering and sorting</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <div class="landing-code-block">
+          <div class="landing-code-bar">
+            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+            <span class="landing-code-title">API Example</span>
+            <button class="landing-copy-btn" data-code="GET /admin/projects/{id}/report?filter=7d"><i class="ri-file-copy-line"></i> Copy</button>
+          </div>
+          <div class="landing-code-body">
+<pre><span class="hl-comment"># Get analytics report</span>
+<span class="hl-keyword">GET</span> /admin/projects/{id}/report?filter=<span class="hl-str">7d</span>
+
+<span class="hl-comment"># Comparison with previous period</span>
+<span class="hl-keyword">GET</span> /admin/projects/{id}/report/comparison?filter=<span class="hl-str">30d</span>
+
+<span class="hl-comment"># Live visitor feed</span>
+<span class="hl-keyword">GET</span> /admin/projects/{id}/live
+
+<span class="hl-comment"># Goal statistics</span>
+<span class="hl-keyword">GET</span> /admin/projects/{id}/goals/stats?filter=<span class="hl-str">7d</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     4b. REVENUE INTELLIGENCE
+     ============================================ -->
+<section class="landing-section" aria-label="Revenue Intelligence" style="overflow: hidden;">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Know where your <span class="landing-gradient-text">money</span> comes from</h2>
+      <p class="landing-section-subtitle">Go beyond page views. Track revenue, attribute income to traffic sources, and understand which channels actually drive your business.</p>
+    </div>
+
+    <div class="landing-revenue-grid animate-on-scroll">
+      <!-- Revenue mockup dashboard -->
+      <div class="landing-revenue-mockup">
+        <div class="landing-revenue-stats">
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Total Revenue</div>
+            <div class="landing-revenue-card-value" data-count="12847" data-prefix="$">$0</div>
+            <div class="landing-revenue-card-change"><i class="ri-arrow-up-s-line"></i> +23.4%</div>
+          </div>
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Avg Order Value</div>
+            <div class="landing-revenue-card-value">$47.20</div>
+          </div>
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Revenue / Visitor</div>
+            <div class="landing-revenue-card-value">$3.90</div>
+          </div>
+        </div>
+
+        <!-- Attribution bars -->
+        <div class="landing-revenue-attribution">
+          <div class="landing-revenue-bar-label">Revenue Attribution</div>
+          <div class="landing-revenue-bar" style="--bar-width: 85%;">
+            <span class="landing-revenue-bar-name">Google (organic)</span>
+            <span class="landing-revenue-bar-amount">$4,291</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 62%;">
+            <span class="landing-revenue-bar-name">Newsletter campaign</span>
+            <span class="landing-revenue-bar-amount">$3,128</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 45%;">
+            <span class="landing-revenue-bar-name">Twitter / X</span>
+            <span class="landing-revenue-bar-amount">$2,103</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 30%;">
+            <span class="landing-revenue-bar-name">Direct traffic</span>
+            <span class="landing-revenue-bar-amount">$1,847</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="landing-revenue-features">
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-money-dollar-circle-line"></i>
+          <h3>Revenue Tracking</h3>
+          <p>Track purchases, subscriptions, and any monetary event with a single API call. Works with Stripe, Shopify, WooCommerce, and any payment system.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-route-line"></i>
+          <h3>Revenue Attribution</h3>
+          <p>See which referrers and UTM campaigns generate actual revenue — not just clicks. Optimize your marketing spend based on real data.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-webhook-line"></i>
+          <h3>Smart Webhooks</h3>
+          <p>Get real-time alerts when goals convert or traffic spikes. Integrate with Slack, Discord, Zapier, or your own server.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-mail-send-line"></i>
+          <h3>Email Reports</h3>
+          <p>Scheduled analytics reports delivered to your inbox. Daily, weekly, or monthly — with customizable templates and sections.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple code example -->
+    <div class="landing-revenue-code animate-on-scroll">
+      <div class="landing-code-header">
+        <span class="landing-code-dot" style="background: #ef4444;"></span>
+        <span class="landing-code-dot" style="background: #f59e0b;"></span>
+        <span class="landing-code-dot" style="background: #10b981;"></span>
+        <span style="margin-left: 0.5rem; font-size: 0.8rem; opacity: 0.7;">tracking.js</span>
+      </div>
+      <pre class="landing-code-body"><code><span style="color: var(--color-text-muted);">// Track a purchase — that's it!</span>
+MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
+  revenue: <span style="color: #10b981;">49.99</span>,
+  currency: <span style="color: #f59e0b;">"USD"</span>,
+  product: <span style="color: #f59e0b;">"Pro Plan"</span>
+});</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     5. PRIVACY DEEP-DIVE
+     ============================================ -->
+<section id="privacy" class="landing-section landing-section-alt" aria-label="Privacy">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Privacy is not a feature. It's the architecture.</h2>
+      <p class="landing-section-subtitle">Your visitors' data never leaves your server. No third-party services, no external calls, no tracking across sites.</p>
+    </div>
+
+    <div class="landing-privacy-grid">
+      <div>
+        <!-- Hash formula -->
+        <div class="landing-hash-formula animate-on-scroll">
+          <code>
+            <span class="hl-fn">visitorHash</span> <span class="hl-op">=</span> <span class="hl-fn">SHA256</span>(<br>
+            &nbsp;&nbsp;<span class="hl-var">ip</span> <span class="hl-op">+</span> <span class="hl-var">userAgent</span> <span class="hl-op">+</span> <span class="hl-var">projectId</span><br>
+            &nbsp;&nbsp;<span class="hl-op">+</span> <span class="hl-var">serverSalt</span> <span class="hl-op">+</span> <span class="hl-var">rotationBucket</span><br>
+            )
+          </code>
+        </div>
+
+        <div class="landing-privacy-cards">
+          <div class="landing-privacy-card animate-on-scroll animate-delay-1">
+            <div class="landing-privacy-card-icon"><i class="ri-forbid-line"></i></div>
+            <div>
+              <h4>No Cookies</h4>
+              <p>Uses sessionStorage for session tracking. No consent banner needed — ever.</p>
+            </div>
+          </div>
+          <div class="landing-privacy-card animate-on-scroll animate-delay-2">
+            <div class="landing-privacy-card-icon"><i class="ri-eye-off-line"></i></div>
+            <div>
+              <h4>No IP Storage</h4>
+              <p>IP addresses exist only in RAM during request processing. Never written to disk.</p>
+            </div>
+          </div>
+          <div class="landing-privacy-card animate-on-scroll animate-delay-3">
+            <div class="landing-privacy-card-icon"><i class="ri-timer-line"></i></div>
+            <div>
+              <h4>Configurable Hash Rotation</h4>
+              <p>Rotate visitor hashes every 1 to 8,760 hours. A feature unique to Mini Numbers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="animate-on-scroll">
+        <h3 style="font-size:var(--font-size-xl);font-weight:var(--font-weight-semibold);margin-bottom:var(--spacing-lg);color:var(--color-text-primary)">Three privacy modes</h3>
+        <table class="landing-modes-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Standard</th>
+              <th>Strict</th>
+              <th>Paranoid</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Country</td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-close-line cross"></i></td>
+            </tr>
+            <tr>
+              <td>City</td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-close-line cross"></i></td>
+              <td><i class="ri-close-line cross"></i></td>
+            </tr>
+            <tr>
+              <td>Browser / OS</td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-close-line cross"></i></td>
+            </tr>
+            <tr>
+              <td>Device type</td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-check-line check"></i></td>
+              <td><i class="ri-close-line cross"></i></td>
+            </tr>
+            <tr>
+              <td>Hash Rotation</td>
+              <td>1–8,760h</td>
+              <td>1–8,760h</td>
+              <td>1–8,760h</td>
+            </tr>
+            <tr>
+              <td>Data Retention</td>
+              <td>Configurable</td>
+              <td>Configurable</td>
+              <td>Configurable</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     6. TRACKER INTEGRATION
+     ============================================ -->
+<section id="tracker" class="landing-section" aria-label="Tracker">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Add analytics in 30 seconds</h2>
+      <p class="landing-section-subtitle">One script tag. That's it. No build step, no configuration files, no dependencies.</p>
+    </div>
+
+    <div class="landing-tracker-layout">
+      <div>
+        <div class="landing-code-block animate-on-scroll">
+          <div class="landing-code-bar">
+            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+            <span class="landing-code-title">index.html</span>
+            <button class="landing-copy-btn" data-code='<script async src="https://your-domain.com/tracker/tracker.js" data-project-key="YOUR_API_KEY"></script>'><i class="ri-file-copy-line"></i> Copy</button>
+          </div>
+          <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">async</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/tracker/tracker.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+          </div>
+        </div>
+
+        <!-- Size comparison -->
+        <div class="landing-size-bars animate-on-scroll">
+          <div class="landing-size-bar">
+            <span class="landing-size-bar-label">Mini Numbers</span>
+            <div class="landing-size-bar-track">
+              <div class="landing-size-bar-fill highlight" data-width="3">1.3KB</div>
+            </div>
+          </div>
+          <div class="landing-size-bar">
+            <span class="landing-size-bar-label">Plausible</span>
+            <div class="landing-size-bar-track">
+              <div class="landing-size-bar-fill muted" data-width="2.3">1KB</div>
+            </div>
+          </div>
+          <div class="landing-size-bar">
+            <span class="landing-size-bar-label">Umami</span>
+            <div class="landing-size-bar-track">
+              <div class="landing-size-bar-fill muted" data-width="4.5">2KB</div>
+            </div>
+          </div>
+          <div class="landing-size-bar">
+            <span class="landing-size-bar-label">Matomo</span>
+            <div class="landing-size-bar-track">
+              <div class="landing-size-bar-fill muted" data-width="48">21KB</div>
+            </div>
+          </div>
+          <div class="landing-size-bar">
+            <span class="landing-size-bar-label">PostHog</span>
+            <div class="landing-size-bar-track">
+              <div class="landing-size-bar-fill muted" data-width="100">44KB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="landing-tracker-features animate-on-scroll">
+          <div class="landing-tracker-feature">
+            <i class="ri-route-line"></i>
+            <h4>SPA Ready</h4>
+            <p>Auto-patches pushState, replaceState, and popstate events</p>
+          </div>
+          <div class="landing-tracker-feature">
+            <i class="ri-flashlight-line"></i>
+            <h4>Custom Events</h4>
+            <p>Track any interaction with MiniNumbers.track()</p>
+          </div>
+          <div class="landing-tracker-feature">
+            <i class="ri-download-line"></i>
+            <h4>Auto-detect</h4>
+            <p>Downloads, outbound links, and scroll depth tracked automatically</p>
+          </div>
+        </div>
+
+        <div style="margin-top:var(--spacing-xl)" class="animate-on-scroll">
+          <div class="landing-code-block">
+            <div class="landing-code-bar">
+              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+              <span class="landing-code-title">Configuration options</span>
+            </div>
+            <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">async</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/tracker/tracker.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
+  <span class="hl-attr">data-heartbeat-interval</span>=<span class="hl-val">"30000"</span>
+  <span class="hl-attr">data-disable-spa</span>=<span class="hl-val">"false"</span>
+  <span class="hl-attr">data-api-endpoint</span>=<span class="hl-val">"https://analytics.example.com"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     7. EMBEDDABLE WIDGETS
+     ============================================ -->
+<section id="widgets" class="landing-section landing-section-alt" aria-label="Widgets">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Embeddable widgets for your website</h2>
+      <p class="landing-section-subtitle">Show real-time stats on your site with lightweight, self-updating widgets.</p>
+    </div>
+
+    <div class="landing-widgets-grid">
+      <!-- Real-time Counter -->
+      <div class="landing-widget-card animate-on-scroll animate-delay-1">
+        <div class="landing-widget-preview">
+          <div class="landing-w-realtime">
+            <span class="landing-w-dot"></span>
+            <span class="landing-w-count" id="widget-demo-count">3</span>
+            <span class="landing-w-label">visitors online</span>
+          </div>
+        </div>
+        <h4>Real-time Counter</h4>
+        <p>Live visitor count with pulsing indicator. Auto-polls every 12 seconds.</p>
+        <button class="landing-widget-toggle" data-widget="realtime">
+          <i class="ri-code-line"></i> View Code
+        </button>
+        <div class="landing-widget-code" data-widget="realtime">
+          <div class="landing-code-block">
+            <div class="landing-code-bar">
+              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="realtime"></script>'><i class="ri-file-copy-line"></i> Copy</button>
+            </div>
+            <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
+  <span class="hl-attr">data-widget</span>=<span class="hl-val">"realtime"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Views Badge -->
+      <div class="landing-widget-card animate-on-scroll animate-delay-2">
+        <div class="landing-widget-preview">
+          <div class="landing-w-pageviews">
+            <span class="landing-w-pv-count">1,234</span>
+            <span class="landing-w-pv-label">views this week</span>
+          </div>
+        </div>
+        <h4>Page Views Badge</h4>
+        <p>Show view counts for your entire site or a specific page.</p>
+        <button class="landing-widget-toggle" data-widget="pageviews">
+          <i class="ri-code-line"></i> View Code
+        </button>
+        <div class="landing-widget-code" data-widget="pageviews">
+          <div class="landing-code-block">
+            <div class="landing-code-bar">
+              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="pageviews" data-filter="7d"></script>'><i class="ri-file-copy-line"></i> Copy</button>
+            </div>
+            <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
+  <span class="hl-attr">data-widget</span>=<span class="hl-val">"pageviews"</span>
+  <span class="hl-attr">data-filter</span>=<span class="hl-val">"7d"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Pages -->
+      <div class="landing-widget-card animate-on-scroll animate-delay-3">
+        <div class="landing-widget-preview">
+          <div class="landing-w-toppages">
+            <div class="landing-w-toppages-title">Popular pages</div>
+            <div class="landing-w-tp-row">
+              <span class="landing-w-tp-name">/blog/getting-started</span>
+              <span class="landing-w-tp-bar" style="width:80px"></span>
+              <span class="landing-w-tp-views">342</span>
+            </div>
+            <div class="landing-w-tp-row">
+              <span class="landing-w-tp-name">/docs/api</span>
+              <span class="landing-w-tp-bar" style="width:55px"></span>
+              <span class="landing-w-tp-views">231</span>
+            </div>
+            <div class="landing-w-tp-row">
+              <span class="landing-w-tp-name">/pricing</span>
+              <span class="landing-w-tp-bar" style="width:40px"></span>
+              <span class="landing-w-tp-views">178</span>
+            </div>
+          </div>
+        </div>
+        <h4>Top Pages</h4>
+        <p>Ranked list of your most popular pages with proportional bars.</p>
+        <button class="landing-widget-toggle" data-widget="toppages">
+          <i class="ri-code-line"></i> View Code
+        </button>
+        <div class="landing-widget-code" data-widget="toppages">
+          <div class="landing-code-block">
+            <div class="landing-code-bar">
+              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="toppages" data-limit="5"></script>'><i class="ri-file-copy-line"></i> Copy</button>
+            </div>
+            <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
+  <span class="hl-attr">data-widget</span>=<span class="hl-val">"toppages"</span>
+  <span class="hl-attr">data-limit</span>=<span class="hl-val">"5"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sparkline -->
+      <div class="landing-widget-card animate-on-scroll animate-delay-4">
+        <div class="landing-widget-preview">
+          <svg width="120" height="32" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6 118,30 2,30" fill="var(--color-primary)" fill-opacity="0.15"/>
+            <polyline points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h4>Sparkline Chart</h4>
+        <p>Tiny 7-day trend chart. Inline SVG, no libraries needed.</p>
+        <button class="landing-widget-toggle" data-widget="sparkline">
+          <i class="ri-code-line"></i> View Code
+        </button>
+        <div class="landing-widget-code" data-widget="sparkline">
+          <div class="landing-code-block">
+            <div class="landing-code-bar">
+              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="sparkline"></script>'><i class="ri-file-copy-line"></i> Copy</button>
+            </div>
+            <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
+  <span class="hl-attr">data-widget</span>=<span class="hl-val">"sparkline"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     8. INSTALLATION
+     ============================================ -->
+<section id="installation" class="landing-section" aria-label="Installation">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Up and running in minutes</h2>
+      <p class="landing-section-subtitle">Choose your preferred deployment method. All roads lead to a working analytics server.</p>
+    </div>
+
+    <div class="landing-install-tabs" role="tablist">
+      <button class="landing-install-tab active" data-install="compose" role="tab" aria-selected="true">
+        <i class="ri-ship-line"></i> Docker Compose
+        <span class="landing-recommended-badge">Recommended</span>
+      </button>
+      <button class="landing-install-tab" data-install="docker" role="tab" aria-selected="false">
+        <i class="ri-instance-line"></i> Docker
+      </button>
+      <button class="landing-install-tab" data-install="source" role="tab" aria-selected="false">
+        <i class="ri-terminal-box-line"></i> From Source
+      </button>
+    </div>
+
+    <!-- Docker Compose -->
+    <div class="landing-install-content active" data-install="compose" role="tabpanel">
+      <div class="landing-code-block">
+        <div class="landing-code-bar">
+          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+          <span class="landing-code-title">Terminal</span>
+          <button class="landing-copy-btn" data-code="git clone https://github.com/OneManStudioDotSe/mini-numbers.git
+cd mini-numbers
+docker compose up -d"><i class="ri-file-copy-line"></i> Copy</button>
+        </div>
+        <div class="landing-code-body">
+<pre><span class="hl-comment"># Clone the repository</span>
+git clone https://github.com/OneManStudioDotSe/mini-numbers.git
+cd mini-numbers
+
+<span class="hl-comment"># Start with Docker Compose</span>
+docker compose up -d
+
+<span class="hl-comment"># Visit http://localhost:8080 for the setup wizard</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Docker -->
+    <div class="landing-install-content" data-install="docker" role="tabpanel">
+      <div class="landing-code-block">
+        <div class="landing-code-bar">
+          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+          <span class="landing-code-title">Terminal</span>
+          <button class="landing-copy-btn" data-code="docker build -t mini-numbers .
+docker run -p 8080:8080 mini-numbers"><i class="ri-file-copy-line"></i> Copy</button>
+        </div>
+        <div class="landing-code-body">
+<pre><span class="hl-comment"># Build the image</span>
+docker build -t mini-numbers .
+
+<span class="hl-comment"># Run the container</span>
+docker run -p 8080:8080 mini-numbers
+
+<span class="hl-comment"># Visit http://localhost:8080 for the setup wizard</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- From Source -->
+    <div class="landing-install-content" data-install="source" role="tabpanel">
+      <div class="landing-code-block">
+        <div class="landing-code-bar">
+          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+          <span class="landing-code-title">Terminal</span>
+          <button class="landing-copy-btn" data-code="./gradlew buildFatJar
+java -jar build/libs/mini-numbers-all.jar"><i class="ri-file-copy-line"></i> Copy</button>
+        </div>
+        <div class="landing-code-body">
+<pre><span class="hl-comment"># Build the fat JAR (requires JDK 21)</span>
+./gradlew buildFatJar
+
+<span class="hl-comment"># Run the application</span>
+java -jar build/libs/mini-numbers-all.jar
+
+<span class="hl-comment"># Visit http://localhost:8080 for the setup wizard</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="landing-callout animate-on-scroll">
+      <i class="ri-magic-line"></i>
+      <p>The interactive setup wizard guides you through configuration in 5 easy steps. No <code>.env</code> file needed. Save and go — no server restart required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     9. SETUP WIZARD PREVIEW
+     ============================================ -->
+<section class="landing-section landing-section-alt" aria-label="Setup wizard">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Configure everything from the browser</h2>
+      <p class="landing-section-subtitle">No config files to edit. The setup wizard handles everything with zero-restart architecture.</p>
+    </div>
+
+    <div class="landing-wizard-stepper animate-on-scroll">
+      <div class="landing-wizard-step">
+        <div class="landing-wizard-step-num">1</div>
+        <div class="landing-wizard-step-label">Security</div>
+        <div class="landing-wizard-step-desc">Username, password, salt</div>
+      </div>
+      <div class="landing-wizard-step">
+        <div class="landing-wizard-step-num">2</div>
+        <div class="landing-wizard-step-label">Database</div>
+        <div class="landing-wizard-step-desc">SQLite or PostgreSQL</div>
+      </div>
+      <div class="landing-wizard-step">
+        <div class="landing-wizard-step-num">3</div>
+        <div class="landing-wizard-step-label">Server</div>
+        <div class="landing-wizard-step-desc">Port, CORS, dev mode</div>
+      </div>
+      <div class="landing-wizard-step">
+        <div class="landing-wizard-step-num">4</div>
+        <div class="landing-wizard-step-label">Advanced</div>
+        <div class="landing-wizard-step-desc">GeoIP, rate limits</div>
+      </div>
+      <div class="landing-wizard-step">
+        <div class="landing-wizard-step-num">5</div>
+        <div class="landing-wizard-step-label">Review</div>
+        <div class="landing-wizard-step-desc">Confirm and launch</div>
+      </div>
+    </div>
+
+    <div style="text-align:center" class="animate-on-scroll">
+      <p style="font-size:var(--font-size-base);color:var(--color-text-secondary);max-width:500px;margin:0 auto;line-height:var(--line-height-relaxed)">
+        Save your configuration and services start immediately. No restart, no downtime, no SSH required.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     10. COMPETITIVE COMPARISON
+     ============================================ -->
+<section class="landing-section" aria-label="Comparison">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">How we compare</h2>
+      <p class="landing-section-subtitle">Honest, factual comparison with other privacy-focused analytics tools.</p>
+    </div>
+
+    <div class="landing-comparison-wrapper animate-on-scroll">
+      <table class="landing-comparison">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="hl-col">Mini Numbers</th>
+            <th>Plausible</th>
+            <th>Umami</th>
+            <th>Matomo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tracker size</td>
+            <td class="hl-col">1.3KB</td>
+            <td>1KB</td>
+            <td>2KB</td>
+            <td>21KB</td>
+          </tr>
+          <tr>
+            <td>Self-hosted</td>
+            <td class="hl-col">Free</td>
+            <td>Paid</td>
+            <td>Free</td>
+            <td>Free</td>
+          </tr>
+          <tr>
+            <td>Privacy modes</td>
+            <td class="hl-col">3</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Hash rotation</td>
+            <td class="hl-col">1–8,760h</td>
+            <td>Fixed</td>
+            <td>Fixed</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td>Cookies</td>
+            <td class="hl-col">None</td>
+            <td>None</td>
+            <td>None</td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td>Setup wizard</td>
+            <td class="hl-col"><i class="ri-check-line check"></i></td>
+            <td><i class="ri-close-line cross"></i></td>
+            <td><i class="ri-close-line cross"></i></td>
+            <td><i class="ri-check-line check"></i></td>
+          </tr>
+          <tr>
+            <td>Embeddable widgets</td>
+            <td class="hl-col"><i class="ri-check-line check"></i></td>
+            <td><i class="ri-close-line cross"></i></td>
+            <td><i class="ri-close-line cross"></i></td>
+            <td><i class="ri-close-line cross"></i></td>
+          </tr>
+          <tr>
+            <td>License</td>
+            <td class="hl-col">MIT</td>
+            <td>AGPL</td>
+            <td>MIT</td>
+            <td>GPL</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     11. TECH STACK & OPEN SOURCE
+     ============================================ -->
+<section class="landing-section landing-section-alt" aria-label="Tech stack">
+  <div class="landing-container">
+    <div class="landing-tech-layout">
+      <div class="animate-on-scroll">
+        <h2 class="landing-section-title">Built with modern tools</h2>
+        <p class="landing-section-subtitle" style="margin-bottom:var(--spacing-xl)">A carefully chosen stack for reliability, performance, and developer happiness.</p>
+        <div class="landing-tech-badges">
+          <span class="landing-tech-badge">Kotlin</span>
+          <span class="landing-tech-badge">Ktor</span>
+          <span class="landing-tech-badge">Exposed ORM</span>
+          <span class="landing-tech-badge">SQLite</span>
+          <span class="landing-tech-badge">PostgreSQL</span>
+          <span class="landing-tech-badge">Caffeine Cache</span>
+          <span class="landing-tech-badge">Chart.js</span>
+          <span class="landing-tech-badge">Leaflet</span>
+          <span class="landing-tech-badge">JDK 21</span>
+          <span class="landing-tech-badge">Docker</span>
+        </div>
+      </div>
+
+      <div class="landing-github-cta animate-on-scroll">
+        <i class="ri-github-fill"></i>
+        <h3>Open Source</h3>
+        <p>MIT Licensed. Contributions welcome.<br>Star us on GitHub to show your support.</p>
+        <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn landing-btn-primary landing-btn-lg">
+          <i class="ri-star-line"></i> Star on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     12. FOOTER
+     ============================================ -->
+<footer class="landing-footer" role="contentinfo">
+  <div class="landing-container">
+    <div class="landing-footer-grid">
+      <div>
+        <div class="landing-footer-brand">
+          <i class="ri-bar-chart-grouped-line"></i>
+          Mini Numbers
+        </div>
+        <p class="landing-footer-tagline">
+          Privacy-first web analytics for developers who care about their visitors. Self-hosted, open source, and free forever.
+        </p>
+      </div>
+
+      <div>
+        <h4>Resources</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/DASHBOARD_GUIDE.md" target="_blank" rel="noopener">Dashboard Guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/PRIVACY.md" target="_blank" rel="noopener">Privacy Architecture</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Legal</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Code of Conduct</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="landing-footer-bottom">
+      <span>Made for the open web. Built by developers, for developers.</span>
+      <span>&copy; 2026 Mini Numbers. MIT License.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="js/landing.js"></script>
+</body>
+</html>
