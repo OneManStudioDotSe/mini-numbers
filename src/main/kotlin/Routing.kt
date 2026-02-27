@@ -321,6 +321,11 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
             })
         }
 
+        // Serve the landing page
+        staticResources("/landing", "landing") {
+            default("index.html")
+        }
+
         // Serve the tracker script
         staticResources("/tracker", "tracker")
 

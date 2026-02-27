@@ -33,7 +33,7 @@ fun Application.configureSetupRouting() {
         get("/") {
             when {
                 ConfigLoader.isSetupNeeded() -> call.respondRedirect(RedirectValidator.safeRedirect("/setup", "/setup"))
-                ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/login"))
+                ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/landing/"))
                 else -> {
                     val error = ServiceManager.getLastError()
                     call.respondText(
