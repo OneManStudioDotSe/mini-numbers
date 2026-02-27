@@ -676,7 +676,8 @@ const Dashboard = {
         this.loadGoalsAndFunnels(),
         this.loadSegments(),
         this.loadWebhooks(),
-        this.loadEmailReports()
+        this.loadEmailReports(),
+        this.loadRevenue()
       ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
@@ -1806,6 +1807,23 @@ const Dashboard = {
       }
     } catch (error) {
       console.error('Failed to load email reports:', error);
+    }
+  },
+
+  /**
+   * Load and render revenue data for current project
+   */
+  async loadRevenue() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      if (typeof RevenueManager !== 'undefined') {
+        RevenueManager.initGuide();
+        await RevenueManager.loadRevenue(this.state.currentProjectId, this.state.currentFilter);
+        RevenueManager.render(this.state.currentProjectId);
+      }
+    } catch (error) {
+      console.error('Failed to load revenue data:', error);
     }
   },
 

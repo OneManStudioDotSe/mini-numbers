@@ -665,6 +665,114 @@
                 </div>
             </div>
 
+            <!-- Revenue Intelligence -->
+            <div class="card mt-lg" id="revenue-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i class="ri-money-dollar-circle-line"></i> Revenue
+                    </h3>
+                </div>
+
+                <!-- Revenue Guide (collapsible) -->
+                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
+                    <button id="revenue-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
+                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> Revenue tracking guide</span>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div id="revenue-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Track monetary value alongside events using the existing <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track()</code> API. Include a <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">revenue</code> property to attribute income to specific actions.
+                        </p>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup examples</h4>
+                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto; margin-bottom: var(--spacing-md);"><span style="color: var(--color-text-muted);">// E-commerce purchase</span>
+MiniNumbers.track("purchase", {
+  revenue: 49.99, currency: "USD", product: "Pro Plan"
+});
+
+<span style="color: var(--color-text-muted);">// SaaS subscription</span>
+MiniNumbers.track("subscription", {
+  revenue: 9.99, currency: "USD", plan: "monthly"
+});
+
+<span style="color: var(--color-text-muted);">// One-time payment</span>
+MiniNumbers.track("donation", {
+  revenue: 25.00, currency: "EUR"
+});</pre>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Framework integrations</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>Stripe:</strong> In your checkout success callback, call <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track("purchase", { revenue: amount })</code></li>
+                            <li><strong>Shopify:</strong> Add the tracking call to your order confirmation page <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">thank_you</code> template</li>
+                            <li><strong>WooCommerce:</strong> Hook into <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">woocommerce_thankyou</code> and output the tracking call</li>
+                            <li><strong>Generic forms:</strong> Fire the track call in your payment success handler</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">How to interpret the data</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>Total Revenue</strong> &mdash; aggregate income in the selected period with comparison to the previous period</li>
+                            <li><strong>Average Order Value (AOV)</strong> &mdash; mean revenue per transaction; use it to spot pricing opportunities</li>
+                            <li><strong>Revenue per Visitor</strong> &mdash; key metric for traffic quality; higher = better-converting traffic</li>
+                            <li><strong>Revenue Attribution</strong> &mdash; which referrers and UTM campaigns generate actual revenue, not just clicks</li>
+                            <li><strong>Revenue by Event</strong> &mdash; which actions (purchases, subscriptions, upgrades) drive the most income</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Best practices</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                            <li>Always include <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">currency</code> for multi-currency support</li>
+                            <li>Track at the point of confirmed payment, not intent</li>
+                            <li>Use meaningful event names that map to your business model</li>
+                            <li>Combine with UTM parameters for full attribution</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Revenue Stat Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total Revenue</div>
+                        <div id="revenue-total" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+                    </div>
+                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">AOV</div>
+                        <div id="revenue-aov" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+                    </div>
+                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Revenue / Visitor</div>
+                        <div id="revenue-rpv" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+                    </div>
+                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Transactions</div>
+                        <div id="revenue-transactions" style="font-size: 1.5rem; font-weight: 700;">0</div>
+                    </div>
+                </div>
+
+                <!-- Revenue by Event -->
+                <h4 style="margin-bottom: var(--spacing-sm);">Revenue by event</h4>
+                <div id="revenue-breakdown" style="margin-bottom: var(--spacing-lg);">
+                    <div style="color: var(--color-text-muted); text-align: center; padding: 1rem;">Loading...</div>
+                </div>
+
+                <!-- Revenue Attribution Table -->
+                <h4 style="margin-bottom: var(--spacing-sm);">Revenue attribution</h4>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Revenue</th>
+                                <th>Transactions</th>
+                                <th>Avg Value</th>
+                                <th>Conv. Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenue-attribution-body">
+                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Conversion Goals -->
             <div class="card mt-lg" id="goals-section" style="display: none;">
                 <div class="flex items-center justify-between mb-lg">
@@ -1578,6 +1686,7 @@ SMTP_STARTTLS=true</pre>
     <script src="/admin-panel/js/segments.js"></script>
     <script src="/admin-panel/js/webhooks.js"></script>
     <script src="/admin-panel/js/email-reports.js"></script>
+    <script src="/admin-panel/js/revenue.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
 </body>
