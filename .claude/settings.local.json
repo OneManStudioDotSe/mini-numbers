@@ -41,7 +41,14 @@
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:blog.jetbrains.com)",
       "WebFetch(domain:central.sonatype.com)",
-      "Bash(bc)"
+      "Bash(bc)",
+      "Bash(git add detekt-baseline.xml src/main/kotlin/Routing.kt)",
+      "Bash(git commit:*)",
+      "Bash(git push origin main)",
+      "Bash(gh auth status)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(git remote set-url origin git@github.com:OneManStudioDotSe/mini-numbers.git)",
+      "Bash(git remote set-url origin https://github.com/OneManStudioDotSe/mini-numbers.git)"
     ]
   }
 }
