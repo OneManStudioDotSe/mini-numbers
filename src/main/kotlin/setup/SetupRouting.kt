@@ -13,9 +13,12 @@ import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
 import se.onemanstudio.setup.models.*
 import se.onemanstudio.configureRouting
+import se.onemanstudio.configureWidgetRouting
+import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.core.configureHTTP
 import se.onemanstudio.core.configureSecurity
+import se.onemanstudio.middleware.RedirectValidator
 import java.io.File
 import java.security.SecureRandom
 
@@ -29,8 +32,8 @@ fun Application.configureSetupRouting() {
         // Intelligent redirect based on application state
         get("/") {
             when {
-                ConfigLoader.isSetupNeeded() -> call.respondRedirect("/setup")
-                ServiceManager.isReady() -> call.respondRedirect("/login")
+                ConfigLoader.isSetupNeeded() -> call.respondRedirect(RedirectValidator.safeRedirect("/setup", "/setup"))
+                ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/login"))
                 else -> {
                     val error = ServiceManager.getLastError()
                     call.respondText(
@@ -190,8 +193,13 @@ fun Application.configureSetupRouting() {
                     // Note: Authentication is installed early in Application.module() with dynamic config loading
                     // for seamless zero-restart credential updates
                     try {
+                        val rateLimiter = RateLimiter(
+                            maxTokensPerIp = reloadedConfig.rateLimit.perIpRequestsPerMinute,
+                            maxTokensPerApiKey = reloadedConfig.rateLimit.perApiKeyRequestsPerMinute
+                        )
                         configureHTTP(reloadedConfig)
-                        configureRouting(reloadedConfig)
+                        configureRouting(reloadedConfig, rateLimiter)
+                        configureWidgetRouting(reloadedConfig, rateLimiter)
                     } catch (e: Exception) {
                         environment.log.warn("Could not install plugins dynamically: ${e.message}")
                         // This is expected if plugins are already installed - not a fatal error

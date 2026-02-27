@@ -25,9 +25,13 @@ import se.onemanstudio.db.Events
 import se.onemanstudio.db.FunnelSteps
 import se.onemanstudio.db.Funnels
 import se.onemanstudio.db.Projects
+import se.onemanstudio.db.RefreshTokens
 import se.onemanstudio.db.Segments
+import se.onemanstudio.db.Webhooks
+import se.onemanstudio.db.WebhookDeliveries
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.middleware.QueryCache
+import se.onemanstudio.middleware.WidgetCache
 import se.onemanstudio.middleware.models.RateLimitResult
 import se.onemanstudio.api.models.*
 import se.onemanstudio.api.models.dashboard.ComparisonReport
@@ -37,9 +41,13 @@ import se.onemanstudio.core.AnalyticsSecurity
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.middleware.InputValidator
 import se.onemanstudio.services.UserAgentParser
+import se.onemanstudio.core.JwtService
+import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
+import se.onemanstudio.core.getUserRole
 import se.onemanstudio.core.verifyCredentials
 import se.onemanstudio.config.ConfigLoader
+import se.onemanstudio.middleware.requireRole
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -58,11 +66,7 @@ private fun safeParseUUID(value: String?): UUID? {
     }
 }
 
-fun Application.configureRouting(config: AppConfig) {
-    val rateLimiter = RateLimiter(
-        maxTokensPerIp = config.rateLimit.perIpRequestsPerMinute,
-        maxTokensPerApiKey = config.rateLimit.perApiKeyRequestsPerMinute
-    )
+fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
     val privacyMode = config.privacy.privacyMode
 
     routing {
@@ -130,7 +134,10 @@ fun Application.configureRouting(config: AppConfig) {
             )
 
             if (isValid) {
-                call.sessions.set(UserSession(username = loginRequest.username))
+                // Session rotation: clear any existing session before setting a new one
+                call.sessions.clear<UserSession>()
+                val role = getUserRole(loginRequest.username)
+                call.sessions.set(UserSession(username = loginRequest.username, role = role))
                 call.respond(HttpStatusCode.OK, buildJsonObject {
                     put("success", true)
                     put("message", "Login successful")
@@ -150,6 +157,170 @@ fun Application.configureRouting(config: AppConfig) {
             })
         }
 
+        // ── JWT Token Endpoints ──────────────────────────────────────
+
+        // Get JWT access token + refresh token
+        post("/api/token") {
+            val loginRequest = try {
+                call.receive<LoginRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            val tokenConfig = ConfigLoader.load()
+            val isValid = verifyCredentials(
+                loginRequest.username,
+                loginRequest.password,
+                tokenConfig,
+                call.application.environment.log
+            )
+
+            if (!isValid) {
+                return@post call.respond(HttpStatusCode.Unauthorized,
+                    ApiError.unauthorized("Invalid credentials"))
+            }
+
+            val tokenRole = getUserRole(loginRequest.username)
+            val accessToken = JwtService.generateAccessToken(loginRequest.username, tokenRole)
+            val refreshToken = JwtService.generateRefreshToken()
+            val family = UUID.randomUUID().toString()
+            val tokenId = UUID.randomUUID()
+
+            transaction {
+                RefreshTokens.insert {
+                    it[RefreshTokens.id] = tokenId
+                    it[RefreshTokens.username] = loginRequest.username
+                    it[RefreshTokens.tokenHash] = JwtService.hashToken(refreshToken)
+                    it[RefreshTokens.family] = family
+                    it[RefreshTokens.expiresAt] = LocalDateTime.now().plusDays(7)
+                }
+            }
+
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("accessToken", accessToken)
+                put("refreshToken", refreshToken)
+                put("tokenType", "Bearer")
+                put("expiresIn", 900) // 15 minutes in seconds
+            })
+        }
+
+        // Rotate refresh token
+        post("/api/token/refresh") {
+            @Serializable
+            data class RefreshRequest(val refreshToken: String)
+
+            val body = try {
+                call.receive<RefreshRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Missing refreshToken"))
+            }
+
+            val tokenHash = JwtService.hashToken(body.refreshToken)
+
+            val result = transaction {
+                val existing = RefreshTokens.selectAll().where {
+                    (RefreshTokens.tokenHash eq tokenHash) and (RefreshTokens.revokedAt.isNull())
+                }.singleOrNull() ?: return@transaction null
+
+                // Check expiry
+                if (existing[RefreshTokens.expiresAt].isBefore(LocalDateTime.now())) {
+                    return@transaction null
+                }
+
+                val tokenFamily = existing[RefreshTokens.family]
+                val existingId = existing[RefreshTokens.id]
+                val existingUsername = existing[RefreshTokens.username]
+
+                // Revoke the used token
+                RefreshTokens.update({ RefreshTokens.id eq existingId }) {
+                    it[RefreshTokens.revokedAt] = LocalDateTime.now()
+                }
+
+                // Issue new token in the same family
+                val newRefreshToken = JwtService.generateRefreshToken()
+                val newTokenId = UUID.randomUUID()
+
+                RefreshTokens.insert {
+                    it[RefreshTokens.id] = newTokenId
+                    it[RefreshTokens.username] = existingUsername
+                    it[RefreshTokens.tokenHash] = JwtService.hashToken(newRefreshToken)
+                    it[RefreshTokens.family] = tokenFamily
+                    it[RefreshTokens.expiresAt] = LocalDateTime.now().plusDays(7)
+                }
+
+                // Link old token to its successor
+                RefreshTokens.update({ RefreshTokens.id eq existingId }) {
+                    it[RefreshTokens.replacedBy] = newTokenId
+                }
+
+                Pair(existingUsername, newRefreshToken)
+            }
+
+            if (result == null) {
+                return@post call.respond(HttpStatusCode.Unauthorized,
+                    ApiError.unauthorized("Invalid or expired refresh token"))
+            }
+
+            val (username, newRefreshToken) = result
+            val refreshRole = getUserRole(username)
+            val newAccessToken = JwtService.generateAccessToken(username, refreshRole)
+
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("accessToken", newAccessToken)
+                put("refreshToken", newRefreshToken)
+                put("tokenType", "Bearer")
+                put("expiresIn", 900)
+            })
+        }
+
+        // ── Password Reset ────────────────────────────────────────
+        // Requires the server salt for verification (only server operator has it)
+        post("/api/password-reset") {
+            val body = try {
+                call.receive<PasswordResetRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            if (body.newPassword.length < 8) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Password must be at least 8 characters"))
+            }
+
+            val resetConfig = ConfigLoader.load()
+            if (body.serverSalt != resetConfig.security.serverSalt) {
+                return@post call.respond(HttpStatusCode.Forbidden,
+                    ApiError(error = "Invalid server salt", code = "FORBIDDEN"))
+            }
+
+            val hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(
+                body.newPassword,
+                org.mindrot.jbcrypt.BCrypt.gensalt(12)
+            )
+
+            // Update password in the Users table for the admin user
+            transaction {
+                se.onemanstudio.db.Users.update({
+                    se.onemanstudio.db.Users.username eq resetConfig.security.adminUsername
+                }) {
+                    it[se.onemanstudio.db.Users.passwordHash] = hashedPassword
+                }
+
+                // Invalidate all refresh tokens
+                RefreshTokens.deleteAll()
+            }
+
+            call.application.environment.log.info("Password reset completed for admin user")
+
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("success", true)
+                put("message", "Password updated successfully. All sessions have been invalidated.")
+            })
+        }
+
         // Serve the tracker script
         staticResources("/tracker", "tracker")
 
@@ -158,9 +329,9 @@ fun Application.configureRouting(config: AppConfig) {
             default("admin.html")
         }
 
-        // Admin API - protected by session auth
-        authenticate("admin-session") {
-            adminRoutes(privacyMode)
+        // Admin API - protected by session auth or JWT
+        authenticate("admin-session", "api-jwt") {
+            adminRoutes(privacyMode, config.security.allowedOrigins, rateLimiter)
         }
 
         // Data Collection Endpoint
@@ -277,6 +448,7 @@ fun Application.configureRouting(config: AppConfig) {
                 }
                 // Invalidate cache for this project
                 QueryCache.invalidateProject(project[Projects.id].toString())
+                WidgetCache.invalidateProject(project[Projects.id].toString())
             } catch (e: org.jetbrains.exposed.exceptions.ExposedSQLException) {
                 call.application.environment.log.error("Database SQL error: ${e.message}", e)
                 return@post call.respond(HttpStatusCode.InternalServerError,
@@ -292,8 +464,30 @@ fun Application.configureRouting(config: AppConfig) {
     }
 }
 
-fun Route.adminRoutes(privacyMode: PrivacyMode) {
+fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, rateLimiter: RateLimiter) {
     route("/admin") {
+
+        // Admin-specific security intercepts
+        intercept(ApplicationCallPipeline.Plugins) {
+            // CORS origin guard: validate Origin header against allowlist
+            if (!se.onemanstudio.middleware.AdminCorsGuard.check(call, allowedOrigins)) {
+                finish()
+                return@intercept
+            }
+
+            // Rate limiting for admin routes (200 req/min per IP)
+            val ip = call.request.origin.remoteHost
+            val adminLimit = 200
+            val result = rateLimiter.checkRateLimit(ip, "admin-panel")
+            if (result is RateLimitResult.Exceeded) {
+                call.respond(
+                    HttpStatusCode.TooManyRequests,
+                    ApiError.rateLimited("Too many requests", result.limitType, result.limit, result.window)
+                )
+                finish()
+                return@intercept
+            }
+        }
 
         // List all projects (with pagination)
         get("/projects") {
@@ -332,6 +526,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
 
         // Create a new project
         post("/projects") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
             val params = call.receive<Map<String, String>>()
             val newName = params["name"] ?: return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Project name is required"))
@@ -387,6 +582,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
 
         // Delete a project
         delete("/projects/{id}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
             val uuid = safeParseUUID(call.parameters["id"])
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -404,6 +600,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
                 Projects.deleteWhere { Projects.id eq uuid }
             }
             QueryCache.invalidateProject(uuid.toString())
+            WidgetCache.invalidateProject(uuid.toString())
             call.respond(HttpStatusCode.NoContent)
         }
 
@@ -519,6 +716,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
                 eventCount
             }
             QueryCache.invalidateProject(id.toString())
+            WidgetCache.invalidateProject(id.toString())
 
             call.respond(mapOf("generated" to generated))
         }
@@ -666,6 +864,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         post("/projects/{id}/goals") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -705,6 +904,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         put("/projects/{id}/goals/{goalId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@put
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@put call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -728,6 +928,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         delete("/projects/{id}/goals/{goalId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -792,6 +993,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         post("/projects/{id}/funnels") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -847,6 +1049,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         delete("/projects/{id}/funnels/{funnelId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -854,13 +1057,27 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing funnel ID"))
 
-            transaction {
-                FunnelSteps.deleteWhere { FunnelSteps.funnelId eq funnelId }
-                Funnels.deleteWhere {
+            val deleted = transaction {
+                // Verify funnel belongs to the project before deleting steps
+                val funnelExists = Funnels.selectAll().where {
                     (Funnels.id eq funnelId) and (Funnels.projectId eq pid)
+                }.count() > 0
+
+                if (funnelExists) {
+                    FunnelSteps.deleteWhere { FunnelSteps.funnelId eq funnelId }
+                    Funnels.deleteWhere {
+                        (Funnels.id eq funnelId) and (Funnels.projectId eq pid)
+                    }
                 }
+                funnelExists
             }
-            call.respond(HttpStatusCode.NoContent)
+
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound,
+                    ApiError.notFound("Funnel not found"))
+            }
         }
 
         get("/projects/{id}/funnels/{funnelId}/analysis") {
@@ -873,7 +1090,12 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
             val filter = call.request.queryParameters["filter"] ?: "7d"
 
             val (start, end) = getCurrentPeriod(filter)
-            val analysis = analyzeFunnel(funnelId, pid, start, end)
+            val analysis = try {
+                analyzeFunnel(funnelId, pid, start, end)
+            } catch (e: IllegalArgumentException) {
+                return@get call.respond(HttpStatusCode.NotFound,
+                    ApiError.notFound("Funnel not found"))
+            }
             call.respond(analysis)
         }
 
@@ -903,6 +1125,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         post("/projects/{id}/segments") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -955,6 +1178,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
         }
 
         delete("/projects/{id}/segments/{segmentId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
             val pid = safeParseUUID(call.parameters["id"])
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
@@ -1026,6 +1250,302 @@ fun Route.adminRoutes(privacyMode: PrivacyMode) {
                 )
             }
             call.respond(analysis)
+        }
+
+        // ── Webhooks ─────────────────────────────────────────────────
+
+        get("/projects/{id}/webhooks") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val webhooks = transaction {
+                Webhooks.selectAll().where { Webhooks.projectId eq pid }.map {
+                    WebhookResponse(
+                        id = it[Webhooks.id].toString(),
+                        projectId = it[Webhooks.projectId].toString(),
+                        url = it[Webhooks.url],
+                        events = it[Webhooks.events].split(",").map { e -> e.trim() },
+                        isActive = it[Webhooks.isActive],
+                        createdAt = it[Webhooks.createdAt].toString()
+                    )
+                }
+            }
+            call.respond(webhooks)
+        }
+
+        post("/projects/{id}/webhooks") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val request = try {
+                call.receive<CreateWebhookRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            if (request.url.isBlank() || !request.url.startsWith("https://")) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Webhook URL must use HTTPS"))
+            }
+
+            val webhookId = UUID.randomUUID()
+            // Auto-generate a cryptographically secure HMAC secret
+            val secret = java.security.SecureRandom().let { rng ->
+                val bytes = ByteArray(32)
+                rng.nextBytes(bytes)
+                bytes.joinToString("") { "%02x".format(it) }
+            }
+
+            transaction {
+                Webhooks.insert {
+                    it[Webhooks.id] = webhookId
+                    it[Webhooks.projectId] = pid
+                    it[Webhooks.url] = request.url
+                    it[Webhooks.secret] = secret
+                    it[Webhooks.events] = request.events.joinToString(",")
+                }
+            }
+
+            call.respond(HttpStatusCode.Created, buildJsonObject {
+                put("id", webhookId.toString())
+                put("secret", secret) // Only shown once at creation time
+                put("success", true)
+            })
+        }
+
+        delete("/projects/{id}/webhooks/{webhookId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val webhookId = safeParseUUID(call.parameters["webhookId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing webhook ID"))
+
+            val deleted = transaction {
+                // Verify webhook belongs to project
+                val exists = Webhooks.selectAll().where {
+                    (Webhooks.id eq webhookId) and (Webhooks.projectId eq pid)
+                }.count() > 0
+
+                if (exists) {
+                    WebhookDeliveries.deleteWhere { WebhookDeliveries.webhookId eq webhookId }
+                    Webhooks.deleteWhere {
+                        (Webhooks.id eq webhookId) and (Webhooks.projectId eq pid)
+                    }
+                }
+                exists
+            }
+
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound, ApiError.notFound("Webhook not found"))
+            }
+        }
+
+        get("/projects/{id}/webhooks/{webhookId}/deliveries") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val webhookId = safeParseUUID(call.parameters["webhookId"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing webhook ID"))
+
+            // Verify webhook belongs to project
+            val webhookExists = transaction {
+                Webhooks.selectAll().where {
+                    (Webhooks.id eq webhookId) and (Webhooks.projectId eq pid)
+                }.count() > 0
+            }
+            if (!webhookExists) {
+                return@get call.respond(HttpStatusCode.NotFound,
+                    ApiError.notFound("Webhook not found"))
+            }
+
+            val deliveries = transaction {
+                WebhookDeliveries.selectAll()
+                    .where { WebhookDeliveries.webhookId eq webhookId }
+                    .orderBy(WebhookDeliveries.createdAt, SortOrder.DESC)
+                    .limit(50)
+                    .map {
+                        WebhookDeliveryResponse(
+                            id = it[WebhookDeliveries.id].toString(),
+                            eventType = it[WebhookDeliveries.eventType],
+                            responseCode = it[WebhookDeliveries.responseCode],
+                            attempt = it[WebhookDeliveries.attempt],
+                            status = it[WebhookDeliveries.status],
+                            createdAt = it[WebhookDeliveries.createdAt].toString(),
+                            deliveredAt = it[WebhookDeliveries.deliveredAt]?.toString()
+                        )
+                    }
+            }
+            call.respond(deliveries)
+        }
+
+        post("/projects/{id}/webhooks/{webhookId}/test") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val webhookId = safeParseUUID(call.parameters["webhookId"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing webhook ID"))
+
+            val webhook = transaction {
+                Webhooks.selectAll().where {
+                    (Webhooks.id eq webhookId) and (Webhooks.projectId eq pid)
+                }.singleOrNull()
+            } ?: return@post call.respond(HttpStatusCode.NotFound,
+                ApiError.notFound("Webhook not found"))
+
+            val testPayload = buildJsonObject {
+                put("event", "test")
+                put("projectId", pid.toString())
+                put("message", "This is a test webhook delivery from Mini Numbers")
+                put("timestamp", LocalDateTime.now().toString())
+            }.toString()
+
+            se.onemanstudio.services.WebhookService.deliverAsync(
+                webhookId = webhookId,
+                url = webhook[Webhooks.url],
+                secret = webhook[Webhooks.secret],
+                eventType = "test",
+                payload = testPayload
+            )
+
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("success", true)
+                put("message", "Test webhook queued for delivery")
+            })
+        }
+
+        // ── User Management (admin-only) ─────────────────────────────
+
+        get("/users") {
+            if (!call.requireRole(UserRole.ADMIN)) return@get
+            val users = transaction {
+                se.onemanstudio.db.Users.selectAll().map {
+                    UserResponse(
+                        id = it[se.onemanstudio.db.Users.id].toString(),
+                        username = it[se.onemanstudio.db.Users.username],
+                        role = it[se.onemanstudio.db.Users.role],
+                        isActive = it[se.onemanstudio.db.Users.isActive],
+                        createdAt = it[se.onemanstudio.db.Users.createdAt].toString()
+                    )
+                }
+            }
+            call.respond(users)
+        }
+
+        post("/users") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
+            val request = try {
+                call.receive<CreateUserRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            if (request.username.isBlank() || request.username.length > 100) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Username must be 1-100 characters"))
+            }
+            if (request.password.length < 8) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Password must be at least 8 characters"))
+            }
+            if (request.role !in listOf("admin", "viewer")) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Role must be 'admin' or 'viewer'"))
+            }
+
+            // Check for duplicate username
+            val exists = transaction {
+                se.onemanstudio.db.Users.selectAll().where {
+                    se.onemanstudio.db.Users.username eq request.username
+                }.count() > 0
+            }
+            if (exists) {
+                return@post call.respond(HttpStatusCode.Conflict,
+                    ApiError(error = "Username already exists", code = "CONFLICT"))
+            }
+
+            val userId = UUID.randomUUID()
+            val hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(
+                request.password,
+                org.mindrot.jbcrypt.BCrypt.gensalt(12)
+            )
+
+            transaction {
+                se.onemanstudio.db.Users.insert {
+                    it[se.onemanstudio.db.Users.id] = userId
+                    it[se.onemanstudio.db.Users.username] = request.username
+                    it[se.onemanstudio.db.Users.passwordHash] = hashedPassword
+                    it[se.onemanstudio.db.Users.role] = request.role
+                }
+            }
+
+            call.respond(HttpStatusCode.Created, buildJsonObject {
+                put("id", userId.toString())
+                put("success", true)
+            })
+        }
+
+        put("/users/{userId}/role") {
+            if (!call.requireRole(UserRole.ADMIN)) return@put
+            val userId = safeParseUUID(call.parameters["userId"])
+                ?: return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing user ID"))
+
+            val request = try {
+                call.receive<UpdateUserRoleRequest>()
+            } catch (e: Exception) {
+                return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            if (request.role !in listOf("admin", "viewer")) {
+                return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Role must be 'admin' or 'viewer'"))
+            }
+
+            val updated = transaction {
+                se.onemanstudio.db.Users.update({
+                    se.onemanstudio.db.Users.id eq userId
+                }) {
+                    it[se.onemanstudio.db.Users.role] = request.role
+                }
+            }
+
+            if (updated > 0) {
+                call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+            } else {
+                call.respond(HttpStatusCode.NotFound, ApiError.notFound("User not found"))
+            }
+        }
+
+        delete("/users/{userId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
+            val userId = safeParseUUID(call.parameters["userId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing user ID"))
+
+            val deleted = transaction {
+                se.onemanstudio.db.Users.deleteWhere {
+                    se.onemanstudio.db.Users.id eq userId
+                }
+            }
+
+            if (deleted > 0) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound, ApiError.notFound("User not found"))
+            }
         }
     }
 }

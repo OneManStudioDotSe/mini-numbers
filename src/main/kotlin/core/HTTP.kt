@@ -60,50 +60,25 @@ fun Application.configureHTTP(config: AppConfig) {
         }
     }
 
-    // CORS configuration with smart development/production detection
+    // CORS configuration
+    // anyHost() is required for embeddable widget endpoints that run on third-party sites.
+    // This is safe because allowCredentials is false (default), so session cookies are never
+    // sent cross-origin. Auth is enforced at the application level: session auth for admin
+    // endpoints, API keys for /collect and /widget endpoints.
     install(CORS) {
-        // Allow standard HTTP methods
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
 
-        // Allow required headers
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Authorization)
-        allowHeader("X-Project-Key")  // Custom header for API key
+        allowHeader("X-Project-Key")
+        allowHeader("X-Widget-Key")
 
-        // Smart CORS policy based on environment
-        if (config.server.isDevelopment) {
-            // Development mode: allow all origins for easier testing
-            anyHost()
-        } else {
-            // Production mode: use whitelist from configuration
-            if (config.security.allowedOrigins.isEmpty()) {
-                // No origins configured = reject all cross-origin requests (most secure)
-            } else if (config.security.allowedOrigins.contains("*")) {
-                // Wildcard configuration (not recommended but allowed)
-                anyHost()
-            } else {
-                // Use specific origin whitelist
-                config.security.allowedOrigins.forEach { origin ->
-                    allowHost(origin, schemes = listOf("http", "https"))
-                }
-            }
-        }
+        anyHost()
     }
 
-    // Log CORS configuration
-    if (config.server.isDevelopment) {
-        environment.log.info("CORS: Development mode - allowing all origins")
-    } else {
-        if (config.security.allowedOrigins.isEmpty()) {
-            environment.log.warn("CORS: No allowed origins configured. All cross-origin requests will be rejected.")
-        } else if (config.security.allowedOrigins.contains("*")) {
-            environment.log.warn("CORS: Wildcard (*) configured in production. This is not recommended for security.")
-        } else {
-            environment.log.info("CORS: Production mode - allowed origins: ${config.security.allowedOrigins.joinToString(", ")}")
-        }
-    }
+    environment.log.info("CORS: All origins allowed (credentials disabled, auth enforced by session/API keys)")
 }

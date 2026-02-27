@@ -255,6 +255,115 @@ The bottom-right section shows real-time visitor activity:
 
 ---
 
+## Embeddable widgets
+
+Mini Numbers provides 4 embeddable widgets that you can place on your tracked website to display live analytics information to your visitors. Each widget is loaded via a single `<script>` tag — no iframes or external dependencies required.
+
+### Available widgets
+
+| Widget | Description |
+|--------|-------------|
+| **realtime** | Live visitor counter with pulsing green dot (e.g., "42 visitors online") |
+| **pageviews** | Page view count badge, filterable by scope and time range |
+| **toppages** | Ordered list of most popular pages with mini progress bars |
+| **sparkline** | Tiny inline SVG trend chart showing the last 7 days of traffic |
+
+### Installation
+
+Add a `<script>` tag for each widget you want to display. The widget renders itself immediately after the script tag (or into a target container you specify).
+
+**Real-time visitor counter:**
+
+```html
+<script async src="https://your-analytics-domain.com/widget/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-widget="realtime"></script>
+```
+
+**Page view counter:**
+
+```html
+<script async src="https://your-analytics-domain.com/widget/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-widget="pageviews"
+  data-scope="site"
+  data-filter="30d"></script>
+```
+
+**Top pages list:**
+
+```html
+<script async src="https://your-analytics-domain.com/widget/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-widget="toppages"
+  data-limit="5"
+  data-title="Popular articles"></script>
+```
+
+**Visitor sparkline:**
+
+```html
+<script async src="https://your-analytics-domain.com/widget/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-widget="sparkline"
+  data-color="#6366f1"
+  data-width="120"
+  data-height="32"></script>
+```
+
+### Configuration attributes
+
+All widgets require `data-project-key` and `data-widget`. Additional attributes vary by widget type:
+
+| Attribute | Applies to | Default | Description |
+|-----------|------------|---------|-------------|
+| `data-project-key` | All | Required | Your project's API key |
+| `data-widget` | All | Required | Widget type: `realtime`, `pageviews`, `toppages`, or `sparkline` |
+| `data-theme` | All | `light` | Color theme: `light` or `dark` |
+| `data-target` | All | — | CSS selector for a container element (e.g., `#my-widget`). If omitted, the widget renders after the script tag. |
+| `data-api-endpoint` | All | Script origin | Custom API base URL (useful if your analytics server is on a different domain) |
+| `data-scope` | pageviews | `site` | Count scope: `site` (all pages) or `page` (current page only) |
+| `data-filter` | pageviews, toppages | `7d` | Time range: `24h`, `3d`, `7d`, `30d`, or `365d` |
+| `data-path` | pageviews | — | Specific page path to count (only used when `data-scope="page"`) |
+| `data-limit` | toppages | `5` | Number of pages to show (1–10) |
+| `data-title` | toppages | `Popular pages` | Heading text above the list |
+| `data-poll` | realtime | `12000` | Polling interval in milliseconds |
+| `data-color` | sparkline | `#6366f1` | Line and fill color |
+| `data-width` | sparkline | `120` | SVG width in pixels |
+| `data-height` | sparkline | `32` | SVG height in pixels |
+
+### Rendering into a specific container
+
+By default, each widget renders a `<div>` immediately after its `<script>` tag. To place the widget inside an existing element, use `data-target`:
+
+```html
+<div id="visitor-count"></div>
+
+<script async src="https://your-analytics-domain.com/widget/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-widget="realtime"
+  data-target="#visitor-count"></script>
+```
+
+### Styling
+
+All widget CSS uses the `mn-` prefix to avoid conflicts with your site's styles. The widgets support `light` and `dark` themes via the `data-theme` attribute. You can further customize the appearance by overriding the `mn-` prefixed CSS classes in your own stylesheet.
+
+### API endpoints
+
+The widgets fetch data from public API endpoints that use your project's API key for authentication (same key as the tracker):
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /widget/realtime?key=<KEY>` | Active visitors in the last 5 minutes |
+| `GET /widget/pageviews?key=<KEY>&scope=site&filter=7d` | Page view count |
+| `GET /widget/toppages?key=<KEY>&filter=7d&limit=5` | Top pages by views |
+| `GET /widget/sparkline?key=<KEY>` | Daily views for the last 7 days |
+
+Responses are cached for 60 seconds to minimize database load. The realtime widget polls automatically (default every 12 seconds) and pauses when the browser tab is hidden.
+
+---
+
 ## Theme
 
 Toggle between light and dark mode using the switch in the header. Your preference is saved in localStorage and respects your system's `prefers-color-scheme` setting on first visit.

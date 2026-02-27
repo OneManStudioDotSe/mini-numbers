@@ -4,13 +4,14 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import java.util.concurrent.TimeUnit
 
 /**
- * Query result cache using Caffeine for dashboard and report queries.
- * Short TTL ensures data freshness while reducing database load.
+ * Dedicated cache for widget endpoint responses.
+ * Separate from QueryCache to avoid cross-invalidation and allow longer TTL.
+ * Widget data tolerates 60s staleness since it's displayed on public pages.
  */
-object QueryCache {
+object WidgetCache {
     private val cache = Caffeine.newBuilder()
-        .maximumSize(500)
-        .expireAfterWrite(30, TimeUnit.SECONDS)
+        .maximumSize(200)
+        .expireAfterWrite(60, TimeUnit.SECONDS)
         .build<String, Any>()
 
     /**
@@ -22,10 +23,10 @@ object QueryCache {
     }
 
     /**
-     * Invalidate all cache entries for a specific project
+     * Invalidate all widget cache entries for a specific project
      */
     fun invalidateProject(projectId: String) {
-        cache.asMap().keys.removeIf { it.startsWith(projectId) }
+        cache.asMap().keys.removeIf { it.startsWith("widget:$projectId") }
     }
 
     /**
@@ -42,10 +43,7 @@ object QueryCache {
         val stats = cache.stats()
         return mapOf(
             "size" to cache.estimatedSize(),
-            "hitRate" to stats.hitRate(),
-            "hitCount" to stats.hitCount(),
-            "missCount" to stats.missCount(),
-            "evictionCount" to stats.evictionCount()
+            "hitRate" to stats.hitRate()
         )
     }
 }

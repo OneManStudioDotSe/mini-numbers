@@ -1,5 +1,6 @@
 package se.onemanstudio.core
 
+import org.junit.Before
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import se.onemanstudio.config.*
@@ -14,6 +15,12 @@ class ServiceManagerTest {
 
     private val logger = LoggerFactory.getLogger("ServiceManagerTest")
 
+    @Before
+    fun resetState() {
+        // Reset singleton ServiceManager state between tests to prevent leakage
+        ServiceManager.shutdown(logger)
+    }
+
     private fun createTestConfig(): AppConfig {
         return AppConfig(
             security = SecurityConfig(
@@ -24,13 +31,12 @@ class ServiceManagerTest {
             ),
             database = DatabaseConfig(
                 type = DatabaseType.SQLITE,
-                path = "./test-${System.currentTimeMillis()}.db",
+                path = "test-dbs/sm-test-${System.nanoTime()}.db",
                 host = null,
                 port = null,
                 name = null,
                 username = null,
                 password = null,
-                // maxPoolSize has default value for PostgreSQL
             ),
             server = ServerConfig(
                 port = 8080,
@@ -142,7 +148,7 @@ class ServiceManagerTest {
             ),
             database = DatabaseConfig(
                 type = DatabaseType.SQLITE,
-                path = "./test.db",
+                path = "test-dbs/sm-test-shortsalt-${System.nanoTime()}.db",
                 host = null,
                 port = null,
                 name = null,
@@ -184,13 +190,12 @@ class ServiceManagerTest {
             ),
             database = DatabaseConfig(
                 type = DatabaseType.SQLITE,
-                path = "./test2-${System.currentTimeMillis()}.db",
+                path = "test-dbs/sm-test2-${System.nanoTime()}.db",
                 host = null,
                 port = null,
                 name = null,
                 username = null,
                 password = null,
-                // maxPoolSize has default value for PostgreSQL
             ),
             server = ServerConfig(
                 port = 8081,
@@ -258,13 +263,12 @@ class ServiceManagerTest {
             ),
             database = DatabaseConfig(
                 type = DatabaseType.SQLITE,
-                path = "./test-${System.currentTimeMillis()}.db",
+                path = "test-dbs/sm-test-nogeo-${System.nanoTime()}.db",
                 host = null,
                 port = null,
                 name = null,
                 username = null,
                 password = null,
-                // maxPoolSize has default value for PostgreSQL
             ),
             server = ServerConfig(
                 port = 8080,

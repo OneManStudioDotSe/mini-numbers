@@ -118,8 +118,11 @@ fun analyzeFunnel(
     end: LocalDateTime
 ): FunnelAnalysis {
     return transaction {
-        // Load funnel info
-        val funnel = Funnels.selectAll().where { Funnels.id eq funnelId }.single()
+        // Load funnel info (validate it belongs to the requested project)
+        val funnel = Funnels.selectAll().where {
+            (Funnels.id eq funnelId) and (Funnels.projectId eq projectId)
+        }.singleOrNull()
+            ?: throw IllegalArgumentException("Funnel not found for this project")
 
         // Load steps ordered by step number
         val steps = FunnelSteps.selectAll()
