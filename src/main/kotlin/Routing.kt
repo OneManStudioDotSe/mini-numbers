@@ -1640,6 +1640,47 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             ))
         }
 
+        // ── Revenue Analytics ─────────────────────────────────────────
+
+        get("/projects/{id}/revenue") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val filter = call.request.queryParameters["filter"] ?: "7d"
+            val (start, end) = getCurrentPeriod(filter)
+            val stats = QueryCache.getOrCompute("$pid:revenue:$filter") {
+                se.onemanstudio.RevenueAnalysisUtils.calculateRevenue(pid, start, end)
+            }
+            call.respond(stats)
+        }
+
+        get("/projects/{id}/revenue/breakdown") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val filter = call.request.queryParameters["filter"] ?: "7d"
+            val (start, end) = getCurrentPeriod(filter)
+            val breakdown = QueryCache.getOrCompute("$pid:revenue-breakdown:$filter") {
+                se.onemanstudio.RevenueAnalysisUtils.calculateRevenueByEvent(pid, start, end)
+            }
+            call.respond(breakdown)
+        }
+
+        get("/projects/{id}/revenue/attribution") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val filter = call.request.queryParameters["filter"] ?: "7d"
+            val (start, end) = getCurrentPeriod(filter)
+            val attribution = QueryCache.getOrCompute("$pid:revenue-attribution:$filter") {
+                se.onemanstudio.RevenueAnalysisUtils.calculateRevenueAttribution(pid, start, end)
+            }
+            call.respond(attribution)
+        }
+
         // ── User Management (admin-only) ─────────────────────────────
 
         get("/users") {
@@ -2021,9 +2062,22 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
                     it[Events.utmMedium] = utmMediums.random()
                     it[Events.utmCampaign] = utmCampaigns.random()
                 }
-                // Add properties to some custom events
-                if (eventType == "custom" && random.nextDouble() < 0.5) {
-                    it[Events.properties] = """{"plan":"${listOf("free","pro","enterprise").random()}","value":"${random.nextInt(100)}"}"""
+                // Add properties to custom events — revenue data for purchase-like events
+                if (eventType == "custom") {
+                    val evName = customEventName ?: ""
+                    when {
+                        evName == "purchase" -> {
+                            val rev = listOf(9.99, 19.99, 29.99, 49.99, 99.99, 149.99).random()
+                            it[Events.properties] = """{"revenue":$rev,"currency":"USD","product":"${listOf("Starter","Pro","Enterprise","Add-on").random()}"}"""
+                        }
+                        evName == "add_to_cart" && random.nextDouble() < 0.3 -> {
+                            val rev = listOf(9.99, 19.99, 29.99, 49.99).random()
+                            it[Events.properties] = """{"revenue":$rev,"currency":"USD","item":"${listOf("Widget","Plugin","Theme").random()}"}"""
+                        }
+                        random.nextDouble() < 0.3 -> {
+                            it[Events.properties] = """{"plan":"${listOf("free","pro","enterprise").random()}","value":"${random.nextInt(100)}"}"""
+                        }
+                    }
                 }
             }
 
