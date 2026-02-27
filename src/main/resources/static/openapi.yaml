@@ -424,6 +424,117 @@ paths:
       responses:
         '200': { description: Segment analysis }
 
+  /admin/projects/{id}/webhooks:
+    get:
+      summary: List webhooks
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookResponse'
+    post:
+      summary: Create webhook
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        '201':
+          description: Webhook created (includes secret, shown only once)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  secret: { type: string }
+                  success: { type: boolean }
+        '400': { description: Invalid URL (must use HTTPS) }
+
+  /admin/projects/{id}/webhooks/{webhookId}:
+    delete:
+      summary: Delete webhook
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: webhookId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Webhook deleted }
+        '404': { description: Webhook not found }
+
+  /admin/projects/{id}/webhooks/{webhookId}/deliveries:
+    get:
+      summary: List webhook deliveries
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: webhookId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Last 50 deliveries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookDeliveryResponse'
+        '404': { description: Webhook not found }
+
+  /admin/projects/{id}/webhooks/{webhookId}/test:
+    post:
+      summary: Send test webhook
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: webhookId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Test webhook queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '404': { description: Webhook not found }
+
 components:
   schemas:
     ApiError:
@@ -516,3 +627,34 @@ components:
         operator: { type: string, enum: ['equals', 'not_equals', 'contains', 'starts_with'] }
         value: { type: string }
         logic: { type: string, enum: ['AND', 'OR'], default: 'AND' }
+
+    CreateWebhookRequest:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri, description: Must use HTTPS }
+        events:
+          type: array
+          items: { type: string, enum: ['goal_conversion', 'traffic_spike'] }
+          default: ['goal_conversion', 'traffic_spike']
+
+    WebhookResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        url: { type: string }
+        events: { type: array, items: { type: string } }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    WebhookDeliveryResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        eventType: { type: string }
+        responseCode: { type: integer, nullable: true }
+        attempt: { type: integer }
+        status: { type: string, enum: ['pending', 'success', 'failed'] }
+        createdAt: { type: string, format: date-time }
+        deliveredAt: { type: string, format: date-time, nullable: true }

@@ -674,7 +674,8 @@ const Dashboard = {
       Promise.allSettled([
         this.loadContributionCalendar(),
         this.loadGoalsAndFunnels(),
-        this.loadSegments()
+        this.loadSegments(),
+        this.loadWebhooks()
       ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
@@ -1770,6 +1771,23 @@ const Dashboard = {
       }
     } catch (error) {
       console.error('Failed to load segments:', error);
+    }
+  },
+
+  /**
+   * Load and render webhooks for current project
+   */
+  async loadWebhooks() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      if (typeof WebhooksManager !== 'undefined') {
+        WebhooksManager.initModal(this.state.currentProjectId);
+        const webhooks = await WebhooksManager.loadWebhooks(this.state.currentProjectId);
+        WebhooksManager.renderWebhooks(webhooks, this.state.currentProjectId);
+      }
+    } catch (error) {
+      console.error('Failed to load webhooks:', error);
     }
   },
 

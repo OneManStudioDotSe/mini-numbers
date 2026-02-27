@@ -449,6 +449,19 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
                 // Invalidate cache for this project
                 QueryCache.invalidateProject(project[Projects.id].toString())
                 WidgetCache.invalidateProject(project[Projects.id].toString())
+
+                // Fire webhooks for matching events (non-blocking)
+                try {
+                    se.onemanstudio.services.WebhookTrigger.checkAndFire(
+                        projectId = project[Projects.id],
+                        eventType = payload.type,
+                        eventName = sanitizedEventName,
+                        path = sanitizedPath,
+                        properties = sanitizedProperties
+                    )
+                } catch (e: Exception) {
+                    call.application.environment.log.warn("Webhook trigger error: ${e.message}")
+                }
             } catch (e: org.jetbrains.exposed.exceptions.ExposedSQLException) {
                 call.application.environment.log.error("Database SQL error: ${e.message}", e)
                 return@post call.respond(HttpStatusCode.InternalServerError,
@@ -1310,6 +1323,8 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                 }
             }
 
+            se.onemanstudio.services.WebhookTrigger.invalidateProject(pid.toString())
+
             call.respond(HttpStatusCode.Created, buildJsonObject {
                 put("id", webhookId.toString())
                 put("secret", secret) // Only shown once at creation time
@@ -1342,6 +1357,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             }
 
             if (deleted) {
+                se.onemanstudio.services.WebhookTrigger.invalidateProject(pid.toString())
                 call.respond(HttpStatusCode.NoContent)
             } else {
                 call.respond(HttpStatusCode.NotFound, ApiError.notFound("Webhook not found"))
