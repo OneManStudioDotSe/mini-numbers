@@ -78,7 +78,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
                 put("status", if (ServiceManager.isReady()) "healthy" else "unhealthy")
                 put("state", state.name)
                 put("uptime_seconds", ServiceManager.getUptimeSeconds())
-                put("version", "1.0.0")
+                put("version", "1.0.0-beta")
             })
         }
 

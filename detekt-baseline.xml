@@ -2,10 +2,16 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ConversionAnalysisUtils.kt$fun analyzeFunnel( funnelId: UUID, projectId: UUID, start: LocalDateTime, end: LocalDateTime ): FunnelAnalysis</ID>
+    <ID>CyclomaticComplexMethod:EmailService.kt$EmailService$private fun checkAndSendDueReports()</ID>
     <ID>CyclomaticComplexMethod:InputValidator.kt$InputValidator$fun validatePageViewPayload(payload: PageViewPayload): ValidationResult</ID>
-    <ID>CyclomaticComplexMethod:Routing.kt$fun Application.configureRouting(config: AppConfig)</ID>
-    <ID>CyclomaticComplexMethod:Routing.kt$fun Route.adminRoutes(privacyMode: PrivacyMode)</ID>
+    <ID>CyclomaticComplexMethod:Routing.kt$fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
+    <ID>CyclomaticComplexMethod:Routing.kt$fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List&lt;String>, rateLimiter: RateLimiter)</ID>
+    <ID>CyclomaticComplexMethod:Routing.kt$private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: Int = 30): Int</ID>
+    <ID>CyclomaticComplexMethod:SetupRouting.kt$fun Application.configureSetupRouting()</ID>
+    <ID>CyclomaticComplexMethod:WidgetRouting.kt$fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
     <ID>InvalidPackageDeclaration:ActivityCell.kt$package se.onemanstudio.api.models.dashboard</ID>
+    <ID>InvalidPackageDeclaration:AdminCorsGuard.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:AdminEndpointTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:AnalyticsSecurity.kt$package se.onemanstudio.core</ID>
     <ID>InvalidPackageDeclaration:ApiError.kt$package se.onemanstudio.api.models</ID>
@@ -15,16 +21,24 @@
     <ID>InvalidPackageDeclaration:CollectEndpointTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:ComparisonReport.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:ConfigLoader.kt$package se.onemanstudio.config</ID>
+    <ID>InvalidPackageDeclaration:ConfigLoaderTest.kt$package se.onemanstudio.config</ID>
     <ID>InvalidPackageDeclaration:ConfigurationException.kt$package se.onemanstudio.config</ID>
     <ID>InvalidPackageDeclaration:ContributionCalendar.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:ContributionDay.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:ConversionAnalysisUtils.kt$package se.onemanstudio</ID>
+    <ID>InvalidPackageDeclaration:ConversionAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
     <ID>InvalidPackageDeclaration:ConversionGoals.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:DataAnalysisUtils.kt$package se.onemanstudio</ID>
     <ID>InvalidPackageDeclaration:DataAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
     <ID>InvalidPackageDeclaration:DatabaseConfig.kt$package se.onemanstudio.config.models</ID>
     <ID>InvalidPackageDeclaration:DatabaseFactory.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:DatabaseSetupDTO.kt$package se.onemanstudio.setup.models</ID>
+    <ID>InvalidPackageDeclaration:EmailConfig.kt$package se.onemanstudio.config.models</ID>
+    <ID>InvalidPackageDeclaration:EmailReportEndpointTest.kt$package se.onemanstudio.integration</ID>
+    <ID>InvalidPackageDeclaration:EmailReportModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:EmailReports.kt$package se.onemanstudio.db</ID>
+    <ID>InvalidPackageDeclaration:EmailService.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:EmailServiceTest.kt$package se.onemanstudio.services</ID>
     <ID>InvalidPackageDeclaration:ErrorResponse.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:Events.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:FunnelModels.kt$package se.onemanstudio.api.models</ID>
@@ -33,14 +47,18 @@
     <ID>InvalidPackageDeclaration:GeoIPConfig.kt$package se.onemanstudio.config.models</ID>
     <ID>InvalidPackageDeclaration:GeoIPSetupDTO.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:GeoLocationService.kt.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:GlobeModels.kt$package se.onemanstudio.api.models</ID>
     <ID>InvalidPackageDeclaration:GoalModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:GoalsFunnelsSegmentsTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:HTTP.kt$package se.onemanstudio.core</ID>
     <ID>InvalidPackageDeclaration:HealthEndpointTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:InputValidator.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:InputValidatorTest.kt$package se.onemanstudio.middleware</ID>
+    <ID>InvalidPackageDeclaration:JwtService.kt$package se.onemanstudio.core</ID>
     <ID>InvalidPackageDeclaration:LoginAttempt.kt$package se.onemanstudio.core.models</ID>
     <ID>InvalidPackageDeclaration:PageViewPayload.kt$package se.onemanstudio.api.models</ID>
     <ID>InvalidPackageDeclaration:PaginatedResponse.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:PasswordResetRequest.kt$package se.onemanstudio.api.models</ID>
     <ID>InvalidPackageDeclaration:PeakTimeAnalysis.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:PrivacyConfig.kt$package se.onemanstudio.config.models</ID>
     <ID>InvalidPackageDeclaration:ProjectReport.kt$package se.onemanstudio.api.models</ID>
@@ -53,9 +71,16 @@
     <ID>InvalidPackageDeclaration:RateLimitSetupDTO.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:RateLimitStatus.kt$package se.onemanstudio.middleware.models</ID>
     <ID>InvalidPackageDeclaration:RateLimiter.kt$package se.onemanstudio.middleware</ID>
+    <ID>InvalidPackageDeclaration:RateLimiterTest.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:RawEvent.kt$package se.onemanstudio.api.models</ID>
     <ID>InvalidPackageDeclaration:RawEventsResponse.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:RedirectValidator.kt$package se.onemanstudio.middleware</ID>
+    <ID>InvalidPackageDeclaration:RefreshTokens.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:ResetDatabase.kt$package se.onemanstudio.db</ID>
+    <ID>InvalidPackageDeclaration:RevenueAnalysisUtils.kt$package se.onemanstudio</ID>
+    <ID>InvalidPackageDeclaration:RevenueAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
+    <ID>InvalidPackageDeclaration:RevenueModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:RoleGuard.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:Routing.kt$package se.onemanstudio</ID>
     <ID>InvalidPackageDeclaration:SaltResponse.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:SaveResponse.kt$package se.onemanstudio.setup.models</ID>
@@ -72,6 +97,7 @@
     <ID>InvalidPackageDeclaration:SetupRouting.kt$package se.onemanstudio.setup</ID>
     <ID>InvalidPackageDeclaration:SetupStatusResponse.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:SetupValidation.kt$package se.onemanstudio.setup</ID>
+    <ID>InvalidPackageDeclaration:SetupValidationTest.kt$package se.onemanstudio.setup</ID>
     <ID>InvalidPackageDeclaration:SetupWizardTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:StatEntry.kt$package se.onemanstudio.api.models</ID>
     <ID>InvalidPackageDeclaration:TimeSeriesPoint.kt$package se.onemanstudio.api.models.dashboard</ID>
@@ -80,15 +106,39 @@
     <ID>InvalidPackageDeclaration:TrackingWorkflowTest.kt$package se.onemanstudio.integration</ID>
     <ID>InvalidPackageDeclaration:UserAgentParser.kt$package se.onemanstudio.services</ID>
     <ID>InvalidPackageDeclaration:UserAgentParserTest.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:UserModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:UserRole.kt$package se.onemanstudio.core.models</ID>
     <ID>InvalidPackageDeclaration:UserSession.kt$package se.onemanstudio.core.models</ID>
+    <ID>InvalidPackageDeclaration:Users.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:ValidationResult.kt$package se.onemanstudio.setup.models</ID>
     <ID>InvalidPackageDeclaration:VisitSnippet.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:WebhookEndpointTest.kt$package se.onemanstudio.integration</ID>
+    <ID>InvalidPackageDeclaration:WebhookModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:WebhookService.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:WebhookServiceTest.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:WebhookTrigger.kt$package se.onemanstudio.services</ID>
+    <ID>InvalidPackageDeclaration:Webhooks.kt$package se.onemanstudio.db</ID>
+    <ID>InvalidPackageDeclaration:WidgetAuth.kt$package se.onemanstudio.core</ID>
+    <ID>InvalidPackageDeclaration:WidgetCache.kt$package se.onemanstudio.middleware</ID>
+    <ID>InvalidPackageDeclaration:WidgetModels.kt$package se.onemanstudio.api.models</ID>
+    <ID>InvalidPackageDeclaration:WidgetRouting.kt$package se.onemanstudio</ID>
+    <ID>LongMethod:Application.kt$fun Application.module()</ID>
     <ID>LongMethod:ConversionAnalysisUtils.kt$fun analyzeFunnel( funnelId: UUID, projectId: UUID, start: LocalDateTime, end: LocalDateTime ): FunnelAnalysis</ID>
-    <ID>LongMethod:Routing.kt$fun Application.configureRouting(config: AppConfig)</ID>
-    <ID>LongMethod:Routing.kt$fun Route.adminRoutes(privacyMode: PrivacyMode)</ID>
+    <ID>LongMethod:DataAnalysisUtils.kt$fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectReport</ID>
+    <ID>LongMethod:InputValidator.kt$InputValidator$fun validatePageViewPayload(payload: PageViewPayload): ValidationResult</ID>
+    <ID>LongMethod:RevenueAnalysisUtils.kt$RevenueAnalysisUtils$fun calculateRevenueAttribution(projectId: UUID, start: LocalDateTime, end: LocalDateTime): List&lt;RevenueAttribution></ID>
+    <ID>LongMethod:Routing.kt$fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
+    <ID>LongMethod:Routing.kt$fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List&lt;String>, rateLimiter: RateLimiter)</ID>
     <ID>LongMethod:Routing.kt$private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: Int = 30): Int</ID>
+    <ID>LongMethod:Routing.kt$private fun seedDemoGoalsFunnelsSegments(projectId: java.util.UUID)</ID>
     <ID>LongMethod:SetupRouting.kt$fun Application.configureSetupRouting()</ID>
+    <ID>LongMethod:WidgetRouting.kt$fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
+    <ID>MaxLineLength:DatabaseFactory.kt$DatabaseFactory$SchemaUtils.createMissingTablesAndColumns(Projects, Events, ConversionGoals, Funnels, FunnelSteps, Segments, RefreshTokens, Users, Webhooks, WebhookDeliveries, EmailReports)</ID>
     <ID>MaxLineLength:HTTP.kt$"script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "</ID>
+    <ID>MaxLineLength:Routing.kt$"""[{"field":"browser","operator":"equals","value":"Chrome","logic":"AND"},{"field":"device","operator":"equals","value":"Desktop","logic":"AND"}]"""</ID>
+    <ID>MaxLineLength:Routing.kt$it[Events.properties] = """{"plan":"${listOf("free","pro","enterprise").random()}","value":"${random.nextInt(100)}"}"""</ID>
+    <ID>MaxLineLength:Routing.kt$it[Events.properties] = """{"revenue":$rev,"currency":"USD","item":"${listOf("Widget","Plugin","Theme").random()}"}"""</ID>
+    <ID>MaxLineLength:Routing.kt$it[Events.properties] = """{"revenue":$rev,"currency":"USD","product":"${listOf("Starter","Pro","Enterprise","Add-on").random()}"}"""</ID>
     <ID>MaxLineLength:Routing.kt$it[filtersJson] = Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(SegmentFilter.serializer()), request.filters)</ID>
     <ID>MaxLineLength:Routing.kt$val countries = listOf("United States", "United Kingdom", "Canada", "Germany", "France", "Spain", "Italy", "Australia", "Japan", "Brazil")</ID>
     <ID>MaxLineLength:ServiceManager.kt$ServiceManager$logger.info("Security module initialized (hash rotation: ${config.privacy.hashRotationHours}h, privacy mode: ${config.privacy.privacyMode})")</ID>
@@ -97,24 +147,30 @@
     <ID>MaxLineLength:UserAgentParserTest.kt$UserAgentParserTest$val ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.277"</ID>
     <ID>MaxLineLength:UserAgentParserTest.kt$UserAgentParserTest$val ua = "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"</ID>
     <ID>MaxLineLength:UserAgentParserTest.kt$UserAgentParserTest$val ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"</ID>
+    <ID>MaxLineLength:WebhookTrigger.kt$WebhookTrigger$logger.info("Fired traffic_spike webhook for project $projectId (rate: ${"%.1f".format(currentRate)}/min, baseline: ${"%.1f".format(window.baselineRate)}/min)")</ID>
     <ID>NestedBlockDepth:GeoLocationService.kt.kt$GeoLocationService$fun init(dbPath: String)</ID>
+    <ID>NestedBlockDepth:Routing.kt$private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: Int = 30): Int</ID>
     <ID>NewLineAtEndOfFile:ActivityCell.kt$se.onemanstudio.api.models.dashboard.ActivityCell.kt</ID>
     <ID>NewLineAtEndOfFile:DataAnalysisUtils.kt$se.onemanstudio.DataAnalysisUtils.kt</ID>
     <ID>NewLineAtEndOfFile:DatabaseFactory.kt$se.onemanstudio.db.DatabaseFactory.kt</ID>
     <ID>NewLineAtEndOfFile:PeakTimeAnalysis.kt$se.onemanstudio.api.models.dashboard.PeakTimeAnalysis.kt</ID>
     <ID>NewLineAtEndOfFile:TopPage.kt$se.onemanstudio.api.models.dashboard.TopPage.kt</ID>
     <ID>SwallowedException:Application.kt$e: Exception</ID>
-    <ID>SwallowedException:ConfigLoader.kt$ConfigLoader$e: Exception</ID>
     <ID>SwallowedException:ConfigLoader.kt$ConfigLoader$e: IllegalArgumentException</ID>
     <ID>SwallowedException:GeoLocationService.kt.kt$GeoLocationService$e: Exception</ID>
+    <ID>SwallowedException:RoleGuard.kt$e: IllegalArgumentException</ID>
     <ID>SwallowedException:Routing.kt$e: BadRequestException</ID>
     <ID>SwallowedException:Routing.kt$e: Exception</ID>
     <ID>SwallowedException:Routing.kt$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:Security.kt$e: Exception</ID>
+    <ID>SwallowedException:Security.kt$e: UninitializedPropertyAccessException</ID>
     <ID>SwallowedException:SetupRouting.kt$e: Exception</ID>
+    <ID>SwallowedException:SetupRouting.kt$e: io.ktor.server.plugins.BadRequestException</ID>
     <ID>SwallowedException:UserAgentParser.kt$UserAgentParser$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Application.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ConfigLoader.kt$ConfigLoader$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DatabaseFactory.kt$DatabaseFactory$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EmailService.kt$EmailService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EmailService.kt$EmailService.&lt;no name provided>$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GeoLocationService.kt.kt$GeoLocationService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ResetDatabase.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Routing.kt$e: Exception</ID>
@@ -123,12 +179,16 @@
     <ID>TooGenericExceptionCaught:ServiceManager.kt$ServiceManager.&lt;no name provided>$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SetupRouting.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:UserAgentParser.kt$UserAgentParser$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WebhookService.kt$WebhookService$e: Exception</ID>
     <ID>TooManyFunctions:ConfigLoader.kt$ConfigLoader</ID>
     <ID>UnusedParameter:DataAnalysisUtilsTest.kt$DataAnalysisUtilsTest$eventCount: Int = 0</ID>
     <ID>UnusedParameter:DatabaseFactory.kt$DatabaseFactory$config: DatabaseConfig</ID>
     <ID>UnusedParameter:Routing.kt$privacyMode: PrivacyMode</ID>
-    <ID>UnusedParameter:Security.kt$config: AppConfig</ID>
+    <ID>UnusedParameter:WebhookTrigger.kt$WebhookTrigger$properties: String?</ID>
+    <ID>UnusedParameter:WidgetRouting.kt$config: AppConfig</ID>
+    <ID>UnusedPrivateProperty:Routing.kt$val adminLimit = 200</ID>
     <ID>UseCheckOrError:AnalyticsSecurity.kt$AnalyticsSecurity$throw IllegalStateException( "Security module not initialized. Call init() first." )</ID>
+    <ID>UseCheckOrError:EmailService.kt$EmailService$throw IllegalStateException("SMTP not configured")</ID>
     <ID>UseRequire:AnalyticsSecurity.kt$AnalyticsSecurity$throw IllegalArgumentException("Server salt must be at least 32 characters long for security")</ID>
     <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Path cannot be empty")</ID>
     <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Path contains invalid characters")</ID>
