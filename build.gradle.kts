@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "se.onemanstudio"
-version = "0.0.1"
+version = "1.0.0-beta"
 
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
