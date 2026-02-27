@@ -57,6 +57,10 @@ dependencies {
 
     // Rate limiting (in-memory cache)
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
+
+    // Email (SMTP)
+    implementation("jakarta.mail:jakarta.mail-api:2.1.3")
+    implementation("org.eclipse.angus:angus-mail:2.0.3")
 }
 
 // Detekt static analysis configuration

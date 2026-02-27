@@ -721,6 +721,20 @@
                 <div id="webhooks-list">Loading...</div>
             </div>
 
+            <!-- Email Reports -->
+            <div class="card mt-lg" id="email-reports-section" style="display: none;">
+                <div class="flex items-center justify-between mb-lg">
+                    <h3 class="mb-0">
+                        <i class="ri-mail-send-line"></i> Email reports
+                    </h3>
+                    <button class="btn btn-primary btn-sm" id="manage-email-reports-btn" aria-label="Manage email reports">
+                        <i class="ri-settings-3-line"></i>
+                        <span>Manage reports</span>
+                    </button>
+                </div>
+                <div id="email-reports-list">Loading...</div>
+            </div>
+
             <!-- Live Feed -->
             <div class="card mt-lg" role="region" aria-label="Live visitor feed">
                 <h3>
@@ -1278,6 +1292,195 @@ valid = hmac.compare_digest(signature, expected)</pre>
         </div>
     </div>
 
+    <!-- Email Reports Modal -->
+    <div id="email-reports-modal" class="modal" role="dialog" aria-labelledby="email-reports-modal-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2 id="email-reports-modal-title">Manage email reports</h2>
+                <button class="modal-close" id="close-email-reports-modal" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <!-- SMTP Status -->
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) var(--spacing-md); background: var(--color-bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <span style="font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">SMTP Status:</span>
+                    <span id="smtp-status-indicator" style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Checking...</span>
+                </div>
+
+                <!-- SMTP Setup Guide (collapsible) -->
+                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
+                    <button id="email-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
+                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> SMTP setup guide &amp; email report configuration</span>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div id="email-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">What is SMTP?</h4>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            SMTP (Simple Mail Transfer Protocol) is needed to send emails from Mini Numbers. You need access to an SMTP server &mdash; either from your email provider or a transactional email service. Configure it via environment variables before starting the server.
+                        </p>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Environment variables</h4>
+                        <div class="table-container" style="margin-bottom: var(--spacing-md);">
+                            <table style="font-size: 0.8rem;">
+                                <thead>
+                                    <tr><th>Variable</th><th>Required</th><th>Default</th><th>Description</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><code>SMTP_HOST</code></td><td>Yes</td><td>&mdash;</td><td>SMTP server hostname</td></tr>
+                                    <tr><td><code>SMTP_PORT</code></td><td>No</td><td>587</td><td>SMTP server port</td></tr>
+                                    <tr><td><code>SMTP_USERNAME</code></td><td>No</td><td>&mdash;</td><td>SMTP authentication username</td></tr>
+                                    <tr><td><code>SMTP_PASSWORD</code></td><td>No</td><td>&mdash;</td><td>SMTP authentication password</td></tr>
+                                    <tr><td><code>SMTP_FROM</code></td><td>Yes</td><td>&mdash;</td><td>Sender email address</td></tr>
+                                    <tr><td><code>SMTP_STARTTLS</code></td><td>No</td><td>true</td><td>Enable STARTTLS encryption</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Provider setup examples</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>Gmail:</strong> Use <code>smtp.gmail.com</code> port 587. You must create an <a href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noopener">App Password</a> (2FA required).</li>
+                            <li><strong>SendGrid:</strong> Use <code>smtp.sendgrid.net</code> port 587, username <code>apikey</code>, password is your API key.</li>
+                            <li><strong>Mailgun:</strong> Use <code>smtp.mailgun.org</code> port 587 with your domain credentials.</li>
+                            <li><strong>Amazon SES:</strong> Use your region endpoint (e.g. <code>email-smtp.us-east-1.amazonaws.com</code>) port 587 with SMTP credentials from the SES console.</li>
+                            <li><strong>Self-hosted (Postfix, etc.):</strong> Use <code>localhost</code> port 25 or 587. You may skip username/password if relay is configured.</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Example <code>.env</code> configuration</h4>
+                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;">SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=you@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=analytics@yourdomain.com
+SMTP_STARTTLS=true</pre>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Report contents</h4>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
+                            Each email report includes a professional HTML summary of your analytics for the selected period. Use the section checkboxes below to control what&rsquo;s included:
+                        </p>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                            <li><strong>Overview</strong> &mdash; total views, unique visitors, bounce rate with period comparison</li>
+                            <li><strong>Top pages</strong> &mdash; your most-visited pages ranked by traffic</li>
+                            <li><strong>Referrers</strong> &mdash; where your visitors are coming from</li>
+                            <li><strong>Geographic</strong> &mdash; top countries and cities</li>
+                            <li><strong>Custom events</strong> &mdash; tracked events by name and count</li>
+                        </ul>
+
+                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Troubleshooting</h4>
+                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                            <li>If SMTP status shows &ldquo;Not configured&rdquo;, verify your environment variables and restart the server.</li>
+                            <li>Gmail requires an App Password &mdash; regular passwords are blocked for SMTP.</li>
+                            <li>Check your spam/junk folder if test emails don&rsquo;t arrive.</li>
+                            <li>Port 465 uses implicit SSL; port 587 uses STARTTLS. Most providers recommend 587.</li>
+                            <li>Scheduled reports are checked every hour. Daily reports send at your configured hour; weekly on Monday; monthly on the 1st.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Create New Report Form -->
+                <div class="form-section" style="margin-bottom: var(--spacing-lg);">
+                    <h3 style="margin-top: 0;">Add new email report</h3>
+
+                    <!-- Basic settings -->
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="flex: 2; min-width: 200px;">
+                            <label for="email-report-recipient">Recipient email</label>
+                            <input type="email" id="email-report-recipient" class="input" placeholder="you@example.com">
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 120px;">
+                            <label for="email-report-schedule">Frequency</label>
+                            <select id="email-report-schedule" class="select">
+                                <option value="DAILY">Daily</option>
+                                <option value="WEEKLY" selected>Weekly</option>
+                                <option value="MONTHLY">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 0; min-width: 80px;">
+                            <label for="email-report-hour">Send hour</label>
+                            <select id="email-report-hour" class="select">
+                                <option value="6">06:00</option>
+                                <option value="7">07:00</option>
+                                <option value="8" selected>08:00</option>
+                                <option value="9">09:00</option>
+                                <option value="10">10:00</option>
+                                <option value="12">12:00</option>
+                                <option value="18">18:00</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Report sections -->
+                    <div style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                        <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); display: block; margin-bottom: var(--spacing-xs);">Include sections:</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                                <input type="checkbox" class="email-section-cb" value="overview" checked> Overview
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                                <input type="checkbox" class="email-section-cb" value="pages" checked> Top pages
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                                <input type="checkbox" class="email-section-cb" value="referrers" checked> Referrers
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                                <input type="checkbox" class="email-section-cb" value="geo" checked> Geographic
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                                <input type="checkbox" class="email-section-cb" value="events" checked> Custom events
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Template customization (collapsible) -->
+                    <details style="margin-bottom: var(--spacing-md);">
+                        <summary style="cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
+                            <i class="ri-palette-line" style="margin-right: 0.25rem;"></i> Customize template (optional)
+                        </summary>
+                        <div style="padding-top: var(--spacing-sm);">
+                            <div class="form-group">
+                                <label for="email-report-subject" style="font-size: var(--font-size-sm);">Subject line</label>
+                                <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics \u2014 {period}" style="font-size: var(--font-size-sm);">
+                                <small class="help-text">Variables: {project_name}, {period}, {date}</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="email-report-header" style="font-size: var(--font-size-sm);">Header text</label>
+                                <input type="text" id="email-report-header" class="input" placeholder="e.g. Your weekly analytics summary" style="font-size: var(--font-size-sm);">
+                            </div>
+                            <div class="form-group">
+                                <label for="email-report-footer" style="font-size: var(--font-size-sm);">Footer text</label>
+                                <input type="text" id="email-report-footer" class="input" placeholder="e.g. Powered by Mini Numbers" style="font-size: var(--font-size-sm);">
+                            </div>
+                        </div>
+                    </details>
+
+                    <button class="btn btn-primary" id="create-email-report-btn">
+                        <i class="ri-add-line"></i> Create report schedule
+                    </button>
+                </div>
+
+                <!-- Existing Reports Table -->
+                <h3>Scheduled reports</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Recipient</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                                <th>Last sent</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="email-reports-table-body">
+                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Onboarding Checklist Modal -->
     <div id="onboarding-modal" class="modal">
         <div class="modal-backdrop"></div>
@@ -1374,6 +1577,7 @@ valid = hmac.compare_digest(signature, expected)</pre>
     <script src="/admin-panel/js/goals.js"></script>
     <script src="/admin-panel/js/segments.js"></script>
     <script src="/admin-panel/js/webhooks.js"></script>
+    <script src="/admin-panel/js/email-reports.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
 </body>

@@ -675,7 +675,8 @@ const Dashboard = {
         this.loadContributionCalendar(),
         this.loadGoalsAndFunnels(),
         this.loadSegments(),
-        this.loadWebhooks()
+        this.loadWebhooks(),
+        this.loadEmailReports()
       ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
@@ -1788,6 +1789,23 @@ const Dashboard = {
       }
     } catch (error) {
       console.error('Failed to load webhooks:', error);
+    }
+  },
+
+  /**
+   * Load and render email reports for current project
+   */
+  async loadEmailReports() {
+    if (!this.state.currentProjectId) return;
+
+    try {
+      if (typeof EmailReportsManager !== 'undefined') {
+        EmailReportsManager.initModal(this.state.currentProjectId);
+        const reports = await EmailReportsManager.loadReports(this.state.currentProjectId);
+        EmailReportsManager.renderReports(reports, this.state.currentProjectId);
+      }
+    } catch (error) {
+      console.error('Failed to load email reports:', error);
     }
   },
 

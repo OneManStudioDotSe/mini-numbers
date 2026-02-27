@@ -11,5 +11,6 @@ data class AppConfig(
     val geoip: GeoIPConfig,
     val rateLimit: RateLimitConfig,
     val privacy: PrivacyConfig = PrivacyConfig(),
-    val tracker: TrackerConfig = TrackerConfig()
+    val tracker: TrackerConfig = TrackerConfig(),
+    val email: EmailConfig = EmailConfig()
 )

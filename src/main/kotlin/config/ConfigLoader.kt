@@ -86,7 +86,8 @@ object ConfigLoader {
             geoip = loadGeoIPConfig(),
             rateLimit = loadRateLimitConfig(),
             privacy = loadPrivacyConfig(),
-            tracker = loadTrackerConfig()
+            tracker = loadTrackerConfig(),
+            email = loadEmailConfig()
         )
     }
 
@@ -347,6 +348,20 @@ object ConfigLoader {
         return TrackerConfig(
             heartbeatIntervalSeconds = heartbeatInterval.coerceIn(5, 300),
             spaTrackingEnabled = spaTracking
+        )
+    }
+
+    /**
+     * Load email/SMTP configuration (optional)
+     */
+    private fun loadEmailConfig(): EmailConfig {
+        return EmailConfig(
+            smtpHost = getEnvOrNull("SMTP_HOST"),
+            smtpPort = getEnvOrDefault("SMTP_PORT", "587").toIntOrNull() ?: 587,
+            smtpUsername = getEnvOrNull("SMTP_USERNAME"),
+            smtpPassword = getEnvOrNull("SMTP_PASSWORD"),
+            smtpFrom = getEnvOrNull("SMTP_FROM"),
+            smtpStartTls = getEnvOrDefault("SMTP_STARTTLS", "true").lowercase() == "true"
         )
     }
 }
