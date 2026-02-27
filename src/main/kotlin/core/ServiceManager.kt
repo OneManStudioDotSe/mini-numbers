@@ -111,6 +111,10 @@ object ServiceManager {
                 logger.info("Data retention policy active: ${config.privacy.dataRetentionDays} days")
             }
 
+            // 6. Initialize email service and scheduler
+            se.onemanstudio.services.EmailService.init(config.email)
+            se.onemanstudio.services.EmailService.startScheduler()
+
             currentState = State.READY
             startTime = System.currentTimeMillis()
             logger.info("All services initialized successfully")
@@ -138,6 +142,7 @@ object ServiceManager {
 
         try {
             stopRetentionCleanup()
+            se.onemanstudio.services.EmailService.stopScheduler()
             GeoLocationService.close()
             DatabaseFactory.close()
             currentState = State.UNINITIALIZED

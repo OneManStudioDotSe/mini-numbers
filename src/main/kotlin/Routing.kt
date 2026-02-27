@@ -1440,6 +1440,206 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             })
         }
 
+        // ── Email Reports ────────────────────────────────────────────
+
+        get("/projects/{id}/email-reports") {
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val reports = transaction {
+                se.onemanstudio.db.EmailReports.selectAll().where {
+                    se.onemanstudio.db.EmailReports.projectId eq pid
+                }.map {
+                    se.onemanstudio.api.models.EmailReportResponse(
+                        id = it[se.onemanstudio.db.EmailReports.id].toString(),
+                        projectId = it[se.onemanstudio.db.EmailReports.projectId].toString(),
+                        recipientEmail = it[se.onemanstudio.db.EmailReports.recipientEmail],
+                        schedule = it[se.onemanstudio.db.EmailReports.schedule],
+                        sendHour = it[se.onemanstudio.db.EmailReports.sendHour],
+                        sendDay = it[se.onemanstudio.db.EmailReports.sendDay],
+                        timezone = it[se.onemanstudio.db.EmailReports.timezone],
+                        subjectTemplate = it[se.onemanstudio.db.EmailReports.subjectTemplate],
+                        headerText = it[se.onemanstudio.db.EmailReports.headerText],
+                        footerText = it[se.onemanstudio.db.EmailReports.footerText],
+                        includeSections = it[se.onemanstudio.db.EmailReports.includeSections].split(",").map { s -> s.trim() },
+                        isActive = it[se.onemanstudio.db.EmailReports.isActive],
+                        lastSentAt = it[se.onemanstudio.db.EmailReports.lastSentAt]?.toString(),
+                        createdAt = it[se.onemanstudio.db.EmailReports.createdAt].toString()
+                    )
+                }
+            }
+            call.respond(reports)
+        }
+
+        post("/projects/{id}/email-reports") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+
+            val request = try {
+                call.receive<se.onemanstudio.api.models.CreateEmailReportRequest>()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            if (request.recipientEmail.isBlank() || !request.recipientEmail.contains("@")) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid email address"))
+            }
+
+            val validSchedules = listOf("DAILY", "WEEKLY", "MONTHLY")
+            if (request.schedule.uppercase() !in validSchedules) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Schedule must be one of: $validSchedules"))
+            }
+
+            val reportId = UUID.randomUUID()
+            transaction {
+                se.onemanstudio.db.EmailReports.insert {
+                    it[se.onemanstudio.db.EmailReports.id] = reportId
+                    it[se.onemanstudio.db.EmailReports.projectId] = pid
+                    it[se.onemanstudio.db.EmailReports.recipientEmail] = request.recipientEmail.take(320)
+                    it[se.onemanstudio.db.EmailReports.schedule] = request.schedule.uppercase()
+                    it[se.onemanstudio.db.EmailReports.sendHour] = request.sendHour.coerceIn(0, 23)
+                    it[se.onemanstudio.db.EmailReports.sendDay] = request.sendDay.coerceIn(1, 28)
+                    it[se.onemanstudio.db.EmailReports.timezone] = request.timezone.take(50)
+                    it[se.onemanstudio.db.EmailReports.subjectTemplate] = request.subjectTemplate.take(500)
+                    it[se.onemanstudio.db.EmailReports.headerText] = request.headerText?.take(500)
+                    it[se.onemanstudio.db.EmailReports.footerText] = request.footerText?.take(500)
+                    it[se.onemanstudio.db.EmailReports.includeSections] = request.includeSections.joinToString(",")
+                }
+            }
+
+            call.respond(HttpStatusCode.Created, buildJsonObject {
+                put("id", reportId.toString())
+                put("success", true)
+            })
+        }
+
+        put("/projects/{id}/email-reports/{reportId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@put
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val reportId = safeParseUUID(call.parameters["reportId"])
+                ?: return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing report ID"))
+
+            val request = try {
+                call.receive<se.onemanstudio.api.models.UpdateEmailReportRequest>()
+            } catch (e: Exception) {
+                return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid request body"))
+            }
+
+            val updated = transaction {
+                val exists = se.onemanstudio.db.EmailReports.selectAll().where {
+                    (se.onemanstudio.db.EmailReports.id eq reportId) and
+                    (se.onemanstudio.db.EmailReports.projectId eq pid)
+                }.count() > 0
+
+                if (exists) {
+                    se.onemanstudio.db.EmailReports.update({
+                        (se.onemanstudio.db.EmailReports.id eq reportId) and
+                        (se.onemanstudio.db.EmailReports.projectId eq pid)
+                    }) {
+                        request.isActive?.let { v -> it[se.onemanstudio.db.EmailReports.isActive] = v }
+                        request.schedule?.let { v -> it[se.onemanstudio.db.EmailReports.schedule] = v.uppercase() }
+                        request.sendHour?.let { v -> it[se.onemanstudio.db.EmailReports.sendHour] = v.coerceIn(0, 23) }
+                        request.sendDay?.let { v -> it[se.onemanstudio.db.EmailReports.sendDay] = v.coerceIn(1, 28) }
+                        request.timezone?.let { v -> it[se.onemanstudio.db.EmailReports.timezone] = v.take(50) }
+                        request.subjectTemplate?.let { v -> it[se.onemanstudio.db.EmailReports.subjectTemplate] = v.take(500) }
+                        request.headerText?.let { v -> it[se.onemanstudio.db.EmailReports.headerText] = v.take(500) }
+                        request.footerText?.let { v -> it[se.onemanstudio.db.EmailReports.footerText] = v.take(500) }
+                        request.includeSections?.let { v -> it[se.onemanstudio.db.EmailReports.includeSections] = v.joinToString(",") }
+                    }
+                }
+                exists
+            }
+
+            if (updated) {
+                call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+            } else {
+                call.respond(HttpStatusCode.NotFound, ApiError.notFound("Email report not found"))
+            }
+        }
+
+        delete("/projects/{id}/email-reports/{reportId}") {
+            if (!call.requireRole(UserRole.ADMIN)) return@delete
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val reportId = safeParseUUID(call.parameters["reportId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing report ID"))
+
+            val deleted = transaction {
+                se.onemanstudio.db.EmailReports.deleteWhere {
+                    (se.onemanstudio.db.EmailReports.id eq reportId) and
+                    (se.onemanstudio.db.EmailReports.projectId eq pid)
+                } > 0
+            }
+
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound, ApiError.notFound("Email report not found"))
+            }
+        }
+
+        post("/projects/{id}/email-reports/{reportId}/test") {
+            if (!call.requireRole(UserRole.ADMIN)) return@post
+            val pid = safeParseUUID(call.parameters["id"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val reportId = safeParseUUID(call.parameters["reportId"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing report ID"))
+
+            val report = transaction {
+                se.onemanstudio.db.EmailReports.selectAll().where {
+                    (se.onemanstudio.db.EmailReports.id eq reportId) and
+                    (se.onemanstudio.db.EmailReports.projectId eq pid)
+                }.singleOrNull()
+            } ?: return@post call.respond(HttpStatusCode.NotFound,
+                ApiError.notFound("Email report not found"))
+
+            if (!se.onemanstudio.services.EmailService.isConfigured()) {
+                return@post call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("SMTP is not configured. Set SMTP_HOST and SMTP_FROM environment variables."))
+            }
+
+            se.onemanstudio.services.EmailService.sendReportAsync(
+                projectId = pid,
+                recipientEmail = report[se.onemanstudio.db.EmailReports.recipientEmail],
+                period = when (report[se.onemanstudio.db.EmailReports.schedule]) {
+                    "DAILY" -> "24h"
+                    "WEEKLY" -> "7d"
+                    "MONTHLY" -> "30d"
+                    else -> "7d"
+                },
+                reportId = reportId
+            )
+
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                put("success", true)
+                put("message", "Test email report queued for delivery")
+            })
+        }
+
+        get("/smtp/status") {
+            val status = se.onemanstudio.services.EmailService.getSmtpStatus()
+            call.respond(se.onemanstudio.api.models.SmtpStatusResponse(
+                configured = status["configured"] as Boolean,
+                host = status["host"] as? String,
+                port = status["port"] as? Int,
+                from = status["from"] as? String
+            ))
+        }
+
         // ── User Management (admin-only) ─────────────────────────────
 
         get("/users") {

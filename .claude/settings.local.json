@@ -40,7 +40,8 @@
       "Bash(open:*)",
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:blog.jetbrains.com)",
-      "WebFetch(domain:central.sonatype.com)"
+      "WebFetch(domain:central.sonatype.com)",
+      "Bash(bc)"
     ]
   }
 }
