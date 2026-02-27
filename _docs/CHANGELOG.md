@@ -5,6 +5,49 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-beta] - 2026-02-27
+
+### Added
+
+- **Webhooks System**
+  - Real-time HTTP POST notifications for goal conversions and traffic spikes
+  - HMAC-SHA256 signed deliveries with configurable secret per webhook
+  - Admin panel UI with CRUD, delivery log, test delivery, and setup guide
+  - Webhook trigger engine with Caffeine-cached active webhooks per project
+  - 3-attempt retry with exponential backoff for failed deliveries
+  - OpenAPI documentation for all webhook endpoints
+
+- **Email Reports**
+  - Scheduled HTML analytics reports via SMTP (Daily / Weekly / Monthly)
+  - SMTP service with Jakarta Mail, async delivery, and hourly scheduler
+  - Customizable templates: subject line, header/footer text, section selection
+  - Admin panel with SMTP status indicator, setup guide, and report management
+  - Support for Gmail, SendGrid, Mailgun, Amazon SES, and self-hosted SMTP
+
+- **Revenue Tracking & Attribution**
+  - Revenue tracking via existing `MiniNumbers.track()` API with `revenue` property
+  - Revenue aggregation engine: total revenue, AOV, revenue per visitor, with period comparison
+  - Revenue by event breakdown (purchases, subscriptions, etc.)
+  - Revenue attribution by referrer source and UTM campaign
+  - Dashboard revenue section with stat cards, bar charts, and attribution table
+  - In-dashboard guide with setup examples, framework integrations, and best practices
+  - Demo data generator enhanced with realistic revenue events
+
+- **Landing Page**
+  - Integrated landing page served at `/landing/` via Ktor static resources
+  - Root `/` redirects to landing page when services are ready
+  - Particle canvas hero background with mouse-reactive animation
+  - Gradient text effects and floating trust badges
+  - Revenue Intelligence showcase section with animated mockup
+  - Login/Dashboard link in navigation
+  - Updated content: 288 tests, v1.0.0-beta version, 2026 copyright
+
+### Changed
+
+- Test suite expanded from 250 to 288 tests (18 new for webhooks, email, revenue)
+- Demo data generator now produces revenue-bearing purchase events
+- Root URL redirects to landing page instead of login
+
 ## [0.0.6] - 2026-02-21
 
 ### Added

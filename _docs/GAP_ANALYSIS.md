@@ -1,6 +1,6 @@
 # Mini Numbers - Gap analysis & recommendations
 
-**Date**: February 21, 2026
+**Date**: February 27, 2026
 
 ---
 
@@ -16,7 +16,7 @@ All critical security, foundation, and deployment documentation items have been 
 - Formal penetration testing still recommended
 
 ### 1.2 Comprehensive testing — COMPLETE
-- 250 tests (all passing, 100% pass rate)
+- 288 tests (all passing, 100% pass rate)
 - Unit tests for security, parsing, validation, lifecycle, custom events, and analytics calculations
 - Integration tests for data collection, setup wizard, admin endpoints, and health endpoint
 - End-to-end tests for full tracking workflow
@@ -64,10 +64,24 @@ All critical security, foundation, and deployment documentation items have been 
 - Standardized error responses (`ApiError` model with error, code, and details fields)
 - OpenAPI 3.0.3 specification (`/admin-panel/openapi.yaml`) documenting all endpoints
 
-### 2.5 Email reports
-- Scheduled reports (daily, weekly, monthly)
-- SMTP integration
+### 2.5 Email reports — COMPLETE
+- Scheduled reports (daily, weekly, monthly) with configurable send hour and day
+- SMTP integration via Jakarta Mail (Gmail, SendGrid, Mailgun, Amazon SES, self-hosted)
 - Report preview and test send
+- Customizable templates (subject, header, footer, section selection)
+- Admin panel with SMTP status indicator, setup guide, and report management
+
+### 2.6 Webhooks — COMPLETE
+- Real-time HTTP POST notifications for goal conversions and traffic spikes
+- HMAC-SHA256 signed deliveries with per-webhook secrets
+- Admin panel with CRUD, delivery log, test delivery, and setup guide
+- Integration recipes for Slack, Discord, Zapier, and custom servers
+
+### 2.7 Revenue Tracking — COMPLETE
+- Revenue tracking via `MiniNumbers.track("purchase", { revenue: 49.99 })` API
+- Revenue aggregation: total, AOV, revenue per visitor, with period comparison
+- Revenue attribution by referrer source and UTM campaign
+- Dashboard section with stat cards, breakdown bars, and attribution table
 
 ---
 
@@ -93,6 +107,6 @@ All critical security, foundation, and deployment documentation items have been 
 | Priority | Timeline | Status | Impact |
 |----------|----------|--------|--------|
 | **Critical** | Weeks 1-6 | Complete | Blocks launch |
-| **High** | Weeks 7-14 | Complete (except email reports) | Feature parity |
+| **High** | Weeks 7-14 | Complete | Feature parity |
 | **Medium** | Weeks 15-22 | Complete | Competitive edge |
 | **Low** | Weeks 22+ | Pending | Future growth |

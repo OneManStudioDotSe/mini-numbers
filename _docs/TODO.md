@@ -1,6 +1,6 @@
 # Mini Numbers - TODO list
 
-**Last Updated**: February 21, 2026
+**Last Updated**: February 27, 2026
 
 ---
 
@@ -14,7 +14,7 @@
 - [x] Interactive setup wizard (WordPress-style, zero-restart)
 - [x] Demo data generator
 - [x] Session-based authentication with login page
-- [x] Comprehensive test suite (250 tests)
+- [x] Comprehensive test suite (288 tests)
 - [x] Code architecture restructuring (package-per-feature)
 - [x] Configurable tracker endpoint
 - [x] Bounce rate calculation and dashboard display
@@ -57,7 +57,7 @@
 - [x] GitHub Actions: test + build workflow (on push/PR to main)
 - [x] GitHub Actions: Docker multi-platform publish to GHCR (on push/tag)
 - [x] Code quality checks (Detekt static analysis with baseline, integrated in CI)
-- [x] Extended test suite (250 tests, up from 166)
+- [x] Extended test suite (288 tests, up from 166)
 
 ### Monitoring
 - [x] Health check endpoint (`GET /health` — JSON status with servicesReady flag)
@@ -142,8 +142,9 @@
 - [x] Real-time visitor count — live counter badge polling every 5 seconds
 - [x] Conversion rate metric — top-level stat card (sessions with custom events / total)
 - [x] Event properties — `MiniNumbers.track("name", { key: "value" })` with JSON storage
-- [ ] Email reports
-- [ ] Webhooks
+- [x] Email reports — SMTP service, scheduler, templates, admin UI, settings panel
+- [x] Webhooks — event triggers (goal_conversion, traffic_spike), admin UI, setup guide, HMAC delivery
+- [x] Revenue tracking — revenue aggregation, attribution by source/UTM, dashboard section, guide
 - [ ] Retention and cohort analysis
 - [ ] User journey visualization
 - [ ] Plugin system

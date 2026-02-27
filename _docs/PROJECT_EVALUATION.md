@@ -1,13 +1,13 @@
 # Mini Numbers - Project evaluation
 
-**Date**: February 21, 2026
-**Status**: Production-Ready
+**Date**: February 27, 2026
+**Status**: Production-Ready (v1.0.0-beta)
 
 ---
 
 ## Executive summary
 
-Mini Numbers is a privacy-focused web analytics platform that is **100% complete** with strong fundamentals, comprehensive security, custom event tracking, conversion goals, basic funnels, user segments, API pagination and caching, OpenAPI documentation, configurable privacy modes, and a well-structured codebase. All critical security blockers have been resolved. Deployment infrastructure is complete with production Dockerfile, health check, and metrics endpoints.
+Mini Numbers is a privacy-focused web analytics platform that is **feature-complete for beta** with strong fundamentals, comprehensive security, custom event tracking, conversion goals, basic funnels, user segments, **webhooks**, **email reports**, **revenue tracking with attribution**, API pagination and caching, OpenAPI documentation, configurable privacy modes, a landing page, and a well-structured codebase. All critical security blockers have been resolved. Deployment infrastructure is complete with production Dockerfile, health check, and metrics endpoints. 288 tests pass with zero failures.
 
 ---
 
@@ -20,7 +20,7 @@ Mini Numbers is a privacy-focused web analytics platform that is **100% complete
 | **Backend API** | 10/10 | Pagination, caching, OpenAPI, segments, health/metrics |
 | **Privacy Design** | 10/10 | Hash rotation, 3 privacy modes, data retention |
 | **Security Posture** | 8/10 | Environment variables, rate limiting, session auth |
-| **Testing Coverage** | 9/10 | 250 tests (unit + integration + end-to-end) |
+| **Testing Coverage** | 9/10 | 288 tests (unit + integration + end-to-end) |
 | **Production Readiness** | 9/10 | Dockerfile, health check, metrics, JVM tuning |
 | **Documentation** | 9.5/10 | Deployment guide, OpenAPI 3.0.3 spec |
 | **Integration Ease** | 9/10 | Tracker (~1.3KB minified), OpenAPI docs |
@@ -62,8 +62,9 @@ Mini Numbers is a privacy-focused web analytics platform that is **100% complete
 
 ## Remaining gaps
 
-- No email reports or webhooks
 - No cloud hosting option (one-click Railway, Render, Fly.io)
+- Advanced analytics (retention/cohort analysis, user journeys) not yet implemented
+- No multi-user support with RBAC
 
 ---
 
@@ -86,7 +87,8 @@ Mini Numbers is a privacy-focused web analytics platform that is **100% complete
 
 ### Not yet implemented
 
-- Email reports and webhooks
+- Advanced analytics (retention/cohort analysis, user journeys)
+- Multi-user support with RBAC
 
 ---
 

@@ -535,6 +535,182 @@ paths:
                   message: { type: string }
         '404': { description: Webhook not found }
 
+  # ── Email Reports ──────────────────────────────────────────────
+
+  /admin/projects/{id}/email-reports:
+    get:
+      summary: List email reports
+      tags: [Email Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of email report schedules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailReportResponse'
+    post:
+      summary: Create email report schedule
+      tags: [Email Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailReportRequest'
+      responses:
+        '201':
+          description: Email report created
+        '400': { description: Validation error }
+
+  /admin/projects/{id}/email-reports/{reportId}:
+    put:
+      summary: Update email report
+      tags: [Email Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isActive: { type: boolean }
+                schedule: { type: string, enum: [DAILY, WEEKLY, MONTHLY] }
+      responses:
+        '200': { description: Report updated }
+        '404': { description: Report not found }
+    delete:
+      summary: Delete email report
+      tags: [Email Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Report deleted }
+        '404': { description: Report not found }
+
+  /admin/projects/{id}/email-reports/{reportId}/test:
+    post:
+      summary: Send test email report
+      tags: [Email Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Test email queued }
+        '400': { description: SMTP not configured }
+        '404': { description: Report not found }
+
+  /admin/smtp/status:
+    get:
+      summary: Get SMTP configuration status
+      tags: [Email Reports]
+      responses:
+        '200':
+          description: SMTP status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpStatusResponse'
+
+  # ── Revenue Analytics ──────────────────────────────────────────
+
+  /admin/projects/{id}/revenue:
+    get:
+      summary: Revenue statistics
+      tags: [Revenue]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d', enum: ['24h', '3d', '7d', '30d', '365d'] }
+      responses:
+        '200':
+          description: Revenue stats with period comparison
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueStats'
+
+  /admin/projects/{id}/revenue/breakdown:
+    get:
+      summary: Revenue by event type
+      tags: [Revenue]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d' }
+      responses:
+        '200':
+          description: Revenue grouped by event name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueByEvent'
+
+  /admin/projects/{id}/revenue/attribution:
+    get:
+      summary: Revenue attribution by source
+      tags: [Revenue]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: filter
+          in: query
+          schema: { type: string, default: '7d' }
+      responses:
+        '200':
+          description: Revenue attributed to referrer sources and UTM campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueAttribution'
+
 components:
   schemas:
     ApiError:
@@ -658,3 +834,62 @@ components:
         status: { type: string, enum: ['pending', 'success', 'failed'] }
         createdAt: { type: string, format: date-time }
         deliveredAt: { type: string, format: date-time, nullable: true }
+
+    CreateEmailReportRequest:
+      type: object
+      required: [recipientEmail]
+      properties:
+        recipientEmail: { type: string, format: email }
+        schedule: { type: string, enum: [DAILY, WEEKLY, MONTHLY], default: WEEKLY }
+        sendHour: { type: integer, minimum: 0, maximum: 23, default: 8 }
+        subjectTemplate: { type: string }
+        headerText: { type: string, nullable: true }
+        footerText: { type: string, nullable: true }
+        includeSections: { type: array, items: { type: string } }
+
+    EmailReportResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        recipientEmail: { type: string }
+        schedule: { type: string }
+        sendHour: { type: integer }
+        isActive: { type: boolean }
+        lastSentAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    SmtpStatusResponse:
+      type: object
+      properties:
+        configured: { type: boolean }
+        host: { type: string, nullable: true }
+        port: { type: integer, nullable: true }
+        from: { type: string, nullable: true }
+
+    RevenueStats:
+      type: object
+      properties:
+        totalRevenue: { type: number, format: double }
+        transactions: { type: integer }
+        averageOrderValue: { type: number, format: double }
+        revenuePerVisitor: { type: number, format: double }
+        previousRevenue: { type: number, format: double }
+        previousTransactions: { type: integer }
+
+    RevenueByEvent:
+      type: object
+      properties:
+        eventName: { type: string }
+        revenue: { type: number, format: double }
+        transactions: { type: integer }
+        avgValue: { type: number, format: double }
+
+    RevenueAttribution:
+      type: object
+      properties:
+        source: { type: string }
+        revenue: { type: number, format: double }
+        transactions: { type: integer }
+        avgValue: { type: number, format: double }
+        conversionRate: { type: number, format: double }
