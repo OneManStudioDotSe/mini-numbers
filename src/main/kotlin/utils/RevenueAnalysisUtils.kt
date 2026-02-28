@@ -1,17 +1,20 @@
-package se.onemanstudio
+package se.onemanstudio.utils
 
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import se.onemanstudio.RevenueAnalysisUtils.calculateRevenue
-import se.onemanstudio.RevenueAnalysisUtils.calculateRevenueAttribution
-import se.onemanstudio.RevenueAnalysisUtils.calculateRevenueByEvent
+import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenue
+import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueAttribution
+import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueByEvent
 import se.onemanstudio.api.models.admin.RevenueAttribution
 import se.onemanstudio.api.models.admin.RevenueByEvent
 import se.onemanstudio.api.models.admin.RevenueStats
 import se.onemanstudio.db.Events
+import java.net.URI
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.iterator
 import kotlin.math.roundToInt
 
 /**
@@ -22,7 +25,7 @@ import kotlin.math.roundToInt
  * ```js
  * MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" })
  * ```
- * The tracker serialises the second argument to a JSON string which is
+ * The tracker serializes the second argument to a JSON string which is
  * stored in [Events.properties]. This object scans those JSON strings for
  * `"revenue": <number>` patterns and aggregates the values.
  *
@@ -35,6 +38,27 @@ import kotlin.math.roundToInt
  *   most revenue, with per-source conversion rates.
  */
 object RevenueAnalysisUtils {
+
+    /**
+     * Resolve the traffic source label for a session from its first pageview.
+     * Priority: UTM campaign → UTM source → referrer domain → "Direct".
+     */
+    private fun resolveSessionSource(rows: List<org.jetbrains.exposed.sql.ResultRow>): String {
+        val first = rows.minByOrNull { it[Events.timestamp] }
+        val ref = first?.get(Events.referrer)
+        val utmSource = first?.get(Events.utmSource)
+        val utmCampaign = first?.get(Events.utmCampaign)
+        return when {
+            !utmCampaign.isNullOrBlank() -> "utm:$utmCampaign"
+            !utmSource.isNullOrBlank() -> "utm:$utmSource"
+            !ref.isNullOrBlank() -> {
+                try {
+                    URI(ref).host?.removePrefix("www.") ?: ref
+                } catch (_: java.net.URISyntaxException) { ref }
+            }
+            else -> "Direct"
+        }
+    }
 
     /**
      * Parse revenue value from a JSON properties string.
@@ -58,9 +82,7 @@ object RevenueAnalysisUtils {
                 (Events.eventType eq "custom") and
                 Events.properties.isNotNull()
             }.mapNotNull { row ->
-                extractRevenue(row[Events.properties])?.let { revenue ->
-                    revenue
-                }
+                extractRevenue(row[Events.properties])
             }
 
             val totalRevenue = events.sum()
@@ -78,7 +100,7 @@ object RevenueAnalysisUtils {
             val rpv = if (uniqueVisitors > 0) totalRevenue / uniqueVisitors else 0.0
 
             // Previous period for comparison
-            val duration = java.time.Duration.between(start, end)
+            val duration = Duration.between(start, end)
             val prevEnd = start
             val prevStart = prevEnd.minus(duration)
 
@@ -126,9 +148,9 @@ object RevenueAnalysisUtils {
                     val count = entries.size.toLong()
                     RevenueByEvent(
                         eventName = name,
-                        revenue = Math.round(totalRev * 100.0) / 100.0,
+                        revenue = (totalRev * 100.0).roundToInt() / 100.0,
                         transactions = count,
-                        avgValue = Math.round((totalRev / count) * 100.0) / 100.0
+                        avgValue = ((totalRev / count) * 100.0).roundToInt() / 100.0
                     )
                 }
                 .sortedByDescending { it.revenue }
@@ -167,24 +189,7 @@ object RevenueAnalysisUtils {
                 (Events.sessionId inList revenueSessions)
             }.toList()
                 .groupBy { it[Events.sessionId] }
-                .mapValues { (_, rows) ->
-                    val first = rows.minByOrNull { it[Events.timestamp] }
-                    val ref = first?.get(Events.referrer)
-                    val utmSource = first?.get(Events.utmSource)
-                    val utmCampaign = first?.get(Events.utmCampaign)
-                    // Prefer UTM source/campaign, fall back to referrer
-                    when {
-                        !utmCampaign.isNullOrBlank() -> "utm:$utmCampaign"
-                        !utmSource.isNullOrBlank() -> "utm:$utmSource"
-                        !ref.isNullOrBlank() -> {
-                            // Extract domain from referrer URL
-                            try {
-                                java.net.URI(ref).host?.removePrefix("www.") ?: ref
-                            } catch (_: Exception) { ref }
-                        }
-                        else -> "Direct"
-                    }
-                }
+                .mapValues { (_, rows) -> resolveSessionSource(rows) }
 
             // Total sessions in period for conversion rate
             val totalSessionsBySource = Events.selectAll().where {
@@ -194,22 +199,8 @@ object RevenueAnalysisUtils {
                 (Events.eventType eq "pageview")
             }.toList()
                 .groupBy { it[Events.sessionId] }
-                .mapValues { (_, rows) ->
-                    val first = rows.minByOrNull { it[Events.timestamp] }
-                    val ref = first?.get(Events.referrer)
-                    val utmSource = first?.get(Events.utmSource)
-                    val utmCampaign = first?.get(Events.utmCampaign)
-                    when {
-                        !utmCampaign.isNullOrBlank() -> "utm:$utmCampaign"
-                        !utmSource.isNullOrBlank() -> "utm:$utmSource"
-                        !ref.isNullOrBlank() -> {
-                            try {
-                                java.net.URI(ref).host?.removePrefix("www.") ?: ref
-                            } catch (_: Exception) { ref }
-                        }
-                        else -> "Direct"
-                    }
-                }.values.groupBy { it }.mapValues { it.value.size }
+                .mapValues { (_, rows) -> resolveSessionSource(rows) }
+                .values.groupBy { it }.mapValues { it.value.size }
 
             // Map revenue to sources
             val revenueBySession = revenueEvents.groupBy { it.first }
@@ -227,10 +218,10 @@ object RevenueAnalysisUtils {
                 val totalSessions = totalSessionsBySource[source] ?: 1
                 RevenueAttribution(
                     source = source,
-                    revenue = Math.round(totalRev * 100.0) / 100.0,
+                    revenue = (totalRev * 100.0).roundToInt() / 100.0,
                     transactions = txns,
-                    avgValue = Math.round((totalRev / txns) * 100.0) / 100.0,
-                    conversionRate = Math.round((txns.toDouble() / totalSessions) * 10000.0) / 100.0
+                    avgValue = ((totalRev / txns) * 100.0).roundToInt() / 100.0,
+                    conversionRate = ((txns.toDouble() / totalSessions) * 10000.0).roundToInt() / 100.0
                 )
             }.sortedByDescending { it.revenue }
                 .take(20)

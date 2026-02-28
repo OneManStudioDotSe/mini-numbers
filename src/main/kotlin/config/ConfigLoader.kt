@@ -24,7 +24,7 @@ object ConfigLoader {
         // Try to load .env file if it exists (sets system properties)
         try {
             loadDotEnvFile()
-        } catch (_: Exception) {
+        } catch (_: java.io.IOException) {
             // .env loading failed - fall through to check other sources
         }
 

@@ -12,17 +12,38 @@ import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import se.onemanstudio.api.models.widget.*
-import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.resolveWidgetProject
 import se.onemanstudio.db.Events
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.middleware.WidgetCache
 import se.onemanstudio.middleware.models.RateLimitResult
+import se.onemanstudio.utils.getCurrentPeriod
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimiter) {
+/**
+ * Validate a widget request: resolve the project from the API key and enforce rate limits.
+ * Returns the project UUID on success, or null after responding with an error.
+ */
+private suspend fun validateWidgetRequest(call: io.ktor.server.routing.RoutingCall, rateLimiter: RateLimiter): java.util.UUID? {
+    val projectId = resolveWidgetProject(call)
+    if (projectId == null) {
+        call.respond(HttpStatusCode.NotFound, mapOf("error" to "Invalid API key"))
+        return null
+    }
+
+    val ip = call.request.origin.remoteHost
+    val apiKey = call.request.queryParameters["key"] ?: ""
+    if (rateLimiter.checkRateLimit(ip, apiKey) is RateLimitResult.Exceeded) {
+        call.respond(HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded"))
+        return null
+    }
+
+    return projectId
+}
+
+fun Application.configureWidgetRouting(rateLimiter: RateLimiter) {
     routing {
         // Serve the widget script
         staticResources("/widget", "widget")
@@ -30,18 +51,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
         route("/widget") {
             // Real-time visitor counter — distinct visitors in last 5 minutes
             get("/realtime") {
-                val projectId = resolveWidgetProject(call)
-                    ?: return@get call.respond(HttpStatusCode.NotFound, mapOf("error" to "Invalid API key"))
-
-                val ip = call.request.origin.remoteHost
-                val apiKey = call.request.queryParameters["key"] ?: ""
-                when (rateLimiter.checkRateLimit(ip, apiKey)) {
-                    is RateLimitResult.Exceeded -> return@get call.respond(
-                        HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
-                    )
-
-                    else -> {}
-                }
+                val projectId = validateWidgetRequest(call, rateLimiter) ?: return@get
 
                 val result = WidgetCache.getOrCompute("widget:$projectId:realtime") {
                     val cutoff = LocalDateTime.now().minusMinutes(5)
@@ -64,18 +74,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
 
             // Page view counter — total views, filterable by scope and time range
             get("/pageviews") {
-                val projectId = resolveWidgetProject(call)
-                    ?: return@get call.respond(HttpStatusCode.NotFound, mapOf("error" to "Invalid API key"))
-
-                val ip = call.request.origin.remoteHost
-                val apiKey = call.request.queryParameters["key"] ?: ""
-                when (rateLimiter.checkRateLimit(ip, apiKey)) {
-                    is RateLimitResult.Exceeded -> return@get call.respond(
-                        HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
-                    )
-
-                    else -> {}
-                }
+                val projectId = validateWidgetRequest(call, rateLimiter) ?: return@get
 
                 val scope = call.request.queryParameters["scope"] ?: "site"
                 val filter = call.request.queryParameters["filter"] ?: "7d"
@@ -109,18 +108,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
 
             // Top pages list — most viewed pages
             get("/toppages") {
-                val projectId = resolveWidgetProject(call)
-                    ?: return@get call.respond(HttpStatusCode.NotFound, mapOf("error" to "Invalid API key"))
-
-                val ip = call.request.origin.remoteHost
-                val apiKey = call.request.queryParameters["key"] ?: ""
-                when (rateLimiter.checkRateLimit(ip, apiKey)) {
-                    is RateLimitResult.Exceeded -> return@get call.respond(
-                        HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
-                    )
-
-                    else -> {}
-                }
+                val projectId = validateWidgetRequest(call, rateLimiter) ?: return@get
 
                 val filter = call.request.queryParameters["filter"] ?: "7d"
                 val limit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 5).coerceIn(1, 10)
@@ -148,18 +136,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
 
             // Visitor sparkline — daily page views for the last 7 days
             get("/sparkline") {
-                val projectId = resolveWidgetProject(call)
-                    ?: return@get call.respond(HttpStatusCode.NotFound, mapOf("error" to "Invalid API key"))
-
-                val ip = call.request.origin.remoteHost
-                val apiKey = call.request.queryParameters["key"] ?: ""
-                when (rateLimiter.checkRateLimit(ip, apiKey)) {
-                    is RateLimitResult.Exceeded -> return@get call.respond(
-                        HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
-                    )
-
-                    else -> {}
-                }
+                val projectId = validateWidgetRequest(call, rateLimiter) ?: return@get
 
                 val result = WidgetCache.getOrCompute("widget:$projectId:sparkline") {
                     val today = LocalDate.now()

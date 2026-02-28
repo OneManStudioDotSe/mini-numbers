@@ -210,15 +210,9 @@ object InputValidator {
      */
     fun validateAndSanitizePath(path: String): String {
         val sanitized = sanitize(path)
-        if (sanitized.isEmpty()) {
-            throw IllegalArgumentException("Path cannot be empty")
-        }
-        if (sanitized.length > MAX_PATH_LENGTH) {
-            throw IllegalArgumentException("Path exceeds maximum length of $MAX_PATH_LENGTH characters")
-        }
-        if (!PATH_REGEX.matches(sanitized)) {
-            throw IllegalArgumentException("Path contains invalid characters")
-        }
+        require(sanitized.isNotEmpty()) { "Path cannot be empty" }
+        require(sanitized.length <= MAX_PATH_LENGTH) { "Path exceeds maximum length of $MAX_PATH_LENGTH characters" }
+        require(PATH_REGEX.matches(sanitized)) { "Path contains invalid characters" }
         return sanitized
     }
 
@@ -228,15 +222,9 @@ object InputValidator {
      */
     fun validateAndSanitizeSessionId(sessionId: String): String {
         val sanitized = sanitize(sessionId)
-        if (sanitized.isEmpty()) {
-            throw IllegalArgumentException("Session ID cannot be empty")
-        }
-        if (sanitized.length > MAX_SESSION_ID_LENGTH) {
-            throw IllegalArgumentException("Session ID exceeds maximum length of $MAX_SESSION_ID_LENGTH characters")
-        }
-        if (!SESSION_ID_REGEX.matches(sanitized)) {
-            throw IllegalArgumentException("Session ID contains invalid characters")
-        }
+        require(sanitized.isNotEmpty()) { "Session ID cannot be empty" }
+        require(sanitized.length <= MAX_SESSION_ID_LENGTH) { "Session ID exceeds maximum length of $MAX_SESSION_ID_LENGTH characters" }
+        require(SESSION_ID_REGEX.matches(sanitized)) { "Session ID contains invalid characters" }
         return sanitized
     }
 }

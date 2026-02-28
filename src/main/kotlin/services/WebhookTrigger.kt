@@ -56,8 +56,7 @@ object WebhookTrigger {
         projectId: UUID,
         eventType: String,
         eventName: String?,
-        path: String?,
-        properties: String?
+        path: String?
     ) {
         val webhooks = getActiveWebhooks(projectId)
         if (webhooks.isEmpty()) return

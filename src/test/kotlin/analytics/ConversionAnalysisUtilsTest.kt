@@ -4,15 +4,14 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Test
 import org.slf4j.LoggerFactory
-import se.onemanstudio.calculateGoalConversions
+import se.onemanstudio.utils.calculateGoalConversions
 import se.onemanstudio.config.models.*
 import se.onemanstudio.core.ServiceManager
-import se.onemanstudio.db.ConversionGoals
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.Funnels
 import se.onemanstudio.db.FunnelSteps
 import se.onemanstudio.db.Projects
-import se.onemanstudio.analyzeFunnel
+import se.onemanstudio.utils.analyzeFunnel
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.*

@@ -9,7 +9,6 @@
     <ID>CyclomaticComplexMethod:Routing.kt$fun Route.adminRoutes(allowedOrigins: List&lt;String>, rateLimiter: RateLimiter)</ID>
     <ID>CyclomaticComplexMethod:Routing.kt$private fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int</ID>
     <ID>CyclomaticComplexMethod:SetupRouting.kt$fun Application.configureSetupRouting()</ID>
-    <ID>CyclomaticComplexMethod:WidgetRouting.kt$fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
     <ID>InvalidPackageDeclaration:ActivityCell.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:AdminCorsGuard.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:AdminEndpointTest.kt$package se.onemanstudio.integration</ID>
@@ -25,10 +24,10 @@
     <ID>InvalidPackageDeclaration:ConfigurationException.kt$package se.onemanstudio.config</ID>
     <ID>InvalidPackageDeclaration:ContributionCalendar.kt$package se.onemanstudio.api.models.dashboard</ID>
     <ID>InvalidPackageDeclaration:ContributionDay.kt$package se.onemanstudio.api.models.dashboard</ID>
-    <ID>InvalidPackageDeclaration:ConversionAnalysisUtils.kt$package se.onemanstudio</ID>
+    <ID>InvalidPackageDeclaration:ConversionAnalysisUtils.kt$package se.onemanstudio.utils</ID>
     <ID>InvalidPackageDeclaration:ConversionAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
     <ID>InvalidPackageDeclaration:ConversionGoals.kt$package se.onemanstudio.db</ID>
-    <ID>InvalidPackageDeclaration:DataAnalysisUtils.kt$package se.onemanstudio</ID>
+    <ID>InvalidPackageDeclaration:DataAnalysisUtils.kt$package se.onemanstudio.utils</ID>
     <ID>InvalidPackageDeclaration:DataAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
     <ID>InvalidPackageDeclaration:DatabaseConfig.kt$package se.onemanstudio.config.models</ID>
     <ID>InvalidPackageDeclaration:DatabaseFactory.kt$package se.onemanstudio.db</ID>
@@ -78,7 +77,7 @@
     <ID>InvalidPackageDeclaration:RedirectValidator.kt$package se.onemanstudio.middleware</ID>
     <ID>InvalidPackageDeclaration:RefreshTokens.kt$package se.onemanstudio.db</ID>
     <ID>InvalidPackageDeclaration:ResetDatabase.kt$package se.onemanstudio.db</ID>
-    <ID>InvalidPackageDeclaration:RevenueAnalysisUtils.kt$package se.onemanstudio</ID>
+    <ID>InvalidPackageDeclaration:RevenueAnalysisUtils.kt$package se.onemanstudio.utils</ID>
     <ID>InvalidPackageDeclaration:RevenueAnalysisUtilsTest.kt$package se.onemanstudio.analytics</ID>
     <ID>InvalidPackageDeclaration:RevenueModels.kt$package se.onemanstudio.api.models.admin</ID>
     <ID>InvalidPackageDeclaration:RoleGuard.kt$package se.onemanstudio.middleware</ID>
@@ -127,13 +126,12 @@
     <ID>LongMethod:ConversionAnalysisUtils.kt$fun analyzeFunnel( funnelId: UUID, projectId: UUID, start: LocalDateTime, end: LocalDateTime ): FunnelAnalysis</ID>
     <ID>LongMethod:DataAnalysisUtils.kt$fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectReport</ID>
     <ID>LongMethod:InputValidator.kt$InputValidator$fun validatePageViewPayload(payload: PageViewPayload): ValidationResult</ID>
-    <ID>LongMethod:RevenueAnalysisUtils.kt$RevenueAnalysisUtils$fun calculateRevenueAttribution(projectId: UUID, start: LocalDateTime, end: LocalDateTime): List&lt;RevenueAttribution></ID>
     <ID>LongMethod:Routing.kt$fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
     <ID>LongMethod:Routing.kt$fun Route.adminRoutes(allowedOrigins: List&lt;String>, rateLimiter: RateLimiter)</ID>
     <ID>LongMethod:Routing.kt$private fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int</ID>
     <ID>LongMethod:Routing.kt$private fun seedDemoGoalsFunnelsSegments(projectId: UUID)</ID>
     <ID>LongMethod:SetupRouting.kt$fun Application.configureSetupRouting()</ID>
-    <ID>LongMethod:WidgetRouting.kt$fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimiter)</ID>
+    <ID>LongMethod:WidgetRouting.kt$fun Application.configureWidgetRouting(rateLimiter: RateLimiter)</ID>
     <ID>MaxLineLength:Application.kt$*</ID>
     <ID>MaxLineLength:DatabaseFactory.kt$DatabaseFactory$SchemaUtils.createMissingTablesAndColumns(Projects, Events, ConversionGoals, Funnels, FunnelSteps, Segments, RefreshTokens, Users, Webhooks, WebhookDeliveries, EmailReports)</ID>
     <ID>MaxLineLength:HTTP.kt$"script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "</ID>
@@ -152,19 +150,12 @@
     <ID>MaxLineLength:WebhookTrigger.kt$WebhookTrigger$logger.info("Fired traffic_spike webhook for project $projectId (rate: ${"%.1f".format(currentRate)}/min, baseline: ${"%.1f".format(window.baselineRate)}/min)")</ID>
     <ID>NestedBlockDepth:GeoLocationService.kt$GeoLocationService$fun init(dbPath: String)</ID>
     <ID>NestedBlockDepth:Routing.kt$private fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int</ID>
-    <ID>NewLineAtEndOfFile:ActivityCell.kt$se.onemanstudio.api.models.dashboard.ActivityCell.kt</ID>
-    <ID>NewLineAtEndOfFile:DataAnalysisUtils.kt$se.onemanstudio.DataAnalysisUtils.kt</ID>
-    <ID>NewLineAtEndOfFile:DatabaseFactory.kt$se.onemanstudio.db.DatabaseFactory.kt</ID>
-    <ID>NewLineAtEndOfFile:PeakTimeAnalysis.kt$se.onemanstudio.api.models.dashboard.PeakTimeAnalysis.kt</ID>
-    <ID>NewLineAtEndOfFile:TopPage.kt$se.onemanstudio.api.models.dashboard.TopPage.kt</ID>
     <ID>SwallowedException:ConfigLoader.kt$ConfigLoader$e: IllegalArgumentException</ID>
     <ID>SwallowedException:GeoLocationService.kt$GeoLocationService$e: Exception</ID>
-    <ID>SwallowedException:RoleGuard.kt$e: IllegalArgumentException</ID>
     <ID>SwallowedException:Security.kt$e: Exception</ID>
     <ID>SwallowedException:Security.kt$e: UninitializedPropertyAccessException</ID>
     <ID>SwallowedException:SetupRouting.kt$e: Exception</ID>
     <ID>SwallowedException:SetupRouting.kt$e: io.ktor.server.plugins.BadRequestException</ID>
-    <ID>SwallowedException:UserAgentParser.kt$UserAgentParser$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DatabaseFactory.kt$DatabaseFactory$e: Exception</ID>
     <ID>TooGenericExceptionCaught:EmailService.kt$EmailService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:EmailService.kt$EmailService.&lt;no name provided>$e: Exception</ID>
@@ -175,21 +166,9 @@
     <ID>TooGenericExceptionCaught:ServiceManager.kt$ServiceManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ServiceManager.kt$ServiceManager.&lt;no name provided>$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SetupRouting.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:UserAgentParser.kt$UserAgentParser$e: Exception</ID>
     <ID>TooGenericExceptionCaught:WebhookService.kt$WebhookService$e: Exception</ID>
     <ID>TooManyFunctions:ConfigLoader.kt$ConfigLoader</ID>
     <ID>UnusedParameter:DataAnalysisUtilsTest.kt$DataAnalysisUtilsTest$eventCount: Int = 0</ID>
     <ID>UnusedParameter:DatabaseFactory.kt$DatabaseFactory$config: DatabaseConfig</ID>
-    <ID>UnusedParameter:WebhookTrigger.kt$WebhookTrigger$properties: String?</ID>
-    <ID>UnusedParameter:WidgetRouting.kt$config: AppConfig</ID>
-    <ID>UseCheckOrError:AnalyticsSecurity.kt$AnalyticsSecurity$throw IllegalStateException( "Security module not initialized. Call init() first." )</ID>
-    <ID>UseCheckOrError:EmailService.kt$EmailService$throw IllegalStateException("SMTP not configured")</ID>
-    <ID>UseRequire:AnalyticsSecurity.kt$AnalyticsSecurity$throw IllegalArgumentException("Server salt must be at least 32 characters long for security")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Path cannot be empty")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Path contains invalid characters")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Path exceeds maximum length of $MAX_PATH_LENGTH characters")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Session ID cannot be empty")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Session ID contains invalid characters")</ID>
-    <ID>UseRequire:InputValidator.kt$InputValidator$throw IllegalArgumentException("Session ID exceeds maximum length of $MAX_SESSION_ID_LENGTH characters")</ID>
   </CurrentIssues>
 </SmellBaseline>

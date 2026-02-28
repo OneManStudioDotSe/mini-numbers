@@ -48,9 +48,7 @@ object AnalyticsSecurity {
      */
     @Synchronized
     fun init(salt: String, rotationHours: Int = 24) {
-        if (salt.length < 32) {
-            throw IllegalArgumentException("Server salt must be at least 32 characters long for security")
-        }
+        require(salt.length >= 32) { "Server salt must be at least 32 characters long for security" }
         serverSalt = salt
         hashRotationHours = rotationHours.coerceIn(1, 8760)
     }
@@ -72,9 +70,7 @@ object AnalyticsSecurity {
      * @throws IllegalStateException if [init] has not been called yet.
      */
     fun generateVisitorHash(ip: String, userAgent: String, projectId: String): String {
-        val salt = serverSalt ?: throw IllegalStateException(
-            "Security module not initialized. Call init() first."
-        )
+        val salt = checkNotNull(serverSalt) { "Security module not initialized. Call init() first." }
 
         // Calculate rotation bucket based on configured hours
         val now = LocalDateTime.now()
