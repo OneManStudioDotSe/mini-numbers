@@ -9,6 +9,8 @@ info:
     name: MIT
 
 servers:
+  - url: https://analytics.example.com
+    description: Production deployment
   - url: http://localhost:8080
     description: Local development
 

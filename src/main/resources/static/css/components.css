@@ -105,16 +105,17 @@
   gap: var(--spacing-sm);
 }
 
-.chart-card__title i {
-  width: 32px;
-  height: 32px;
+.chart-card__title > i {
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-primary-subtle);
+  background: var(--gradient-primary);
   border-radius: var(--radius-md);
-  color: var(--color-primary);
-  font-size: 1.125rem;
+  color: white;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* Consistent section headers */
@@ -152,6 +153,12 @@
 
 .chart-card__container--tall {
   height: 400px;
+}
+
+/* Expand container when globe is visible */
+.chart-card__container--tall:has(.globe-container:not(.hidden)) {
+  height: auto;
+  min-height: 500px;
 }
 
 .chart-card__container--short {
@@ -313,6 +320,11 @@
 .btn-ghost:hover:not(:disabled) {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-primary);
+}
+
+.btn-ghost.active {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 /* Icon Button */
@@ -743,14 +755,12 @@ tbody tr:nth-child(even):hover td {
 .globe-container {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 420px;
+  height: 500px;
 }
 
 .globe-canvas {
   width: 100%;
   height: 100%;
-  min-height: 400px;
 }
 
 .globe-range-selector {
@@ -2478,6 +2488,125 @@ tbody tr:nth-child(even):hover td {
 
 .stat-card__value.counting {
   animation: numberPop 0.6s var(--ease-out);
+}
+
+/* ============================================
+   DASHBOARD SECTIONS (Collapsible)
+   ============================================ */
+
+/* Section = unified panel wrapper */
+.dashboard-section {
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  overflow: hidden;
+}
+
+/* Header = top of the panel */
+.dashboard-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.dashboard-section__header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+/* Hide separator when collapsed */
+.dashboard-section[aria-expanded="false"] .dashboard-section__header {
+  border-bottom-color: transparent;
+}
+
+.dashboard-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-align: left;
+}
+
+.dashboard-section__title > i {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  color: white;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.dashboard-section__title > div {
+  text-align: left;
+}
+
+.dashboard-section__title h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+}
+
+.dashboard-section__title p {
+  margin: 0.15rem 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4;
+}
+
+.dashboard-section__chevron {
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
+  transition: transform var(--transition-base);
+  flex-shrink: 0;
+}
+
+.dashboard-section[aria-expanded="false"] .dashboard-section__chevron {
+  transform: rotate(-90deg);
+}
+
+/* Content = body of the panel with cards inside */
+.dashboard-section__content {
+  overflow: hidden;
+  padding: var(--spacing-lg);
+  background: var(--color-bg-tertiary);
+  transition: max-height var(--transition-slow), opacity var(--transition-base), padding var(--transition-base);
+}
+
+.dashboard-section[aria-expanded="false"] .dashboard-section__content {
+  max-height: 0 !important;
+  opacity: 0;
+  padding: 0 var(--spacing-lg);
+  pointer-events: none;
+}
+
+.dashboard-section[aria-expanded="true"] .dashboard-section__content {
+  opacity: 1;
+}
+
+/* Cards inside sections get softer styling — the panel provides grouping */
+.dashboard-section__content .card {
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Remove extra top margin from first grid inside content */
+.dashboard-section__content > .grid:first-child {
+  margin-top: 0;
 }
 
 /* ============================================

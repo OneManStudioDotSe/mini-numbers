@@ -22,9 +22,6 @@ function animateCountUp(element, target, duration = 800, formatter) {
     element.textContent = formatter ? formatter(current) : current.toLocaleString();
     if (progress < 1) {
       requestAnimationFrame(update);
-    } else {
-      element.classList.add('counting');
-      element.addEventListener('animationend', () => element.classList.remove('counting'), { once: true });
     }
   }
   requestAnimationFrame(update);
@@ -88,17 +85,17 @@ const Dashboard = {
     // Set up chart type toggles
     this.setupChartToggles();
 
-    // Set up table search and sorting
-    this.setupTableFeatures();
-
     // Set up filters
     this.setupFilters();
 
-    // Set up export buttons
-    this.setupExportButtons();
+    // Set up collapsible dashboard sections
+    this.setupSectionToggles();
 
     // Set up demo data generator
     this.setupDemoDataGenerator();
+
+    // Set up realtime demo toggle
+    this.setupRealtimeDemo();
 
     // New features: UI/UX improvements
     this.setupModals();
@@ -665,7 +662,6 @@ const Dashboard = {
       this.updateComparisons(data.current, data.previous);
       this.updateSparklines(data.timeSeries);
       this.updateCharts(data.current);
-      this.updateTables(data.current);
 
       // Hide loading state after primary data renders
       this.hideLoadingState();
@@ -894,94 +890,40 @@ const Dashboard = {
       Utils.dom.showEmptyState(referrersEl.parentElement, { icon: '&#128279;', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
     }
 
-    // Browsers - Chart with toggle (icons)
-    const browsersEl = document.getElementById('chart-browsers');
-    if (data.browsers?.length && browsersEl) {
-      this.state.browsersData = data.browsers;
-      const topBrowsers = Utils.aggregate.groupTopN(data.browsers, 8);
-      const chartType = localStorage.getItem('chart-view-browsers') || 'doughnut';
+    // Browsers, OS, Devices — charts with view toggles
+    const chartConfigs = [
+      { key: 'browsers', dataField: 'browsers', stateKey: 'browsersData', iconType: 'browser', emptyIcon: '&#127760;', emptyMsg: 'No browser data' },
+      { key: 'os', dataField: 'oss', stateKey: 'osData', iconType: 'os', emptyIcon: '&#128187;', emptyMsg: 'No OS data' },
+      { key: 'devices', dataField: 'devices', stateKey: 'devicesData', iconType: 'device', emptyIcon: '&#128241;', emptyMsg: 'No device data' },
+    ];
 
-      if (chartType === 'bar') {
-        ChartManager.createIconBarChart('chart-browsers', topBrowsers, 'browser');
-      } else {
-        ChartManager.createIconDoughnutChart('chart-browsers', topBrowsers, 'browser');
+    chartConfigs.forEach(({ key, dataField, stateKey, iconType, emptyIcon, emptyMsg }) => {
+      const el = document.getElementById(`chart-${key}`);
+      if (data[dataField]?.length && el) {
+        this.state[stateKey] = data[dataField];
+        const topItems = Utils.aggregate.groupTopN(data[dataField], 8);
+        const chartType = localStorage.getItem(`chart-view-${key}`) || 'doughnut';
+        this.renderChartByType(`chart-${key}`, topItems, chartType, iconType);
+      } else if (el) {
+        Utils.dom.showEmptyState(el.parentElement, { icon: emptyIcon, message: emptyMsg });
       }
-    } else if (browsersEl) {
-      Utils.dom.showEmptyState(browsersEl.parentElement, { icon: '&#127760;', message: 'No browser data' });
-    }
-
-    // Operating Systems - Chart with toggle (icons)
-    const osEl = document.getElementById('chart-os');
-    if (data.oss?.length && osEl) {
-      this.state.osData = data.oss;
-      const topOS = Utils.aggregate.groupTopN(data.oss, 8);
-      const chartType = localStorage.getItem('chart-view-os') || 'doughnut';
-
-      if (chartType === 'bar') {
-        ChartManager.createIconBarChart('chart-os', topOS, 'os');
-      } else {
-        ChartManager.createIconDoughnutChart('chart-os', topOS, 'os');
-      }
-    } else if (osEl) {
-      Utils.dom.showEmptyState(osEl.parentElement, { icon: '&#128187;', message: 'No OS data' });
-    }
-
-    // Devices - Chart with toggle (icons)
-    const devicesEl = document.getElementById('chart-devices');
-    if (data.devices?.length && devicesEl) {
-      this.state.devicesData = data.devices;
-      const topDevices = Utils.aggregate.groupTopN(data.devices, 8);
-      const chartType = localStorage.getItem('chart-view-devices') || 'doughnut';
-
-      if (chartType === 'bar') {
-        ChartManager.createIconBarChart('chart-devices', topDevices, 'device');
-      } else {
-        ChartManager.createIconDoughnutChart('chart-devices', topDevices, 'device');
-      }
-    } else if (devicesEl) {
-      Utils.dom.showEmptyState(devicesEl.parentElement, { icon: '&#128241;', message: 'No device data' });
-    }
+    });
 
     // Custom Events - Bar Chart (show section only when data exists)
     const customEventsSection = document.getElementById('custom-events-section');
-    const customEventsCards = document.getElementById('custom-events-cards');
     if (data.customEvents?.length && document.getElementById('chart-custom-events')) {
       if (customEventsSection) customEventsSection.style.display = '';
       ChartManager.createBarChart('chart-custom-events', data.customEvents);
 
-      // Update custom events summary cards
-      if (customEventsCards) {
-        customEventsCards.style.display = '';
+      // Update annotation with total count and top event
+      const annotation = document.getElementById('custom-events-annotation');
+      if (annotation) {
         const totalEvents = data.customEvents.reduce((sum, e) => sum + e.value, 0);
         const topEvent = data.customEvents[0];
-
-        const totalEl = document.getElementById('total-custom-events');
-        if (totalEl) totalEl.textContent = Utils.format.number(totalEvents);
-
-        const topNameEl = document.getElementById('top-custom-event');
-        if (topNameEl) topNameEl.textContent = topEvent.label;
-
-        const topCountEl = document.getElementById('top-custom-event-count');
-        if (topCountEl) topCountEl.textContent = `${Utils.format.number(topEvent.value)} occurrences`;
-
-        // Populate custom events breakdown
-        const breakdownList = customEventsCards.querySelector('.custom-events-breakdown__list');
-        if (breakdownList) {
-          breakdownList.innerHTML = data.customEvents.map(e => {
-            const pct = totalEvents > 0 ? ((e.value / totalEvents) * 100).toFixed(1) : 0;
-            return `<div class="custom-events-breakdown__item">
-              <div class="custom-events-breakdown__name">${Utils.escapeHtml(e.label)}</div>
-              <div class="custom-events-breakdown__bar-wrap">
-                <div class="custom-events-breakdown__bar" style="width: ${pct}%"></div>
-              </div>
-              <div class="custom-events-breakdown__count">${Utils.format.number(e.value)}<span class="custom-events-breakdown__pct">${pct}%</span></div>
-            </div>`;
-          }).join('');
-        }
+        annotation.textContent = `${Utils.format.number(totalEvents)} total \u00B7 Top: ${topEvent.label}`;
       }
     } else {
       if (customEventsSection) customEventsSection.style.display = 'none';
-      if (customEventsCards) customEventsCards.style.display = 'none';
     }
 
     // Countries - Geographic visualization
@@ -1009,18 +951,12 @@ const Dashboard = {
       Utils.dom.showEmptyState(countriesEl.parentElement, { icon: '&#127758;', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
 
-    // Time Series - Line Chart (last 3 days)
+    // Time Series - Line Chart (uses pre-aggregated time series from comparison report)
     const timeseriesEl = document.getElementById('chart-timeseries');
-    if (data.lastVisits?.length && timeseriesEl) {
-      const granularity = this.state.currentFilter === '24h' ? 'hour' : 'day';
-      // Limit to last 3 days of data
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      const recentVisits = data.lastVisits.filter(v => new Date(v.timestamp) >= threeDaysAgo);
-      const timeData = Utils.aggregate.groupByTime(recentVisits, granularity);
-      if (timeData.length) {
-        ChartManager.createLineChart('chart-timeseries', timeData);
-      }
+    const tsData = this.state.data?.timeSeries;
+    if (tsData?.length && timeseriesEl) {
+      const timeData = tsData.map(point => ({ timestamp: point.timestamp, count: point.views }));
+      ChartManager.createLineChart('chart-timeseries', timeData);
     } else if (timeseriesEl) {
       Utils.dom.showEmptyState(timeseriesEl.parentElement, { icon: '&#128200;', message: 'No time series data' });
     }
@@ -1109,78 +1045,24 @@ const Dashboard = {
   },
 
   /**
-   * Update peak times display
+   * Update peak times annotation in heatmap header
    * @param {Object} peakData - Peak time analysis data
    */
   updatePeakTimes(peakData) {
     if (!peakData) return;
 
-    // Update peak hours
-    const hoursEl = document.getElementById('peak-hours');
-    if (hoursEl && peakData.topHours) {
-      hoursEl.innerHTML = peakData.topHours.map((hour, index) => `
-        <div class="peak-item ${index === 0 ? 'peak-item--top' : ''}">
-          <span class="peak-label">${hour.label}</span>
-          <span class="peak-value">${Utils.format.number(hour.value)} visits</span>
-          ${index === 0 ? '<span class="badge badge-primary">Peak</span>' : ''}
-        </div>
-      `).join('');
-    }
-
-    // Update peak days
-    const daysEl = document.getElementById('peak-days');
-    if (daysEl && peakData.topDays) {
-      daysEl.innerHTML = peakData.topDays.map((day, index) => `
-        <div class="peak-item ${index === 0 ? 'peak-item--top' : ''}">
-          <span class="peak-label">${day.label}</span>
-          <span class="peak-value">${Utils.format.number(day.value)} visits</span>
-          ${index === 0 ? '<span class="badge badge-primary">Peak</span>' : ''}
-        </div>
-      `).join('');
-    }
-
     // Store peak data for heatmap
     this.state.peakHour = peakData.peakHour;
     this.state.peakDay = peakData.peakDay;
-  },
 
-  /**
-   * Update tables
-   * @param {Object} data - Report data
-   */
-  updateTables(data) {
-    // Update recent activity table
-    const tableBody = document.querySelector('#table-recent tbody');
-    if (!tableBody) return;
-
-    if (data.lastVisits?.length) {
-      tableBody.innerHTML = data.lastVisits
-        .map(
-          (visit) => {
-            const flag = visit.country ? Utils.icons.countryFlag(visit.country) : '';
-            const location = Utils.escapeHtml(visit.city || 'Unknown');
-            return `
-        <tr>
-          <td>${Utils.escapeHtml(visit.path)}</td>
-          <td>${flag ? `<span class="flag-emoji">${flag}</span> ` : ''}${location}</td>
-          <td>${Utils.time.formatTime(visit.timestamp)}</td>
-        </tr>`;
-          }
-        )
-        .join('');
-
-    } else {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="3" style="text-align: center; padding: var(--spacing-xl);">
-            <div class="empty-state" style="padding: var(--spacing-lg);">
-              <div class="empty-state__icon">&#128203;</div>
-              <div class="empty-state__message">No recent activity</div>
-              <div class="empty-state__suggestion">Visits will appear here as they happen</div>
-            </div>
-          </td>
-        </tr>
-      `;
+    // Update annotation in heatmap card header
+    const annotation = document.getElementById('peak-annotation');
+    if (annotation) {
+      const peakDayLabel = peakData.topDays?.[0]?.label || '';
+      const peakHourLabel = peakData.topHours?.[0]?.label || '';
+      if (peakDayLabel || peakHourLabel) {
+        annotation.textContent = `Peak: ${peakDayLabel}${peakDayLabel && peakHourLabel ? ' at ' : ''}${peakHourLabel}`;
+      }
     }
   },
 
@@ -1205,6 +1087,7 @@ const Dashboard = {
   },
 
   async updateRealtimeCount() {
+    if (this.state.realtimeDemo) return; // Skip API call in demo mode
     if (!this.state.currentProjectId) return;
     try {
       const data = await Utils.api.fetch(
@@ -1216,6 +1099,26 @@ const Dashboard = {
         animateCountUp(el, data.activeVisitors || 0, 400, v => v.toString());
       }
     } catch (e) { /* silent fail for realtime */ }
+  },
+
+  setupRealtimeDemo() {
+    const btn = document.getElementById('realtime-demo-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      this.state.realtimeDemo = !this.state.realtimeDemo;
+      btn.classList.toggle('active', this.state.realtimeDemo);
+
+      const el = document.getElementById('realtime-number');
+      if (this.state.realtimeDemo) {
+        // Show random demo count between 5-42
+        const demoCount = Math.floor(Math.random() * 38) + 5;
+        if (el) animateCountUp(el, demoCount, 400, v => v.toString());
+      } else {
+        // Resume real data
+        this.updateRealtimeCount();
+      }
+    });
   },
 
   /**
@@ -1313,116 +1216,54 @@ const Dashboard = {
   },
 
   /**
-   * Update chart type (doughnut, bar, or radar)
+   * Render a chart by type, cleaning up previous DOM artifacts first.
+   * Used by both initial render and view toggle handlers.
+   * @param {string} chartId - Canvas element ID (e.g. 'chart-browsers')
+   * @param {Array} items - Array of {label, value} objects
+   * @param {string} type - 'doughnut', 'bar', or 'radar'
+   * @param {string} iconType - Icon category: 'browser', 'os', 'device'
+   */
+  renderChartByType(chartId, items, type, iconType) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    // Clean up custom DOM elements from any previous chart type
+    const container = canvas.parentElement;
+    const iconBar = container.querySelector('.icon-bar-chart');
+    if (iconBar) iconBar.remove();
+    const iconLegend = container.querySelector('.icon-legend');
+    if (iconLegend) iconLegend.remove();
+    canvas.style.display = '';
+
+    if (type === 'bar') {
+      ChartManager.createIconBarChart(chartId, items, iconType);
+    } else if (type === 'radar') {
+      ChartManager.createRadarChart(chartId, items);
+    } else {
+      ChartManager.createIconDoughnutChart(chartId, items, iconType);
+    }
+  },
+
+  /**
+   * Update chart type (doughnut, bar, or radar) — called by toggle click handler
    * @param {string} chartName - 'browsers', 'os', or 'devices'
    * @param {string} type - 'doughnut', 'bar', or 'radar'
    */
   updateChartType(chartName, type) {
     if (!this.state.currentProjectId) return;
 
-    // Get the stored data
     const dataKey = `${chartName}Data`;
     const data = this.state[dataKey];
-
     if (!data || !data.length) return;
 
-    const chartId = `chart-${chartName}`;
+    const iconTypeMap = { browsers: 'browser', os: 'os', devices: 'device' };
     const topItems = Utils.aggregate.groupTopN(data, 8);
-
-    if (type === 'bar') {
-      ChartManager.createBarChart(chartId, topItems);
-    } else if (type === 'radar') {
-      ChartManager.createRadarChart(chartId, topItems);
-    } else {
-      ChartManager.createDoughnutChart(chartId, topItems);
-    }
+    this.renderChartByType(`chart-${chartName}`, topItems, type, iconTypeMap[chartName]);
   },
 
   /**
    * Setup table search and sorting
    */
-  setupTableFeatures() {
-    const searchInput = document.getElementById('table-search');
-    const table = document.getElementById('table-recent');
-
-    if (!searchInput || !table) return;
-
-    // Setup search
-    searchInput.addEventListener(
-      'input',
-      Utils.debounce((e) => {
-        this.filterTable(e.target.value.toLowerCase());
-      }, 300)
-    );
-
-    // Setup sorting
-    const headers = table.querySelectorAll('th.sortable');
-    headers.forEach((header) => {
-      header.addEventListener('click', () => {
-        this.sortTable(header);
-      });
-    });
-  },
-
-  /**
-   * Filter table rows by search term
-   * @param {string} searchTerm - Search term
-   */
-  filterTable(searchTerm) {
-    const table = document.getElementById('table-recent');
-    if (!table) return;
-
-    const rows = table.querySelectorAll('tbody tr');
-
-    rows.forEach((row) => {
-      const text = row.textContent.toLowerCase();
-      const matches = text.includes(searchTerm);
-      row.style.display = matches ? '' : 'none';
-    });
-  },
-
-  /**
-   * Sort table by column
-   * @param {HTMLElement} header - Header element
-   */
-  sortTable(header) {
-    const table = document.getElementById('table-recent');
-    if (!table) return;
-
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-
-    // Determine sort direction
-    const currentSort = header.classList.contains('asc') ? 'asc' : 'desc';
-    const newSort = currentSort === 'asc' ? 'desc' : 'asc';
-
-    // Remove sort classes from all headers
-    table.querySelectorAll('th.sortable').forEach((th) => {
-      th.classList.remove('asc', 'desc');
-    });
-
-    // Add sort class to current header
-    header.classList.add(newSort);
-
-    // Get column index
-    const columnIndex = Array.from(header.parentElement.children).indexOf(header);
-
-    // Sort rows
-    rows.sort((a, b) => {
-      const aValue = a.children[columnIndex]?.textContent.trim() || '';
-      const bValue = b.children[columnIndex]?.textContent.trim() || '';
-
-      if (newSort === 'asc') {
-        return aValue.localeCompare(bValue, undefined, { numeric: true });
-      } else {
-        return bValue.localeCompare(aValue, undefined, { numeric: true });
-      }
-    });
-
-    // Reorder rows in DOM
-    rows.forEach((row) => tbody.appendChild(row));
-  },
-
   /**
    * Setup filter controls
    */
@@ -1548,22 +1389,9 @@ const Dashboard = {
   },
 
   /**
-   * Set up export button handlers
+   * Download a composed report CSV based on selected checkboxes in settings
    */
-  setupExportButtons() {
-    document.querySelectorAll('[data-export]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const exportType = e.currentTarget.dataset.export;
-        this.exportChartData(exportType);
-      });
-    });
-  },
-
-  /**
-   * Export chart data to CSV
-   * @param {string} chartType - Type of data to export
-   */
-  exportChartData(chartType) {
+  downloadReport() {
     if (!this.state.data.current) {
       Utils.toast.error('No data to export');
       return;
@@ -1572,150 +1400,148 @@ const Dashboard = {
     const data = this.state.data.current;
     const projectName = document.getElementById('active-title')?.textContent || 'project';
     const timestamp = new Date().toISOString().split('T')[0];
-
-    let csvData, filename;
-
-    switch (chartType) {
-      case 'full-report':
-        csvData = this.formatFullReportCSV(data);
-        filename = `${projectName}_full_report_${timestamp}.csv`;
-        break;
-
-      case 'top-pages':
-        csvData = Utils.export.toCSV(
-          data.topPages.map(p => ({ path: p.label, views: p.value })),
-          ['path', 'views']
-        );
-        filename = `${projectName}_top_pages_${timestamp}.csv`;
-        break;
-
-      case 'browsers':
-        csvData = Utils.export.toCSV(
-          data.browsers.map(b => ({ browser: b.label, count: b.value })),
-          ['browser', 'count']
-        );
-        filename = `${projectName}_browsers_${timestamp}.csv`;
-        break;
-
-      case 'os':
-        csvData = Utils.export.toCSV(
-          data.oss.map(o => ({ os: o.label, count: o.value })),
-          ['os', 'count']
-        );
-        filename = `${projectName}_os_${timestamp}.csv`;
-        break;
-
-      case 'devices':
-        csvData = Utils.export.toCSV(
-          data.devices.map(d => ({ device: d.label, count: d.value })),
-          ['device', 'count']
-        );
-        filename = `${projectName}_devices_${timestamp}.csv`;
-        break;
-
-      case 'referrers':
-        csvData = Utils.export.toCSV(
-          data.referrers.map(r => ({ referrer: r.label, count: r.value })),
-          ['referrer', 'count']
-        );
-        filename = `${projectName}_referrers_${timestamp}.csv`;
-        break;
-
-      case 'countries':
-        csvData = Utils.export.toCSV(
-          data.countries.map(c => ({ country: c.label, visits: c.value })),
-          ['country', 'visits']
-        );
-        filename = `${projectName}_countries_${timestamp}.csv`;
-        break;
-
-      case 'custom-events':
-        csvData = Utils.export.toCSV(
-          (data.customEvents || []).map(e => ({ event: e.label, count: e.value })),
-          ['event', 'count']
-        );
-        filename = `${projectName}_custom_events_${timestamp}.csv`;
-        break;
-
-      case 'recent-activity':
-        csvData = Utils.export.toCSV(
-          data.lastVisits.map(v => ({
-            path: v.path,
-            city: v.city,
-            timestamp: v.timestamp
-          })),
-          ['path', 'city', 'timestamp']
-        );
-        filename = `${projectName}_recent_activity_${timestamp}.csv`;
-        break;
-
-      default:
-        Utils.toast.error('Unknown export type');
-        return;
-    }
-
-    Utils.export.downloadCSV(csvData, filename);
-    Utils.toast.success(`Exported ${filename}`);
-  },
-
-  /**
-   * Format full report as CSV
-   * @param {Object} data - Report data
-   * @returns {string} CSV content
-   */
-  formatFullReportCSV(data) {
     const lines = [];
 
-    // Summary section
-    lines.push('ANALYTICS SUMMARY');
-    lines.push(`Total views,${data.totalViews}`);
-    lines.push(`Unique visitors,${data.uniqueVisitors}`);
-    lines.push('');
+    // Check which sections are selected (checkboxes use class + value)
+    const checkedValues = new Set(
+      Array.from(document.querySelectorAll('.export-section-cb:checked')).map(cb => cb.value)
+    );
+    const isChecked = (val) => checkedValues.has(val);
 
-    // Top Pages
-    lines.push('TOP PAGES');
-    lines.push('Path,Views');
-    data.topPages.forEach(p => lines.push(`"${p.label}",${p.value}`));
-    lines.push('');
+    if (isChecked('views-visitors')) {
+      lines.push('PAGE VIEWS & VISITORS');
+      lines.push(`Total views,${data.totalViews || 0}`);
+      lines.push(`Unique visitors,${data.uniqueVisitors || 0}`);
+      lines.push(`Bounce rate,${data.bounceRate != null ? data.bounceRate.toFixed(1) + '%' : 'N/A'}`);
+      lines.push(`Total sessions,${data.totalSessions || 0}`);
+      lines.push('');
+    }
 
-    // Browsers
-    lines.push('BROWSERS');
-    lines.push('Browser,Count');
-    data.browsers.forEach(b => lines.push(`"${b.label}",${b.value}`));
-    lines.push('');
+    if (isChecked('top-pages') && data.topPages?.length) {
+      lines.push('TOP PAGES');
+      lines.push('Path,Views');
+      data.topPages.forEach(p => lines.push(`"${p.label}",${p.value}`));
+      lines.push('');
+    }
 
-    // Operating Systems
-    lines.push('OPERATING SYSTEMS');
-    lines.push('OS,Count');
-    data.oss.forEach(o => lines.push(`"${o.label}",${o.value}`));
-    lines.push('');
+    if (isChecked('referrers') && data.referrers?.length) {
+      lines.push('REFERRERS');
+      lines.push('Referrer,Count');
+      data.referrers.forEach(r => lines.push(`"${r.label}",${r.value}`));
+      lines.push('');
+    }
 
-    // Devices
-    lines.push('DEVICES');
-    lines.push('Device,Count');
-    data.devices.forEach(d => lines.push(`"${d.label}",${d.value}`));
-    lines.push('');
+    if (isChecked('utm-campaigns') && (data.utmSources?.length || data.utmMediums?.length || data.utmCampaigns?.length)) {
+      lines.push('UTM CAMPAIGNS');
+      if (data.utmSources?.length) {
+        lines.push('Source,Count');
+        data.utmSources.forEach(s => lines.push(`"${s.label}",${s.value}`));
+      }
+      if (data.utmMediums?.length) {
+        lines.push('Medium,Count');
+        data.utmMediums.forEach(m => lines.push(`"${m.label}",${m.value}`));
+      }
+      if (data.utmCampaigns?.length) {
+        lines.push('Campaign,Count');
+        data.utmCampaigns.forEach(c => lines.push(`"${c.label}",${c.value}`));
+      }
+      lines.push('');
+    }
 
-    // Countries
-    lines.push('COUNTRIES');
-    lines.push('Country,Visits');
-    data.countries.forEach(c => lines.push(`"${c.label}",${c.value}`));
-    lines.push('');
+    if (isChecked('tech')) {
+      if (data.browsers?.length) {
+        lines.push('BROWSERS');
+        lines.push('Browser,Count');
+        data.browsers.forEach(b => lines.push(`"${b.label}",${b.value}`));
+        lines.push('');
+      }
+      if (data.oss?.length) {
+        lines.push('OPERATING SYSTEMS');
+        lines.push('OS,Count');
+        data.oss.forEach(o => lines.push(`"${o.label}",${o.value}`));
+        lines.push('');
+      }
+      if (data.devices?.length) {
+        lines.push('DEVICES');
+        lines.push('Device,Count');
+        data.devices.forEach(d => lines.push(`"${d.label}",${d.value}`));
+        lines.push('');
+      }
+    }
 
-    // Custom Events
-    if (data.customEvents?.length) {
+    if (isChecked('countries') && data.countries?.length) {
+      lines.push('COUNTRIES & REGIONS');
+      lines.push('Country,Visits');
+      data.countries.forEach(c => lines.push(`"${c.label}",${c.value}`));
+      if (data.regions?.length) {
+        lines.push('');
+        lines.push('Region,Visits');
+        data.regions.forEach(r => lines.push(`"${r.label}",${r.value}`));
+      }
+      lines.push('');
+    }
+
+    if (isChecked('custom-events') && data.customEvents?.length) {
       lines.push('CUSTOM EVENTS');
       lines.push('Event,Count');
       data.customEvents.forEach(e => lines.push(`"${e.label}",${e.value}`));
       lines.push('');
     }
 
-    // Recent Activity
-    lines.push('RECENT ACTIVITY');
-    lines.push('Path,City,Timestamp');
-    data.lastVisits.forEach(v => lines.push(`"${v.path}","${v.city}","${v.timestamp}"`));
+    if (isChecked('revenue') && typeof RevenueManager !== 'undefined' && RevenueManager.data) {
+      lines.push('REVENUE');
+      const rev = RevenueManager.data;
+      if (rev.totalRevenue != null) lines.push(`Total revenue,${rev.totalRevenue}`);
+      if (rev.revenueByEvent?.length) {
+        lines.push('Event,Revenue');
+        rev.revenueByEvent.forEach(r => lines.push(`"${r.label}",${r.value}`));
+      }
+      lines.push('');
+    }
 
-    return lines.join('\n');
+    if (lines.length === 0) {
+      Utils.toast.error('Select at least one section to export');
+      return;
+    }
+
+    // Handle raw events separately (async)
+    if (isChecked('raw-events')) {
+      Utils.toast.info('Downloading report with raw events...');
+      this.exportRawEventsForReport(lines, projectName, timestamp);
+      return;
+    }
+
+    const csvData = lines.join('\n');
+    Utils.export.downloadCSV(csvData, `${projectName}_report_${timestamp}.csv`);
+    Utils.toast.success('Report downloaded');
+  },
+
+  /**
+   * Export raw events and append to report lines
+   */
+  async exportRawEventsForReport(lines, projectName, timestamp) {
+    try {
+      const params = new URLSearchParams({ page: '0', limit: '10000', sortBy: 'timestamp', order: 'desc' });
+      const data = await Utils.api.fetch(
+        `/admin/projects/${this.state.currentProjectId}/events?${params}`
+      );
+
+      lines.push('RAW EVENTS');
+      lines.push('Timestamp,Type,Path,Country,City,Browser,Device,Duration');
+      (data.events || []).forEach(e => {
+        lines.push(`"${e.timestamp}","${e.eventType}","${e.path}","${e.country || ''}","${e.city || ''}","${e.browser || ''}","${e.device || ''}",${e.duration || 0}`);
+      });
+
+      const csvData = lines.join('\n');
+      Utils.export.downloadCSV(csvData, `${projectName}_report_${timestamp}.csv`);
+      Utils.toast.success('Report downloaded');
+    } catch (error) {
+      console.error('Failed to export raw events:', error);
+      // Download without raw events
+      const csvData = lines.join('\n');
+      Utils.export.downloadCSV(csvData, `${projectName}_report_${timestamp}.csv`);
+      Utils.toast.success('Report downloaded (without raw events)');
+    }
   },
 
   /**
@@ -2170,6 +1996,36 @@ const Dashboard = {
       cancelBtn.addEventListener('click', () => modal.classList.remove('show'));
     }
 
+    // Download report button
+    const downloadReportBtn = document.getElementById('download-report-btn');
+    if (downloadReportBtn) {
+      downloadReportBtn.addEventListener('click', () => {
+        this.downloadReport();
+      });
+    }
+
+    // Manage webhooks button (in settings modal)
+    const manageWebhooksBtn = document.getElementById('manage-webhooks-btn');
+    if (manageWebhooksBtn) {
+      manageWebhooksBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+        this.loadWebhooks();
+        const webhooksModal = document.getElementById('webhooks-modal');
+        if (webhooksModal) webhooksModal.classList.add('show');
+      });
+    }
+
+    // Manage email reports button (in settings modal)
+    const manageEmailReportsBtn = document.getElementById('manage-email-reports-btn');
+    if (manageEmailReportsBtn) {
+      manageEmailReportsBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+        this.loadEmailReports();
+        const emailReportsModal = document.getElementById('email-reports-modal');
+        if (emailReportsModal) emailReportsModal.classList.add('show');
+      });
+    }
+
     // Copy project API key handler
     if (copyProjectKeyBtn) {
       copyProjectKeyBtn.addEventListener('click', () => {
@@ -2603,6 +2459,55 @@ const Dashboard = {
     };
 
     this._checkOnboardingState();
+  },
+
+  /**
+   * Setup collapsible dashboard section toggles with localStorage persistence
+   */
+  setupSectionToggles() {
+    const sections = document.querySelectorAll('.dashboard-section[data-section]');
+    const storageKey = 'mini-numbers-section-state';
+
+    // Load saved state
+    let savedState = {};
+    try {
+      savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    } catch (e) { /* ignore */ }
+
+    sections.forEach(section => {
+      const sectionName = section.dataset.section;
+      const header = section.querySelector('.dashboard-section__header');
+      if (!header) return;
+
+      // Apply saved state (override HTML default)
+      if (savedState[sectionName] !== undefined) {
+        section.setAttribute('aria-expanded', savedState[sectionName] ? 'true' : 'false');
+      }
+
+      // Set initial max-height for expanded sections
+      const content = section.querySelector('.dashboard-section__content');
+      if (content && section.getAttribute('aria-expanded') === 'true') {
+        content.style.maxHeight = 'none';
+      }
+
+      header.addEventListener('click', () => {
+        const isExpanded = section.getAttribute('aria-expanded') === 'true';
+        const newState = !isExpanded;
+        section.setAttribute('aria-expanded', newState.toString());
+
+        if (content) {
+          if (newState) {
+            content.style.maxHeight = 'none';
+          } else {
+            content.style.maxHeight = '';
+          }
+        }
+
+        // Persist state
+        savedState[sectionName] = newState;
+        localStorage.setItem(storageKey, JSON.stringify(savedState));
+      });
+    });
   },
 };
 

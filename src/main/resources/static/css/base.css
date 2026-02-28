@@ -31,6 +31,7 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
+  overflow-x: hidden;
 }
 
 /* ============================================
@@ -115,9 +116,9 @@ a:hover {
 #main {
   margin-left: var(--sidebar-width);
   padding: var(--spacing-2xl) var(--spacing-xl);
-  width: 100%;
   max-width: var(--max-content-width);
   flex: 1;
+  min-width: 0;
 }
 
 /* Header */
