@@ -530,11 +530,14 @@ const MapManager = {
     if (!selector || selector.dataset.initialized) return;
     selector.dataset.initialized = 'true';
 
-    const buttons = selector.querySelectorAll('.globe-range-btn');
-    buttons.forEach(btn => {
+    const rangeButtons = selector.querySelectorAll('.globe-range-btn:not(#globe-test-markers-btn)');
+    rangeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
+        rangeButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        // Deactivate test button
+        const testBtn = document.getElementById('globe-test-markers-btn');
+        if (testBtn) testBtn.classList.remove('active');
 
         const range = btn.dataset.range;
         const projectId = typeof Dashboard !== 'undefined' && Dashboard.state
@@ -544,6 +547,29 @@ const MapManager = {
         }
       });
     });
+
+    // Test markers button
+    const testBtn = document.getElementById('globe-test-markers-btn');
+    if (testBtn) {
+      testBtn.addEventListener('click', () => {
+        rangeButtons.forEach(b => b.classList.remove('active'));
+        testBtn.classList.toggle('active');
+
+        if (testBtn.classList.contains('active')) {
+          GlobeManager.stopPolling();
+          GlobeManager.showTestMarkers();
+        } else {
+          // Resume real-time polling
+          const realtimeBtn = selector.querySelector('[data-range="realtime"]');
+          if (realtimeBtn) realtimeBtn.classList.add('active');
+          const projectId = typeof Dashboard !== 'undefined' && Dashboard.state
+            ? Dashboard.state.currentProjectId : null;
+          if (projectId) {
+            GlobeManager.startPolling(projectId, 'realtime');
+          }
+        }
+      });
+    }
   },
 
   /**

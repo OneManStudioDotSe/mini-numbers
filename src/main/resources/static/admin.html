@@ -130,562 +130,501 @@
                 </div>
             </div>
 
-            <!-- Stat Cards -->
-            <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Key metrics">
-                <!-- Total Page Views -->
-                <div class="card stat-card" role="status" aria-label="Total page views">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-eye-line"></i>
+            <!-- ============================================
+                 SECTION 1: OVERVIEW
+                 ============================================ -->
+            <section class="dashboard-section" data-section="overview" aria-expanded="true">
+                <button class="dashboard-section__header" aria-expanded="true" aria-controls="section-overview-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-dashboard-line"></i>
+                        <div>
+                            <h2>Overview</h2>
+                            <p>High-level performance snapshot — page views, visitors, sessions, bounce rate, and trends for the selected time range compared to the previous period.</p>
                         </div>
-                        <small>Total page views</small>
                     </div>
-                    <div class="stat-card__value" id="total-views"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
-                    <canvas id="sparkline-views" class="stat-card__sparkline"></canvas>
-                    <div class="stat-card__comparison" id="views-comparison">
-                        Loading...
-                    </div>
-                </div>
-
-                <!-- Unique Visitors -->
-                <div class="card stat-card" role="status" aria-label="Unique visitors">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-group-line"></i>
-                        </div>
-                        <small>Unique visitors</small>
-                    </div>
-                    <div class="stat-card__value" id="unique-visitors"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
-                    <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
-                    <div class="stat-card__comparison" id="visitors-comparison">
-                        Loading...
-                    </div>
-                </div>
-
-                <!-- Bounce Rate -->
-                <div class="card stat-card" role="status" aria-label="Bounce rate">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-logout-box-r-line"></i>
-                        </div>
-                        <small>Bounce rate</small>
-                    </div>
-                    <div class="stat-card__value" id="bounce-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
-                    <div class="stat-card__comparison" id="bounce-comparison">
-                        Loading...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Extended Metrics Row -->
-            <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Extended metrics">
-                <!-- Total Sessions -->
-                <div class="card stat-card" role="status" aria-label="Total sessions">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-stack-line"></i>
-                        </div>
-                        <small>Total sessions</small>
-                    </div>
-                    <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
-                    <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
-                </div>
-
-                <!-- Avg Session Duration -->
-                <div class="card stat-card" role="status" aria-label="Average session duration">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-timer-line"></i>
-                        </div>
-                        <small>Avg. session duration</small>
-                    </div>
-                    <div class="stat-card__value" id="avg-session-duration"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
-                    <div class="stat-card__comparison" id="session-duration-comparison">Loading...</div>
-                </div>
-
-                <!-- Conversion Rate -->
-                <div class="card stat-card" role="status" aria-label="Conversion rate">
-                    <div class="stat-card__header">
-                        <div class="stat-card__icon" aria-hidden="true">
-                            <i class="ri-exchange-funds-line"></i>
-                        </div>
-                        <small>Conversion rate</small>
-                    </div>
-                    <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
-                    <div class="stat-card__comparison" id="conversion-rate-comparison">Loading...</div>
-                </div>
-            </div>
-
-            <!-- Custom Events Summary Cards -->
-            <div id="custom-events-cards" style="display: none;" role="region" aria-label="Custom events metrics">
-                <div class="grid grid-cols-2 mt-lg">
-                    <div class="card stat-card" role="status" aria-label="Total custom events">
-                        <div class="stat-card__header">
-                            <div class="stat-card__icon" aria-hidden="true">
-                                <i class="ri-flashlight-line"></i>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-overview-content">
+                    <!-- Primary Stat Cards -->
+                    <div class="grid grid-cols-3" role="region" aria-label="Key metrics">
+                        <div class="card stat-card" role="status" aria-label="Total page views">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-eye-line"></i></div>
+                                <small>Total page views</small>
                             </div>
-                            <small>Total custom events</small>
+                            <div class="stat-card__value" id="total-views"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <canvas id="sparkline-views" class="stat-card__sparkline"></canvas>
+                            <div class="stat-card__comparison" id="views-comparison">Loading...</div>
                         </div>
-                        <div class="stat-card__value" id="total-custom-events">0</div>
-                    </div>
-                    <div class="card stat-card" role="status" aria-label="Top custom event">
-                        <div class="stat-card__header">
-                            <div class="stat-card__icon" aria-hidden="true">
-                                <i class="ri-star-line"></i>
+
+                        <div class="card stat-card" role="status" aria-label="Unique visitors">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-group-line"></i></div>
+                                <small>Unique visitors</small>
                             </div>
-                            <small>Top custom event</small>
+                            <div class="stat-card__value" id="unique-visitors"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
+                            <div class="stat-card__comparison" id="visitors-comparison">Loading...</div>
                         </div>
-                        <div class="stat-card__value" id="top-custom-event" style="font-size: var(--font-size-2xl);">&mdash;</div>
-                        <div class="stat-card__comparison" id="top-custom-event-count"></div>
-                    </div>
-                </div>
-                <div class="card mt-md" id="custom-events-breakdown" role="list" aria-label="Custom events breakdown">
-                    <div class="custom-events-breakdown__list"></div>
-                </div>
-            </div>
 
-            <!-- Time Series Chart -->
-            <div class="card chart-card mt-lg">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-line-chart-line"></i> Views over time
-                    </h3>
-                </div>
-                <div class="chart-card__container">
-                    <canvas id="chart-timeseries"></canvas>
-                </div>
-            </div>
-
-            <!-- Activity Heatmap -->
-            <div class="card chart-card mt-lg">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-calendar-line"></i> Activity heatmap
-                    </h3>
-                    <div class="heatmap-legend">
-                        <span class="text-muted text-xs">Less</span>
-                        <div class="legend-gradient"></div>
-                        <span class="text-muted text-xs">More</span>
-                    </div>
-                </div>
-                <div class="chart-card__container chart-card__container--tall">
-                    <canvas id="chart-heatmap"></canvas>
-                </div>
-            </div>
-
-            <!-- Peak Traffic Times Cards -->
-            <div class="grid grid-cols-2 mt-lg">
-                <!-- Peak Hours -->
-                <div class="card">
-                    <h3>
-                        <i class="ri-time-line"></i> Peak hours
-                    </h3>
-                    <div class="peak-list" id="peak-hours">
-                        Loading...
-                    </div>
-                </div>
-
-                <!-- Peak Days -->
-                <div class="card">
-                    <h3>
-                        <i class="ri-calendar-line"></i> Peak days
-                    </h3>
-                    <div class="peak-list" id="peak-days">
-                        Loading...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Visualizations Grid -->
-            <div class="grid grid-cols-2 mt-lg">
-                <!-- Top Pages -->
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-file-text-line"></i> Top pages
-                        </h3>
-                        <button class="btn btn-ghost btn-icon" data-export="top-pages" title="Export to CSV">
-                            <i class="ri-download-line"></i>
-                        </button>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-pages"></canvas>
-                    </div>
-                </div>
-
-                <!-- Referrers -->
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-external-link-line"></i> Referrers
-                        </h3>
-                        <button class="btn btn-ghost btn-icon" data-export="referrers" title="Export to CSV">
-                            <i class="ri-download-line"></i>
-                        </button>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-referrers"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tech Stack Analytics (Max 2 per row) -->
-            <div class="grid grid-cols-2 mt-lg">
-                <!-- Browsers -->
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-global-line"></i> Browsers
-                        </h3>
-                        <div class="chart-card__actions">
-                            <button class="btn btn-ghost btn-icon" data-export="browsers" title="Export to CSV">
-                                <i class="ri-download-line"></i>
-                            </button>
-                            <div class="view-toggle" data-chart="browsers">
-                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ri-pie-chart-2-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ri-bar-chart-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ri-focus-3-line"></i>
-                                </button>
+                        <div class="card stat-card" role="status" aria-label="Bounce rate">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-logout-box-r-line"></i></div>
+                                <small>Bounce rate</small>
                             </div>
+                            <div class="stat-card__value" id="bounce-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__comparison" id="bounce-comparison">Loading...</div>
                         </div>
                     </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-browsers"></canvas>
-                    </div>
-                </div>
 
-                <!-- Operating Systems -->
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-computer-line"></i> Operating systems
-                        </h3>
-                        <div class="chart-card__actions">
-                            <button class="btn btn-ghost btn-icon" data-export="os" title="Export to CSV">
-                                <i class="ri-download-line"></i>
-                            </button>
-                            <div class="view-toggle" data-chart="os">
-                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ri-pie-chart-2-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ri-bar-chart-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ri-focus-3-line"></i>
-                                </button>
+                    <!-- Extended Metrics -->
+                    <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Extended metrics">
+                        <div class="card stat-card" role="status" aria-label="Total sessions">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-stack-line"></i></div>
+                                <small>Total sessions</small>
                             </div>
+                            <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
                         </div>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-os"></canvas>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Devices & Custom Events Row -->
-            <div class="grid grid-cols-2 mt-lg">
-                <!-- Devices -->
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-smartphone-line"></i> Devices
-                        </h3>
-                        <div class="chart-card__actions">
-                            <button class="btn btn-ghost btn-icon" data-export="devices" title="Export to CSV">
-                                <i class="ri-download-line"></i>
-                            </button>
-                            <div class="view-toggle" data-chart="devices">
-                                <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                    <i class="ri-pie-chart-2-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                    <i class="ri-bar-chart-line"></i>
-                                </button>
-                                <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                    <i class="ri-focus-3-line"></i>
-                                </button>
+                        <div class="card stat-card" role="status" aria-label="Average session duration">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-timer-line"></i></div>
+                                <small>Avg. session duration</small>
                             </div>
+                            <div class="stat-card__value" id="avg-session-duration"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__comparison" id="session-duration-comparison">Loading...</div>
+                        </div>
+
+                        <div class="card stat-card" role="status" aria-label="Conversion rate">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-exchange-funds-line"></i></div>
+                                <small>Conversion rate</small>
+                            </div>
+                            <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__comparison" id="conversion-rate-comparison">Loading...</div>
                         </div>
                     </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-devices"></canvas>
-                    </div>
-                </div>
 
-                <!-- Custom Events -->
-                <div class="card chart-card" id="custom-events-section" style="display: none;">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-flashlight-line"></i> Custom events
-                        </h3>
-                        <button class="btn btn-ghost btn-icon" data-export="custom-events" title="Export to CSV">
-                            <i class="ri-download-line"></i>
-                        </button>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-custom-events"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Geographic Visualization -->
-            <div class="card chart-card mt-lg">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
-                            <i class="ri-arrow-left-line"></i>
-                        </button>
-                        <i class="ri-map-2-line"></i>
-                        <span id="geo-title">Geographic distribution</span>
-                    </h3>
-                    <div class="chart-card__actions">
-                        <button class="btn btn-ghost btn-icon" data-export="countries" title="Export to CSV">
-                            <i class="ri-download-line"></i>
-                        </button>
-                        <div class="view-toggle" id="geo-view-toggle">
-                            <button class="view-toggle__btn active" data-view="chart" title="Chart view">
-                                <i class="ri-bar-chart-line"></i>
-                            </button>
-                            <button class="view-toggle__btn" data-view="globe" title="Globe view">
-                                <i class="ri-earth-line"></i>
-                            </button>
+                    <!-- Views over Time -->
+                    <div class="card chart-card mt-lg">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-line-chart-line"></i> Views over time
+                            </h3>
+                        </div>
+                        <div class="chart-card__container">
+                            <canvas id="chart-timeseries"></canvas>
                         </div>
                     </div>
                 </div>
-                <div class="chart-card__container chart-card__container--tall">
-                    <canvas id="chart-countries"></canvas>
-                    <div id="map-countries" class="map-container hidden"></div>
-                    <div id="globe-container" class="globe-container hidden">
-                        <div class="globe-range-selector" id="globe-range-selector">
-                            <button class="globe-range-btn active" data-range="realtime">
-                                <span class="live-indicator" aria-hidden="true"></span> Real-time
-                            </button>
-                            <button class="globe-range-btn" data-range="1m">1 min</button>
-                            <button class="globe-range-btn" data-range="1h">1 hour</button>
-                            <button class="globe-range-btn" data-range="1d">1 day</button>
-                        </div>
-                        <div id="globe-canvas" class="globe-canvas"></div>
-                    </div>
-                </div>
-            </div>
+            </section>
 
-            <!-- UTM Campaigns -->
-            <div class="card chart-card mt-lg" id="utm-section" style="display: none;">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-megaphone-line"></i> UTM campaigns
-                    </h3>
-                    <button class="btn btn-ghost btn-icon" data-export="utm-campaigns" title="Export to CSV">
-                        <i class="ri-download-line"></i>
-                    </button>
-                </div>
-                <div class="grid grid-cols-3" style="gap: var(--spacing-md); padding: var(--spacing-md);">
-                    <div>
-                        <h4 class="text-sm text-muted mb-sm">Sources</h4>
+            <!-- ============================================
+                 SECTION 2: CONTENT & PAGES
+                 ============================================ -->
+            <section class="dashboard-section" data-section="content" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-content-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-file-text-line"></i>
+                        <div>
+                            <h2>Content & Pages</h2>
+                            <p>Which pages attract the most traffic, where visitors enter and leave your site, how far they scroll, and which outbound links and downloads they click.</p>
+                        </div>
+                    </div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-content-content">
+                    <!-- Top Pages -->
+                    <div class="card chart-card">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-file-text-line"></i> Top pages
+                            </h3>
+                        </div>
                         <div class="chart-card__container chart-card__container--short">
-                            <canvas id="chart-utm-sources"></canvas>
+                            <canvas id="chart-pages"></canvas>
                         </div>
                     </div>
-                    <div>
-                        <h4 class="text-sm text-muted mb-sm">Mediums</h4>
+
+                    <!-- Entry & Exit Pages -->
+                    <div class="grid grid-cols-2 mt-lg" id="entry-exit-section" style="display: none;">
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-login-box-line"></i> Entry pages
+                                </h3>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-entry-pages"></canvas>
+                            </div>
+                        </div>
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-logout-box-line"></i> Exit pages
+                                </h3>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-exit-pages"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scroll Depth -->
+                    <div class="card chart-card mt-lg" id="scroll-depth-section" style="display: none;">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-arrow-down-double-line"></i> Scroll depth
+                            </h3>
+                        </div>
                         <div class="chart-card__container chart-card__container--short">
-                            <canvas id="chart-utm-mediums"></canvas>
+                            <canvas id="chart-scroll-depth"></canvas>
                         </div>
                     </div>
-                    <div>
-                        <h4 class="text-sm text-muted mb-sm">Campaigns</h4>
+
+                    <!-- Outbound Links & File Downloads -->
+                    <div class="grid grid-cols-2 mt-lg" id="outbound-section" style="display: none;">
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-external-link-line"></i> Outbound links
+                                </h3>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-outbound-links"></canvas>
+                            </div>
+                        </div>
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-download-2-line"></i> File downloads
+                                </h3>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-file-downloads"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 SECTION 3: TRAFFIC SOURCES
+                 ============================================ -->
+            <section class="dashboard-section" data-section="traffic" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-traffic-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-route-line"></i>
+                        <div>
+                            <h2>Traffic Sources</h2>
+                            <p>Referral sites driving traffic to you, plus UTM campaign breakdowns by source, medium, and campaign name for tracking marketing efforts.</p>
+                        </div>
+                    </div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-traffic-content">
+                    <!-- Referrers -->
+                    <div class="card chart-card">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-external-link-line"></i> Referrers
+                            </h3>
+                        </div>
                         <div class="chart-card__container chart-card__container--short">
-                            <canvas id="chart-utm-campaigns"></canvas>
+                            <canvas id="chart-referrers"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- UTM Campaigns -->
+                    <div class="card chart-card mt-lg" id="utm-section" style="display: none;">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-megaphone-line"></i> UTM campaigns
+                            </h3>
+                        </div>
+                        <div class="grid grid-cols-3" style="gap: var(--spacing-md); padding: var(--spacing-md);">
+                            <div>
+                                <h4 class="text-sm text-muted mb-sm">Sources</h4>
+                                <div class="chart-card__container chart-card__container--short">
+                                    <canvas id="chart-utm-sources"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-muted mb-sm">Mediums</h4>
+                                <div class="chart-card__container chart-card__container--short">
+                                    <canvas id="chart-utm-mediums"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-muted mb-sm">Campaigns</h4>
+                                <div class="chart-card__container chart-card__container--short">
+                                    <canvas id="chart-utm-campaigns"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Scroll Depth -->
-            <div class="card chart-card mt-lg" id="scroll-depth-section" style="display: none;">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-arrow-down-double-line"></i> Scroll depth
-                    </h3>
-                </div>
-                <div class="chart-card__container chart-card__container--short">
-                    <canvas id="chart-scroll-depth"></canvas>
-                </div>
-            </div>
+            <!-- ============================================
+                 SECTION 4: AUDIENCE & TECHNOLOGY
+                 ============================================ -->
+            <section class="dashboard-section" data-section="audience" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-audience-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-group-line"></i>
+                        <div>
+                            <h2>Audience & Technology</h2>
+                            <p>Geographic distribution of your visitors with country and city drill-down, plus browser, operating system, and device type breakdowns.</p>
+                        </div>
+                    </div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-audience-content">
+                    <!-- Geographic Distribution -->
+                    <div class="card chart-card">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
+                                    <i class="ri-arrow-left-line"></i>
+                                </button>
+                                <i class="ri-map-2-line"></i>
+                                <span id="geo-title">Geographic distribution</span>
+                            </h3>
+                            <div class="chart-card__actions">
+                                <div class="view-toggle" id="geo-view-toggle">
+                                    <button class="view-toggle__btn active" data-view="chart" title="Chart view">
+                                        <i class="ri-bar-chart-line"></i>
+                                    </button>
+                                    <button class="view-toggle__btn" data-view="globe" title="Globe view">
+                                        <i class="ri-earth-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-card__container chart-card__container--tall">
+                            <canvas id="chart-countries"></canvas>
+                            <div id="map-countries" class="map-container hidden"></div>
+                            <div id="globe-container" class="globe-container hidden">
+                                <div class="globe-range-selector" id="globe-range-selector">
+                                    <button class="globe-range-btn active" data-range="realtime">
+                                        <span class="live-indicator" aria-hidden="true"></span> Real-time
+                                    </button>
+                                    <button class="globe-range-btn" data-range="1m">1 min</button>
+                                    <button class="globe-range-btn" data-range="1h">1 hour</button>
+                                    <button class="globe-range-btn" data-range="1d">1 day</button>
+                                    <button class="globe-range-btn" id="globe-test-markers-btn" title="Show 10 test markers">
+                                        <i class="ri-map-pin-line"></i> Test
+                                    </button>
+                                </div>
+                                <div id="globe-canvas" class="globe-canvas"></div>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Entry & Exit Pages -->
-            <div class="grid grid-cols-2 mt-lg" id="entry-exit-section" style="display: none;">
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-login-box-line"></i> Entry pages
-                        </h3>
+                    <!-- Regions / States -->
+                    <div class="card chart-card mt-lg" id="regions-section" style="display: none;">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-map-pin-2-line"></i> Regions / States
+                            </h3>
+                        </div>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-regions"></canvas>
+                        </div>
                     </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-entry-pages"></canvas>
-                    </div>
-                </div>
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-logout-box-line"></i> Exit pages
-                        </h3>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-exit-pages"></canvas>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Outbound Links & File Downloads -->
-            <div class="grid grid-cols-2 mt-lg" id="outbound-section" style="display: none;">
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-external-link-line"></i> Outbound links
-                        </h3>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-outbound-links"></canvas>
-                    </div>
-                </div>
-                <div class="card chart-card">
-                    <div class="chart-card__header">
-                        <h3 class="chart-card__title">
-                            <i class="ri-download-2-line"></i> File downloads
-                        </h3>
-                    </div>
-                    <div class="chart-card__container chart-card__container--short">
-                        <canvas id="chart-file-downloads"></canvas>
-                    </div>
-                </div>
-            </div>
+                    <!-- Browsers & Operating Systems -->
+                    <div class="grid grid-cols-2 mt-lg">
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-global-line"></i> Browsers
+                                </h3>
+                                <div class="chart-card__actions">
+                                    <div class="view-toggle" data-chart="browsers">
+                                        <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                            <i class="ri-pie-chart-2-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                            <i class="ri-bar-chart-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                            <i class="ri-focus-3-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-browsers"></canvas>
+                            </div>
+                        </div>
 
-            <!-- Regions / States -->
-            <div class="card chart-card mt-lg" id="regions-section" style="display: none;">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-map-pin-2-line"></i> Regions / States
-                    </h3>
-                    <button class="btn btn-ghost btn-icon" data-export="regions" title="Export to CSV">
-                        <i class="ri-download-line"></i>
-                    </button>
-                </div>
-                <div class="chart-card__container chart-card__container--short">
-                    <canvas id="chart-regions"></canvas>
-                </div>
-            </div>
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-computer-line"></i> Operating systems
+                                </h3>
+                                <div class="chart-card__actions">
+                                    <div class="view-toggle" data-chart="os">
+                                        <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                            <i class="ri-pie-chart-2-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                            <i class="ri-bar-chart-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                            <i class="ri-focus-3-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-os"></canvas>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Real-time Visitor Count -->
-            <div class="card mt-lg" id="realtime-section">
-                <div class="flex items-center justify-between">
-                    <h3 class="mb-0">
-                        <span class="live-indicator" aria-hidden="true"></span>
-                        Real-time visitors
-                    </h3>
-                    <div class="realtime-count">
-                        <span class="realtime-count__number" id="realtime-number">0</span>
-                        <span class="realtime-count__label">active now</span>
+                    <!-- Devices -->
+                    <div class="card chart-card mt-lg">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-smartphone-line"></i> Devices
+                            </h3>
+                            <div class="chart-card__actions">
+                                <div class="view-toggle" data-chart="devices">
+                                    <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                        <i class="ri-pie-chart-2-line"></i>
+                                    </button>
+                                    <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                        <i class="ri-bar-chart-line"></i>
+                                    </button>
+                                    <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                        <i class="ri-focus-3-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-devices"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Recent Activity Table -->
-            <div class="card mt-lg">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-pulse-line"></i> Recent activity
-                    </h3>
-                    <div class="flex items-center" style="gap: var(--spacing-sm);">
-                        <button class="btn btn-primary btn-sm" data-export="full-report">
-                            <i class="ri-download-line"></i> Export full report
-                        </button>
-                        <button class="btn btn-ghost btn-icon" data-export="recent-activity" title="Export recent activity">
-                            <i class="ri-download-line"></i>
-                        </button>
-                        <input
-                            type="text"
-                            class="input"
-                            id="table-search"
-                            placeholder="Search..."
-                            style="width: 200px;"
-                        />
+            <!-- ============================================
+                 SECTION 5: TIME PATTERNS
+                 ============================================ -->
+            <section class="dashboard-section" data-section="time-patterns" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-time-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-time-line"></i>
+                        <div>
+                            <h2>Time Patterns</h2>
+                            <p>When your visitors are most active — an hourly/daily heatmap highlighting peak times, plus a 365-day contribution calendar showing long-term trends.</p>
+                        </div>
+                    </div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-time-content">
+                    <!-- Activity Heatmap -->
+                    <div class="card chart-card">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-calendar-line"></i> Activity heatmap
+                            </h3>
+                            <div class="chart-card__actions">
+                                <span id="peak-annotation" class="text-sm text-secondary" style="margin-right: var(--spacing-sm);"></span>
+                                <div class="heatmap-legend">
+                                    <span class="text-muted text-xs">Less</span>
+                                    <div class="legend-gradient"></div>
+                                    <span class="text-muted text-xs">More</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-card__container chart-card__container--tall">
+                            <canvas id="chart-heatmap"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Contribution Calendar -->
+                    <div class="card chart-card mt-lg">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-pulse-line"></i> Activity calendar (last 365 days)
+                            </h3>
+                            <div class="contribution-legend">
+                                <span class="text-muted text-xs">Less</span>
+                                <div class="contribution-level" data-level="0"></div>
+                                <div class="contribution-level" data-level="1"></div>
+                                <div class="contribution-level" data-level="2"></div>
+                                <div class="contribution-level" data-level="3"></div>
+                                <div class="contribution-level" data-level="4"></div>
+                                <span class="text-muted text-xs">More</span>
+                            </div>
+                        </div>
+                        <div class="chart-card__container">
+                            <div id="contribution-calendar" class="contribution-calendar">
+                                Loading...
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="table-container">
-                    <table id="table-recent">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-sort="path">
-                                    Path <i class="ri-arrow-down-s-line sort-icon"></i>
-                                </th>
-                                <th class="sortable" data-sort="city">
-                                    City <i class="ri-arrow-down-s-line sort-icon"></i>
-                                </th>
-                                <th class="sortable" data-sort="time">
-                                    Time <i class="ri-arrow-down-s-line sort-icon"></i>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </section>
 
-            <!-- Contribution Calendar -->
-            <div class="card chart-card mt-lg">
-                <div class="chart-card__header">
-                    <h3 class="chart-card__title">
-                        <i class="ri-pulse-line"></i> Activity calendar (last 365 days)
-                    </h3>
-                    <div class="contribution-legend">
-                        <span class="text-muted text-xs">Less</span>
-                        <div class="contribution-level" data-level="0"></div>
-                        <div class="contribution-level" data-level="1"></div>
-                        <div class="contribution-level" data-level="2"></div>
-                        <div class="contribution-level" data-level="3"></div>
-                        <div class="contribution-level" data-level="4"></div>
-                        <span class="text-muted text-xs">More</span>
+            <!-- ============================================
+                 SECTION 6: EVENTS & REVENUE
+                 ============================================ -->
+            <section class="dashboard-section" data-section="events" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-events-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-flashlight-line"></i>
+                        <div>
+                            <h2>Events & Revenue</h2>
+                            <p>Custom events tracked via MiniNumbers.track(), revenue totals, average order value, and which referrers and campaigns generate actual income.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-card__container">
-                    <div id="contribution-calendar" class="contribution-calendar">
-                        Loading...
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-events-content">
+                    <!-- Custom Events (consolidated) -->
+                    <div class="card chart-card" id="custom-events-section" style="display: none;">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-flashlight-line"></i> Custom events
+                            </h3>
+                            <div class="chart-card__actions">
+                                <span id="custom-events-annotation" class="text-sm text-secondary"></span>
+                            </div>
+                        </div>
+                        <div class="chart-card__container chart-card__container--short">
+                            <canvas id="chart-custom-events"></canvas>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Revenue Intelligence -->
-            <div class="card mt-lg" id="revenue-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-money-dollar-circle-line"></i> Revenue
-                    </h3>
-                </div>
+                    <!-- Revenue -->
+                    <div class="card mt-lg" id="revenue-section" style="display: none;">
+                        <div class="chart-card__header mb-lg">
+                            <h3 class="chart-card__title">
+                                <i class="ri-money-dollar-circle-line"></i> Revenue
+                            </h3>
+                        </div>
 
-                <!-- Revenue Guide (collapsible) -->
-                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
-                    <button id="revenue-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
-                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> Revenue tracking guide</span>
-                        <i class="ri-arrow-down-s-line"></i>
-                    </button>
-                    <div id="revenue-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
-                            Track monetary value alongside events using the existing <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track()</code> API. Include a <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">revenue</code> property to attribute income to specific actions.
-                        </p>
+                        <!-- Revenue Guide (collapsible) -->
+                        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
+                            <button id="revenue-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
+                                <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> Revenue tracking guide</span>
+                                <i class="ri-arrow-down-s-line"></i>
+                            </button>
+                            <div id="revenue-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
+                                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                                    Track monetary value alongside events using the existing <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track()</code> API. Include a <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">revenue</code> property to attribute income to specific actions.
+                                </p>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup examples</h4>
-                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto; margin-bottom: var(--spacing-md);"><span style="color: var(--color-text-muted);">// E-commerce purchase</span>
+                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup examples</h4>
+                                <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto; margin-bottom: var(--spacing-md);"><span style="color: var(--color-text-muted);">// E-commerce purchase</span>
 MiniNumbers.track("purchase", {
   revenue: 49.99, currency: "USD", product: "Pro Plan"
 });
@@ -700,159 +639,205 @@ MiniNumbers.track("donation", {
   revenue: 25.00, currency: "EUR"
 });</pre>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Framework integrations</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
-                            <li><strong>Stripe:</strong> In your checkout success callback, call <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track("purchase", { revenue: amount })</code></li>
-                            <li><strong>Shopify:</strong> Add the tracking call to your order confirmation page <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">thank_you</code> template</li>
-                            <li><strong>WooCommerce:</strong> Hook into <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">woocommerce_thankyou</code> and output the tracking call</li>
-                            <li><strong>Generic forms:</strong> Fire the track call in your payment success handler</li>
-                        </ul>
+                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Framework integrations</h4>
+                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                                    <li><strong>Stripe:</strong> In your checkout success callback, call <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track("purchase", { revenue: amount })</code></li>
+                                    <li><strong>Shopify:</strong> Add the tracking call to your order confirmation page <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">thank_you</code> template</li>
+                                    <li><strong>WooCommerce:</strong> Hook into <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">woocommerce_thankyou</code> and output the tracking call</li>
+                                    <li><strong>Generic forms:</strong> Fire the track call in your payment success handler</li>
+                                </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">How to interpret the data</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
-                            <li><strong>Total Revenue</strong> &mdash; aggregate income in the selected period with comparison to the previous period</li>
-                            <li><strong>Average Order Value (AOV)</strong> &mdash; mean revenue per transaction; use it to spot pricing opportunities</li>
-                            <li><strong>Revenue per Visitor</strong> &mdash; key metric for traffic quality; higher = better-converting traffic</li>
-                            <li><strong>Revenue Attribution</strong> &mdash; which referrers and UTM campaigns generate actual revenue, not just clicks</li>
-                            <li><strong>Revenue by Event</strong> &mdash; which actions (purchases, subscriptions, upgrades) drive the most income</li>
-                        </ul>
+                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">How to interpret the data</h4>
+                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                                    <li><strong>Total Revenue</strong> &mdash; aggregate income in the selected period with comparison to the previous period</li>
+                                    <li><strong>Average Order Value (AOV)</strong> &mdash; mean revenue per transaction; use it to spot pricing opportunities</li>
+                                    <li><strong>Revenue per Visitor</strong> &mdash; key metric for traffic quality; higher = better-converting traffic</li>
+                                    <li><strong>Revenue Attribution</strong> &mdash; which referrers and UTM campaigns generate actual revenue, not just clicks</li>
+                                    <li><strong>Revenue by Event</strong> &mdash; which actions (purchases, subscriptions, upgrades) drive the most income</li>
+                                </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Best practices</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
-                            <li>Always include <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">currency</code> for multi-currency support</li>
-                            <li>Track at the point of confirmed payment, not intent</li>
-                            <li>Use meaningful event names that map to your business model</li>
-                            <li>Combine with UTM parameters for full attribution</li>
-                        </ul>
+                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Best practices</h4>
+                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                                    <li>Always include <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">currency</code> for multi-currency support</li>
+                                    <li>Track at the point of confirmed payment, not intent</li>
+                                    <li>Use meaningful event names that map to your business model</li>
+                                    <li>Combine with UTM parameters for full attribution</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Stat Cards (proper styling) -->
+                        <div class="grid grid-cols-4" style="margin-bottom: var(--spacing-lg);">
+                            <div class="card stat-card" style="text-align: center;">
+                                <div class="stat-card__header" style="justify-content: center;">
+                                    <div class="stat-card__icon" aria-hidden="true"><i class="ri-money-dollar-circle-line"></i></div>
+                                    <small>Total Revenue</small>
+                                </div>
+                                <div class="stat-card__value" id="revenue-total" style="font-size: var(--font-size-2xl);">$0.00</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center;">
+                                <div class="stat-card__header" style="justify-content: center;">
+                                    <div class="stat-card__icon" aria-hidden="true"><i class="ri-shopping-cart-line"></i></div>
+                                    <small>AOV</small>
+                                </div>
+                                <div class="stat-card__value" id="revenue-aov" style="font-size: var(--font-size-2xl);">$0.00</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center;">
+                                <div class="stat-card__header" style="justify-content: center;">
+                                    <div class="stat-card__icon" aria-hidden="true"><i class="ri-user-star-line"></i></div>
+                                    <small>Revenue / Visitor</small>
+                                </div>
+                                <div class="stat-card__value" id="revenue-rpv" style="font-size: var(--font-size-2xl);">$0.00</div>
+                            </div>
+                            <div class="card stat-card" style="text-align: center;">
+                                <div class="stat-card__header" style="justify-content: center;">
+                                    <div class="stat-card__icon" aria-hidden="true"><i class="ri-exchange-line"></i></div>
+                                    <small>Transactions</small>
+                                </div>
+                                <div class="stat-card__value" id="revenue-transactions" style="font-size: var(--font-size-2xl);">0</div>
+                            </div>
+                        </div>
+
+                        <!-- Revenue by Event -->
+                        <div class="chart-card__header" style="margin-bottom: var(--spacing-sm);">
+                            <h3 class="chart-card__title" style="font-size: var(--font-size-lg);">
+                                <i class="ri-bar-chart-grouped-line"></i> Revenue by event
+                            </h3>
+                        </div>
+                        <div id="revenue-breakdown" style="margin-bottom: var(--spacing-lg);">
+                            <div style="color: var(--color-text-muted); text-align: center; padding: 1rem;">Loading...</div>
+                        </div>
+
+                        <!-- Revenue Attribution Table -->
+                        <div class="chart-card__header" style="margin-bottom: var(--spacing-sm);">
+                            <h3 class="chart-card__title" style="font-size: var(--font-size-lg);">
+                                <i class="ri-links-line"></i> Revenue attribution
+                            </h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Source</th>
+                                        <th>Revenue</th>
+                                        <th>Transactions</th>
+                                        <th>Avg Value</th>
+                                        <th>Conv. Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="revenue-attribution-body">
+                                    <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+            </section>
 
-                <!-- Revenue Stat Cards -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
-                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
-                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total Revenue</div>
-                        <div id="revenue-total" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+            <!-- ============================================
+                 SECTION 7: REAL-TIME
+                 ============================================ -->
+            <section class="dashboard-section" data-section="realtime" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-realtime-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-radar-line"></i>
+                        <div>
+                            <h2>Real-Time</h2>
+                            <p>Visitors currently active on your site in the last 5 minutes — live page views, locations, and a real-time counter.</p>
+                        </div>
                     </div>
-                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
-                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">AOV</div>
-                        <div id="revenue-aov" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-realtime-content">
+                    <!-- Real-time Visitors + Live Feed (merged) -->
+                    <div class="card" id="realtime-section" role="region" aria-label="Live visitor feed">
+                        <div class="chart-card__header">
+                            <h3 class="chart-card__title">
+                                <i class="ri-live-line"></i>
+                                <span class="live-indicator" aria-hidden="true"></span>
+                                Live feed (last 5 minutes)
+                            </h3>
+                            <div class="chart-card__actions">
+                                <button class="btn btn-ghost btn-sm" id="realtime-demo-btn" title="Show demo data">
+                                    <i class="ri-map-pin-line"></i> Demo
+                                </button>
+                                <div class="realtime-count">
+                                    <span class="realtime-count__number" id="realtime-number">0</span>
+                                    <span class="realtime-count__label">active now</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="live-feed" class="live-feed" role="log" aria-live="polite" aria-label="Real-time visitor activity">
+                            Waiting for data...
+                        </div>
                     </div>
-                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
-                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Revenue / Visitor</div>
-                        <div id="revenue-rpv" style="font-size: 1.5rem; font-weight: 700;">$0.00</div>
+                </div>
+            </section>
+
+            <!-- ============================================
+                 SECTION 8: CONVERSIONS
+                 ============================================ -->
+            <section class="dashboard-section" data-section="conversions" aria-expanded="false">
+                <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-conversions-content">
+                    <div class="dashboard-section__title">
+                        <i class="ri-focus-3-line"></i>
+                        <div>
+                            <h2>Conversions</h2>
+                            <p>Conversion goals with completion rates, multi-step funnels showing drop-off at each stage, and custom audience segments for targeted analysis.</p>
+                        </div>
                     </div>
-                    <div class="stat-card" style="text-align: center; padding: var(--spacing-md);">
-                        <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Transactions</div>
-                        <div id="revenue-transactions" style="font-size: 1.5rem; font-weight: 700;">0</div>
+                    <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
+                </button>
+                <div class="dashboard-section__content" id="section-conversions-content">
+                    <!-- Conversion Goals -->
+                    <div class="card" id="goals-section" style="display: none;">
+                        <div class="chart-card__header mb-lg">
+                            <h3 class="chart-card__title">
+                                <i class="ri-focus-3-line"></i> Conversion goals
+                            </h3>
+                            <div class="chart-card__actions">
+                                <button class="btn btn-primary btn-sm" id="manage-goals-btn">
+                                    <i class="ri-settings-3-line"></i>
+                                    <span>Manage goals</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="goals-list">Loading...</div>
+                    </div>
+
+                    <!-- Funnels -->
+                    <div class="card mt-lg" id="funnels-section" style="display: none;">
+                        <div class="chart-card__header mb-lg">
+                            <h3 class="chart-card__title">
+                                <i class="ri-filter-3-line"></i> Funnels
+                            </h3>
+                            <div class="chart-card__actions">
+                                <button class="btn btn-primary btn-sm" id="manage-funnels-btn">
+                                    <i class="ri-settings-3-line"></i>
+                                    <span>Manage funnels</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="funnels-list">Loading...</div>
+                    </div>
+
+                    <!-- User Segments -->
+                    <div class="card mt-lg" id="segments-section" style="display: none;">
+                        <div class="chart-card__header mb-lg">
+                            <h3 class="chart-card__title">
+                                <i class="ri-equalizer-line"></i> User segments
+                            </h3>
+                            <div class="chart-card__actions">
+                                <button class="btn btn-primary btn-sm" id="manage-segments-btn" aria-label="Manage user segments">
+                                    <i class="ri-settings-3-line"></i>
+                                    <span>Manage segments</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
                     </div>
                 </div>
-
-                <!-- Revenue by Event -->
-                <h4 style="margin-bottom: var(--spacing-sm);">Revenue by event</h4>
-                <div id="revenue-breakdown" style="margin-bottom: var(--spacing-lg);">
-                    <div style="color: var(--color-text-muted); text-align: center; padding: 1rem;">Loading...</div>
-                </div>
-
-                <!-- Revenue Attribution Table -->
-                <h4 style="margin-bottom: var(--spacing-sm);">Revenue attribution</h4>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Source</th>
-                                <th>Revenue</th>
-                                <th>Transactions</th>
-                                <th>Avg Value</th>
-                                <th>Conv. Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody id="revenue-attribution-body">
-                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Conversion Goals -->
-            <div class="card mt-lg" id="goals-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-focus-3-line"></i> Conversion goals
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="manage-goals-btn">
-                        <i class="ri-settings-3-line"></i>
-                        <span>Manage goals</span>
-                    </button>
-                </div>
-                <div id="goals-list">Loading...</div>
-            </div>
-
-            <!-- Funnels -->
-            <div class="card mt-lg" id="funnels-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-filter-3-line"></i> Funnels
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="manage-funnels-btn">
-                        <i class="ri-settings-3-line"></i>
-                        <span>Manage funnels</span>
-                    </button>
-                </div>
-                <div id="funnels-list">Loading...</div>
-            </div>
-
-            <!-- User Segments -->
-            <div class="card mt-lg" id="segments-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-equalizer-line"></i> User segments
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="manage-segments-btn" aria-label="Manage user segments">
-                        <i class="ri-settings-3-line"></i>
-                        <span>Manage segments</span>
-                    </button>
-                </div>
-                <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
-            </div>
-
-            <!-- Webhooks -->
-            <div class="card mt-lg" id="webhooks-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-webhook-line"></i> Webhooks
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="manage-webhooks-btn" aria-label="Manage webhooks">
-                        <i class="ri-settings-3-line"></i>
-                        <span>Manage webhooks</span>
-                    </button>
-                </div>
-                <div id="webhooks-list">Loading...</div>
-            </div>
-
-            <!-- Email Reports -->
-            <div class="card mt-lg" id="email-reports-section" style="display: none;">
-                <div class="flex items-center justify-between mb-lg">
-                    <h3 class="mb-0">
-                        <i class="ri-mail-send-line"></i> Email reports
-                    </h3>
-                    <button class="btn btn-primary btn-sm" id="manage-email-reports-btn" aria-label="Manage email reports">
-                        <i class="ri-settings-3-line"></i>
-                        <span>Manage reports</span>
-                    </button>
-                </div>
-                <div id="email-reports-list">Loading...</div>
-            </div>
-
-            <!-- Live Feed -->
-            <div class="card mt-lg" role="region" aria-label="Live visitor feed">
-                <h3>
-                    <span class="live-indicator" aria-hidden="true"></span>
-                    Live feed (last 5 minutes)
-                </h3>
-                <div id="live-feed" class="live-feed" role="log" aria-live="polite" aria-label="Real-time visitor activity">
-                    Waiting for data...
-                </div>
-            </div>
+            </section>
 
         </div>
     </main>
@@ -1032,6 +1017,55 @@ MiniNumbers.track("donation", {
                         <option value="purple">Purple</option>
                         <option value="orange">Orange</option>
                     </select>
+                </div>
+
+                <!-- Export Report Section -->
+                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Export report</h3>
+                <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">Select which data to include in the downloadable CSV report.</p>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="views-visitors" checked> Page views & visitors
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="top-pages" checked> Top pages
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="referrers" checked> Referrers
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="utm-campaigns"> UTM campaigns
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="tech" checked> Browsers / OS / Devices
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="countries" checked> Countries & regions
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="custom-events"> Custom events
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="revenue"> Revenue attribution
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <input type="checkbox" class="export-section-cb" value="raw-events"> Raw events <span class="text-muted">(large file)</span>
+                    </label>
+                </div>
+                <button class="btn btn-primary btn-sm" id="download-report-btn">
+                    <i class="ri-download-line"></i> Download report
+                </button>
+
+                <!-- Automations Section -->
+                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Automations</h3>
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn">
+                        <i class="ri-webhook-line"></i>
+                        <span>Manage webhooks</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" id="manage-email-reports-btn" aria-label="Manage email reports">
+                        <i class="ri-mail-send-line"></i>
+                        <span>Manage email reports</span>
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1548,7 +1582,7 @@ SMTP_STARTTLS=true</pre>
                         <div style="padding-top: var(--spacing-sm);">
                             <div class="form-group">
                                 <label for="email-report-subject" style="font-size: var(--font-size-sm);">Subject line</label>
-                                <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics \u2014 {period}" style="font-size: var(--font-size-sm);">
+                                <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics &#8212; {period}" style="font-size: var(--font-size-sm);">
                                 <small class="help-text">Variables: {project_name}, {period}, {date}</small>
                             </div>
                             <div class="form-group">

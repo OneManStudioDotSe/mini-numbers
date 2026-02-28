@@ -7,6 +7,16 @@ const SettingsManager = {
     timeFormat: '24h',        // '24h' or '12h'
     dateFormat: 'MM/DD/YYYY', // 'MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'
     heatmapColors: 'blue',    // 'blue', 'green', 'purple', 'orange'
+    sectionState: {           // Dashboard section expand/collapse state
+      overview: true,
+      content: false,
+      traffic: false,
+      audience: false,
+      'time-patterns': false,
+      events: false,
+      realtime: false,
+      conversions: false,
+    },
   },
 
   /**

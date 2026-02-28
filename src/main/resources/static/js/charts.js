@@ -316,9 +316,17 @@ const ChartManager = {
             offset: true,
             ticks: {
               stepSize: 1,
-              callback: (val) => val % 3 === 0 && val >= 0 ? `${val}h` : ''
+              color: colors.textSecondary,
+              font: { size: 11, weight: '500' },
+              callback: (val) => val >= 0 && val <= 23 ? `${val}:00` : ''
             },
-            title: { display: true, text: 'Hour of Day' },
+            title: {
+              display: true,
+              text: 'Hour of Day',
+              color: colors.text,
+              font: { size: 12, weight: '600' },
+              padding: { top: 8 }
+            },
             grid: { display: false }
           },
           y: {
@@ -329,9 +337,17 @@ const ChartManager = {
             reverse: true,
             ticks: {
               stepSize: 1,
+              color: colors.textSecondary,
+              font: { size: 11, weight: '500' },
               callback: (val) => val >= 0 && val <= 6 ? (yLabels[val] || '') : ''
             },
-            title: { display: true, text: 'Day of Week' },
+            title: {
+              display: true,
+              text: 'Day of Week',
+              color: colors.text,
+              font: { size: 12, weight: '600' },
+              padding: { bottom: 8 }
+            },
             grid: { display: false }
           }
         }
