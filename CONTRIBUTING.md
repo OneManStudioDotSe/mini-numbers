@@ -20,7 +20,7 @@ cd mini-numbers
 # Run the application
 ./gradlew run
 
-# Visit http://localhost:8080 to complete the setup wizard
+# Visit https://analytics.example.com to complete the setup wizard (http://localhost:8080 for local dev)
 ```
 
 ### Running tests
@@ -51,7 +51,7 @@ src/main/resources/
 ├── static/             # Admin dashboard (HTML, CSS, JS)
 └── setup/              # Setup wizard frontend
 
-src/test/kotlin/        # Test suite (166 tests)
+src/test/kotlin/        # Test suite (288 tests)
 ```
 
 ---

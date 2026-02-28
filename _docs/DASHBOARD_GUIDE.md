@@ -4,7 +4,7 @@
 
 ### First login
 
-1. Visit your Mini Numbers instance (e.g., `http://localhost:8080`)
+1. Visit your Mini Numbers instance (e.g., `https://analytics.example.com`)
 2. Log in with your admin credentials (configured during setup)
 3. You'll see an empty project list with a "Create Project" button
 

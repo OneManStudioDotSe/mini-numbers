@@ -308,7 +308,7 @@ All configuration via `.env` file or environment variables:
 
 ## Testing
 
-166 tests covering critical functionality, edge cases, and error scenarios.
+288 tests covering critical functionality, edge cases, and error scenarios.
 
 ```bash
 ./gradlew test
@@ -343,18 +343,15 @@ Test databases are written to the `test-dbs/` directory (gitignored).
 ```
 mini-numbers/
 ├── _docs/                           # Project documentation
-│   ├── CHANGELOG.md
-│   ├── COMPETITIVE_ANALYSIS.md
+│   ├── CHANGELOG.md                 # Version history
 │   ├── DASHBOARD_GUIDE.md           # Dashboard user guide
-│   ├── GAP_ANALYSIS.md
-│   ├── MARKET_VIABILITY.md
+│   ├── DEPLOYMENT.md                # Deployment & operations guide
+│   ├── EVALUATION.md                # Competitive analysis & market viability
 │   ├── PERFORMANCE.md               # Performance benchmarking guide
 │   ├── PRIVACY.md                   # Privacy architecture explanation
-│   ├── PROJECT_EVALUATION.md
-│   ├── ROADMAP.md
-│   ├── SECURITY_AUDIT.md            # Security audit findings
-│   ├── TESTING_PLAN.md              # Manual testing plan
-│   └── TODO.md
+│   ├── ROADMAP.md                   # Development roadmap & task tracking
+│   ├── SECURITY.md                  # Security architecture & audit
+│   └── TESTING_PLAN.md              # Manual testing plan
 ├── .github/workflows/               # CI/CD
 │   ├── build.yml                    # Test + build + Detekt + Docker verify
 │   └── docker-publish.yml           # Docker multi-platform publish
@@ -437,7 +434,7 @@ mini-numbers/
 │       ├── login/login.html
 │       ├── css/                    # base, components, themes, variables
 │       └── js/                     # admin, charts, goals, segments, map, settings, theme, utils
-├── src/test/kotlin/                # Test suite (166 tests)
+├── src/test/kotlin/                # Test suite (288 tests)
 └── test-dbs/                       # Test database files (gitignored)
 ```
 
