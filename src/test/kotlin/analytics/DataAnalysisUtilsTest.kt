@@ -4,12 +4,19 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Test
 import org.slf4j.LoggerFactory
-import se.onemanstudio.*
 import se.onemanstudio.api.models.dashboard.ActivityCell
 import se.onemanstudio.config.models.*
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.Projects
+import se.onemanstudio.utils.analyzePeakTimes
+import se.onemanstudio.utils.calculateBounceRate
+import se.onemanstudio.utils.generateActivityHeatmap
+import se.onemanstudio.utils.generateContributionCalendar
+import se.onemanstudio.utils.generateReport
+import se.onemanstudio.utils.generateTimeSeries
+import se.onemanstudio.utils.getCurrentPeriod
+import se.onemanstudio.utils.getPreviousPeriod
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.*
@@ -534,7 +541,8 @@ class DataAnalysisUtilsTest {
         val now = LocalDateTime.now()
         val projectId = initAndSeed { pid ->
             // 3 events in same hour: 2 from same visitor, 1 from different
-            val sameHour = now.minusHours(1)
+            // Truncate to hour start so +5/+10 min never cross the hour boundary
+            val sameHour = now.minusHours(1).truncatedTo(java.time.temporal.ChronoUnit.HOURS)
             Events.insert {
                 it[Events.projectId] = pid
                 it[visitorHash] = "visitor-a"

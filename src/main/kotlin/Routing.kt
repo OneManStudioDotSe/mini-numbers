@@ -49,6 +49,14 @@ import se.onemanstudio.core.getUserRole
 import se.onemanstudio.core.verifyCredentials
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.middleware.requireRole
+import se.onemanstudio.utils.RevenueAnalysisUtils
+import se.onemanstudio.utils.analyzeFunnel
+import se.onemanstudio.utils.calculateGoalStats
+import se.onemanstudio.utils.generateContributionCalendar
+import se.onemanstudio.utils.generateReport
+import se.onemanstudio.utils.generateTimeSeries
+import se.onemanstudio.utils.getCurrentPeriod
+import se.onemanstudio.utils.getPreviousPeriod
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.math.roundToInt
@@ -489,8 +497,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
                         projectId = project[Projects.id],
                         eventType = payload.type,
                         eventName = sanitizedEventName,
-                        path = sanitizedPath,
-                        properties = sanitizedProperties
+                        path = sanitizedPath
                     )
                 } catch (e: Exception) {
                     call.application.environment.log.warn("Webhook trigger error: ${e.message}")
@@ -513,26 +520,25 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
 fun Route.adminRoutes(allowedOrigins: List<String>, rateLimiter: RateLimiter) {
     route("/admin") {
 
-        // Admin-specific security intercepts
-        intercept(ApplicationCallPipeline.Plugins) {
-            // CORS origin guard: validate Origin header against allowlist
-            if (!se.onemanstudio.middleware.AdminCorsGuard.check(call, allowedOrigins)) {
-                finish()
-                return@intercept
-            }
+        // Admin-specific security via route-scoped plugin
+        install(createRouteScopedPlugin("AdminSecurity") {
+            onCall { call ->
+                // CORS origin guard: validate Origin header against allowlist
+                if (!se.onemanstudio.middleware.AdminCorsGuard.check(call, allowedOrigins)) {
+                    return@onCall
+                }
 
-            // Rate limiting for admin routes
-            val ip = call.request.origin.remoteHost
-            val result = rateLimiter.checkRateLimit(ip, "admin-panel")
-            if (result is RateLimitResult.Exceeded) {
-                call.respond(
-                    HttpStatusCode.TooManyRequests,
-                    ApiError.rateLimited("Too many requests", result.limitType, result.limit, result.window)
-                )
-                finish()
-                return@intercept
+                // Rate limiting for admin routes
+                val ip = call.request.origin.remoteHost
+                val result = rateLimiter.checkRateLimit(ip, "admin-panel")
+                if (result is RateLimitResult.Exceeded) {
+                    call.respond(
+                        HttpStatusCode.TooManyRequests,
+                        ApiError.rateLimited("Too many requests", result.limitType, result.limit, result.window)
+                    )
+                }
             }
-        }
+        })
 
         // List all projects (with pagination)
         get("/projects") {
@@ -858,7 +864,7 @@ fun Route.adminRoutes(allowedOrigins: List<String>, rateLimiter: RateLimiter) {
 
                 val results = baseQuery()
                     .orderBy(sortColumn, order)
-                    .limit(limit, offset = (page * limit).toLong())
+                    .limit(limit).offset((page * limit).toLong())
                     .map { row ->
                         RawEvent(
                             id = row[Events.id],

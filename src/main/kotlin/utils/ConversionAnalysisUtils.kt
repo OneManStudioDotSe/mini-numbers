@@ -17,7 +17,7 @@
  * **after** the previous step's event timestamp. This produces drop-off
  * rates and average time-between-steps for each stage.
  */
-package se.onemanstudio
+package se.onemanstudio.utils
 
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -31,6 +31,7 @@ import se.onemanstudio.api.models.admin.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.iterator
 
 /**
  * Calculate conversions for a single goal within a time period.

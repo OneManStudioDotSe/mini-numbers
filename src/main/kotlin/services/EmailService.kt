@@ -11,8 +11,8 @@ import se.onemanstudio.api.models.dashboard.ProjectReport
 import se.onemanstudio.config.models.EmailConfig
 import se.onemanstudio.db.EmailReports
 import se.onemanstudio.db.Projects
-import se.onemanstudio.generateReport
-import se.onemanstudio.getCurrentPeriod
+import se.onemanstudio.utils.generateReport
+import se.onemanstudio.utils.getCurrentPeriod
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.Executors
@@ -68,8 +68,8 @@ object EmailService {
      * Generate and send an HTML analytics report via SMTP.
      */
     fun sendReport(projectId: UUID, recipientEmail: String, period: String, reportId: UUID? = null) {
-        val config = emailConfig ?: throw IllegalStateException("SMTP not configured")
-        if (!config.isConfigured()) throw IllegalStateException("SMTP not configured")
+        val config = checkNotNull(emailConfig) { "SMTP not configured" }
+        check(config.isConfigured()) { "SMTP not configured" }
 
         // Get project info
         val project = transaction {
@@ -106,7 +106,7 @@ object EmailService {
 
         // Send via SMTP
         val props = Properties().apply {
-            put("mail.smtp.host", config.smtpHost!!)
+            put("mail.smtp.host", checkNotNull(config.smtpHost) { "SMTP host is required" })
             put("mail.smtp.port", config.smtpPort.toString())
             put("mail.smtp.auth", (!config.smtpUsername.isNullOrBlank()).toString())
             if (config.smtpStartTls) {

@@ -199,7 +199,7 @@ fun Application.configureSetupRouting() {
                         )
                         configureHTTP(reloadedConfig)
                         configureRouting(reloadedConfig, rateLimiter)
-                        configureWidgetRouting(reloadedConfig, rateLimiter)
+                        configureWidgetRouting(rateLimiter)
                     } catch (e: Exception) {
                         environment.log.warn("Could not install plugins dynamically: ${e.message}")
                         // This is expected if plugins are already installed - not a fatal error

@@ -197,7 +197,7 @@ private fun Application.configureUnifiedRouting() {
     val config = if (!ConfigLoader.isSetupNeeded()) {
         try {
             ConfigLoader.load()
-        } catch (_: Exception) {
+        } catch (_: ConfigurationException) {
             null
         }
     } else {
@@ -213,7 +213,7 @@ private fun Application.configureUnifiedRouting() {
         )
         configureHTTP(config)
         configureRouting(config, rateLimiter)
-        configureWidgetRouting(config, rateLimiter)
+        configureWidgetRouting(rateLimiter)
     }
 
     // Always install setup routes (they handle state-based redirects)

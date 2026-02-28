@@ -42,7 +42,7 @@ object UserAgentParser {
         return try {
             val ua = UserAgent.parseUserAgentString(userAgentString)
             ua.operatingSystem.deviceType.name
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
     }

@@ -31,7 +31,7 @@
  *   [generateContributionCalendar]): produce grid data for the 7 × 24
  *   activity heatmap and the GitHub-style 365-day contribution calendar.
  */
-package se.onemanstudio
+package se.onemanstudio.utils
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction

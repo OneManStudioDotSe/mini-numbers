@@ -35,7 +35,7 @@ fun ApplicationCall.getUserRole(): UserRole? {
     sessions.get<UserSession>()?.let { session ->
         return try {
             UserRole.valueOf(session.role.uppercase())
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
         }
     }
@@ -45,7 +45,7 @@ fun ApplicationCall.getUserRole(): UserRole? {
         val role = jwt.payload.getClaim("role")?.asString()
         return try {
             UserRole.valueOf(role?.uppercase() ?: return null)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
         }
     }
