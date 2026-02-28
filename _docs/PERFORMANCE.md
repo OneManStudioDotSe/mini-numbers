@@ -10,7 +10,7 @@
 
 ```bash
 # Basic throughput test (4 threads, 100 connections, 30 seconds)
-wrk -t4 -c100 -d30s --script=post.lua http://localhost:8080/collect
+wrk -t4 -c100 -d30s --script=post.lua https://analytics.example.com/collect
 
 # post.lua script:
 wrk.method = "POST"
@@ -24,7 +24,7 @@ wrk.body = '{"path":"/test","sessionId":"abc123","eventType":"pageview"}'
 ```bash
 # With session cookie authentication
 ab -n 1000 -c 10 -C "mini_numbers_session=your-session-cookie" \
-  http://localhost:8080/admin/projects/{id}/report?filter=7d
+  https://analytics.example.com/admin/projects/{id}/report?filter=7d
 ```
 
 ### Expected metrics
@@ -45,7 +45,7 @@ ab -n 1000 -c 10 -C "mini_numbers_session=your-session-cookie" \
 Run Lighthouse audits via Chrome DevTools or CI:
 
 ```bash
-npx lighthouse http://localhost:8080/admin-panel \
+npx lighthouse https://analytics.example.com/admin-panel \
   --output=json --output-path=./lighthouse-report.json
 ```
 

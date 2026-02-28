@@ -1,6 +1,32 @@
-# Security Hardening Guide
+# Mini Numbers - Security
 
-Comprehensive security reference for Mini Numbers. Covers all implemented security measures, configuration best practices, and deployment checklists.
+Comprehensive security reference covering all implemented security measures, audit findings, configuration best practices, and deployment checklists.
+
+**Last audit**: February 21, 2026
+
+---
+
+## Audit summary
+
+| Category | Rating | Notes |
+|----------|--------|-------|
+| Authentication | Good | BCrypt, brute force protection, session management |
+| Input Validation | Excellent | Comprehensive with 26 dedicated tests |
+| XSS | Good | Fixed remaining unescaped outputs |
+| SQL Injection | Excellent | ORM parameterization throughout |
+| Rate Limiting | Good | Adequate for single-instance |
+| CORS | Good | Configurable, restrictive by default |
+| Privacy | Excellent | Industry-leading approach |
+| Dependencies | Good | No known vulnerabilities |
+| API Security | Good | Proper auth checks, no data leaks |
+
+### Recommendations (priority order)
+
+1. Document bcrypt password usage in deployment guide
+2. Enable secure cookie flag for HTTPS deployments
+3. Add OWASP Dependency Check to CI pipeline
+4. Consider Content-Security-Policy headers
+5. Add rate limiting to admin endpoints (currently only on `/collect`)
 
 ---
 
@@ -17,7 +43,7 @@ Mini Numbers supports two authentication methods simultaneously:
 - Session rotation on every login (prevents fixation attacks)
 
 **JWT auth** (for programmatic API access):
-- `POST /api/token` — exchange credentials for access + refresh tokens
+- `POST /api/token` -- exchange credentials for access + refresh tokens
 - Access tokens: 15-minute expiry, signed with HMAC-SHA256
 - Refresh tokens: 7-day expiry, single-use with rotation
 - Signing key derived from `SERVER_SALT` (no additional secrets needed)
@@ -29,25 +55,29 @@ Mini Numbers supports two authentication methods simultaneously:
 
 ### Password storage
 
-- BCrypt (cost factor 12) — plaintext passwords are rejected
+- BCrypt (cost factor 12) -- plaintext passwords are rejected
 - Passwords validated server-side only; never logged or returned in API responses
+
+> **Audit finding (LOW)**: Admin password stored as plain text in `.env` file. BCrypt hashing is supported and encouraged.
+> **Audit finding (LOW)**: Session cookie `secure` flag set to `false` in dev. Automatic in production when `KTOR_DEVELOPMENT=false`.
+> **Audit finding (INFO)**: Session max age is 7 days. Appropriate for admin dashboard use.
 
 ---
 
-## 2. Refresh Token Rotation
+## 2. Refresh token rotation
 
 Refresh tokens use a **family-based rotation** scheme to detect replay attacks:
 
 1. Each login creates a new token family
 2. On refresh, the old token is revoked and a new one issued in the same family
 3. If a revoked token is reused (replay attack), the request is rejected
-4. Tokens are stored as SHA-256 hashes — raw tokens never persist on disk
+4. Tokens are stored as SHA-256 hashes -- raw tokens never persist on disk
 
 **Database table:** `refresh_tokens` (columns: `id`, `token_hash`, `family`, `expires_at`, `revoked_at`, `replaced_by`)
 
 ---
 
-## 3. Role-Based Access Control (RBAC)
+## 3. Role-based access control (RBAC)
 
 Two roles:
 
@@ -62,14 +92,14 @@ Two roles:
 
 ### User management endpoints (admin-only)
 
-- `GET /admin/users` — list users
-- `POST /admin/users` — create user
-- `PUT /admin/users/{id}/role` — change role
-- `DELETE /admin/users/{id}` — delete user
+- `GET /admin/users` -- list users
+- `POST /admin/users` -- create user
+- `PUT /admin/users/{id}/role` -- change role
+- `DELETE /admin/users/{id}` -- delete user
 
 ---
 
-## 4. Password Reset
+## 4. Password reset
 
 Since Mini Numbers is self-hosted, password reset uses **server salt verification** instead of email:
 
@@ -88,11 +118,11 @@ POST /api/password-reset
 
 ---
 
-## 5. CORS Policy
+## 5. CORS policy
 
 **Public endpoints** (`/collect`, `/widget/*`, `/tracker/*`):
-- `anyHost()` — required because tracking scripts run on third-party sites
-- `allowCredentials = false` — session cookies are never sent cross-origin
+- `anyHost()` -- required because tracking scripts run on third-party sites
+- `allowCredentials = false` -- session cookies are never sent cross-origin
 
 **Admin endpoints** (`/admin/*`):
 - Origin validated against `ALLOWED_ORIGINS` configuration
@@ -109,9 +139,11 @@ ALLOWED_ORIGINS=*
 ALLOWED_ORIGINS=https://analytics.example.com,https://admin.example.com
 ```
 
+> **Audit finding (INFO)**: Production deployments must explicitly set `ALLOWED_ORIGINS`.
+
 ---
 
-## 6. Rate Limiting
+## 6. Rate limiting
 
 | Endpoint group | Limit | Strategy |
 |---------------|-------|----------|
@@ -125,9 +157,11 @@ ALLOWED_ORIGINS=https://analytics.example.com,https://admin.example.com
 - Rate limit state stored in-memory (Caffeine cache)
 - Returns `429 Too Many Requests` with `ApiError` body when exceeded
 
+> **Audit finding (INFO)**: Rate limiting is in-memory only. Multi-instance deployments would need shared state (Redis). Acceptable for single-instance use.
+
 ---
 
-## 7. Input Validation & Sanitization
+## 7. Input validation & sanitization
 
 All user input is validated before processing:
 
@@ -147,9 +181,13 @@ All database queries use Exposed ORM with parameterized expressions (`eq`, `less
 - `X-Content-Type-Options: nosniff` prevents MIME sniffing
 - `X-Frame-Options: DENY` prevents clickjacking
 
+> **Audit finding (PASS)**: All user-submitted data validated before processing.
+> **Audit finding (PASS)**: All database operations use parameterized queries via Exposed ORM.
+> **Audit finding (FIXED)**: `updateTables()` and `updateLiveFeed()` now use `Utils.escapeHtml()` for user-supplied data.
+
 ---
 
-## 8. Cookie Security
+## 8. Cookie security
 
 | Attribute | Value | Purpose |
 |-----------|-------|---------|
@@ -163,7 +201,7 @@ All database queries use Exposed ORM with parameterized expressions (`eq`, `less
 
 ---
 
-## 9. Webhook Security
+## 9. Webhook security
 
 Outbound webhooks are signed with HMAC-SHA256:
 
@@ -191,7 +229,7 @@ def verify_webhook(payload, signature, secret):
 
 ---
 
-## 10. Data Isolation (Application-Level RLS)
+## 10. Data isolation (application-level RLS)
 
 All admin endpoints validate that the requested resource belongs to the authenticated project:
 
@@ -202,7 +240,7 @@ All admin endpoints validate that the requested resource belongs to the authenti
 
 ---
 
-## 11. Privacy Architecture
+## 11. Privacy architecture
 
 | Mode | Geolocation | Browser/OS/device | Hash rotation |
 |------|-------------|-------------------|---------------|
@@ -210,14 +248,17 @@ All admin endpoints validate that the requested resource belongs to the authenti
 | STRICT | Country only | Full | Configurable |
 | PARANOID | None | None | Configurable |
 
-- IP addresses are **never stored** — processed in-memory only
+- IP addresses are **never stored** -- processed in-memory only
 - Visitor identification via rotating SHA-256 hash: `SHA256(ip + ua + projectId + salt + rotationBucket)`
 - Hash rotation configurable from 1 hour to 1 year
 - Data retention: automatic purge of events older than N days
 
+> **Audit finding (PASS)**: Privacy implementation is robust and well-designed. No PII stored in any database table.
+> **Audit finding (INFO)**: GeoLite2 database should be kept up to date for accuracy.
+
 ---
 
-## 12. Security Headers
+## 12. Security headers
 
 ```
 X-Content-Type-Options: nosniff
@@ -230,16 +271,24 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains  (production only
 
 ---
 
-## 13. Error Handling
+## 13. Error handling
 
 - **Global error handler** (StatusPages plugin) catches all unhandled exceptions
-- Client receives generic `ApiError` JSON — no stack traces, internal paths, or SQL details
+- Client receives generic `ApiError` JSON -- no stack traces, internal paths, or SQL details
 - Server logs full exception details for debugging
 - Standardized error format: `{ "error": "...", "code": "...", "details": [...] }`
 
+| Exception | Status | Client message |
+|-----------|--------|----------------|
+| `SerializationException` | 400 | "Invalid request format" |
+| `Throwable` (catch-all) | 500 | "An unexpected error occurred" |
+| Status 404 | 404 | "Resource not found" |
+
+> **Audit finding (PASS)**: No stack traces or internal details in error responses.
+
 ---
 
-## 14. Redirect Safety
+## 14. Redirect safety
 
 All internal redirects are validated against a hardcoded allowlist:
 - `/setup`, `/login`, `/admin-panel`
@@ -248,21 +297,33 @@ All internal redirects are validated against a hardcoded allowlist:
 
 ---
 
-## 15. Global Error Handler
+## 15. Dependencies
 
-The StatusPages plugin provides centralized error handling:
+### Current stack
+- Ktor 3.4.0, Kotlin 2.3.0, JDK 21
+- Exposed 0.56.0, HikariCP 5.0.1
+- jBCrypt 0.4, Caffeine 3.1.8
+- GeoIP2 5.0.1, UserAgentUtils 1.21
 
-| Exception | Status | Client message |
-|-----------|--------|----------------|
-| `SerializationException` | 400 | "Invalid request format" |
-| `Throwable` (catch-all) | 500 | "An unexpected error occurred" |
-| Status 404 | 404 | "Resource not found" |
-
-Full stack traces are logged server-side only.
+> **Audit finding (PASS)**: No known critical CVEs in current dependency versions.
+> **Audit finding (INFO)**: Recommend periodic dependency scanning with `./gradlew dependencyCheckAnalyze` (OWASP Dependency Check plugin).
+> **Audit finding (INFO)**: Detekt static analysis integrated for code quality.
 
 ---
 
-## 16. Deployment Security Checklist
+## 16. API security
+
+- All admin endpoints require session authentication
+- API keys used for data collection (project-scoped)
+- Standardized error responses (no stack traces leaked)
+
+> **Audit finding (PASS)**: API endpoints properly check authentication.
+> **Audit finding (INFO)**: No CSRF tokens, but mitigated by JSON API (not form-based).
+> **Audit finding (PASS)**: Project deletion requires confirmation dialog before API call.
+
+---
+
+## Deployment security checklist
 
 Before deploying to production:
 
@@ -273,17 +334,17 @@ Before deploying to production:
 - [ ] Enable HTTPS (reverse proxy with Nginx/Caddy or cloud load balancer)
 - [ ] Verify `cookie.secure = true` is active (automatic when `KTOR_DEVELOPMENT=false`)
 - [ ] Set appropriate `DATA_RETENTION_DAYS` for your jurisdiction
-- [ ] Configure firewall rules — only expose port 8080 via reverse proxy
+- [ ] Configure firewall rules -- only expose port 8080 via reverse proxy
 - [ ] Use Docker with the provided `Dockerfile` (runs as non-root `analytics` user)
 - [ ] Mount the SQLite database file as a Docker volume for persistence
 - [ ] Set up regular backups of the database file or PostgreSQL database
 - [ ] Review `PRIVACY_MODE` setting for your compliance requirements
-- [ ] Keep dependencies updated — run `./gradlew dependencies --scan` periodically
+- [ ] Keep dependencies updated -- run `./gradlew dependencies --scan` periodically
 - [ ] Add OWASP Dependency Check to CI pipeline
 
 ---
 
-## 17. Incident Response
+## Incident response
 
 ### Compromised admin credentials
 
@@ -294,7 +355,7 @@ Before deploying to production:
 ### Suspected token theft
 
 1. Delete all refresh tokens: `DELETE FROM refresh_tokens WHERE username = 'admin'`
-2. Rotate the `SERVER_SALT` in `.env` — this invalidates all JWT access tokens
+2. Rotate the `SERVER_SALT` in `.env` -- this invalidates all JWT access tokens
 3. Restart the application to pick up the new salt
 
 ### API key compromise
@@ -305,13 +366,11 @@ Before deploying to production:
 
 ---
 
-## 18. Future Considerations
+## Future considerations
 
-- **OWASP Dependency Check** — add to CI pipeline for automated vulnerability scanning
-- **CSP nonce-based scripts** — replace `unsafe-inline` with nonce-based script loading
-- **Exposed ORM 1.x migration** — major version bump with R2DBC support
-- **HikariCP 7.x** — major version with breaking API changes, evaluate when stable
-- **Multi-factor authentication** — TOTP-based 2FA for admin accounts
-- **Audit logging** — persistent log of admin actions (who changed what, when)
-- **IP allowlisting** — restrict admin access to specific IP ranges
-- **Webhook retry queue** — move from in-thread retry to persistent job queue (e.g., Quartz)
+- **OWASP Dependency Check** -- add to CI pipeline for automated vulnerability scanning
+- **CSP nonce-based scripts** -- replace `unsafe-inline` with nonce-based script loading
+- **Multi-factor authentication** -- TOTP-based 2FA for admin accounts
+- **Audit logging** -- persistent log of admin actions (who changed what, when)
+- **IP allowlisting** -- restrict admin access to specific IP ranges
+- **Webhook retry queue** -- move from in-thread retry to persistent job queue (e.g., Quartz)

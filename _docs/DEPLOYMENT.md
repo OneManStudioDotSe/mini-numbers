@@ -77,7 +77,7 @@ docker compose up -d
 DB_PG_PASSWORD=mysecretpassword docker compose -f docker-compose.postgres.yml up -d
 ```
 
-Visit `http://localhost:8080` to complete the setup wizard.
+Visit your server URL (e.g., `https://analytics.example.com`) to complete the setup wizard.
 
 #### Docker Build & Run
 
@@ -597,7 +597,7 @@ sudo systemctl start mini-numbers
 
 # Verify
 sudo systemctl status mini-numbers
-curl -s http://localhost:8080 | head -5
+curl -s https://analytics.example.com | head -5
 ```
 
 ---

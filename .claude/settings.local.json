@@ -48,7 +48,11 @@
       "Bash(gh auth status)",
       "Bash(ssh -T git@github.com)",
       "Bash(git remote set-url origin git@github.com:OneManStudioDotSe/mini-numbers.git)",
-      "Bash(git remote set-url origin https://github.com/OneManStudioDotSe/mini-numbers.git)"
+      "Bash(git remote set-url origin https://github.com/OneManStudioDotSe/mini-numbers.git)",
+      "Bash(/tmp/check_nav_order.sh:*)",
+      "Bash(chmod +x /tmp/check_nav_order.sh)",
+      "Bash(/tmp/check_nav_order.sh)",
+      "Bash(python3:*)"
     ]
   }
 }
