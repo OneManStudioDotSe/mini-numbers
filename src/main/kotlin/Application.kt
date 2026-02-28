@@ -17,14 +17,38 @@ import se.onemanstudio.core.configureHTTP
 import se.onemanstudio.core.configureSecurity
 import se.onemanstudio.setup.configureSetupRouting
 
+/**
+ * Application entry point. Launches the embedded Netty server using
+ * the port and host defined in `application.yaml`.
+ */
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
 }
 
 /**
- * Main application module
- * Unified startup mode that supports both setup and normal operation
- * Services are initialized dynamically based on configuration availability
+ * Main Ktor application module — the single entry point for all server behavior.
+ *
+ * Operates in **unified mode**: both the setup wizard and the normal analytics
+ * dashboard are served from the same running process. On first launch the
+ * application detects that configuration is missing and redirects every request
+ * to the setup wizard at `/setup`. Once the user completes set up the services
+ * are initialized without restarting (zero-restart architecture).
+ *
+ * ## Startup sequence
+ * 1. Register a JVM shutdown hook so resources are cleaned up on SIGTERM.
+ * 2. Check whether `.env` / environment variables contain a valid config.
+ *    - **Missing** → enter setup mode (wizard served, normal routes disabled).
+ *    - **Present** → load config and initialize all services via [ServiceManager].
+ * 3. Install Ktor plugins that are always needed (JSON content negotiation,
+ *    global error handler via StatusPages).
+ * 4. Install authentication (sessions + JWT). This is installed early —
+ *    even before config exists — so that the security plugin is present
+ *    when routes are registered. Dynamic credential validation inside
+ *    `Security.kt` handles the case where config is loaded later.
+ * 5. Install unified routing (setup wizard + analytics routes).
+ *
+ * @see ServiceManager  for the service lifecycle state machine.
+ * @see configureUnifiedRouting for how routes are conditionally installed.
  */
 fun Application.module() {
     val logger = environment.log
@@ -80,12 +104,38 @@ fun Application.module() {
         json()
     }
 
-    // Global error handler — catch unhandled exceptions and return generic messages
+    // Global error handler — catch unhandled exceptions and return proper JSON errors.
+    // Order matters: most specific exception types first.
     install(StatusPages) {
         exception<SerializationException> { call, cause ->
             call.application.environment.log.warn("Serialization error: ${cause.message}")
             call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request format"))
+        }
+        exception<io.ktor.server.plugins.ContentTransformationException> { call, cause ->
+            call.application.environment.log.warn("Content transformation error: ${cause.message}")
+            call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid request body format"))
+        }
+        exception<io.ktor.server.plugins.BadRequestException> { call, cause ->
+            call.application.environment.log.warn("Bad request: ${cause.message}")
+            call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid request"))
+        }
+        exception<IllegalArgumentException> { call, cause ->
+            call.application.environment.log.warn("Bad argument: ${cause.message}")
+            call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest(cause.message ?: "Invalid argument"))
+        }
+        exception<org.jetbrains.exposed.exceptions.ExposedSQLException> { call, cause ->
+            call.application.environment.log.error("Database error: ${cause.message}", cause)
+            call.respond(HttpStatusCode.InternalServerError,
+                ApiError.internalError("A database error occurred"))
+        }
+        exception<java.sql.SQLException> { call, cause ->
+            call.application.environment.log.error("Database connection error: ${cause.message}", cause)
+            call.respond(HttpStatusCode.InternalServerError,
+                ApiError.internalError("Database unavailable"))
         }
         exception<Throwable> { call, cause ->
             call.application.environment.log.error("Unhandled exception: ${cause.message}", cause)
@@ -131,15 +181,23 @@ fun Application.module() {
 }
 
 /**
- * Configure unified routing for both setup and normal modes
- * Dynamically installs plugins and routes based on service availability
+ * Install all HTTP routes depending on the current service state.
+ *
+ * If a valid [AppConfig] exists **and** [ServiceManager] is ready, the full
+ * set of routes is installed: CORS, data-collection (`POST /collect`),
+ * admin panel, widget endpoints, etc. The setup wizard routes are **always**
+ * installed because they contain the redirect logic that sends users to
+ * `/setup` when the application is not yet configured.
+ *
+ * This function is called once during startup. After a successful setup-wizard save, [ServiceManager.reload] re-initializes services and the
+ * user is redirected to the admin panel — no server restart required.
  */
 private fun Application.configureUnifiedRouting() {
     // Load configuration if available
     val config = if (!ConfigLoader.isSetupNeeded()) {
         try {
             ConfigLoader.load()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     } else {

@@ -10,8 +10,22 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Rate limiter using token bucket algorithm
- * Provides separate limits for IP addresses and API keys
+ * Token-bucket rate limiter with **two independent limits**: per-IP and per-API-key.
+ *
+ * Every incoming `POST /collect` request is checked against both buckets.
+ * If either bucket is exhausted the request is rejected with `429 Too Many Requests`.
+ * Buckets refill fully once per minute and auto-expire from the Caffeine cache
+ * after 5 minutes of inactivity (so idle IPs/keys don't waste memory).
+ *
+ * The dual-bucket design prevents:
+ * - A single abusive IP from overwhelming the server (IP limit).
+ * - A compromised or misconfigured API key from flooding a project (key limit).
+ *
+ * Configured via `RATE_LIMIT_PER_IP` and `RATE_LIMIT_PER_API_KEY` env vars
+ * (defaults: 1 000 and 10 000 requests/minute respectively).
+ *
+ * @param maxTokensPerIp     Requests allowed per IP address per minute.
+ * @param maxTokensPerApiKey Requests allowed per API key per minute.
  */
 class RateLimiter(
     private val maxTokensPerIp: Int,

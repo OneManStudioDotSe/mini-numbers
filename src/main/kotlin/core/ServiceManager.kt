@@ -18,10 +18,35 @@ import java.util.TimerTask
 import java.util.UUID
 
 /**
- * Centralized service lifecycle management with state tracking and reload capability
+ * Centralised service lifecycle manager — the "boot sequence" of the application.
+ *
+ * Tracks a simple state machine: `UNINITIALIZED → INITIALIZING → READY | ERROR`.
+ * All external services (database, security, GeoIP, JWT, email, data retention)
+ * are started in a fixed order inside [initialize]. If any critical step fails
+ * the state moves to `ERROR` and the last exception is stored in [lastError].
+ *
+ * ## Zero-restart capability
+ * After the setup wizard saves a new configuration, it calls [reload] which
+ * tears down all services and re-runs [initialize] with the new config.
+ * This means the server process never needs to be restarted after initial setup.
+ *
+ * ## Initialisation order
+ * 1. **AnalyticsSecurity** — server salt + hash rotation.
+ * 2. **DatabaseFactory** — connect to SQLite or PostgreSQL, run migrations.
+ * 3. **Admin user seed** — if the Users table is empty, seed from `.env` config.
+ * 4. **GeoLocationService** — load MaxMind `.mmdb` file (optional, non-fatal).
+ * 5. **JwtService** — HMAC-SHA256 signer for API token authentication.
+ * 6. **Data retention timer** — background task that purges old events every 6 h.
+ * 7. **EmailService** — SMTP transport + scheduled report delivery.
+ *
+ * ## Thread safety
+ * All public methods are `@Synchronized` so concurrent calls (e.g. two
+ * setup-wizard submits) are serialised. State fields are `@Volatile` for
+ * safe reads from non-synchronised code (health-check endpoint, etc.).
  */
 object ServiceManager {
 
+    /** Lifecycle states. Transitions: UNINITIALIZED → INITIALIZING → READY | ERROR. */
     enum class State {
         UNINITIALIZED,
         INITIALIZING,

@@ -18,7 +18,7 @@ object UserAgentParser {
             } else {
                 browser.name
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
     }
@@ -30,7 +30,7 @@ object UserAgentParser {
         return try {
             val ua = UserAgent.parseUserAgentString(userAgentString)
             ua.operatingSystem.name
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
     }

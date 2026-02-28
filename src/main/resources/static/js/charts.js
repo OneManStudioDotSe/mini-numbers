@@ -99,7 +99,7 @@ const ChartManager = {
    * @param {Object} options - Chart options
    * @returns {Chart} Chart instance
    */
-  create(id, type, data, options = {}) {
+  create(id, type, data, options = {}, inlinePlugins = []) {
     // Destroy existing chart if it exists
     if (this.instances[id]) {
       this.instances[id].destroy();
@@ -149,11 +149,9 @@ const ChartManager = {
       delete this.instances[id];
     }
 
-    const chart = new Chart(ctx, {
-      type,
-      data,
-      options: mergedOptions,
-    });
+    const chartConfig = { type, data, options: mergedOptions };
+    if (inlinePlugins.length) chartConfig.plugins = inlinePlugins;
+    const chart = new Chart(ctx, chartConfig);
 
     this.instances[id] = chart;
     return chart;
@@ -239,7 +237,6 @@ const ChartManager = {
 
     const scheme = colorMap[heatmapColor] || colorMap.blue;
     const baseColor = isDark ? scheme.dark : scheme.light;
-    const peakColor = [239, 68, 68]; // Red for peak cells
 
     // Update legend gradient to match selected color
     const legendEl = document.querySelector('.legend-gradient');
@@ -247,9 +244,12 @@ const ChartManager = {
       legendEl.style.background = `linear-gradient(to right, rgba(${baseColor.join(',')}, 0.1), rgba(${baseColor.join(',')}, 1))`;
     }
 
-    // Day labels with optional dates
+    // Day labels
     const defaultLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const yLabels = dateLabels || defaultLabels;
+
+    // Cell gap (pixels) to prevent overlap
+    const cellGap = 4;
 
     return this.create(
       id,
@@ -260,32 +260,29 @@ const ChartManager = {
           data: dataPoints,
           backgroundColor: (context) => {
             const value = context.dataset.data[context.dataIndex]?.v || 0;
-            const x = context.dataset.data[context.dataIndex]?.x;
-            const y = context.dataset.data[context.dataIndex]?.y;
-
-            const isPeak = (peakHour !== null && peakDay !== null && x === peakHour && y === peakDay);
-
             const alpha = value / maxValue;
-            const color = isPeak ? peakColor : baseColor;
-
-            const minAlpha = isPeak ? 0.6 : 0.1;
-            return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${Math.max(alpha, minAlpha)})`;
+            return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${Math.max(alpha, 0.08)})`;
           },
-          borderColor: colors.border,
+          borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
           borderWidth: 1,
+          borderRadius: 3,
           width: (ctx) => {
             const area = ctx.chart.chartArea;
-            return area ? (area.width / 24) - 1 : 10;
+            return area ? (area.width / 24) - cellGap : 10;
           },
           height: (ctx) => {
             const area = ctx.chart.chartArea;
-            return area ? (area.height / 7) - 1 : 10;
+            return area ? (area.height / 7) - cellGap : 10;
           }
         }]
       },
       {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'nearest',
+          intersect: true,
+        },
         layout: {
           padding: {
             bottom: 10
@@ -300,9 +297,7 @@ const ChartManager = {
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const day = days[dayIndex] || 'Unknown';
                 const hour = items[0].raw.x;
-                const isPeak = (peakHour !== null && peakDay !== null &&
-                               items[0].raw.x === peakHour && dayIndex === peakDay);
-                return `${day} at ${hour}:00${isPeak ? ' \uD83D\uDD25 PEAK' : ''}`;
+                return `${day} at ${String(hour).padStart(2, '0')}:00`;
               },
               label: (context) => `${context.raw.v} visits`
             }
@@ -313,19 +308,16 @@ const ChartManager = {
             type: 'linear',
             min: -0.5,
             max: 23.5,
-            offset: true,
             ticks: {
               stepSize: 1,
+              autoSkip: false,
+              maxRotation: 0,
               color: colors.textSecondary,
-              font: { size: 11, weight: '500' },
-              callback: (val) => val >= 0 && val <= 23 ? `${val}:00` : ''
-            },
-            title: {
-              display: true,
-              text: 'Hour of Day',
-              color: colors.text,
-              font: { size: 12, weight: '600' },
-              padding: { top: 8 }
+              font: { size: 9, weight: '500' },
+              callback: (val) => {
+                if (val < 0 || val > 23 || val !== Math.floor(val)) return '';
+                return `${String(val).padStart(2, '0')}:00`;
+              }
             },
             grid: { display: false }
           },
@@ -333,20 +325,16 @@ const ChartManager = {
             type: 'linear',
             min: -0.5,
             max: 6.5,
-            offset: true,
             reverse: true,
             ticks: {
               stepSize: 1,
+              autoSkip: false,
               color: colors.textSecondary,
               font: { size: 11, weight: '500' },
-              callback: (val) => val >= 0 && val <= 6 ? (yLabels[val] || '') : ''
-            },
-            title: {
-              display: true,
-              text: 'Day of Week',
-              color: colors.text,
-              font: { size: 12, weight: '600' },
-              padding: { bottom: 8 }
+              callback: (val) => {
+                if (val < 0 || val > 6 || val !== Math.floor(val)) return '';
+                return yLabels[val] || '';
+              }
             },
             grid: { display: false }
           }
@@ -431,7 +419,7 @@ const ChartManager = {
    */
   createBarChart(id, items, options = {}) {
     const colors = this.getColors();
-    const labels = items.map((item) => item.label);
+    const labels = items.map((item) => item.label.replace(/^https?:\/\//, ''));
     const values = items.map((item) => item.value);
 
     return this.create(
@@ -450,6 +438,11 @@ const ChartManager = {
       },
       {
         indexAxis: 'y',
+        interaction: {
+          mode: 'nearest',
+          axis: 'y',
+          intersect: true,
+        },
         plugins: {
           legend: { display: false },
         },
@@ -538,6 +531,7 @@ const ChartManager = {
     chartEl.innerHTML = items.map(item => {
       const pct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
       const pctOfTotal = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+      const displayLabel = item.label.replace(/^https?:\/\//, '');
       let iconHtml = '';
 
       if (iconType === 'country') {
@@ -552,7 +546,7 @@ const ChartManager = {
         <div class="icon-bar-chart__item" data-label="${Utils.escapeHtml(item.label)}" data-value="${item.value}">
           <div class="icon-bar-chart__label">
             ${iconHtml}
-            <span class="icon-bar-chart__name">${Utils.escapeHtml(item.label)}</span>
+            <span class="icon-bar-chart__name">${Utils.escapeHtml(displayLabel)}</span>
           </div>
           <div class="icon-bar-chart__bar-wrap">
             <div class="icon-bar-chart__bar" style="width: ${pct}%"></div>
@@ -594,6 +588,48 @@ const ChartManager = {
       (_, index) => colors.chart[index % colors.chart.length]
     );
 
+    // Resolve Remix Icon class → Unicode character for each slice
+    const iconChars = labels.map(label => {
+      const iconClass = Utils.icons[iconType] ? Utils.icons[iconType](label) : '';
+      if (!iconClass) return '';
+      return this._getRemixIconChar(iconClass);
+    });
+
+    // Plugin to draw icons on each doughnut slice
+    const sliceIconPlugin = {
+      id: 'sliceIcons',
+      afterDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data) return;
+
+        meta.data.forEach((arc, i) => {
+          const char = iconChars[i];
+          if (!char) return;
+          // Only draw on slices large enough (> 5% of total)
+          const pct = values[i] / total;
+          if (pct < 0.05) return;
+
+          const { startAngle, endAngle, innerRadius, outerRadius } = arc.getProps(
+            ['startAngle', 'endAngle', 'innerRadius', 'outerRadius'], true
+          );
+          const midAngle = (startAngle + endAngle) / 2;
+          const midRadius = (innerRadius + outerRadius) / 2;
+          const x = arc.x + Math.cos(midAngle) * midRadius;
+          const y = arc.y + Math.sin(midAngle) * midRadius;
+
+          const fontSize = Math.max(12, Math.min(18, (outerRadius - innerRadius) * 0.5));
+          ctx.save();
+          ctx.font = `${fontSize}px remixicon`;
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(char, x, y);
+          ctx.restore();
+        });
+      }
+    };
+
     const chart = this.create(
       id,
       'doughnut',
@@ -608,7 +644,7 @@ const ChartManager = {
       },
       {
         plugins: {
-          legend: { display: false }, // We'll use custom HTML legend
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: (context) => {
@@ -621,17 +657,24 @@ const ChartManager = {
           },
         },
         ...options,
-      }
+      },
+      [sliceIconPlugin]
     );
 
-    // Build custom HTML legend with icons
+    // Build custom HTML legend with icons — placed outside the chart container
+    // so Chart.js keeps its fixed height constraint
     const canvas = document.getElementById(id);
     if (canvas) {
-      const container = canvas.parentElement;
-      let legendEl = container.querySelector('.icon-legend');
-      if (legendEl) legendEl.remove();
+      const chartContainer = canvas.parentElement;        // .chart-card__container
+      const card = chartContainer.parentElement;           // .card.chart-card
 
-      legendEl = document.createElement('div');
+      // Remove any existing legend from both container and card
+      [chartContainer, card].forEach(el => {
+        const old = el?.querySelector('.icon-legend');
+        if (old) old.remove();
+      });
+
+      const legendEl = document.createElement('div');
       legendEl.className = 'icon-legend';
       legendEl.innerHTML = items.map((item, i) => {
         const color = backgroundColors[i % backgroundColors.length];
@@ -646,7 +689,7 @@ const ChartManager = {
           </div>`;
       }).join('');
 
-      container.appendChild(legendEl);
+      card.appendChild(legendEl);
     }
 
     return chart;
@@ -870,6 +913,26 @@ const ChartManager = {
    */
   isObject(item) {
     return item && typeof item === 'object' && !Array.isArray(item);
+  },
+
+  /**
+   * Resolve a Remix Icon CSS class to its Unicode character.
+   * Uses a temporary DOM element to read the ::before content.
+   * Results are cached for performance.
+   */
+  _iconCharCache: {},
+  _getRemixIconChar(iconClass) {
+    if (this._iconCharCache[iconClass]) return this._iconCharCache[iconClass];
+    const el = document.createElement('i');
+    el.className = iconClass;
+    el.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden';
+    document.body.appendChild(el);
+    const content = getComputedStyle(el, '::before').content;
+    document.body.removeChild(el);
+    // content is like '"\\ea12"' — strip surrounding quotes
+    const char = content && content !== 'none' ? content.replace(/"/g, '') : '';
+    this._iconCharCache[iconClass] = char;
+    return char;
   },
 };
 

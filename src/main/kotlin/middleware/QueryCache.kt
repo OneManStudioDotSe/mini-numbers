@@ -4,8 +4,17 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import java.util.concurrent.TimeUnit
 
 /**
- * Query result cache using Caffeine for dashboard and report queries.
- * Short TTL ensures data freshness while reducing database load.
+ * In-memory query result cache (Caffeine, 500 entries, 30 s TTL).
+ *
+ * Sits between the admin API endpoints and the heavy SQL queries in
+ * `DataAnalysisUtils` / `ConversionAnalysisUtils` / `RevenueAnalysisUtils`.
+ * Keys follow the pattern `"{projectId}:{endpoint}:{filter}"` so that
+ * [invalidateProject] can wipe all cached results for a single project
+ * when new events arrive (called from the `POST /collect` handler).
+ *
+ * The 30-second TTL is a deliberate trade-off: short enough that the
+ * dashboard feels "live", long enough to absorb rapid page refreshes
+ * and multiple API calls triggered by a single dashboard load.
  */
 object QueryCache {
     private val cache = Caffeine.newBuilder()

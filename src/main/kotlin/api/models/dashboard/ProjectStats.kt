@@ -1,7 +1,6 @@
-package se.onemanstudio.api.models
+package se.onemanstudio.api.models.dashboard
 
 import kotlinx.serialization.Serializable
-import se.onemanstudio.api.models.dashboard.TopPage
 
 @Serializable
 data class ProjectStats(

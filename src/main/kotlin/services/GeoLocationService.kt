@@ -8,6 +8,7 @@ import java.io.File
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
+/** Geographic lookup result. All fields are nullable — a failed or skipped lookup returns all nulls. */
 @Serializable
 data class GeoResult(
     val country: String? = null,
@@ -17,6 +18,30 @@ data class GeoResult(
     val longitude: Double? = null
 )
 
+/**
+ * IP-to-location resolver backed by MaxMind's GeoLite2-City database.
+ *
+ * The `.mmdb` file is loaded once at startup (via [init]) and kept open for
+ * the lifetime of the process. A Caffeine cache (10 000 entries, 1 h TTL)
+ * sits in front of the database reader so repeated lookups for the same IP
+ * (common for returning visitors) are near-instant.
+ *
+ * ## Initialisation
+ * [init] tries two locations in order:
+ * 1. Filesystem path from `GEOIP_DATABASE_PATH` env var.
+ * 2. Classpath resource `geo/geolite2-city.mmdb` (works inside fat JARs).
+ *
+ * If neither exists the service silently degrades — [lookup] returns an
+ * empty [GeoResult] and no geographic data is stored. This is by design:
+ * GeoIP is optional and the analytics platform works fine without it.
+ *
+ * ## Privacy modes
+ * The service itself always returns full data. It is the **caller** in
+ * `Routing.kt` that decides what to persist:
+ * - **STANDARD** → country + city + region + coordinates.
+ * - **STRICT** → country only.
+ * - **PARANOID** → lookup is never called.
+ */
 object GeoLocationService {
     private val logger = LoggerFactory.getLogger(GeoLocationService::class.java)
     private var reader: DatabaseReader? = null

@@ -1,23 +1,21 @@
 package se.onemanstudio.services
 
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
+import jakarta.mail.*
+import jakarta.mail.internet.InternetAddress
+import jakarta.mail.internet.MimeMessage
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.slf4j.LoggerFactory
+import se.onemanstudio.api.models.dashboard.ProjectReport
 import se.onemanstudio.config.models.EmailConfig
 import se.onemanstudio.db.EmailReports
-import se.onemanstudio.db.Events
 import se.onemanstudio.db.Projects
 import se.onemanstudio.generateReport
 import se.onemanstudio.getCurrentPeriod
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.Executors
-import jakarta.mail.*
-import jakarta.mail.internet.*
 
 /**
  * Email report service — generates and sends HTML analytics reports via SMTP.
@@ -195,9 +193,11 @@ object EmailService {
             val isDue = when (schedule) {
                 "DAILY" -> currentHour == sendHour && (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
                 "WEEKLY" -> currentHour == sendHour && currentDayOfWeek == sendDay &&
-                    (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
+                        (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
+
                 "MONTHLY" -> currentHour == sendHour && currentDayOfMonth == sendDay &&
-                    (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
+                        (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
+
                 else -> false
             }
 
@@ -231,7 +231,7 @@ object EmailService {
         projectName: String,
         projectDomain: String,
         period: String,
-        report: se.onemanstudio.api.models.ProjectReport,
+        report: ProjectReport,
         headerText: String?,
         footerText: String?
     ): String {
@@ -282,42 +282,52 @@ object EmailService {
                 <div style="padding:0 24px 24px;">
                     <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Pages</div>
                     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${report.topPages.take(5).joinToString("") { page ->
-                            """<tr style="border-bottom:1px solid #f0f0f0;">
+                        ${
+            report.topPages.take(5).joinToString("") { page ->
+                """<tr style="border-bottom:1px solid #f0f0f0;">
                                 <td style="padding:8px 0;color:#374151;">${page.label}</td>
                                 <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${page.value}</td>
                             </tr>"""
-                        }}
+            }
+        }
                     </table>
                 </div>
 
                 <!-- Top Referrers -->
-                ${if (report.referrers.isNotEmpty()) """
+                ${
+            if (report.referrers.isNotEmpty()) """
                 <div style="padding:0 24px 24px;">
                     <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Referrers</div>
                     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${report.referrers.take(5).joinToString("") { ref ->
-                            """<tr style="border-bottom:1px solid #f0f0f0;">
+                        ${
+                report.referrers.take(5).joinToString("") { ref ->
+                    """<tr style="border-bottom:1px solid #f0f0f0;">
                                 <td style="padding:8px 0;color:#374151;">${ref.label}</td>
                                 <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${ref.value}</td>
                             </tr>"""
-                        }}
+                }
+            }
                     </table>
-                </div>""" else ""}
+                </div>""" else ""
+        }
 
                 <!-- Top Countries -->
-                ${if (report.countries.isNotEmpty()) """
+                ${
+            if (report.countries.isNotEmpty()) """
                 <div style="padding:0 24px 24px;">
                     <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Countries</div>
                     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${report.countries.take(5).joinToString("") { country ->
-                            """<tr style="border-bottom:1px solid #f0f0f0;">
+                        ${
+                report.countries.take(5).joinToString("") { country ->
+                    """<tr style="border-bottom:1px solid #f0f0f0;">
                                 <td style="padding:8px 0;color:#374151;">${country.label}</td>
                                 <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${country.value}</td>
                             </tr>"""
-                        }}
+                }
+            }
                     </table>
-                </div>""" else ""}
+                </div>""" else ""
+        }
 
                 <!-- Footer -->
                 <div style="padding:16px 24px;background:#f9fafb;border-top:1px solid #f0f0f0;text-align:center;">

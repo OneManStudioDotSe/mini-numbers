@@ -34,8 +34,9 @@ import se.onemanstudio.middleware.QueryCache
 import se.onemanstudio.middleware.WidgetCache
 import se.onemanstudio.middleware.models.RateLimitResult
 import se.onemanstudio.api.models.*
-import se.onemanstudio.api.models.dashboard.ComparisonReport
-import se.onemanstudio.api.models.dashboard.TopPage
+import se.onemanstudio.api.models.admin.*
+import se.onemanstudio.api.models.collection.PageViewPayload
+import se.onemanstudio.api.models.dashboard.*
 import se.onemanstudio.services.GeoLocationService
 import se.onemanstudio.core.AnalyticsSecurity
 import se.onemanstudio.core.ServiceManager
@@ -50,22 +51,49 @@ import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.middleware.requireRole
 import java.time.LocalDateTime
 import java.util.UUID
-
-@Serializable
-data class LoginRequest(
-    val username: String,
-    val password: String
-)
+import kotlin.math.roundToInt
 
 private fun safeParseUUID(value: String?): UUID? {
     if (value == null) return null
     return try {
         UUID.fromString(value)
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         null
     }
 }
 
+/**
+ * Install all application routes — public endpoints, data collection, and the
+ * authenticated admin panel API.
+ *
+ * ## Route groups (in order of definition)
+ *
+ * | Path prefix          | Auth     | Purpose                                    |
+ * |----------------------|----------|--------------------------------------------|
+ * | `GET /health`        | None     | Liveness probe (uptime, version, state).   |
+ * | `GET /metrics`       | None     | Prometheus-style counters.                 |
+ * | `GET /tracker/config`| None     | Client tracker reads heartbeat/SPA config. |
+ * | `POST /collect`      | API key  | Data ingestion (rate-limited).             |
+ * | `GET /admin-panel`   | Session  | Serves the SPA dashboard (`admin.html`).   |
+ * | `/admin/…`           | Session  | All dashboard JSON APIs (projects, stats,  |
+ * |                      |          | reports, goals, funnels, segments, etc.).   |
+ * | `/api/…`             | JWT      | Programmatic API (same data, token auth).  |
+ *
+ * ## Data collection flow (`POST /collect`)
+ * 1. Rate-limit check (per-IP + per-API-key token buckets).
+ * 2. Validate API key → resolve project UUID.
+ * 3. Parse + validate [PageViewPayload] via [InputValidator].
+ * 4. Enrich with privacy-aware data:
+ *    - **STANDARD**: full geo (country+city+region+coords) + UA parsing.
+ *    - **STRICT**: country-only geo, full UA parsing.
+ *    - **PARANOID**: no geo, no UA — only path + timestamp.
+ * 5. Generate rotating visitor hash via [AnalyticsSecurity].
+ * 6. Insert row into [Events] table; invalidate [QueryCache] for project.
+ * 7. Respond `204 No Content`.
+ *
+ * @param config      Fully loaded application configuration.
+ * @param rateLimiter Pre-configured token-bucket rate limiter instance.
+ */
 fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
     val privacyMode = config.privacy.privacyMode
 
@@ -120,7 +148,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
         post("/api/login") {
             val loginRequest = try {
                 call.receive<LoginRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -163,7 +191,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
         post("/api/token") {
             val loginRequest = try {
                 call.receive<LoginRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -212,7 +240,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
 
             val body = try {
                 call.receive<RefreshRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Missing refreshToken"))
             }
@@ -280,7 +308,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
         post("/api/password-reset") {
             val body = try {
                 call.receive<PasswordResetRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -336,7 +364,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
 
         // Admin API - protected by session auth or JWT
         authenticate("admin-session", "api-jwt") {
-            adminRoutes(privacyMode, config.security.allowedOrigins, rateLimiter)
+            adminRoutes(config.security.allowedOrigins, rateLimiter)
         }
 
         // Data Collection Endpoint
@@ -373,7 +401,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
             } catch (e: IllegalArgumentException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid payload data: ${e.message}"))
-            } catch (e: BadRequestException) {
+            } catch (_: BadRequestException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request payload format"))
             }
@@ -482,7 +510,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
     }
 }
 
-fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, rateLimiter: RateLimiter) {
+fun Route.adminRoutes(allowedOrigins: List<String>, rateLimiter: RateLimiter) {
     route("/admin") {
 
         // Admin-specific security intercepts
@@ -493,9 +521,8 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                 return@intercept
             }
 
-            // Rate limiting for admin routes (200 req/min per IP)
+            // Rate limiting for admin routes
             val ip = call.request.origin.remoteHost
-            val adminLimit = 200
             val result = rateLimiter.checkRateLimit(ip, "admin-panel")
             if (result is RateLimitResult.Exceeded) {
                 call.respond(
@@ -556,7 +583,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val resolvedApiKey = if (clientKey != null && clientKey.matches(Regex("^[0-9a-f]{32}$"))) {
                 clientKey
             } else {
-                java.util.UUID.randomUUID().toString().replace("-", "")
+                UUID.randomUUID().toString().replace("-", "")
             }
 
             // Normalize domain: strip protocol, www prefix, trailing slashes
@@ -567,7 +594,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             transaction {
                 Projects.insert {
-                    it[id] = java.util.UUID.randomUUID()
+                    it[id] = UUID.randomUUID()
                     it[name] = newName
                     it[domain] = normalizedDomain
                     it[apiKey] = resolvedApiKey
@@ -605,21 +632,27 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                 ?: return@delete call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid or missing project ID"))
 
-            transaction {
-                val funnelIds = Funnels.selectAll().where { Funnels.projectId eq uuid }
-                    .map { it[Funnels.id] }
-                if (funnelIds.isNotEmpty()) {
-                    FunnelSteps.deleteWhere { FunnelSteps.funnelId inList funnelIds }
+            try {
+                transaction {
+                    val funnelIds = Funnels.selectAll().where { Funnels.projectId eq uuid }
+                        .map { it[Funnels.id] }
+                    if (funnelIds.isNotEmpty()) {
+                        FunnelSteps.deleteWhere { FunnelSteps.funnelId inList funnelIds }
+                    }
+                    Funnels.deleteWhere { Funnels.projectId eq uuid }
+                    ConversionGoals.deleteWhere { ConversionGoals.projectId eq uuid }
+                    Segments.deleteWhere { Segments.projectId eq uuid }
+                    Events.deleteWhere { Events.projectId eq uuid }
+                    Projects.deleteWhere { Projects.id eq uuid }
                 }
-                Funnels.deleteWhere { Funnels.projectId eq uuid }
-                ConversionGoals.deleteWhere { ConversionGoals.projectId eq uuid }
-                Segments.deleteWhere { Segments.projectId eq uuid }
-                Events.deleteWhere { Events.projectId eq uuid }
-                Projects.deleteWhere { Projects.id eq uuid }
+                QueryCache.invalidateProject(uuid.toString())
+                WidgetCache.invalidateProject(uuid.toString())
+                call.respond(HttpStatusCode.NoContent)
+            } catch (e: org.jetbrains.exposed.exceptions.ExposedSQLException) {
+                call.application.environment.log.error("Failed to delete project $uuid: ${e.message}", e)
+                call.respond(HttpStatusCode.InternalServerError,
+                    ApiError.internalError("Failed to delete project"))
             }
-            QueryCache.invalidateProject(uuid.toString())
-            WidgetCache.invalidateProject(uuid.toString())
-            call.respond(HttpStatusCode.NoContent)
         }
 
         // Get stats for a specific project
@@ -722,21 +755,27 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val count = request["count"] ?: 500
             val timeScope = request["timeScope"] ?: 30
 
-            if (count < 0 || count > 3000) {
+            if (count !in 0..3000) {
                 call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Count must be between 0 and 3000"))
                 return@post
             }
 
-            val generated = transaction {
-                val eventCount = generateDemoData(id, count, timeScope)
-                seedDemoGoalsFunnelsSegments(id)
-                eventCount
-            }
-            QueryCache.invalidateProject(id.toString())
-            WidgetCache.invalidateProject(id.toString())
+            try {
+                val generated = transaction {
+                    val eventCount = generateDemoData(id, count, timeScope)
+                    seedDemoGoalsFunnelsSegments(id)
+                    eventCount
+                }
+                QueryCache.invalidateProject(id.toString())
+                WidgetCache.invalidateProject(id.toString())
 
-            call.respond(mapOf("generated" to generated))
+                call.respond(mapOf("generated" to generated))
+            } catch (e: org.jetbrains.exposed.exceptions.ExposedSQLException) {
+                call.application.environment.log.error("Failed to generate demo data: ${e.message}", e)
+                call.respond(HttpStatusCode.InternalServerError,
+                    ApiError.internalError("Failed to generate demo data"))
+            }
         }
 
         // Report endpoint with caching
@@ -889,7 +928,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val request = try {
                 call.receive<GoalRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1018,7 +1057,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val request = try {
                 call.receive<FunnelRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1110,7 +1149,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val (start, end) = getCurrentPeriod(filter)
             val analysis = try {
                 analyzeFunnel(funnelId, pid, start, end)
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 return@get call.respond(HttpStatusCode.NotFound,
                     ApiError.notFound("Funnel not found"))
             }
@@ -1134,7 +1173,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                             description = it[Segments.description],
                             filters = try {
                                 Json.decodeFromString<List<SegmentFilter>>(it[Segments.filtersJson])
-                            } catch (e: Exception) { emptyList() },
+                            } catch (_: SerializationException) { emptyList() },
                             createdAt = it[Segments.createdAt].toString()
                         )
                     }
@@ -1150,7 +1189,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val request = try {
                 call.receive<SegmentRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1230,7 +1269,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val filters = try {
                 Json.decodeFromString<List<SegmentFilter>>(segment[Segments.filtersJson])
-            } catch (e: Exception) { emptyList() }
+            } catch (_: SerializationException) { emptyList() }
 
             val (start, end) = getCurrentPeriod(filter)
 
@@ -1300,7 +1339,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val request = try {
                 call.receive<CreateWebhookRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1456,7 +1495,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                 se.onemanstudio.db.EmailReports.selectAll().where {
                     se.onemanstudio.db.EmailReports.projectId eq pid
                 }.map {
-                    se.onemanstudio.api.models.EmailReportResponse(
+                    EmailReportResponse(
                         id = it[se.onemanstudio.db.EmailReports.id].toString(),
                         projectId = it[se.onemanstudio.db.EmailReports.projectId].toString(),
                         recipientEmail = it[se.onemanstudio.db.EmailReports.recipientEmail],
@@ -1484,8 +1523,8 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                     ApiError.badRequest("Invalid or missing project ID"))
 
             val request = try {
-                call.receive<se.onemanstudio.api.models.CreateEmailReportRequest>()
-            } catch (e: Exception) {
+                call.receive<CreateEmailReportRequest>()
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1534,8 +1573,8 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
                     ApiError.badRequest("Invalid or missing report ID"))
 
             val request = try {
-                call.receive<se.onemanstudio.api.models.UpdateEmailReportRequest>()
-            } catch (e: Exception) {
+                call.receive<UpdateEmailReportRequest>()
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@put call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1637,12 +1676,14 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
         get("/smtp/status") {
             val status = se.onemanstudio.services.EmailService.getSmtpStatus()
-            call.respond(se.onemanstudio.api.models.SmtpStatusResponse(
-                configured = status["configured"] as Boolean,
-                host = status["host"] as? String,
-                port = status["port"] as? Int,
-                from = status["from"] as? String
-            ))
+            call.respond(
+                SmtpStatusResponse(
+                    configured = status["configured"] as Boolean,
+                    host = status["host"] as? String,
+                    port = status["port"] as? Int,
+                    from = status["from"] as? String
+                )
+            )
         }
 
         // ── Revenue Analytics ─────────────────────────────────────────
@@ -1655,7 +1696,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val filter = call.request.queryParameters["filter"] ?: "7d"
             val (start, end) = getCurrentPeriod(filter)
             val stats = QueryCache.getOrCompute("$pid:revenue:$filter") {
-                se.onemanstudio.RevenueAnalysisUtils.calculateRevenue(pid, start, end)
+                RevenueAnalysisUtils.calculateRevenue(pid, start, end)
             }
             call.respond(stats)
         }
@@ -1668,7 +1709,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val filter = call.request.queryParameters["filter"] ?: "7d"
             val (start, end) = getCurrentPeriod(filter)
             val breakdown = QueryCache.getOrCompute("$pid:revenue-breakdown:$filter") {
-                se.onemanstudio.RevenueAnalysisUtils.calculateRevenueByEvent(pid, start, end)
+                RevenueAnalysisUtils.calculateRevenueByEvent(pid, start, end)
             }
             call.respond(breakdown)
         }
@@ -1681,7 +1722,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             val filter = call.request.queryParameters["filter"] ?: "7d"
             val (start, end) = getCurrentPeriod(filter)
             val attribution = QueryCache.getOrCompute("$pid:revenue-attribution:$filter") {
-                se.onemanstudio.RevenueAnalysisUtils.calculateRevenueAttribution(pid, start, end)
+                RevenueAnalysisUtils.calculateRevenueAttribution(pid, start, end)
             }
             call.respond(attribution)
         }
@@ -1708,7 +1749,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
             if (!call.requireRole(UserRole.ADMIN)) return@post
             val request = try {
                 call.receive<CreateUserRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@post call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1766,7 +1807,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 
             val request = try {
                 call.receive<UpdateUserRoleRequest>()
-            } catch (e: Exception) {
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
                 return@put call.respond(HttpStatusCode.BadRequest,
                     ApiError.badRequest("Invalid request body"))
             }
@@ -1815,7 +1856,7 @@ fun Route.adminRoutes(privacyMode: PrivacyMode, allowedOrigins: List<String>, ra
 /**
  * Apply segment filters to an event row
  */
-private fun applySegmentFilters(event: org.jetbrains.exposed.sql.ResultRow, filters: List<SegmentFilter>): Boolean {
+private fun applySegmentFilters(event: ResultRow, filters: List<SegmentFilter>): Boolean {
     if (filters.isEmpty()) return true
 
     var result = matchesFilter(event, filters[0])
@@ -1830,7 +1871,7 @@ private fun applySegmentFilters(event: org.jetbrains.exposed.sql.ResultRow, filt
     return result
 }
 
-private fun matchesFilter(event: org.jetbrains.exposed.sql.ResultRow, filter: SegmentFilter): Boolean {
+private fun matchesFilter(event: ResultRow, filter: SegmentFilter): Boolean {
     val fieldValue = when (filter.field) {
         "browser" -> event[Events.browser]
         "os" -> event[Events.os]
@@ -1870,8 +1911,8 @@ private fun computeGlobeData(projectId: UUID, cutoff: LocalDateTime): GlobeData 
 
         val grouped = events.groupBy { row ->
             GeoKey(
-                Math.round(row[Events.latitude]!! * 10.0) / 10.0,
-                Math.round(row[Events.longitude]!! * 10.0) / 10.0
+                (row[Events.latitude]!! * 10.0).roundToInt() / 10.0,
+                (row[Events.longitude]!! * 10.0).roundToInt() / 10.0
             )
         }
 
@@ -1896,7 +1937,7 @@ private fun computeGlobeData(projectId: UUID, cutoff: LocalDateTime): GlobeData 
 /**
  * Generate realistic demo/dummy data for testing
  */
-private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: Int = 30): Int {
+private fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
     if (count == 0) return 0
 
     val paths = listOf(
@@ -1998,7 +2039,7 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
 
         val country = countries.random()
         val city = cities[country]?.random()
-        val sessionId = java.util.UUID.randomUUID().toString()
+        val sessionId = UUID.randomUUID().toString()
         val browser = browsers.random()
         val os = oses.random()
         val device = devices.random()
@@ -2152,7 +2193,7 @@ private fun generateDemoData(projectId: java.util.UUID, count: Int, timeScope: I
  * Seed demo conversion goals, funnels, and segments for a project.
  * Skips creation if goals/funnels/segments already exist for the project.
  */
-private fun seedDemoGoalsFunnelsSegments(projectId: java.util.UUID) {
+private fun seedDemoGoalsFunnelsSegments(projectId: UUID) {
     // Only seed if none exist yet
     val hasGoals = ConversionGoals.selectAll().where { ConversionGoals.projectId eq projectId }.count() > 0
     val hasFunnels = Funnels.selectAll().where { Funnels.projectId eq projectId }.count() > 0

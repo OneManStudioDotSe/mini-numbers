@@ -1,22 +1,38 @@
 package se.onemanstudio
 
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import se.onemanstudio.api.models.RevenueAttribution
-import se.onemanstudio.api.models.RevenueByEvent
-import se.onemanstudio.api.models.RevenueStats
+import se.onemanstudio.RevenueAnalysisUtils.calculateRevenue
+import se.onemanstudio.RevenueAnalysisUtils.calculateRevenueAttribution
+import se.onemanstudio.RevenueAnalysisUtils.calculateRevenueByEvent
+import se.onemanstudio.api.models.admin.RevenueAttribution
+import se.onemanstudio.api.models.admin.RevenueByEvent
+import se.onemanstudio.api.models.admin.RevenueStats
 import se.onemanstudio.db.Events
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
+import kotlin.math.roundToInt
 
 /**
- * Revenue analysis utilities.
+ * Revenue analytics engine.
  *
- * Revenue is extracted from custom event properties JSON:
- *   MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" })
- * The tracker serializes props to a JSON string stored in Events.properties.
+ * Revenue is extracted from custom event properties JSON. On the client the
+ * developer calls:
+ * ```js
+ * MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" })
+ * ```
+ * The tracker serialises the second argument to a JSON string which is
+ * stored in [Events.properties]. This object scans those JSON strings for
+ * `"revenue": <number>` patterns and aggregates the values.
+ *
+ * ## Functions
+ * - [calculateRevenue] — totals, transaction count, AOV, revenue-per-visitor,
+ *   and previous-period comparison.
+ * - [calculateRevenueByEvent] — revenue grouped by event name (e.g.
+ *   "purchase" vs "subscription" vs "upgrade").
+ * - [calculateRevenueAttribution] — which referrer / UTM source drove the
+ *   most revenue, with per-source conversion rates.
  */
 object RevenueAnalysisUtils {
 
@@ -77,11 +93,11 @@ object RevenueAnalysisUtils {
             }
 
             RevenueStats(
-                totalRevenue = Math.round(totalRevenue * 100.0) / 100.0,
+                totalRevenue = (totalRevenue * 100.0).roundToInt() / 100.0,
                 transactions = transactions,
-                averageOrderValue = Math.round(aov * 100.0) / 100.0,
-                revenuePerVisitor = Math.round(rpv * 100.0) / 100.0,
-                previousRevenue = Math.round(prevEvents.sum() * 100.0) / 100.0,
+                averageOrderValue = (aov * 100.0).roundToInt() / 100.0,
+                revenuePerVisitor = (rpv * 100.0).roundToInt() / 100.0,
+                previousRevenue = (prevEvents.sum() * 100.0).roundToInt() / 100.0,
                 previousTransactions = prevEvents.size.toLong()
             )
         }

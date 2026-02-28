@@ -1,10 +1,23 @@
 package se.onemanstudio.middleware
 
-import se.onemanstudio.api.models.PageViewPayload
+import se.onemanstudio.api.models.collection.PageViewPayload
 
 /**
- * Input validation and sanitization for incoming data
- * Prevents injection attacks and ensures data integrity
+ * Input validation and sanitisation for all data arriving via `POST /collect`.
+ *
+ * Every field in a [PageViewPayload] is checked against:
+ * - **Length limits** that match the database column sizes (e.g. path ≤ 512 chars).
+ * - **Regex allow-lists** that reject characters outside the expected alphabet
+ *   (prevents SQL injection, XSS, and log-forging).
+ * - **Semantic rules** (e.g. `scrollDepth` must be 0-100, `eventName` is
+ *   required for custom events but forbidden for pageviews).
+ *
+ * The [sanitize] function strips control characters and normalises whitespace;
+ * it is used both inside validation and as a standalone helper for other inputs.
+ *
+ * Validation is **all-or-nothing**: [validatePageViewPayload] collects every
+ * error into a list and returns them all at once, so the client can fix
+ * multiple issues in a single round-trip.
  */
 object InputValidator {
 

@@ -436,8 +436,8 @@
                         </div>
                     </div>
 
-                    <!-- Browsers & Operating Systems -->
-                    <div class="grid grid-cols-2 mt-lg">
+                    <!-- Browsers, Operating Systems & Devices -->
+                    <div class="grid grid-cols-3 mt-lg">
                         <div class="card chart-card">
                             <div class="chart-card__header">
                                 <h3 class="chart-card__title">
@@ -465,7 +465,7 @@
                         <div class="card chart-card">
                             <div class="chart-card__header">
                                 <h3 class="chart-card__title">
-                                    <i class="ri-computer-line"></i> Operating systems
+                                    <i class="ri-computer-line"></i> OS
                                 </h3>
                                 <div class="chart-card__actions">
                                     <div class="view-toggle" data-chart="os">
@@ -485,30 +485,29 @@
                                 <canvas id="chart-os"></canvas>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Devices -->
-                    <div class="card chart-card mt-lg">
-                        <div class="chart-card__header">
-                            <h3 class="chart-card__title">
-                                <i class="ri-smartphone-line"></i> Devices
-                            </h3>
-                            <div class="chart-card__actions">
-                                <div class="view-toggle" data-chart="devices">
-                                    <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
-                                        <i class="ri-pie-chart-2-line"></i>
-                                    </button>
-                                    <button class="view-toggle__btn" data-view="bar" title="Bar chart">
-                                        <i class="ri-bar-chart-line"></i>
-                                    </button>
-                                    <button class="view-toggle__btn" data-view="radar" title="Radar chart">
-                                        <i class="ri-focus-3-line"></i>
-                                    </button>
+                        <div class="card chart-card">
+                            <div class="chart-card__header">
+                                <h3 class="chart-card__title">
+                                    <i class="ri-smartphone-line"></i> Devices
+                                </h3>
+                                <div class="chart-card__actions">
+                                    <div class="view-toggle" data-chart="devices">
+                                        <button class="view-toggle__btn active" data-view="doughnut" title="Doughnut chart">
+                                            <i class="ri-pie-chart-2-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="bar" title="Bar chart">
+                                            <i class="ri-bar-chart-line"></i>
+                                        </button>
+                                        <button class="view-toggle__btn" data-view="radar" title="Radar chart">
+                                            <i class="ri-focus-3-line"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="chart-card__container chart-card__container--short">
-                            <canvas id="chart-devices"></canvas>
+                            <div class="chart-card__container chart-card__container--short">
+                                <canvas id="chart-devices"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -536,7 +535,6 @@
                                 <i class="ri-calendar-line"></i> Activity heatmap
                             </h3>
                             <div class="chart-card__actions">
-                                <span id="peak-annotation" class="text-sm text-secondary" style="margin-right: var(--spacing-sm);"></span>
                                 <div class="heatmap-legend">
                                     <span class="text-muted text-xs">Less</span>
                                     <div class="legend-gradient"></div>

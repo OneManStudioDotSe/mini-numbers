@@ -1,7 +1,6 @@
 package se.onemanstudio.api.models.dashboard
 
 import kotlinx.serialization.Serializable
-import se.onemanstudio.api.models.ProjectReport
 
 /**
  * Comparison report containing current and previous period data
