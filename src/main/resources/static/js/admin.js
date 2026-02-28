@@ -942,11 +942,15 @@ const Dashboard = {
         MapManager.updateLeafletMap(data.countries);
       }
 
-      window.addEventListener('chartBarClick', (e) => {
-        if (e.detail.chartId === 'chart-countries' && this.state.geoState?.view === 'countries') {
-          this.drillDownToCountry(e.detail.label);
-        }
-      });
+      // Attach drill-down listener only once
+      if (!this._geoDrillDownListenerAttached) {
+        this._geoDrillDownListenerAttached = true;
+        window.addEventListener('chartBarClick', (e) => {
+          if (e.detail.chartId === 'chart-countries' && this.state.geoState?.view === 'countries') {
+            this.drillDownToCountry(e.detail.label);
+          }
+        });
+      }
     } else if (countriesEl) {
       Utils.dom.showEmptyState(countriesEl.parentElement, { icon: '&#127758;', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
@@ -961,13 +965,10 @@ const Dashboard = {
       Utils.dom.showEmptyState(timeseriesEl.parentElement, { icon: '&#128200;', message: 'No time series data' });
     }
 
-    // Activity Heatmap with peak highlighting and date labels
+    // Activity Heatmap
     const heatmapEl = document.getElementById('chart-heatmap');
     if (data.activityHeatmap?.length && heatmapEl) {
-      const peakHour = data.peakTimeAnalysis?.peakHour;
-      const peakDay = data.peakTimeAnalysis?.peakDay;
-      const dateLabels = this.getHeatmapDateLabels();
-      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, peakHour, peakDay, dateLabels);
+      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap);
     } else if (heatmapEl) {
       Utils.dom.showEmptyState(heatmapEl.parentElement, { icon: '&#128197;', message: 'No activity data yet' });
     }
@@ -1032,12 +1033,19 @@ const Dashboard = {
       }
     }
 
-    // Regions / States
+    // Regions / States — with country flags extracted from "Region, Country" labels
     const regionsSection = document.getElementById('regions-section');
     if (regionsSection) {
       if (data.regions?.length) {
         regionsSection.style.display = '';
-        this.renderBarChartWithShowMore('chart-regions', data.regions, 5);
+        // Labels are "Region, Country" — pass to icon bar chart with country type
+        // so flags are resolved from the country portion
+        const regionsWithFlags = data.regions.map(r => {
+          const parts = r.label.split(', ');
+          const country = parts.length > 1 ? parts[parts.length - 1] : '';
+          return { ...r, _country: country };
+        });
+        this.renderRegionsChart('chart-regions', regionsWithFlags, 5);
       } else {
         regionsSection.style.display = 'none';
       }
@@ -1054,16 +1062,6 @@ const Dashboard = {
     // Store peak data for heatmap
     this.state.peakHour = peakData.peakHour;
     this.state.peakDay = peakData.peakDay;
-
-    // Update annotation in heatmap card header
-    const annotation = document.getElementById('peak-annotation');
-    if (annotation) {
-      const peakDayLabel = peakData.topDays?.[0]?.label || '';
-      const peakHourLabel = peakData.topHours?.[0]?.label || '';
-      if (peakDayLabel || peakHourLabel) {
-        annotation.textContent = `Peak: ${peakDayLabel}${peakDayLabel && peakHourLabel ? ' at ' : ''}${peakHourLabel}`;
-      }
-    }
   },
 
   /**
@@ -1229,10 +1227,14 @@ const Dashboard = {
 
     // Clean up custom DOM elements from any previous chart type
     const container = canvas.parentElement;
+    const card = container.parentElement;
     const iconBar = container.querySelector('.icon-bar-chart');
     if (iconBar) iconBar.remove();
-    const iconLegend = container.querySelector('.icon-legend');
-    if (iconLegend) iconLegend.remove();
+    // Legend may be in container (old) or card (new placement)
+    [container, card].forEach(el => {
+      const legend = el?.querySelector('.icon-legend');
+      if (legend) legend.remove();
+    });
     canvas.style.display = '';
 
     if (type === 'bar') {
@@ -1714,7 +1716,7 @@ const Dashboard = {
                data-date="${dateStr}"
                data-visits="${visits}"
                data-unique="${uniqueVisitors}"
-               title="${this.formatContributionTooltip(dateStr, visits, uniqueVisitors)}">
+               data-tooltip="${this.formatContributionTooltip(dateStr, visits, uniqueVisitors)}">
           </div>
         `;
 
@@ -2047,10 +2049,7 @@ const Dashboard = {
 
       // Rebuild activity heatmap with new color
       if (this.state.data?.current?.activityHeatmap?.length) {
-        const peakHour = this.state.data.current.peakTimeAnalysis?.peakHour;
-        const peakDay = this.state.data.current.peakTimeAnalysis?.peakDay;
-        const dateLabels = this.getHeatmapDateLabels();
-        ChartManager.createHeatmap('chart-heatmap', this.state.data.current.activityHeatmap, peakHour, peakDay, dateLabels);
+        ChartManager.createHeatmap('chart-heatmap', this.state.data.current.activityHeatmap);
       }
     });
   },
@@ -2215,10 +2214,9 @@ const Dashboard = {
       document.getElementById('geo-title').textContent = 'Geographic distribution';
       backBtn.style.display = 'none';
 
-      // Restore countries view
+      // Restore countries view using icon bar chart (same as initial render)
       if (this.state.data.current?.countries) {
-        const topCountries = Utils.aggregate.groupTopN(this.state.data.current.countries, 10);
-        ChartManager.createBarChart('chart-countries', topCountries);
+        MapManager.createMap('chart-countries', this.state.data.current.countries);
       }
     });
   },
@@ -2247,6 +2245,13 @@ const Dashboard = {
 
     document.getElementById('geo-title').textContent = `Cities in ${countryName}`;
     document.getElementById('geo-back-btn').style.display = 'flex';
+
+    // Remove icon bar chart and restore canvas before rendering
+    const container = document.getElementById('chart-countries')?.parentElement;
+    const existingIconChart = container?.querySelector('.icon-bar-chart');
+    if (existingIconChart) existingIconChart.remove();
+    const canvas = document.getElementById('chart-countries');
+    if (canvas) canvas.style.display = '';
 
     ChartManager.createBarChart('chart-countries', citiesArray);
   },
@@ -2413,6 +2418,95 @@ const Dashboard = {
         } else {
           container.style.height = `${Math.max(200, allItems.length * 36 + 16)}px`;
           ChartManager.createIconBarChart(chartId, allItems, iconType);
+          btn.textContent = 'Show less';
+          btn.dataset.expanded = 'true';
+        }
+      });
+
+      card.appendChild(btn);
+    }
+  },
+
+  /**
+   * Render regions chart with country flags using icon bar chart
+   * @param {string} chartId - Canvas element ID
+   * @param {Array} allItems - Items with _country field for flag lookup
+   * @param {number} visibleCount - Number of items to show initially
+   */
+  renderRegionsChart(chartId, allItems, visibleCount = 5) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    const card = container.parentElement;
+
+    // Remove existing show more button
+    const existingBtn = card.querySelector('.show-more-btn');
+    if (existingBtn) existingBtn.remove();
+
+    const renderItems = (items) => {
+      // Destroy Chart.js instance and hide canvas
+      if (ChartManager.instances[chartId]) {
+        ChartManager.instances[chartId].destroy();
+        delete ChartManager.instances[chartId];
+      }
+      canvas.style.display = 'none';
+
+      const existingChart = container.querySelector('.icon-bar-chart');
+      if (existingChart) existingChart.remove();
+
+      const maxValue = Math.max(...items.map(d => d.value));
+      const total = items.reduce((sum, d) => sum + d.value, 0);
+
+      const chartEl = document.createElement('div');
+      chartEl.className = 'icon-bar-chart';
+
+      chartEl.innerHTML = items.map(item => {
+        const pct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+        const pctOfTotal = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+        const flag = item._country ? Utils.icons.countryFlag(item._country) : '';
+        const iconHtml = flag ? `<span class="icon-bar-chart__flag">${flag}</span>` : '';
+
+        return `
+          <div class="icon-bar-chart__item">
+            <div class="icon-bar-chart__label">
+              ${iconHtml}
+              <span class="icon-bar-chart__name">${Utils.escapeHtml(item.label)}</span>
+            </div>
+            <div class="icon-bar-chart__bar-wrap">
+              <div class="icon-bar-chart__bar" style="width: ${pct}%"></div>
+            </div>
+            <div class="icon-bar-chart__value">
+              ${Utils.format.compact(item.value)}<span class="icon-bar-chart__pct">${pctOfTotal}%</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      container.appendChild(chartEl);
+    };
+
+    const needsShowMore = allItems.length > visibleCount;
+    const itemsToShow = needsShowMore ? allItems.slice(0, visibleCount) : allItems;
+
+    container.style.height = `${Math.max(200, itemsToShow.length * 36 + 16)}px`;
+    renderItems(itemsToShow);
+
+    if (needsShowMore) {
+      const btn = document.createElement('button');
+      btn.className = 'show-more-btn';
+      btn.textContent = `Show ${allItems.length - visibleCount} more`;
+      btn.dataset.expanded = 'false';
+
+      btn.addEventListener('click', () => {
+        const expanded = btn.dataset.expanded === 'true';
+        if (expanded) {
+          container.style.height = `${Math.max(200, visibleCount * 36 + 16)}px`;
+          renderItems(allItems.slice(0, visibleCount));
+          btn.textContent = `Show ${allItems.length - visibleCount} more`;
+          btn.dataset.expanded = 'false';
+        } else {
+          container.style.height = `${Math.max(200, allItems.length * 36 + 16)}px`;
+          renderItems(allItems);
           btn.textContent = 'Show less';
           btn.dataset.expanded = 'true';
         }

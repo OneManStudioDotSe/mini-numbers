@@ -1,25 +1,47 @@
+/**
+ * Core analytics calculation engine.
+ *
+ * All functions in this file operate on the [Events] table and produce the
+ * data structures that the admin dashboard consumes via the `/report` and
+ * `/report/comparison` API endpoints. Results are cached by [se.onemanstudio.middleware.QueryCache]
+ * at the routing layer (30 s TTL) so these queries are not re-run on
+ * every dashboard refresh.
+ *
+ * ## Key concepts
+ * - **Period helpers** ([getCurrentPeriod], [getPreviousPeriod]): convert a
+ *   filter string like `"7d"` into two `LocalDateTime` ranges — the
+ *   current window and the immediately preceding window of equal length.
+ *   The comparison between the two powers the "↑ 12 %" trend indicators.
+ *
+ * - **Time series** ([generateTimeSeries]): buckets events into hours,
+ *   days, or weeks depending on the selected filter and returns a list of
+ *   [TimeSeriesPoint] used by the trend line chart on the dashboard.
+ *
+ * - **Bounce rate** ([calculateBounceRate]): a session is "bounced" if it
+ *   contains only one unique page AND has no heartbeat events (meaning the
+ *   visitor left within the first heartbeat interval, typically 30 s).
+ *
+ * - **Full report** ([generateReport]): the heavyweight function that
+ *   assembles a [ProjectReport] with 20+ breakdowns (top pages, browsers,
+ *   OS, devices, referrers, countries, regions, UTM, scroll depth, session
+ *   metrics, outbound links, file downloads, custom events, activity
+ *   heatmap, peak-time analysis, and overall conversion rate).
+ *
+ * - **Heatmap / calendar** ([generateActivityHeatmap],
+ *   [generateContributionCalendar]): produce grid data for the 7 × 24
+ *   activity heatmap and the GitHub-style 365-day contribution calendar.
+ */
 package se.onemanstudio
 
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import se.onemanstudio.db.Events
-import se.onemanstudio.api.models.ProjectReport
 import se.onemanstudio.api.models.StatEntry
-import se.onemanstudio.api.models.VisitSnippet
-import se.onemanstudio.api.models.dashboard.ActivityCell
-import se.onemanstudio.api.models.dashboard.ContributionCalendar
-import se.onemanstudio.api.models.dashboard.ContributionDay
-import se.onemanstudio.api.models.dashboard.PeakTimeAnalysis
-import se.onemanstudio.api.models.dashboard.TimeSeriesPoint
+import se.onemanstudio.api.models.dashboard.*
+import se.onemanstudio.db.Events
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.UUID
+import java.util.*
 
 /**
  * Get the start and end dates for the current period based on filter
@@ -43,9 +65,8 @@ fun getCurrentPeriod(filter: String): Pair<LocalDateTime, LocalDateTime> {
 fun getPreviousPeriod(filter: String): Pair<LocalDateTime, LocalDateTime> {
     val (currentStart, currentEnd) = getCurrentPeriod(filter)
     val duration = Duration.between(currentStart, currentEnd)
-    val previousEnd = currentStart
-    val previousStart = previousEnd.minus(duration)
-    return Pair(previousStart, previousEnd)
+    val previousStart = currentStart.minus(duration)
+    return Pair(previousStart, currentStart)
 }
 
 /**
@@ -122,7 +143,24 @@ fun calculateBounceRate(id: UUID, start: LocalDateTime, end: LocalDateTime): Dou
 }
 
 /**
- * Generate a full project report for a given time period
+ * Generate a comprehensive project report for the given time window.
+ *
+ * This is the most expensive query in the application — it touches every
+ * event row for the project in the period and computes 20+ breakdowns.
+ * Results are cached by [se.onemanstudio.middleware.QueryCache] at the routing layer for 30 seconds.
+ *
+ * Internally it builds a `baseQuery` (project + time filter) and reuses
+ * it via `.copy()` and `.adjustSelect()` to avoid redundant WHERE clauses.
+ * The helper `getBreakdown(col)` produces a generic top-10 bar-chart
+ * breakdown for any column (path, browser, OS, device, referrer, country).
+ *
+ * Session-level metrics (avg duration, entry/exit pages, conversion rate)
+ * are computed by grouping the full event list by `sessionId` in memory.
+ *
+ * @param id    Project UUID.
+ * @param start Inclusive start of the reporting window.
+ * @param end   Inclusive end of the reporting window.
+ * @return A fully populated [ProjectReport] ready for JSON serialization.
  */
 fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectReport {
     return transaction {
@@ -239,8 +277,15 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             .limit(10)
             .map { StatEntry(it[Events.targetUrl] ?: "Unknown", it[downloadCountCol]) }
 
-        // Regions/states
-        val regions = getBreakdown(Events.region).filter { it.label != "Unknown" }
+        // Regions/states — include country for context
+        val regionCountCol = Events.region.count()
+        val regions = baseQuery.copy()
+            .adjustSelect { this.select(Events.country, Events.region, regionCountCol) }
+            .groupBy(Events.country, Events.region)
+            .orderBy(regionCountCol, SortOrder.DESC)
+            .limit(10)
+            .filter { it[Events.region] != null && it[Events.region] != "Unknown" }
+            .map { StatEntry("${it[Events.region]}, ${it[Events.country] ?: "Unknown"}", it[regionCountCol]) }
 
         // Overall conversion rate: sessions with at least one custom event / total sessions
         val sessionsWithConversion = sessions.count { (_, events) ->

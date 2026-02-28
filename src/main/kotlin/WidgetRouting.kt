@@ -4,12 +4,14 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.count
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import se.onemanstudio.api.models.*
+import se.onemanstudio.api.models.widget.*
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.resolveWidgetProject
 import se.onemanstudio.db.Events
@@ -37,6 +39,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     is RateLimitResult.Exceeded -> return@get call.respond(
                         HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
                     )
+
                     else -> {}
                 }
 
@@ -46,7 +49,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                         val count = Events.select(Events.visitorHash)
                             .where {
                                 (Events.projectId eq projectId) and
-                                (Events.timestamp greaterEq cutoff)
+                                        (Events.timestamp greaterEq cutoff)
                             }
                             .withDistinct()
                             .count()
@@ -70,6 +73,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     is RateLimitResult.Exceeded -> return@get call.respond(
                         HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
                     )
+
                     else -> {}
                 }
 
@@ -83,9 +87,9 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     transaction {
                         val query = Events.selectAll().where {
                             val base = (Events.projectId eq projectId) and
-                                (Events.eventType eq "pageview") and
-                                (Events.timestamp greaterEq start) and
-                                (Events.timestamp lessEq end)
+                                    (Events.eventType eq "pageview") and
+                                    (Events.timestamp greaterEq start) and
+                                    (Events.timestamp lessEq end)
                             if (scope == "page" && path != null) {
                                 base and (Events.path eq path)
                             } else {
@@ -114,6 +118,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     is RateLimitResult.Exceeded -> return@get call.respond(
                         HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
                     )
+
                     else -> {}
                 }
 
@@ -127,9 +132,9 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                         val pages = Events.select(Events.path, Events.path.count())
                             .where {
                                 (Events.projectId eq projectId) and
-                                (Events.eventType eq "pageview") and
-                                (Events.timestamp greaterEq start) and
-                                (Events.timestamp lessEq end)
+                                        (Events.eventType eq "pageview") and
+                                        (Events.timestamp greaterEq start) and
+                                        (Events.timestamp lessEq end)
                             }
                             .groupBy(Events.path)
                             .orderBy(Events.path.count(), SortOrder.DESC)
@@ -152,6 +157,7 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     is RateLimitResult.Exceeded -> return@get call.respond(
                         HttpStatusCode.TooManyRequests, mapOf("error" to "Rate limit exceeded")
                     )
+
                     else -> {}
                 }
 
@@ -165,9 +171,9 @@ fun Application.configureWidgetRouting(config: AppConfig, rateLimiter: RateLimit
                     transaction {
                         val events = Events.selectAll().where {
                             (Events.projectId eq projectId) and
-                            (Events.eventType eq "pageview") and
-                            (Events.timestamp greaterEq start) and
-                            (Events.timestamp less end)
+                                    (Events.eventType eq "pageview") and
+                                    (Events.timestamp greaterEq start) and
+                                    (Events.timestamp less end)
                         }.toList()
 
                         val countsByDay = events.groupBy { it[Events.timestamp].toLocalDate() }

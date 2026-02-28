@@ -22,20 +22,32 @@ import java.time.Duration
 
 
 /**
- * Verify username and password against configuration
- * @param username Username to verify
- * @param password Plain text password
- * @param config Application configuration
- * @param logger Logger for security events
- * @return True if credentials are valid
+ * Verify username and password, checking the database first then `.env` config.
+ *
+ * Authentication is **BCrypt-only** — plain-text passwords in the config are
+ * rejected with an error log. The function also enforces brute-force protection:
+ * after 5 consecutive failures for the same username, the account is locked out
+ * for 15 minutes (tracked via a Caffeine cache that auto-expires after 15 min
+ * of inactivity).
+ *
+ * ## Lookup order
+ * 1. Query the `users` table for an active user with a matching username.
+ * 2. If no DB user is found (e.g. during setup or for legacy `.env`-only
+ *    installs), fall back to the admin credentials from [AppConfig].
+ *
+ * @param username Username to verify.
+ * @param password Plain-text password (compared against BCrypt hash).
+ * @param config   Application configuration (fallback credentials).
+ * @param logger   Logger for audit trail of login attempts.
+ * @return `true` if credentials are valid, `false` otherwise.
  */
-fun verifyCredentials(username: String, password: String, config: AppConfig, logger: org.slf4j.Logger): Boolean {
-    // Cache for tracking login attempts by username. Expires after 15 minutes of inactivity
-    val loginAttempts: Cache<String, LoginAttempt> = Caffeine.newBuilder()
-        .expireAfterAccess(Duration.ofMinutes(15))
-        .maximumSize(1000)
-        .build()
+/** Tracks failed login attempts by username for brute-force protection. Expires after 15 min of inactivity. */
+private val loginAttempts: Cache<String, LoginAttempt> = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofMinutes(15))
+    .maximumSize(1000)
+    .build()
 
+fun verifyCredentials(username: String, password: String, config: AppConfig, logger: org.slf4j.Logger): Boolean {
     // Check if username is locked out
     val attempt = loginAttempts.get(username) { LoginAttempt() }!!
     val now = System.currentTimeMillis()
@@ -136,8 +148,25 @@ fun recordFailedAttempt(identifier: String, attempt: LoginAttempt, logger: org.s
 }
 
 /**
- * Configure session-based authentication for the admin panel
- * Uses cookie sessions instead of HTTP Basic Auth for better UX
+ * Install Ktor authentication plugins — cookie sessions + JWT.
+ *
+ * ## Cookie sessions (`"admin-session"`)
+ * Used by the browser-based admin panel. The session cookie is:
+ * - `HttpOnly` (not accessible from JavaScript — prevents XSS theft).
+ * - `Secure` in production (requires HTTPS).
+ * - `SameSite=Strict` (prevents CSRF by refusing cross-origin requests).
+ * - Valid for 7 days, but a 4-hour inactivity timeout is enforced
+ *   server-side inside the `validate` block.
+ *
+ * ## JWT (`"api-jwt"`)
+ * Used for programmatic API access (e.g. CI/CD integrations, mobile apps).
+ * Tokens are signed with HMAC-SHA256 using the server salt as the secret.
+ * During setup mode a dummy verifier is installed so Ktor can start
+ * without a valid secret; real validation kicks in once services are ready.
+ *
+ * @param config Application configuration (used for cookie `Secure` flag
+ *               and as fallback JWT secret in case JwtService is not yet
+ *               initialised).
  */
 fun Application.configureSecurity(config: AppConfig) {
     install(Sessions) {

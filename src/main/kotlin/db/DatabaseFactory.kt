@@ -5,19 +5,30 @@ import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import se.onemanstudio.config.models.DatabaseConfig
 import se.onemanstudio.config.models.DatabaseType
-import java.time.LocalDateTime
-import java.util.UUID
 
 /**
- * Database factory for initializing and managing database connections
- * Supports both SQLite and PostgreSQL based on configuration
+ * Database lifecycle manager — connects, migrates, and tears down the database.
+ *
+ * Supports two backends selected by the `DB_TYPE` environment variable:
+ * - **SQLite** — single-file, zero-config, ideal for small/medium deployments.
+ *   Connected directly via JDBC (no connection pool needed).
+ * - **PostgreSQL** — production-grade with HikariCP connection pooling,
+ *   repeatable-read isolation, and configurable pool size.
+ *
+ * On [init], Exposed's `SchemaUtils.createMissingTablesAndColumns` is called
+ * which handles both initial table creation and forward-compatible schema
+ * evolution (new columns are added automatically without data loss).
+ *
+ * [close] cleanly shuts down the HikariCP pool (PostgreSQL) or is a no-op
+ * (SQLite). It is safe to call multiple times.
  */
 object DatabaseFactory {
+    private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
+
     // Store data source for cleanup on shutdown
     private var dataSource: HikariDataSource? = null
 
@@ -159,7 +170,7 @@ object DatabaseFactory {
             dataSource = null
         } catch (e: Exception) {
             // Log error but don't throw - shutdown should continue
-            println("Error closing database connection: ${e.message}")
+            logger.error("Error closing database connection: ${e.message}", e)
         }
     }
 }

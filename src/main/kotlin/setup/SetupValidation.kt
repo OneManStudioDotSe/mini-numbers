@@ -133,7 +133,7 @@ object SetupValidation {
                 if (db.pgPassword.isNullOrBlank()) {
                     errors["dbPgPassword"] = "PostgreSQL password is required"
                 }
-                if (db.pgMaxPoolSize != null && (db.pgMaxPoolSize < 1 || db.pgMaxPoolSize > 50)) {
+                if (db.pgMaxPoolSize != null && (db.pgMaxPoolSize !in 1..50)) {
                     errors["dbPgMaxPoolSize"] = "PostgreSQL pool size must be between 1 and 50"
                 }
             }
@@ -147,7 +147,7 @@ object SetupValidation {
      * Validate server configuration
      */
     private fun validateServer(server: ServerSetupDTO, errors: MutableMap<String, String>) {
-        if (server.port < 1 || server.port > 65535) {
+        if (server.port !in 1..65535) {
             errors["serverPort"] = "Server port must be between 1 and 65535"
         }
         // isDevelopment is a boolean, no validation needed
@@ -168,10 +168,10 @@ object SetupValidation {
      * Validate rate limiting configuration
      */
     private fun validateRateLimit(rateLimit: RateLimitSetupDTO, errors: MutableMap<String, String>) {
-        if (rateLimit.perIp < 1 || rateLimit.perIp > 1000000) {
+        if (rateLimit.perIp !in 1..1000000) {
             errors["rateLimitPerIp"] = "Rate limit per IP must be between 1 and 1,000,000"
         }
-        if (rateLimit.perApiKey < 1 || rateLimit.perApiKey > 1000000) {
+        if (rateLimit.perApiKey !in 1..1000000) {
             errors["rateLimitPerApiKey"] = "Rate limit per API key must be between 1 and 1,000,000"
         }
     }

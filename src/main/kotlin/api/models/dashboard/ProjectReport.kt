@@ -1,8 +1,7 @@
-package se.onemanstudio.api.models
+package se.onemanstudio.api.models.dashboard
 
 import kotlinx.serialization.Serializable
-import se.onemanstudio.api.models.dashboard.ActivityCell
-import se.onemanstudio.api.models.dashboard.PeakTimeAnalysis
+import se.onemanstudio.api.models.StatEntry
 
 @Serializable
 data class ProjectReport(

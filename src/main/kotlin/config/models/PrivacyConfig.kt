@@ -15,6 +15,6 @@ data class PrivacyConfig(
  */
 enum class PrivacyMode {
     STANDARD,  // Default: collects all analytics (country, city, browser, OS, device)
-    STRICT,    // No city-level geolocation, no browser/OS details
+    STRICT,    // Country-only geolocation (no city/region/coordinates), full browser/OS/device
     PARANOID   // No geolocation at all, no user agent parsing, minimal data
 }

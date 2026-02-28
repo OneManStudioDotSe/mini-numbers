@@ -1,7 +1,7 @@
 package se.onemanstudio.middleware
 
 import org.junit.Test
-import se.onemanstudio.api.models.PageViewPayload
+import se.onemanstudio.api.models.collection.PageViewPayload
 import kotlin.test.*
 
 /**

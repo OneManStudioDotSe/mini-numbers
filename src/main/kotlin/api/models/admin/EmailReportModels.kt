@@ -1,4 +1,4 @@
-package se.onemanstudio.api.models
+package se.onemanstudio.api.models.admin
 
 import kotlinx.serialization.Serializable
 

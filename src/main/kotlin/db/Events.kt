@@ -4,6 +4,29 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 import java.time.LocalDateTime
 
+/**
+ * Core analytics table — every tracked interaction is stored as a single row here.
+ *
+ * ## Event types
+ * | `eventType`  | Meaning                                                    |
+ * |--------------|------------------------------------------------------------|
+ * | `pageview`   | A page was loaded or navigated to (SPA push-state).        |
+ * | `heartbeat`  | Periodic ping proving the visitor is still on the page.    |
+ * | `custom`     | Developer-defined event via `MiniNumbers.track("name")`.   |
+ * | `scroll`     | Scroll-depth milestone (0-100 %) reached.                  |
+ * | `outbound`   | Click on an external link.                                 |
+ * | `download`   | Click on a file-download link.                             |
+ *
+ * ## Privacy
+ * `visitorHash` is a rotating SHA-256 hash (see [AnalyticsSecurity]).
+ * Raw IP addresses are **never** persisted. Geographic data (`country`,
+ * `city`, `region`, `latitude`, `longitude`) comes from in-memory GeoIP
+ * lookups and can be omitted entirely in STRICT or PARANOID privacy modes.
+ *
+ * ## Performance
+ * 11 composite indexes cover the most common analytics query patterns
+ * (time-range scans, per-project aggregation, session grouping, etc.).
+ */
 object Events : Table("events") {
     val id = long("id").autoIncrement()
     val projectId = uuid("project_id").references(Projects.id)

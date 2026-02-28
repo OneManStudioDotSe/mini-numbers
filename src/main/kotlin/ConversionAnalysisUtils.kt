@@ -1,3 +1,22 @@
+/**
+ * Conversion tracking engine — goals and funnels.
+ *
+ * ## Goals
+ * A goal is a simple pass/fail test: did a session visit a specific URL
+ * (`url` type) or fire a specific custom event (`event` type)?
+ * [calculateGoalConversions] counts how many unique sessions matched the
+ * goal pattern in the time window and returns a conversion rate.
+ * [calculateGoalStats] wraps this with current-vs-previous-period
+ * comparison for each active goal in a project.
+ *
+ * ## Funnels
+ * A funnel is an ordered list of steps (each step is a URL or event goal).
+ * [analyzeFunnel] walks through all sessions and checks whether they
+ * completed each step **in order** — a session qualifies for step N only
+ * if it already completed steps 1 … N-1 and the matching event happened
+ * **after** the previous step's event timestamp. This produces drop-off
+ * rates and average time-between-steps for each stage.
+ */
 package se.onemanstudio
 
 import org.jetbrains.exposed.sql.SortOrder
@@ -8,19 +27,14 @@ import se.onemanstudio.db.ConversionGoals
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.FunnelSteps
 import se.onemanstudio.db.Funnels
-import se.onemanstudio.api.models.GoalResponse
-import se.onemanstudio.api.models.GoalStats
-import se.onemanstudio.api.models.FunnelAnalysis
-import se.onemanstudio.api.models.FunnelResponse
-import se.onemanstudio.api.models.FunnelStepAnalysis
-import se.onemanstudio.api.models.FunnelStepResponse
+import se.onemanstudio.api.models.admin.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.UUID
 
 /**
  * Calculate conversions for a single goal within a time period.
- * Returns pair of (conversion count, conversion rate as percentage).
+ * Returns a pair of (conversion count, conversion rate as percentage).
  */
 fun calculateGoalConversions(
     goalType: String,
@@ -162,7 +176,7 @@ fun analyzeFunnel(
 
         // Group events by session, sorted by timestamp within each session
         val sessionEvents = events.groupBy { it[Events.sessionId] }
-            .mapValues { (_, evts) -> evts.sortedBy { it[Events.timestamp] } }
+            .mapValues { (_, events) -> events.sortedBy { it[Events.timestamp] } }
 
         val totalSessions = sessionEvents.size.toLong()
 
@@ -185,10 +199,10 @@ fun analyzeFunnel(
             var timeDiffCount = 0
 
             for ((sessionId, afterTimestamp) in qualifiedSessions) {
-                val sessionEvts = sessionEvents[sessionId] ?: continue
+                val sessionEvents = sessionEvents[sessionId] ?: continue
 
                 // Find the first matching event that occurs after the previous step's timestamp
-                val matchingEvent = sessionEvts.firstOrNull { evt ->
+                val matchingEvent = sessionEvents.firstOrNull { evt ->
                     val eventTime = evt[Events.timestamp]
                     val isAfterPrevious = if (index == 0) true else eventTime.isAfter(afterTimestamp)
 

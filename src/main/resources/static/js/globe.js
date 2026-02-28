@@ -115,15 +115,16 @@ const GlobeManager = {
       .pointAltitude(d => Math.min(d.count * 0.008, 0.25))
       .pointRadius(d => 0.25 + Math.min(d.count * 0.04, 0.6))
       .pointColor(() => isDark ? '#a78bfa' : '#6366f1')
-      // Labels layer — city/country name for significant locations
-      .labelsData((data || []).filter(d => d.count >= 3))
+      // Labels layer — city/country name floating above each bar
+      .labelsData(data || [])
       .labelLat(d => d.lat)
       .labelLng(d => d.lng)
       .labelText(d => `${d.city || d.country || 'Unknown'} (${d.count})`)
-      .labelSize(0.6)
+      .labelSize(d => 0.4 + Math.min(d.count * 0.05, 0.4))
       .labelColor(() => isDark ? '#e2e8f0' : '#1e293b')
-      .labelDotRadius(0.2)
-      .labelAltitude(0.01);
+      .labelDotRadius(0)
+      .labelAltitude(d => Math.min(d.count * 0.008, 0.25) + 0.02)
+      .labelResolution(2);
 
     // Auto-rotate
     const controls = this.instance.controls();
@@ -169,7 +170,7 @@ const GlobeManager = {
     this.instance
       .ringsData(data)
       .pointsData(data)
-      .labelsData(data.filter(d => d.count >= 3));
+      .labelsData(data);
   },
 
   /**
