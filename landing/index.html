@@ -30,14 +30,13 @@
     <a href="#" class="landing-nav-brand" aria-label="Mini Numbers home">
       <i class="ri-bar-chart-grouped-line"></i>
       Mini Numbers
-      <span class="landing-nav-version">v1.0</span>
+      <span class="landing-nav-version">v1.0.0-beta</span>
     </a>
 
     <ul class="landing-nav-links" id="nav-links" role="list">
       <li><a href="#features">Features</a></li>
       <li><a href="#privacy">Privacy</a></li>
-      <li><a href="#tracker">Tracker</a></li>
-      <li><a href="#widgets">Widgets</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
       <li><a href="#installation">Installation</a></li>
     </ul>
 
@@ -47,6 +46,9 @@
       </button>
       <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn-ghost" aria-label="View on GitHub">
         <i class="ri-github-fill"></i>
+      </a>
+      <a href="/login" class="landing-btn-ghost" aria-label="Login to dashboard">
+        <i class="ri-dashboard-line"></i>
       </a>
       <a href="#installation" class="landing-btn landing-btn-primary">Get Started</a>
       <button class="landing-nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
@@ -60,6 +62,7 @@
      2. HERO
      ============================================ -->
 <section class="landing-hero" aria-label="Introduction">
+  <canvas class="numbers-canvas" id="numbers-canvas" aria-hidden="true"></canvas>
   <div class="landing-hero-content">
     <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-hero-badge">
       <i class="ri-github-line"></i>
@@ -67,10 +70,10 @@
       <i class="ri-arrow-right-up-line"></i>
     </a>
 
-    <h1>Web analytics that respect your visitors</h1>
+    <h1>Web analytics that <span class="landing-gradient-text">respect your visitors</span></h1>
 
     <p class="landing-hero-sub">
-      Privacy-first, self-hosted analytics in a 1.3KB script. No cookies. No IP storage. No GDPR headaches. Just the insights you need.
+      Privacy-first, self-hosted analytics in a 1.3KB script. No cookies. No IP storage. No GDPR headaches. <strong>Now with revenue tracking and smart webhooks.</strong>
     </p>
 
     <div class="landing-hero-actions">
@@ -155,7 +158,7 @@
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-3">
         <div class="landing-metric-icon"><i class="ri-test-tube-line"></i></div>
-        <div class="landing-metric-value" data-count="166">0</div>
+        <div class="landing-metric-value" data-count="288">0</div>
         <div class="landing-metric-label">Automated Tests</div>
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-4">
@@ -195,6 +198,9 @@
       </button>
       <button class="landing-tab-btn" data-tab="api" role="tab" aria-selected="false">
         <i class="ri-code-box-line"></i> Export & API
+      </button>
+      <button class="landing-tab-btn" data-tab="widgets" role="tab" aria-selected="false">
+        <i class="ri-layout-grid-line"></i> Widgets
       </button>
     </div>
 
@@ -415,6 +421,132 @@
         </div>
       </div>
     </div>
+
+    <!-- Widgets tab -->
+    <div class="landing-tab-content" data-tab="widgets" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>Embeddable widgets for your site</h3>
+        <p>Show real-time stats on your website with lightweight, self-updating widgets. Drop in a script tag and you're done.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> Real-time visitor counter with live pulse</li>
+          <li><i class="ri-check-line"></i> Page views badge (daily, weekly, monthly)</li>
+          <li><i class="ri-check-line"></i> Top pages ranked list</li>
+          <li><i class="ri-check-line"></i> Sparkline trend chart (inline SVG)</li>
+          <li><i class="ri-check-line"></i> Auto-polls every 12 seconds</li>
+        </ul>
+      </div>
+      <div class="landing-feature-visual">
+        <div style="display:flex;flex-direction:column;gap:var(--spacing-lg);align-items:center;">
+          <div class="landing-w-realtime">
+            <span class="landing-w-dot"></span>
+            <span class="landing-w-count" id="widget-demo-count">3</span>
+            <span class="landing-w-label">visitors online</span>
+          </div>
+          <div class="landing-w-pageviews">
+            <span class="landing-w-pv-count">1,234</span>
+            <span class="landing-w-pv-label">views this week</span>
+          </div>
+          <svg width="120" height="32" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6 118,30 2,30" fill="var(--color-primary)" fill-opacity="0.15"/>
+            <polyline points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     4b. REVENUE INTELLIGENCE
+     ============================================ -->
+<section class="landing-section" aria-label="Revenue Intelligence" style="overflow: hidden;">
+  <div class="landing-container">
+    <div class="landing-section-header animate-on-scroll">
+      <h2 class="landing-section-title">Know where your <span class="landing-gradient-text">money</span> comes from</h2>
+      <p class="landing-section-subtitle">Go beyond page views. Track revenue, attribute income to traffic sources, and understand which channels actually drive your business.</p>
+    </div>
+
+    <div class="landing-revenue-grid animate-on-scroll">
+      <!-- Revenue mockup dashboard -->
+      <div class="landing-revenue-mockup">
+        <div class="landing-revenue-stats">
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Total Revenue</div>
+            <div class="landing-revenue-card-value" data-count="12847" data-prefix="$">$0</div>
+            <div class="landing-revenue-card-change"><i class="ri-arrow-up-s-line"></i> +23.4%</div>
+          </div>
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Avg Order Value</div>
+            <div class="landing-revenue-card-value">$47.20</div>
+          </div>
+          <div class="landing-revenue-card">
+            <div class="landing-revenue-card-label">Revenue / Visitor</div>
+            <div class="landing-revenue-card-value">$3.90</div>
+          </div>
+        </div>
+
+        <!-- Attribution bars -->
+        <div class="landing-revenue-attribution">
+          <div class="landing-revenue-bar-label">Revenue Attribution</div>
+          <div class="landing-revenue-bar" style="--bar-width: 85%;">
+            <span class="landing-revenue-bar-name">Google (organic)</span>
+            <span class="landing-revenue-bar-amount">$4,291</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 62%;">
+            <span class="landing-revenue-bar-name">Newsletter campaign</span>
+            <span class="landing-revenue-bar-amount">$3,128</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 45%;">
+            <span class="landing-revenue-bar-name">Twitter / X</span>
+            <span class="landing-revenue-bar-amount">$2,103</span>
+          </div>
+          <div class="landing-revenue-bar" style="--bar-width: 30%;">
+            <span class="landing-revenue-bar-name">Direct traffic</span>
+            <span class="landing-revenue-bar-amount">$1,847</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature highlights -->
+      <div class="landing-revenue-features">
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-money-dollar-circle-line"></i>
+          <h3>Revenue Tracking</h3>
+          <p>Track purchases, subscriptions, and any monetary event with a single API call. Works with Stripe, Shopify, WooCommerce, and any payment system.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-route-line"></i>
+          <h3>Revenue Attribution</h3>
+          <p>See which referrers and UTM campaigns generate actual revenue — not just clicks. Optimize your marketing spend based on real data.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-webhook-line"></i>
+          <h3>Smart Webhooks</h3>
+          <p>Get real-time alerts when goals convert or traffic spikes. Integrate with Slack, Discord, Zapier, or your own server.</p>
+        </div>
+        <div class="landing-revenue-feature animate-on-scroll">
+          <i class="ri-mail-send-line"></i>
+          <h3>Email Reports</h3>
+          <p>Scheduled analytics reports delivered to your inbox. Daily, weekly, or monthly — with customizable templates and sections.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple code example -->
+    <div class="landing-revenue-code animate-on-scroll">
+      <div class="landing-code-header">
+        <span class="landing-code-dot" style="background: #ef4444;"></span>
+        <span class="landing-code-dot" style="background: #f59e0b;"></span>
+        <span class="landing-code-dot" style="background: #10b981;"></span>
+        <span style="margin-left: 0.5rem; font-size: 0.8rem; opacity: 0.7;">tracking.js</span>
+      </div>
+      <pre class="landing-code-body"><code><span style="color: var(--color-text-muted);">// Track a purchase — that's it!</span>
+MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
+  revenue: <span style="color: #10b981;">49.99</span>,
+  currency: <span style="color: #f59e0b;">"USD"</span>,
+  product: <span style="color: #f59e0b;">"Pro Plan"</span>
+});</code></pre>
+    </div>
   </div>
 </section>
 
@@ -521,261 +653,51 @@
 </section>
 
 <!-- ============================================
-     6. TRACKER INTEGRATION
+     6. HOW IT WORKS
      ============================================ -->
-<section id="tracker" class="landing-section" aria-label="Tracker">
+<section id="how-it-works" class="landing-section" aria-label="How it works">
   <div class="landing-container">
     <div class="landing-section-header animate-on-scroll">
-      <h2 class="landing-section-title">Add analytics in 30 seconds</h2>
-      <p class="landing-section-subtitle">One script tag. That's it. No build step, no configuration files, no dependencies.</p>
+      <h2 class="landing-section-title">Up and running in 3 steps</h2>
+      <p class="landing-section-subtitle">From zero to analytics in minutes. No complex setup, no dependencies to manage.</p>
     </div>
 
-    <div class="landing-tracker-layout">
-      <div>
-        <div class="landing-code-block animate-on-scroll">
-          <div class="landing-code-bar">
-            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-            <span class="landing-code-title">index.html</span>
-            <button class="landing-copy-btn" data-code='<script async src="https://your-domain.com/tracker/tracker.js" data-project-key="YOUR_API_KEY"></script>'><i class="ri-file-copy-line"></i> Copy</button>
-          </div>
-          <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">async</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/tracker/tracker.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-          </div>
-        </div>
-
-        <!-- Size comparison -->
-        <div class="landing-size-bars animate-on-scroll">
-          <div class="landing-size-bar">
-            <span class="landing-size-bar-label">Mini Numbers</span>
-            <div class="landing-size-bar-track">
-              <div class="landing-size-bar-fill highlight" data-width="3">1.3KB</div>
-            </div>
-          </div>
-          <div class="landing-size-bar">
-            <span class="landing-size-bar-label">Plausible</span>
-            <div class="landing-size-bar-track">
-              <div class="landing-size-bar-fill muted" data-width="2.3">1KB</div>
-            </div>
-          </div>
-          <div class="landing-size-bar">
-            <span class="landing-size-bar-label">Umami</span>
-            <div class="landing-size-bar-track">
-              <div class="landing-size-bar-fill muted" data-width="4.5">2KB</div>
-            </div>
-          </div>
-          <div class="landing-size-bar">
-            <span class="landing-size-bar-label">Matomo</span>
-            <div class="landing-size-bar-track">
-              <div class="landing-size-bar-fill muted" data-width="48">21KB</div>
-            </div>
-          </div>
-          <div class="landing-size-bar">
-            <span class="landing-size-bar-label">PostHog</span>
-            <div class="landing-size-bar-track">
-              <div class="landing-size-bar-fill muted" data-width="100">44KB</div>
-            </div>
-          </div>
-        </div>
+    <div class="landing-how-steps">
+      <div class="landing-how-step animate-on-scroll animate-delay-1" data-animate="scale-in">
+        <div class="landing-how-step-number">1</div>
+        <i class="ri-install-line landing-how-step-icon"></i>
+        <h3>Install</h3>
+        <p>Clone and start with a single Docker Compose command. Works on any platform.</p>
+        <code>docker compose up -d</code>
       </div>
 
-      <div>
-        <div class="landing-tracker-features animate-on-scroll">
-          <div class="landing-tracker-feature">
-            <i class="ri-route-line"></i>
-            <h4>SPA Ready</h4>
-            <p>Auto-patches pushState, replaceState, and popstate events</p>
-          </div>
-          <div class="landing-tracker-feature">
-            <i class="ri-flashlight-line"></i>
-            <h4>Custom Events</h4>
-            <p>Track any interaction with MiniNumbers.track()</p>
-          </div>
-          <div class="landing-tracker-feature">
-            <i class="ri-download-line"></i>
-            <h4>Auto-detect</h4>
-            <p>Downloads, outbound links, and scroll depth tracked automatically</p>
-          </div>
-        </div>
-
-        <div style="margin-top:var(--spacing-xl)" class="animate-on-scroll">
-          <div class="landing-code-block">
-            <div class="landing-code-bar">
-              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-              <span class="landing-code-title">Configuration options</span>
-            </div>
-            <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">async</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/tracker/tracker.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
-  <span class="hl-attr">data-heartbeat-interval</span>=<span class="hl-val">"30000"</span>
-  <span class="hl-attr">data-disable-spa</span>=<span class="hl-val">"false"</span>
-  <span class="hl-attr">data-api-endpoint</span>=<span class="hl-val">"https://analytics.example.com"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-          </div>
-        </div>
+      <div class="landing-how-step animate-on-scroll animate-delay-2" data-animate="scale-in">
+        <div class="landing-how-step-number">2</div>
+        <i class="ri-settings-3-line landing-how-step-icon"></i>
+        <h3>Configure</h3>
+        <p>Browser-based setup wizard. 5 steps, zero restart. Set credentials, database, and CORS.</p>
+        <code>visit your-domain.com/setup</code>
       </div>
+
+      <div class="landing-how-step animate-on-scroll animate-delay-3" data-animate="scale-in">
+        <div class="landing-how-step-number">3</div>
+        <i class="ri-line-chart-line landing-how-step-icon"></i>
+        <h3>Analyze</h3>
+        <p>Add one script tag to your site and start seeing data in your dashboard immediately.</p>
+        <code>&lt;script src=".../tracker.js"&gt;</code>
+      </div>
+    </div>
+
+    <div style="text-align:center;" class="animate-on-scroll">
+      <a href="/landing/setup-guide.html" class="landing-btn landing-btn-secondary landing-btn-lg">
+        <i class="ri-book-open-line"></i> Read the Full Setup Guide
+      </a>
     </div>
   </div>
 </section>
 
 <!-- ============================================
-     7. EMBEDDABLE WIDGETS
-     ============================================ -->
-<section id="widgets" class="landing-section landing-section-alt" aria-label="Widgets">
-  <div class="landing-container">
-    <div class="landing-section-header animate-on-scroll">
-      <h2 class="landing-section-title">Embeddable widgets for your website</h2>
-      <p class="landing-section-subtitle">Show real-time stats on your site with lightweight, self-updating widgets.</p>
-    </div>
-
-    <div class="landing-widgets-grid">
-      <!-- Real-time Counter -->
-      <div class="landing-widget-card animate-on-scroll animate-delay-1">
-        <div class="landing-widget-preview">
-          <div class="landing-w-realtime">
-            <span class="landing-w-dot"></span>
-            <span class="landing-w-count" id="widget-demo-count">3</span>
-            <span class="landing-w-label">visitors online</span>
-          </div>
-        </div>
-        <h4>Real-time Counter</h4>
-        <p>Live visitor count with pulsing indicator. Auto-polls every 12 seconds.</p>
-        <button class="landing-widget-toggle" data-widget="realtime">
-          <i class="ri-code-line"></i> View Code
-        </button>
-        <div class="landing-widget-code" data-widget="realtime">
-          <div class="landing-code-block">
-            <div class="landing-code-bar">
-              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="realtime"></script>'><i class="ri-file-copy-line"></i> Copy</button>
-            </div>
-            <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
-  <span class="hl-attr">data-widget</span>=<span class="hl-val">"realtime"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Page Views Badge -->
-      <div class="landing-widget-card animate-on-scroll animate-delay-2">
-        <div class="landing-widget-preview">
-          <div class="landing-w-pageviews">
-            <span class="landing-w-pv-count">1,234</span>
-            <span class="landing-w-pv-label">views this week</span>
-          </div>
-        </div>
-        <h4>Page Views Badge</h4>
-        <p>Show view counts for your entire site or a specific page.</p>
-        <button class="landing-widget-toggle" data-widget="pageviews">
-          <i class="ri-code-line"></i> View Code
-        </button>
-        <div class="landing-widget-code" data-widget="pageviews">
-          <div class="landing-code-block">
-            <div class="landing-code-bar">
-              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="pageviews" data-filter="7d"></script>'><i class="ri-file-copy-line"></i> Copy</button>
-            </div>
-            <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
-  <span class="hl-attr">data-widget</span>=<span class="hl-val">"pageviews"</span>
-  <span class="hl-attr">data-filter</span>=<span class="hl-val">"7d"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top Pages -->
-      <div class="landing-widget-card animate-on-scroll animate-delay-3">
-        <div class="landing-widget-preview">
-          <div class="landing-w-toppages">
-            <div class="landing-w-toppages-title">Popular pages</div>
-            <div class="landing-w-tp-row">
-              <span class="landing-w-tp-name">/blog/getting-started</span>
-              <span class="landing-w-tp-bar" style="width:80px"></span>
-              <span class="landing-w-tp-views">342</span>
-            </div>
-            <div class="landing-w-tp-row">
-              <span class="landing-w-tp-name">/docs/api</span>
-              <span class="landing-w-tp-bar" style="width:55px"></span>
-              <span class="landing-w-tp-views">231</span>
-            </div>
-            <div class="landing-w-tp-row">
-              <span class="landing-w-tp-name">/pricing</span>
-              <span class="landing-w-tp-bar" style="width:40px"></span>
-              <span class="landing-w-tp-views">178</span>
-            </div>
-          </div>
-        </div>
-        <h4>Top Pages</h4>
-        <p>Ranked list of your most popular pages with proportional bars.</p>
-        <button class="landing-widget-toggle" data-widget="toppages">
-          <i class="ri-code-line"></i> View Code
-        </button>
-        <div class="landing-widget-code" data-widget="toppages">
-          <div class="landing-code-block">
-            <div class="landing-code-bar">
-              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="toppages" data-limit="5"></script>'><i class="ri-file-copy-line"></i> Copy</button>
-            </div>
-            <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
-  <span class="hl-attr">data-widget</span>=<span class="hl-val">"toppages"</span>
-  <span class="hl-attr">data-limit</span>=<span class="hl-val">"5"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sparkline -->
-      <div class="landing-widget-card animate-on-scroll animate-delay-4">
-        <div class="landing-widget-preview">
-          <svg width="120" height="32" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6 118,30 2,30" fill="var(--color-primary)" fill-opacity="0.15"/>
-            <polyline points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h4>Sparkline Chart</h4>
-        <p>Tiny 7-day trend chart. Inline SVG, no libraries needed.</p>
-        <button class="landing-widget-toggle" data-widget="sparkline">
-          <i class="ri-code-line"></i> View Code
-        </button>
-        <div class="landing-widget-code" data-widget="sparkline">
-          <div class="landing-code-block">
-            <div class="landing-code-bar">
-              <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-              <button class="landing-copy-btn" data-code='<script src="https://your-domain.com/widget/widget.js" data-project-key="YOUR_KEY" data-widget="sparkline"></script>'><i class="ri-file-copy-line"></i> Copy</button>
-            </div>
-            <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-domain.com/widget/widget.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_KEY"</span>
-  <span class="hl-attr">data-widget</span>=<span class="hl-val">"sparkline"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================
-     8. INSTALLATION
+     7. INSTALLATION
      ============================================ -->
 <section id="installation" class="landing-section" aria-label="Installation">
   <div class="landing-container">
@@ -870,53 +792,7 @@ java -jar build/libs/mini-numbers-all.jar
 </section>
 
 <!-- ============================================
-     9. SETUP WIZARD PREVIEW
-     ============================================ -->
-<section class="landing-section landing-section-alt" aria-label="Setup wizard">
-  <div class="landing-container">
-    <div class="landing-section-header animate-on-scroll">
-      <h2 class="landing-section-title">Configure everything from the browser</h2>
-      <p class="landing-section-subtitle">No config files to edit. The setup wizard handles everything with zero-restart architecture.</p>
-    </div>
-
-    <div class="landing-wizard-stepper animate-on-scroll">
-      <div class="landing-wizard-step">
-        <div class="landing-wizard-step-num">1</div>
-        <div class="landing-wizard-step-label">Security</div>
-        <div class="landing-wizard-step-desc">Username, password, salt</div>
-      </div>
-      <div class="landing-wizard-step">
-        <div class="landing-wizard-step-num">2</div>
-        <div class="landing-wizard-step-label">Database</div>
-        <div class="landing-wizard-step-desc">SQLite or PostgreSQL</div>
-      </div>
-      <div class="landing-wizard-step">
-        <div class="landing-wizard-step-num">3</div>
-        <div class="landing-wizard-step-label">Server</div>
-        <div class="landing-wizard-step-desc">Port, CORS, dev mode</div>
-      </div>
-      <div class="landing-wizard-step">
-        <div class="landing-wizard-step-num">4</div>
-        <div class="landing-wizard-step-label">Advanced</div>
-        <div class="landing-wizard-step-desc">GeoIP, rate limits</div>
-      </div>
-      <div class="landing-wizard-step">
-        <div class="landing-wizard-step-num">5</div>
-        <div class="landing-wizard-step-label">Review</div>
-        <div class="landing-wizard-step-desc">Confirm and launch</div>
-      </div>
-    </div>
-
-    <div style="text-align:center" class="animate-on-scroll">
-      <p style="font-size:var(--font-size-base);color:var(--color-text-secondary);max-width:500px;margin:0 auto;line-height:var(--line-height-relaxed)">
-        Save your configuration and services start immediately. No restart, no downtime, no SSH required.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================
-     10. COMPETITIVE COMPARISON
+     8. COMPETITIVE COMPARISON
      ============================================ -->
 <section class="landing-section" aria-label="Comparison">
   <div class="landing-container">
@@ -1051,12 +927,22 @@ java -jar build/libs/mini-numbers-all.jar
       </div>
 
       <div>
+        <h4>Product</h4>
+        <ul class="landing-footer-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="/landing/how-it-works.html">How It Works</a></li>
+          <li><a href="/landing/setup-guide.html">Setup Guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+      </div>
+
+      <div>
         <h4>Resources</h4>
         <ul class="landing-footer-links">
-          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/DASHBOARD_GUIDE.md" target="_blank" rel="noopener">Dashboard Guide</a></li>
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/PRIVACY.md" target="_blank" rel="noopener">Privacy Architecture</a></li>
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
+          <li><a href="/landing/contact.html">Contact</a></li>
         </ul>
       </div>
 
@@ -1064,7 +950,8 @@ java -jar build/libs/mini-numbers-all.jar
         <h4>Legal</h4>
         <ul class="landing-footer-links">
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></li>
-          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+          <li><a href="/landing/terms.html">Terms of Service</a></li>
+          <li><a href="/landing/privacy-policy.html">Privacy Policy</a></li>
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Code of Conduct</a></li>
         </ul>
       </div>
@@ -1072,7 +959,7 @@ java -jar build/libs/mini-numbers-all.jar
 
     <div class="landing-footer-bottom">
       <span>Made for the open web. Built by developers, for developers.</span>
-      <span>&copy; 2025 Mini Numbers. MIT License.</span>
+      <span>&copy; 2026 Mini Numbers. MIT License.</span>
     </div>
   </div>
 </footer>
