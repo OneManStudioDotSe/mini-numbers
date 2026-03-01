@@ -78,7 +78,7 @@
      ============================================ */
   const ScrollAnimator = {
     init() {
-      const els = document.querySelectorAll('.animate-on-scroll');
+      const els = document.querySelectorAll('.animate-on-scroll, [data-animate]');
       if (!els.length) return;
 
       const observer = new IntersectionObserver((entries) => {
@@ -118,8 +118,8 @@
     animate(el) {
       const text = el.getAttribute('data-text');
       if (text) {
-        // Static text like "Zero" — just set it
         el.textContent = text;
+        el.classList.add('counter-animating');
         return;
       }
 
@@ -129,10 +129,11 @@
       const duration = 1500;
       const start = performance.now();
 
+      el.classList.add('counter-animating');
+
       function step(now) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        // Ease out cubic
         const eased = 1 - Math.pow(1 - progress, 3);
         const current = target * eased;
 
@@ -385,6 +386,161 @@
   };
 
   /* ============================================
+     NUMBERS BACKGROUND (Hero Canvas)
+     Floating digits 0-9 as hero background
+     ============================================ */
+  const NumbersBackground = {
+    canvas: null,
+    ctx: null,
+    numbers: [],
+    raf: null,
+    paused: false,
+
+    init() {
+      this.canvas = document.getElementById('numbers-canvas');
+      if (!this.canvas) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      this.ctx = this.canvas.getContext('2d');
+      this.resize();
+      this.createNumbers();
+      this.animate();
+
+      window.addEventListener('resize', () => this.resize());
+
+      // Pause when page hidden (battery saving)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          this.paused = true;
+          if (this.raf) cancelAnimationFrame(this.raf);
+        } else {
+          this.paused = false;
+          this.animate();
+        }
+      });
+    },
+
+    resize() {
+      const rect = this.canvas.parentElement.getBoundingClientRect();
+      this.canvas.width = rect.width;
+      this.canvas.height = rect.height;
+    },
+
+    createNumbers() {
+      const isMobile = window.innerWidth < 768;
+      const count = isMobile ? 20 : 40;
+      this.numbers = [];
+
+      for (let i = 0; i < count; i++) {
+        this.numbers.push({
+          digit: Math.floor(Math.random() * 10).toString(),
+          x: Math.random() * this.canvas.width,
+          y: Math.random() * this.canvas.height,
+          vy: -(Math.random() * 0.4 + 0.1),           // Float upward
+          vx: (Math.random() - 0.5) * 0.3,             // Slight horizontal drift
+          size: Math.random() * 20 + 14,                // 14-34px
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 0.008, // Slow rotation
+          baseOpacity: Math.random() * 0.08 + 0.03,     // Very subtle: 0.03-0.11
+          opacityPhase: Math.random() * Math.PI * 2,     // Pulse phase offset
+          opacitySpeed: Math.random() * 0.01 + 0.005     // Pulse speed
+        });
+      }
+    },
+
+    animate() {
+      if (this.paused || !this.ctx) return;
+      const { width, height } = this.canvas;
+      this.ctx.clearRect(0, 0, width, height);
+
+      this.ctx.font = '600 24px -apple-system, BlinkMacSystemFont, Inter, sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+
+      for (const n of this.numbers) {
+        // Update position
+        n.x += n.vx;
+        n.y += n.vy;
+        n.rotation += n.rotationSpeed;
+        n.opacityPhase += n.opacitySpeed;
+
+        // Pulse opacity
+        const opacity = n.baseOpacity + Math.sin(n.opacityPhase) * 0.02;
+
+        // Wrap around edges
+        if (n.y < -40) {
+          n.y = height + 40;
+          n.x = Math.random() * width;
+          n.digit = Math.floor(Math.random() * 10).toString();
+        }
+        if (n.x < -40) n.x = width + 40;
+        if (n.x > width + 40) n.x = -40;
+
+        // Draw number
+        this.ctx.save();
+        this.ctx.translate(n.x, n.y);
+        this.ctx.rotate(n.rotation);
+        this.ctx.font = `600 ${n.size}px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, opacity)})`;
+        this.ctx.fillText(n.digit, 0, 0);
+        this.ctx.restore();
+      }
+
+      this.raf = requestAnimationFrame(() => this.animate());
+    }
+  };
+
+  /* ============================================
+     BUTTON RIPPLE
+     Material-style ripple on button click
+     ============================================ */
+  const ButtonRipple = {
+    init() {
+      document.querySelectorAll('.landing-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => this.createRipple(e, btn));
+      });
+    },
+
+    createRipple(e, btn) {
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'landing-ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+
+      btn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    }
+  };
+
+  /* ============================================
+     SECTION HEADER REVEAL
+     IntersectionObserver reveals section titles
+     ============================================ */
+  const SectionHeaderReveal = {
+    init() {
+      const titles = document.querySelectorAll('.landing-section-title');
+      if (!titles.length) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('title-revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2, rootMargin: '0px 0px -30px 0px' });
+
+      titles.forEach(el => observer.observe(el));
+    }
+  };
+
+  /* ============================================
      INIT
      ============================================ */
   function init() {
@@ -397,6 +553,9 @@
     WidgetToggles.init();
     SizeBarAnimator.init();
     WidgetDemo.init();
+    NumbersBackground.init();
+    ButtonRipple.init();
+    SectionHeaderReveal.init();
   }
 
   if (document.readyState === 'loading') {

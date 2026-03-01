@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Guide — Mini Numbers</title>
+  <meta name="description" content="Step-by-step guide to installing and configuring Mini Numbers analytics. Docker Compose, Docker, and from-source instructions.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="/landing/css/landing.css">
+</head>
+<body>
+
+<a href="#content" class="landing-skip">Skip to content</a>
+
+<nav class="landing-nav" role="navigation" aria-label="Main navigation">
+  <div class="landing-nav-inner">
+    <a href="/landing/" class="landing-nav-brand" aria-label="Mini Numbers home">
+      <i class="ri-bar-chart-grouped-line"></i>
+      Mini Numbers
+    </a>
+    <div class="landing-nav-actions">
+      <button class="landing-btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+        <i class="ri-moon-line" id="theme-icon"></i>
+      </button>
+      <a href="/landing/" class="landing-btn landing-btn-primary">Back to Home</a>
+    </div>
+  </div>
+</nav>
+
+<main id="content" class="landing-page-content">
+  <h1>Setup Guide</h1>
+  <p>This guide walks you through installing, configuring, and deploying Mini Numbers on your own server.</p>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>A server or VPS (1 CPU, 512MB RAM minimum)</li>
+    <li>Docker and Docker Compose (recommended), or JDK 21+</li>
+    <li>A domain name with DNS pointing to your server (optional but recommended for HTTPS)</li>
+  </ul>
+
+  <h2>Option 1: Docker Compose (Recommended)</h2>
+  <p>The simplest way to get started. Docker Compose handles everything including automatic restarts.</p>
+
+  <div class="landing-code-block">
+    <div class="landing-code-bar">
+      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+      <span class="landing-code-title">Terminal</span>
+    </div>
+    <div class="landing-code-body">
+<pre><span class="hl-comment"># Clone the repository</span>
+git clone https://github.com/OneManStudioDotSe/mini-numbers.git
+cd mini-numbers
+
+<span class="hl-comment"># Start with Docker Compose (SQLite)</span>
+docker compose up -d
+
+<span class="hl-comment"># Or with PostgreSQL</span>
+docker compose -f docker-compose.postgres.yml up -d</pre>
+    </div>
+  </div>
+
+  <p>Your instance will be available at <code>http://your-server:8080</code>. You'll be redirected to the setup wizard automatically.</p>
+
+  <h2>Option 2: Docker</h2>
+
+  <div class="landing-code-block">
+    <div class="landing-code-bar">
+      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+      <span class="landing-code-title">Terminal</span>
+    </div>
+    <div class="landing-code-body">
+<pre><span class="hl-comment"># Build the image</span>
+docker build -t mini-numbers .
+
+<span class="hl-comment"># Run with a persistent data volume</span>
+docker run -d \
+  --name mini-numbers \
+  -p 8080:8080 \
+  -v mini-numbers-data:/app/data \
+  mini-numbers</pre>
+    </div>
+  </div>
+
+  <h2>Option 3: From Source</h2>
+  <p>Requires JDK 21 or later installed on your system.</p>
+
+  <div class="landing-code-block">
+    <div class="landing-code-bar">
+      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+      <span class="landing-code-title">Terminal</span>
+    </div>
+    <div class="landing-code-body">
+<pre><span class="hl-comment"># Clone and build</span>
+git clone https://github.com/OneManStudioDotSe/mini-numbers.git
+cd mini-numbers
+./gradlew buildFatJar
+
+<span class="hl-comment"># Run the application</span>
+java -jar build/libs/mini-numbers-all.jar</pre>
+    </div>
+  </div>
+
+  <h2>Setup Wizard</h2>
+  <p>On first launch, Mini Numbers presents a browser-based setup wizard. It walks you through 5 steps:</p>
+  <ol>
+    <li><strong>Security</strong> — Choose an admin username, set a strong password, and generate or provide a server salt (used for visitor hash generation)</li>
+    <li><strong>Database</strong> — Select SQLite (default, file-based, zero config) or PostgreSQL (for larger deployments with connection pooling)</li>
+    <li><strong>Server</strong> — Set the server port, allowed CORS origins (your website domains), and development mode toggle</li>
+    <li><strong>Advanced</strong> — Configure the GeoIP database path and rate limiting thresholds</li>
+    <li><strong>Review</strong> — Confirm all settings, save, and launch — services start immediately with no restart</li>
+  </ol>
+
+  <h2>Adding the Tracker</h2>
+  <p>After setup, create a project in the admin dashboard (<code>/admin-panel</code>) and copy its API key. Then add the tracker script to your website:</p>
+
+  <div class="landing-code-block">
+    <div class="landing-code-bar">
+      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+      <span class="landing-code-title">your-website.html</span>
+    </div>
+    <div class="landing-code-body">
+<pre><span class="hl-tag">&lt;script</span>
+  <span class="hl-attr">async</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
+<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+    </div>
+  </div>
+
+  <p>That's it. Page views will start appearing in your dashboard within seconds.</p>
+
+  <h2>Configuration Reference</h2>
+  <p>All configuration is stored in a <code>.env</code> file (created by the setup wizard). You can also set these as environment variables:</p>
+
+  <table class="landing-config-table">
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ADMIN_PASSWORD</code></td>
+        <td>Required</td>
+        <td>Admin panel password (stored as BCrypt hash)</td>
+      </tr>
+      <tr>
+        <td><code>SERVER_SALT</code></td>
+        <td>Required</td>
+        <td>Server salt for visitor hashing (min 32 chars)</td>
+      </tr>
+      <tr>
+        <td><code>ADMIN_USERNAME</code></td>
+        <td><code>admin</code></td>
+        <td>Admin panel username</td>
+      </tr>
+      <tr>
+        <td><code>DB_TYPE</code></td>
+        <td><code>SQLITE</code></td>
+        <td>Database type: SQLITE or POSTGRESQL</td>
+      </tr>
+      <tr>
+        <td><code>DB_SQLITE_PATH</code></td>
+        <td><code>./stats.db</code></td>
+        <td>SQLite database file path</td>
+      </tr>
+      <tr>
+        <td><code>SERVER_PORT</code></td>
+        <td><code>8080</code></td>
+        <td>HTTP server port</td>
+      </tr>
+      <tr>
+        <td><code>ALLOWED_ORIGINS</code></td>
+        <td>Empty</td>
+        <td>Comma-separated CORS origins</td>
+      </tr>
+      <tr>
+        <td><code>PRIVACY_MODE</code></td>
+        <td><code>STANDARD</code></td>
+        <td>STANDARD, STRICT, or PARANOID</td>
+      </tr>
+      <tr>
+        <td><code>HASH_ROTATION_HOURS</code></td>
+        <td><code>24</code></td>
+        <td>Hash rotation period (1-8760 hours)</td>
+      </tr>
+      <tr>
+        <td><code>DATA_RETENTION_DAYS</code></td>
+        <td><code>0</code></td>
+        <td>Auto-delete events older than N days (0 = disabled)</td>
+      </tr>
+      <tr>
+        <td><code>RATE_LIMIT_PER_IP</code></td>
+        <td><code>1000</code></td>
+        <td>Max requests per IP per minute</td>
+      </tr>
+      <tr>
+        <td><code>GEOIP_DATABASE_PATH</code></td>
+        <td>Built-in</td>
+        <td>Path to MaxMind GeoLite2 database</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Troubleshooting</h2>
+
+  <h3>Container won't start</h3>
+  <p>Check the logs: <code>docker compose logs -f</code>. Common issues include port conflicts (change <code>SERVER_PORT</code>) or permission issues on the data directory.</p>
+
+  <h3>Setup wizard shows after configuration</h3>
+  <p>The <code>.env</code> file may not be readable. Ensure it's in the application's working directory and has correct permissions.</p>
+
+  <h3>No data in dashboard</h3>
+  <ul>
+    <li>Verify the API key in your tracker matches a project in the dashboard</li>
+    <li>Check CORS: your website's domain must be in <code>ALLOWED_ORIGINS</code></li>
+    <li>Check the browser console for network errors on the <code>/collect</code> endpoint</li>
+  </ul>
+
+  <h3>GeoIP not working</h3>
+  <p>Ensure the MaxMind GeoLite2 City database is accessible at the configured path. If using Docker, mount it as a volume. GeoIP is optional — the application works without it but won't show geographic data.</p>
+
+  <div style="margin-top:var(--spacing-2xl);text-align:center;">
+    <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/DEPLOYMENT.md" target="_blank" rel="noopener" class="landing-btn landing-btn-secondary landing-btn-lg">
+      <i class="ri-server-line"></i> Full Deployment Guide
+    </a>
+  </div>
+</main>
+
+<footer class="landing-footer" role="contentinfo">
+  <div class="landing-container">
+    <div class="landing-footer-bottom">
+      <span><a href="/landing/" style="color:inherit">Mini Numbers</a> — Privacy-first web analytics</span>
+      <span>&copy; 2026 Mini Numbers. MIT License.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/landing/js/landing.js"></script>
+</body>
+</html>

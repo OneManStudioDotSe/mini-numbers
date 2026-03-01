@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Mini Numbers</title>
+  <meta name="description" content="Privacy Policy for the Mini Numbers landing page and analytics platform.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="/landing/css/landing.css">
+</head>
+<body>
+
+<a href="#content" class="landing-skip">Skip to content</a>
+
+<nav class="landing-nav" role="navigation" aria-label="Main navigation">
+  <div class="landing-nav-inner">
+    <a href="/landing/" class="landing-nav-brand" aria-label="Mini Numbers home">
+      <i class="ri-bar-chart-grouped-line"></i>
+      Mini Numbers
+    </a>
+    <div class="landing-nav-actions">
+      <button class="landing-btn-ghost" id="theme-toggle" aria-label="Toggle theme">
+        <i class="ri-moon-line" id="theme-icon"></i>
+      </button>
+      <a href="/landing/" class="landing-btn landing-btn-primary">Back to Home</a>
+    </div>
+  </div>
+</nav>
+
+<main id="content" class="landing-page-content">
+  <h1>Privacy Policy</h1>
+  <p class="landing-page-meta">Last updated: February 2026</p>
+
+  <h2>1. What This Covers</h2>
+  <p>This Privacy Policy describes how the Mini Numbers project website (this landing page) handles information. It also describes the privacy architecture of the Mini Numbers analytics product itself.</p>
+
+  <h2>2. Landing Page Data Collection</h2>
+  <p>This landing page:</p>
+  <ul>
+    <li><strong>Does not use cookies</strong> — no tracking cookies, no analytics cookies, no consent banners</li>
+    <li><strong>Does not collect personal data</strong> — no forms, no email collection, no user accounts</li>
+    <li><strong>Does not use analytics</strong> — we practice what we preach</li>
+    <li><strong>Does not track you</strong> — no fingerprinting, no session recording, no heatmaps</li>
+  </ul>
+
+  <h2>3. Third-Party Services</h2>
+  <p>This landing page loads the following external resource:</p>
+  <ul>
+    <li><strong>Remix Icons</strong> (via jsDelivr CDN) — for UI icons. jsDelivr's privacy policy applies to CDN requests.</li>
+  </ul>
+  <p>No other third-party services, trackers, or analytics scripts are loaded.</p>
+
+  <h2>4. The Analytics Product</h2>
+  <p>Mini Numbers the analytics product is designed with privacy as its core architecture:</p>
+  <ul>
+    <li><strong>No cookies</strong> — uses sessionStorage for session management</li>
+    <li><strong>No IP storage</strong> — IP addresses are processed in memory only and never written to disk</li>
+    <li><strong>Configurable hash rotation</strong> — visitor identifiers rotate every 1 to 8,760 hours</li>
+    <li><strong>Three privacy modes</strong> — Standard, Strict (country only), and Paranoid (no geo/UA data)</li>
+    <li><strong>Self-hosted</strong> — all data stays on your server, under your control</li>
+    <li><strong>Data retention</strong> — configurable automatic purge of old events</li>
+  </ul>
+  <p>For a detailed technical explanation of the privacy architecture, see the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/PRIVACY.md" target="_blank" rel="noopener">Privacy Architecture Documentation</a>.</p>
+
+  <h2>5. Cookies</h2>
+  <p>Neither this landing page nor the Mini Numbers analytics tracker uses cookies. The admin dashboard uses a session cookie for authentication purposes only.</p>
+
+  <h2>6. Data Retention</h2>
+  <p>This landing page does not store any data. For the analytics product, data retention is fully configurable by the server operator.</p>
+
+  <h2>7. Your Rights</h2>
+  <p>Since we do not collect personal data on this website, there is no personal data to access, correct, or delete. If you are a visitor to a website that uses Mini Numbers, contact that website's operator — they control their Mini Numbers instance and its data.</p>
+
+  <h2>8. Contact</h2>
+  <p>For questions about this Privacy Policy, please <a href="/landing/contact.html">contact us</a> or open an issue on <a href="https://github.com/OneManStudioDotSe/mini-numbers/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+</main>
+
+<footer class="landing-footer" role="contentinfo">
+  <div class="landing-container">
+    <div class="landing-footer-bottom">
+      <span><a href="/landing/" style="color:inherit">Mini Numbers</a> — Privacy-first web analytics</span>
+      <span>&copy; 2026 Mini Numbers. MIT License.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/landing/js/landing.js"></script>
+</body>
+</html>
