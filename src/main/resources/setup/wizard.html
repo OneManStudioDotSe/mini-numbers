@@ -3,328 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Numbers setup wizard</title>
+    <title>Setup Mini Numbers</title>
     <link rel="stylesheet" href="/setup/css/wizard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
+
     <div class="wizard-container">
-        <!-- Left Column: Branding -->
-        <div class="wizard-left-column">
-            <div class="wizard-branding">
-                <div class="app-logo">🔢</div>
-                <h1 class="app-name">Mini Numbers</h1>
-                <p class="app-subtitle">Privacy-first web analytics setup</p>
-                <button type="button" class="btn-quick-setup" id="btn-quick-setup">⚡ Quick setup (testing)</button>
-            </div>
-        </div>
-
-        <!-- Right Column: Progress & Form -->
-        <div class="wizard-right-column">
-            <!-- Progress Indicator -->
+        <button type="button" class="btn-quick-setup" id="btn-quick-setup">Quick Setup</button>
+        
+        <header class="wizard-header">
+            <div class="app-logo">🔢</div>
+            <h1 class="app-name">Mini Numbers</h1>
+            <p class="app-subtitle">Privacy-first web analytics</p>
+            
             <div class="progress-container">
-                <div class="progress-step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Security</div>
-                </div>
-                <div class="progress-step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Database</div>
-                </div>
-                <div class="progress-step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">Server</div>
-                </div>
-                <div class="progress-step" data-step="4">
-                    <div class="step-number">4</div>
-                    <div class="step-label">Advanced</div>
-                </div>
-                <div class="progress-step" data-step="5">
-                    <div class="step-number">5</div>
-                    <div class="step-label">Review</div>
-                </div>
+                <div class="progress-dot active" data-step="1"></div>
+                <div class="progress-dot" data-step="2"></div>
+                <div class="progress-dot" data-step="3"></div>
+                <div class="progress-dot" data-step="4"></div>
+                <div class="progress-dot" data-step="5"></div>
+                <div class="progress-dot" data-step="6"></div>
             </div>
+        </header>
 
-            <!-- Setup Form -->
-            <form id="setup-form" class="wizard-form">
-
-            <!-- Step 1: Security -->
+        <form id="setup-form" class="wizard-form">
+            <!-- Step 1: Admin -->
             <div class="wizard-step active" data-step="1">
-                <h2>Security configuration</h2>
-                <p class="step-description">
-                    Set up your admin credentials and server salt for privacy-preserving visitor hashing.
-                </p>
+                <h2>Secure your dashboard</h2>
+                <p class="step-description">Create your admin credentials and cryptographic salt.</p>
 
                 <div class="form-group">
-                    <label for="admin-username">Admin username</label>
-                    <input type="text" id="admin-username" name="adminUsername" value="admin" required>
+                    <label>Admin username</label>
+                    <input type="text" name="adminUsername" value="admin" required>
                     <span class="error-message" id="error-adminUsername"></span>
-                    <small class="help-text">Username for accessing the admin panel</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="admin-password">Admin password *</label>
+                    <label>Admin password</label>
                     <div class="password-input">
-                        <input type="password" id="admin-password" name="adminPassword" required minlength="8">
+                        <input type="password" id="admin-password" name="adminPassword" required minlength="8" placeholder="At least 8 characters">
                         <button type="button" class="toggle-password" data-target="admin-password">Show</button>
                     </div>
+                    <div class="field-tip">Tip: Use 12+ characters with symbols (!@#) for maximum security.</div>
                     <span class="error-message" id="error-adminPassword"></span>
-                    <small class="help-text">Minimum 8 characters (12+ recommended)</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="server-salt">Server salt *</label>
+                    <label class="label-with-hint">
+                        Server salt
+                        <span class="hint-icon" title="A secret key used to anonymize visitor IDs. It ensures no IP addresses are ever stored.">?</span>
+                    </label>
                     <div class="salt-input">
                         <input type="text" id="server-salt" name="serverSalt" readonly required>
-                        <button type="button" class="btn-generate-salt">Generate</button>
+                        <button type="button" class="btn-generate-salt">Regenerate</button>
                     </div>
                     <span class="error-message" id="error-serverSalt"></span>
-                    <small class="help-text">
-                        Cryptographic salt for privacy-preserving visitor hashing.
-                        <strong>Keep this secret!</strong>
-                    </small>
-                </div>
-
-                <div class="info-box">
-                    <strong>Privacy Notice:</strong> Mini Numbers never stores IP addresses or personally identifiable
-                    information. The server salt is used to create anonymous visitor hashes that rotate daily.
                 </div>
             </div>
 
             <!-- Step 2: Database -->
             <div class="wizard-step" data-step="2">
-                <h2>Database configuration</h2>
-                <p class="step-description">
-                    Choose where Mini Numbers stores your analytics data. Both options are fully supported &mdash; pick the one that fits your setup.
-                </p>
+                <h2>Choose storage</h2>
+                <p class="step-description">Select where your analytics data will live.</p>
 
-                <div class="form-group">
-                    <label>Database type</label>
-                    <div class="radio-cards">
-                        <label class="radio-card">
-                            <input type="radio" name="dbType" value="SQLITE" checked>
-                            <div class="card-content">
-                                <div class="card-title">SQLite</div>
-                                <div class="card-description">Zero-setup, file-based database that runs embedded in the application. Ideal for single-server deployments, personal projects, and small to medium traffic sites. No external services needed &mdash; just pick a file path and go.</div>
-                            </div>
-                        </label>
-                        <label class="radio-card">
-                            <input type="radio" name="dbType" value="POSTGRESQL">
-                            <div class="card-content">
-                                <div class="card-title">PostgreSQL</div>
-                                <div class="card-description">Full-featured relational database running as a separate service. Best for high-traffic sites, multi-instance deployments, or when you need advanced backup and replication capabilities.</div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- SQLite Fields -->
-                <div id="sqlite-fields" class="db-fields">
-                    <div class="db-info-box">
-                        <div class="db-info-title">Good to know</div>
-                        <p>SQLite stores all analytics data in a single file on the same server where Mini Numbers runs. There is nothing extra to install or configure &mdash; it works out of the box. Despite being file-based, SQLite handles thousands of writes per second and is trusted by countless production applications.</p>
-                    </div>
-                    <div class="form-group">
-                        <label for="db-sqlite-path">Database file path</label>
-                        <input type="text" id="db-sqlite-path" name="dbSqlitePath" value="./stats.db">
-                        <span class="error-message" id="error-dbSqlitePath"></span>
-                        <small class="help-text">Path where SQLite database file will be stored</small>
-                    </div>
-                </div>
-
-                <!-- PostgreSQL Fields -->
-                <div id="postgresql-fields" class="db-fields" style="display: none;">
-                    <div class="db-info-box db-info-box--prereq">
-                        <div class="db-info-title">Before you continue</div>
-                        <p>Make sure you have the following ready before filling in the fields below:</p>
-                        <ul>
-                            <li>A running PostgreSQL server (installed locally, on a remote host, or via a managed service)</li>
-                            <li>A database created for Mini Numbers (e.g. <code>mini_numbers</code>) &mdash; you can create one via phpMyAdmin, pgAdmin, the <code>psql</code> CLI, or your hosting provider's control panel</li>
-                            <li>A database user with full privileges on that database, along with its password</li>
-                            <li>The host address and port of the PostgreSQL server (defaults: <code>localhost</code> and <code>5432</code>)</li>
-                        </ul>
-                        <p>Mini Numbers will create the required tables automatically on first run &mdash; you only need to provide an empty database.</p>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="db-pg-host">Host</label>
-                            <input type="text" id="db-pg-host" name="dbPgHost" value="localhost">
-                            <span class="error-message" id="error-dbPgHost"></span>
+                <div class="radio-cards">
+                    <label class="radio-card">
+                        <input type="radio" name="dbType" value="SQLITE" checked>
+                        <div class="card-content">
+                            <div class="card-title">SQLite</div>
+                            <div class="card-description">Perfect for most sites. No setup required.</div>
                         </div>
-                        <div class="form-group">
-                            <label for="db-pg-port">Port</label>
-                            <input type="number" id="db-pg-port" name="dbPgPort" value="5432">
-                            <span class="error-message" id="error-dbPgPort"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="db-pg-name">Database name</label>
-                        <input type="text" id="db-pg-name" name="dbPgName" value="mini_numbers">
-                        <span class="error-message" id="error-dbPgName"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="db-pg-username">Username</label>
-                        <input type="text" id="db-pg-username" name="dbPgUsername" value="postgres">
-                        <span class="error-message" id="error-dbPgUsername"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="db-pg-password">Password</label>
-                        <div class="password-input">
-                            <input type="password" id="db-pg-password" name="dbPgPassword">
-                            <button type="button" class="toggle-password" data-target="db-pg-password">Show</button>
-                        </div>
-                        <span class="error-message" id="error-dbPgPassword"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="db-pg-pool-size">Connection pool size</label>
-                        <input type="number" id="db-pg-pool-size" name="dbPgMaxPoolSize" value="3" min="1" max="50">
-                        <span class="error-message" id="error-dbPgMaxPoolSize"></span>
-                        <small class="help-text">Number of database connections (1-50, default: 3)</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 3: Server -->
-            <div class="wizard-step" data-step="3">
-                <h2>Server configuration</h2>
-                <p class="step-description">
-                    Configure server port, CORS origins, and development mode.
-                </p>
-
-                <div class="form-group">
-                    <label for="server-port">Server port</label>
-                    <input type="number" id="server-port" name="serverPort" value="8080" min="1" max="65535">
-                    <span class="error-message" id="error-serverPort"></span>
-                    <small class="help-text">Port for the analytics server (default: 8080)</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="allowed-origins">Allowed CORS origins</label>
-                    <input type="text" id="allowed-origins" name="allowedOrigins" placeholder="https://example.com,https://app.example.com">
-                    <span class="error-message" id="error-allowedOrigins"></span>
-                    <small class="help-text">
-                        Comma-separated list of allowed origins. Leave empty to reject all cross-origin requests.
-                        Examples: <code>https://example.com</code> or <code>*</code> for all (not recommended)
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="ktor-development" name="isDevelopment">
-                        <span>Development mode</span>
                     </label>
-                    <small class="help-text">
-                        Enable for development only. Development mode allows all CORS origins automatically.
-                    </small>
+                    <label class="radio-card">
+                        <input type="radio" name="dbType" value="POSTGRESQL">
+                        <div class="card-content">
+                            <div class="card-title">PostgreSQL</div>
+                            <div class="card-description">For high-traffic or scaled deployments.</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="sqlite-fields">
+                    <div class="form-group">
+                        <label>Database file path</label>
+                        <input type="text" name="dbSqlitePath" value="./stats.db">
+                        <span class="error-message" id="error-dbSqlitePath"></span>
+                    </div>
+                </div>
+
+                <div id="postgresql-fields" style="display: none;">
+                    <div class="form-group">
+                        <label>Host & Port</label>
+                        <div class="password-input">
+                            <input type="text" name="dbPgHost" value="localhost" placeholder="Host" style="flex: 3;">
+                            <input type="number" name="dbPgPort" value="5432" placeholder="Port" style="flex: 1;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Database name</label>
+                        <input type="text" name="dbPgName" value="mini_numbers">
+                    </div>
+                    <div class="form-group">
+                        <label>Credentials</label>
+                        <div class="password-input">
+                            <input type="text" name="dbPgUsername" value="postgres" placeholder="User" style="flex: 1;">
+                            <input type="password" id="db-pg-password" name="dbPgPassword" placeholder="Password" style="flex: 1;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Step 4: Advanced -->
+            <!-- Step 3: Privacy (NEW) -->
+            <div class="wizard-step" data-step="3">
+                <h2>Privacy approach</h2>
+                <p class="step-description">How anonymous should your visitors be?</p>
+
+                <div class="radio-cards cards-vertical">
+                    <label class="radio-card">
+                        <input type="radio" name="privacyMode" value="STANDARD" checked>
+                        <div class="card-content">
+                            <div class="card-title">Standard</div>
+                            <div class="card-description">Full Geolocation (City/Country) and Device detection. 100% cookie-free.</div>
+                        </div>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="privacyMode" value="STRICT">
+                        <div class="card-content">
+                            <div class="card-title">Strict</div>
+                            <div class="card-description">Country-level location only. No City or Region data is processed.</div>
+                        </div>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="privacyMode" value="PARANOID">
+                        <div class="card-content">
+                            <div class="card-title">Paranoid</div>
+                            <div class="card-description">No location or device data. Only path and timestamp are recorded.</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 4: Server -->
             <div class="wizard-step" data-step="4">
-                <h2>Advanced configuration</h2>
-                <p class="step-description">
-                    Optional settings for GeoIP and rate limiting. Default values work well for most cases.
-                </p>
+                <h2>Server settings</h2>
+                <p class="step-description">Configure how the server handles requests.</p>
 
                 <div class="form-group">
-                    <label for="geoip-path">GeoIP database path</label>
-                    <input type="text" id="geoip-path" name="geoipPath" value="src/main/resources/geo/geolite2-city.mmdb">
-                    <span class="error-message" id="error-geoipPath"></span>
-                    <small class="help-text">Path to MaxMind GeoLite2 City database file</small>
+                    <label>Server port</label>
+                    <input type="number" name="serverPort" value="8080">
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="rate-limit-ip">Rate limit per IP</label>
-                        <input type="number" id="rate-limit-ip" name="rateLimitPerIp" value="1000" min="1">
-                        <span class="error-message" id="error-rateLimitPerIp"></span>
-                        <small class="help-text">Requests per minute per IP address</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rate-limit-key">Rate limit per API key</label>
-                        <input type="number" id="rate-limit-key" name="rateLimitPerApiKey" value="10000" min="1">
-                        <span class="error-message" id="error-rateLimitPerApiKey"></span>
-                        <small class="help-text">Requests per minute per API key</small>
-                    </div>
+                <div class="form-group">
+                    <label class="label-with-hint">
+                        Allowed origins
+                        <span class="hint-icon" title="CORS Security: List domains allowed to send data to this server (e.g., https://mysite.com). Use * to allow all (not recommended).">?</span>
+                    </label>
+                    <input type="text" name="allowedOrigins" placeholder="https://example.com, *">
                 </div>
 
-                <div class="warning-box">
-                    <strong>Note:</strong> These advanced settings use sensible defaults.
-                    Only change them if you have specific requirements.
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="ktor-dev" name="isDevelopment">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">Enable development mode</span>
+                    </label>
+                    <div class="field-tip">Disables CORS checks and enables verbose logging. Use only for local testing.</div>
                 </div>
             </div>
 
-            <!-- Step 5: Review -->
+            <!-- Step 5: Advanced -->
             <div class="wizard-step" data-step="5">
-                <h2>Review configuration</h2>
-                <p class="step-description">
-                    Please review your configuration before saving. Your application will restart automatically.
-                </p>
+                <h2>Fine-tuning</h2>
+                <p class="step-description">Optional settings for performance.</p>
 
-                <div id="review-content" class="review-content">
-                    <!-- Will be populated by JavaScript -->
+                <div class="form-group">
+                    <label class="label-with-hint">
+                        Rate limits (Requests/min)
+                        <span class="hint-icon" title="Protects your server from spam. Lower values are safer but may block legitimate users if your site is very busy.">?</span>
+                    </label>
+                    <div class="password-input">
+                        <input type="number" name="rateLimitPerIp" value="1000" placeholder="Per IP">
+                        <input type="number" name="rateLimitPerApiKey" value="10000" placeholder="Per API Key">
+                    </div>
+                    <div class="field-tip">Pros: Prevents DDoS. Cons: May drop data during massive traffic spikes.</div>
                 </div>
 
-                <div class="success-box">
-                    <strong>✓ Ready to go!</strong> Click "Complete setup" to save your configuration
-                    and start Mini Numbers Analytics.
+                <div class="form-group">
+                    <label>Geolocation database</label>
+                    <input type="text" name="geoipPath" value="src/main/resources/geo/geolite2-city.mmdb" readonly>
+                    <div class="field-tip">Path to the MaxMind internal database. Automatically managed by Mini Numbers.</div>
                 </div>
             </div>
 
-            <!-- Navigation Buttons -->
-            <div class="wizard-navigation">
-                <button type="button" class="btn btn-secondary" id="btn-previous" style="display: none;">
-                    Previous
-                </button>
-                <button type="button" class="btn btn-primary" id="btn-next">
-                    Next
-                </button>
-                <button type="submit" class="btn btn-success" id="btn-submit" style="display: none;">
-                    Complete setup
-                </button>
+            <!-- Step 6: Review -->
+            <div class="wizard-step" data-step="6">
+                <h2>Ready to launch?</h2>
+                <p class="step-description">Review your final configuration summary.</p>
+                <div id="review-content" class="review-content"></div>
+                <div class="info-box" style="text-align: center; border: none;">
+                    After clicking launch, the server will initialize and take you to the login page.
+                </div>
             </div>
+
+            <!-- Loading State -->
+            <div id="loading-overlay" class="loading-overlay" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 16px; font-weight: 600;">Initializing services...</p>
+            </div>
+
+            <footer class="wizard-navigation">
+                <button type="button" class="btn btn-secondary" id="btn-previous" style="visibility: hidden;">Back</button>
+                <button type="button" class="btn btn-primary" id="btn-next">Continue</button>
+                <button type="submit" class="btn btn-success" id="btn-submit" style="display: none;">Launch Analytics</button>
+            </footer>
         </form>
-        </div>
-        <!-- End Right Column -->
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
-        <p>Saving configuration...</p>
-        <p class="loading-subtitle">Application will restart automatically</p>
     </div>
 
     <!-- Success Modal -->
     <div id="success-modal" class="modal" style="display: none;">
-        <div class="modal-content success" style="background: transparent; box-shadow: none;">
-            <div class="countdown-card">
-                <div class="countdown-card__icon">&#10003;</div>
-                <h2 class="countdown-card__title">Setup complete!</h2>
-                <p class="countdown-card__text">Your configuration has been saved successfully.</p>
-                <p class="countdown-card__text">You will be taken to the <strong>login screen</strong> to sign in.</p>
-                <div class="countdown-card__timer">
-                    Redirecting in <span id="countdown-number" class="countdown-number">5</span>
-                </div>
-                <div class="countdown-card__progress">
-                    <div class="countdown-card__bar" id="countdown-bar"></div>
-                </div>
+        <div class="countdown-card">
+            <div class="app-logo">✨</div>
+            <h2 style="margin-bottom: 8px;">You're all set!</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Configuration saved. Redirecting to your new dashboard.</p>
+            <div class="countdown-number" id="countdown-number">5</div>
+            <div class="countdown-card__progress">
+                <div class="countdown-card__bar" id="countdown-bar"></div>
             </div>
         </div>
     </div>
 
     <!-- Error Modal -->
     <div id="error-modal" class="modal" style="display: none;">
-        <div class="modal-content error">
-            <h2>⚠ Setup error</h2>
-            <p id="error-message">An error occurred during setup.</p>
-            <button class="btn btn-primary" onclick="document.getElementById('error-modal').style.display='none'">
-                Close
-            </button>
+        <div class="countdown-card">
+            <div class="app-logo">⚠️</div>
+            <h2 style="color: var(--error);">Setup failed</h2>
+            <p id="error-message" style="margin: 16px 0;"></p>
+            <button class="btn btn-primary" onclick="document.getElementById('error-modal').style.display='none'">Try again</button>
         </div>
     </div>
 

@@ -1,914 +1,184 @@
 /**
- * Mini Numbers Setup Wizard Styles
- * WordPress-inspired clean design
+ * Mini Numbers 2.0 Setup Wizard - Enhanced
  */
 
-/* ============================================
-   Global Styles & Reset
-   ============================================ */
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --bg-base: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(255, 255, 255, 0.6);
+    --input-border: #e2e8f0;
+    --success: #10b981;
+    --error: #ef4444;
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #2c3338;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-base);
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 20px;
+    overflow-x: hidden;
 }
 
-/* ============================================
-   Wizard Container
-   ============================================ */
+/* Canvas Background */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: #f8fafc;
+}
 
+/* Container */
 .wizard-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 580px;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    display: flex;
-    min-height: 600px;
-}
-
-/* ============================================
-   Left Column: Branding
-   ============================================ */
-
-.wizard-left-column {
-    flex: 0 0 320px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 30px;
-}
-
-.wizard-branding {
-    text-align: center;
-}
-
-.app-logo {
-    font-size: 72px;
-    line-height: 1;
-    margin-bottom: 20px;
-}
-
-.app-name {
-    font-size: 32px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #ffffff;
-}
-
-.app-subtitle {
-    font-size: 15px;
-    opacity: 0.95;
-    font-weight: 400;
-    line-height: 1.5;
-    margin-bottom: 24px;
-}
-
-.btn-quick-setup {
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-quick-setup:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.6);
-}
-
-/* ============================================
-   Right Column: Progress & Form
-   ============================================ */
-
-.wizard-right-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ============================================
-   Progress Indicator
-   ============================================ */
-
-.progress-container {
-    display: flex;
-    justify-content: space-between;
-    padding: 24px 30px;
-    background: #f6f7f7;
-    border-bottom: 1px solid #dcdcde;
-    flex-shrink: 0;
-}
-
-.progress-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
     position: relative;
 }
 
-.progress-step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    width: 100%;
-    height: 2px;
-    background: #dcdcde;
-    z-index: 0;
-}
+/* Header */
+.wizard-header { padding: 40px 40px 10px; text-align: center; }
+.app-logo { font-size: 44px; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+.app-name { font-size: 26px; font-weight: 800; letter-spacing: -0.025em; color: #0f172a; }
+.app-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
 
-.progress-step.completed:not(:last-child)::after {
-    background: #667eea;
-}
+.progress-container { display: flex; gap: 6px; max-width: 240px; margin: 0 auto; }
+.progress-dot { height: 4px; flex: 1; background: #e2e8f0; border-radius: 2px; transition: all 0.4s ease; }
+.progress-dot.active { background: var(--primary); }
+.progress-dot.completed { background: var(--primary); opacity: 0.4; }
 
-.step-number {
-    width: 36px;
-    height: 36px;
+/* Form */
+.wizard-form { padding: 20px 40px 20px; position: relative; min-height: 380px; }
+.wizard-step { display: none; width: 100%; }
+.wizard-step.active { display: block; }
+
+/* Animations */
+@keyframes slideInRight { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+.slide-next { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.slide-prev { animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+.wizard-step h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; text-align: center; color: #0f172a; }
+.step-description { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; text-align: center; line-height: 1.5; }
+
+/* Inputs */
+.form-group { margin-bottom: 22px; }
+label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; margin-left: 2px; }
+
+.label-with-hint { display: flex; align-items: center; gap: 6px; }
+.hint-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: #e2e8f0;
+    color: #64748b;
     border-radius: 50%;
-    background: #dcdcde;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
-    position: relative;
-    z-index: 1;
-    transition: all 0.3s ease;
+    font-size: 10px;
+    cursor: help;
+    font-weight: 800;
 }
 
-.progress-step.active .step-number {
-    background: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+input[type="text"], input[type="password"], input[type="number"] {
+    width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.9);
+    border: 1px solid var(--input-border); border-radius: 14px; font-size: 15px;
+    transition: all 0.2s ease; color: var(--text-main);
 }
+input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+input:read-only { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
 
-.progress-step.completed .step-number {
-    background: #667eea;
+.password-input, .salt-input { display: flex; gap: 10px; }
+.toggle-password, .btn-generate-salt {
+    padding: 0 16px; background: #fff; border: 1px solid var(--input-border);
+    border-radius: 14px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted);
 }
+.btn-generate-salt { background: #0f172a; color: white; border: none; }
 
-.step-label {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #646970;
-    font-weight: 500;
-}
+.field-tip { font-size: 12px; color: var(--text-muted); margin-top: 6px; margin-left: 2px; line-height: 1.4; }
 
-.progress-step.active .step-label {
-    color: #667eea;
-    font-weight: 600;
-}
-
-/* ============================================
-   Form Container
-   ============================================ */
-
-.wizard-form {
-    padding: 30px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.wizard-step {
-    display: none;
-}
-
-.wizard-step.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.wizard-step h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1d2327;
-    margin-bottom: 12px;
-}
-
-.step-description {
-    font-size: 14px;
-    color: #646970;
-    margin-bottom: 30px;
-    line-height: 1.6;
-}
-
-/* ============================================
-   Form Groups
-   ============================================ */
-
-.form-group {
-    margin-bottom: 24px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-label {
-    display: block;
-    font-weight: 500;
-    color: #1d2327;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-input[type="text"],
-input[type="password"],
-input[type="number"],
-select,
-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-select:focus,
-textarea:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 1px #667eea;
-}
-
-input[type="text"]:read-only {
-    background-color: #f6f7f7;
-    color: #646970;
-}
-
-.help-text {
-    display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    color: #646970;
-    line-height: 1.5;
-}
-
-.help-text code {
-    background: #f6f7f7;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
-    color: #2c3338;
-}
-
-.error-message {
-    display: block;
-    color: #d63638;
-    font-size: 12px;
-    margin-top: 6px;
-    font-weight: 500;
-}
-
-.error-message:empty {
-    display: none;
-}
-
-/* ============================================
-   Password Input with Toggle
-   ============================================ */
-
-.password-input,
-.salt-input {
-    display: flex;
-    gap: 8px;
-}
-
-.password-input input,
-.salt-input input {
-    flex: 1;
-}
-
-.toggle-password,
-.btn-generate-salt {
-    padding: 10px 16px;
-    background: #f6f7f7;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
-    font-size: 13px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-}
-
-.toggle-password:hover,
-.btn-generate-salt:hover {
-    background: #ffffff;
-    border-color: #667eea;
-    color: #667eea;
-}
-
-/* ============================================
-   Radio Cards (Database Selection)
-   ============================================ */
-
-.radio-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.radio-card {
-    position: relative;
-    cursor: pointer;
-}
-
-.radio-card input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-}
-
+/* Database & Privacy Cards */
+.radio-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.cards-vertical { grid-template-columns: 1fr; }
+.radio-card { cursor: pointer; }
+.radio-card input { display: none; }
 .card-content {
-    padding: 20px;
-    border: 2px solid #dcdcde;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    padding: 16px; border: 1.5px solid var(--input-border); border-radius: 18px;
+    background: #fff; transition: all 0.2s ease; height: 100%;
 }
-
-.radio-card input[type="radio"]:checked + .card-content {
-    border-color: #667eea;
-    background: #f5f7ff;
+.radio-card input:checked + .card-content {
+    border-color: var(--primary); background: rgba(99, 102, 241, 0.04);
 }
+.card-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #0f172a; }
+.card-description { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
 
-.card-title {
-    font-weight: 600;
-    font-size: 16px;
-    color: #1d2327;
-    margin-bottom: 6px;
+/* Custom Checkbox */
+.checkbox-container {
+    display: flex; align-items: center; position: relative; padding-left: 30px;
+    cursor: pointer; font-size: 14px; font-weight: 600; user-select: none;
 }
-
-.card-description {
-    font-size: 13px;
-    color: #646970;
-    line-height: 1.5;
+.checkbox-container input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+.checkmark {
+    position: absolute; top: 0; left: 0; height: 20px; width: 20px;
+    background-color: #fff; border: 1.5px solid var(--input-border); border-radius: 6px;
 }
-
-/* ============================================
-   Database Info Boxes
-   ============================================ */
-
-.db-info-box {
-    background: #f0f6fc;
-    border: 1px solid #d0d7de;
-    border-left: 4px solid #667eea;
-    border-radius: 6px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #2c3338;
+.checkbox-container:hover input ~ .checkmark { background-color: #f1f5f9; }
+.checkbox-container input:checked ~ .checkmark { background-color: var(--primary); border-color: var(--primary); }
+.checkmark:after {
+    content: ""; position: absolute; display: none;
+    left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
 }
+.checkbox-container input:checked ~ .checkmark:after { display: block; }
 
-.db-info-box--prereq {
-    background: #fff8e5;
-    border-color: #d4a72c;
-    border-left-color: #d4a72c;
-}
-
-.db-info-title {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 8px;
-    color: #1d2327;
-}
-
-.db-info-box p {
-    margin: 0 0 8px;
-}
-
-.db-info-box p:last-child {
-    margin-bottom: 0;
-}
-
-.db-info-box ul {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.db-info-box ul li {
-    margin-bottom: 4px;
-}
-
-.db-info-box code {
-    background: rgba(0, 0, 0, 0.06);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 12px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-/* ============================================
-   Checkbox
-   ============================================ */
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-    cursor: pointer;
-}
-
-/* ============================================
-   Info/Warning/Success Boxes
-   ============================================ */
-
-.info-box,
-.warning-box,
-.success-box {
-    padding: 16px;
-    border-radius: 6px;
-    margin-top: 24px;
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.info-box {
-    background: #f0f6fc;
-    border-left: 4px solid #2271b1;
-    color: #2c3338;
-}
-
-.warning-box {
-    background: #fcf9e8;
-    border-left: 4px solid #dba617;
-    color: #2c3338;
-}
-
-.success-box {
-    background: #edfaef;
-    border-left: 4px solid #00a32a;
-    color: #2c3338;
-}
-
-.info-box strong,
-.warning-box strong,
-.success-box strong {
-    display: block;
-    margin-bottom: 6px;
-}
-
-/* ============================================
-   Review Section
-   ============================================ */
-
-.review-content {
-    margin-bottom: 30px;
-}
-
-.review-section {
-    margin-bottom: 30px;
-}
-
-.review-section h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1d2327;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #f0f0f1;
-}
-
-.review-item {
-    display: flex;
-    padding: 12px 0;
-    border-bottom: 1px solid #f6f7f7;
-}
-
-.review-label {
-    flex: 0 0 180px;
-    font-weight: 500;
-    color: #646970;
-    font-size: 13px;
-}
-
-.review-value {
-    flex: 1;
-    color: #1d2327;
-    font-size: 13px;
-    word-break: break-word;
-}
-
-/* ============================================
-   Navigation Buttons
-   ============================================ */
-
-.wizard-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
-    padding-top: 30px;
-    border-top: 1px solid #dcdcde;
-}
-
+/* Navigation */
+.wizard-navigation { display: flex; padding: 10px 40px 40px; gap: 12px; }
 .btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
+    padding: 14px 24px; border-radius: 16px; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1; border: none; display: flex; align-items: center; justify-content: center;
 }
+.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--text-muted); flex: 0 0 auto; font-weight: 600; }
+.btn-success { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
 
-.btn-primary {
-    background: #667eea;
-    color: #ffffff;
-}
+/* Review */
+.review-content { background: rgba(241, 245, 249, 0.6); border-radius: 20px; padding: 24px; margin-bottom: 20px; }
+.review-item { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.review-item:last-child { border-bottom: none; }
+.review-label { color: var(--text-muted); font-weight: 500; }
+.review-value { font-weight: 700; color: #0f172a; }
 
-.btn-primary:hover {
-    background: #5568d3;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.countdown-card { background: white; padding: 50px; border-radius: 40px; text-align: center; max-width: 420px; animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes slideInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+.countdown-number { font-size: 64px; font-weight: 900; color: var(--primary); margin: 10px 0; letter-spacing: -0.05em; }
+.countdown-card__progress { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.countdown-card__bar { height: 100%; background: var(--primary); width: 0%; transition: width 1s linear; }
 
-.btn-secondary {
-    background: #f6f7f7;
-    color: #2c3338;
-    border: 1px solid #8c8f94;
-}
+.btn-quick-setup { position: absolute; top: 24px; right: 24px; font-size: 11px; font-weight: 700; background: #fff; border: 1px solid var(--input-border); padding: 6px 12px; border-radius: 10px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.btn-quick-setup:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
 
-.btn-secondary:hover {
-    background: #ffffff;
-}
-
-.btn-success {
-    background: #00a32a;
-    color: #ffffff;
-}
-
-.btn-success:hover {
-    background: #008a20;
-    box-shadow: 0 2px 8px rgba(0, 163, 42, 0.3);
-}
-
-/* ============================================
-   Loading Overlay
-   ============================================ */
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading-overlay p {
-    color: #ffffff;
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.loading-subtitle {
-    font-size: 13px !important;
-    opacity: 0.8;
-}
-
-/* ============================================
-   Modals
-   ============================================ */
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 20px;
-}
-
-.modal-content {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 8px;
-    max-width: 500px;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h2 {
-    font-size: 24px;
-    margin-bottom: 16px;
-}
-
-.modal-content p {
-    margin-bottom: 12px;
-    color: #646970;
-    line-height: 1.6;
-}
-
-.modal-content.success h2 {
-    color: #00a32a;
-}
-
-.modal-content.error h2 {
-    color: #d63638;
-}
-
-.modal-content.warning h2 {
-    color: #dba617;
-}
-
-.modal-content .btn {
-    margin-top: 20px;
-}
-
-.loading-dots {
-    margin-top: 20px;
-    font-size: 24px;
-    letter-spacing: 4px;
-}
-
-.loading-dots span {
-    animation: blink 1.4s infinite both;
-}
-
-.loading-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.loading-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes blink {
-    0%, 80%, 100% {
-        opacity: 0;
-    }
-    40% {
-        opacity: 1;
-    }
-}
-
-/* ============================================
-   Responsive Design
-   ============================================ */
-
-@media (max-width: 1024px) {
-    .wizard-container {
-        flex-direction: column;
-    }
-
-    .wizard-left-column {
-        flex: none;
-        padding: 30px 20px;
-    }
-
-    .app-logo {
-        font-size: 48px;
-        margin-bottom: 12px;
-    }
-
-    .app-name {
-        font-size: 24px;
-    }
-
-    .app-subtitle {
-        font-size: 14px;
-        margin-bottom: 16px;
-    }
-}
-
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-
-    .wizard-container {
-        margin: 20px auto;
-        min-height: auto;
-    }
-
-    .wizard-left-column {
-        padding: 24px 20px;
-    }
-
-    .app-logo {
-        font-size: 42px;
-        margin-bottom: 10px;
-    }
-
-    .app-name {
-        font-size: 22px;
-        margin-bottom: 8px;
-    }
-
-    .app-subtitle {
-        font-size: 13px;
-        margin-bottom: 12px;
-    }
-
-    .progress-container {
-        padding: 20px 15px;
-    }
-
-    .step-label {
-        font-size: 10px;
-    }
-
-    .step-number {
-        width: 32px;
-        height: 32px;
-        font-size: 13px;
-    }
-
-    .wizard-form {
-        padding: 24px 20px;
-    }
-
-    .wizard-step h2 {
-        font-size: 20px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .radio-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .wizard-navigation {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .btn {
-        width: 100%;
-    }
-
-    .review-item {
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .review-label {
-        flex: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .progress-container {
-        padding: 15px 10px;
-    }
-
-    .step-label {
-        display: none;
-    }
-
-    .wizard-form {
-        padding: 20px 15px;
-    }
-
-    .password-input,
-    .salt-input {
-        flex-direction: column;
-    }
-
-    .toggle-password,
-    .btn-generate-salt {
-        width: 100%;
-    }
-}
-
-/* ============================================
-   Countdown Card (Setup Complete)
-   ============================================ */
-
-.countdown-card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 48px 40px;
-    max-width: 440px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.countdown-card__icon {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, #00a32a 0%, #0a8a2a 100%);
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    margin: 0 auto 20px;
-}
-
-.countdown-card__title {
-    font-size: 24px;
-    color: #2c3338;
-    margin-bottom: 12px;
-}
-
-.countdown-card__text {
-    font-size: 15px;
-    color: #646970;
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.countdown-card__timer {
-    font-size: 16px;
-    color: #2c3338;
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
-.countdown-number {
-    display: inline-block;
-    font-size: 32px;
-    font-weight: 700;
-    color: #667eea;
-    min-width: 40px;
-    transition: transform 0.3s ease;
-}
-
-.countdown-card__progress {
-    width: 100%;
-    height: 4px;
-    background: #e2e4e7;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.countdown-card__bar {
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 2px;
-    width: 0%;
-    transition: width 1s linear;
-}
+.loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+.loading-spinner { width: 44px; height: 44px; border: 4px solid #f1f5f9; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
