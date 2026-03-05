@@ -67,7 +67,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
             }.singleOrNull()
         }
     } catch (e: Exception) {
-        null // DB not available yet (setup mode), fall back to .env config
+        null // DB not available yet (setup mode)
     }
 
     val passwordMatches: Boolean
@@ -81,19 +81,20 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
             false
         }
     } else {
-        // Fall back to .env config (backward compat / setup mode)
+        // Fall back to .env config (backward compat / setup mode / no users in DB yet)
         if (username != config.security.adminUsername) {
             recordFailedAttempt(username, attempt, logger)
-            logger.warn("Failed authentication - unknown username")
+            logger.warn("Failed authentication - unknown username: $username")
             return false
         }
 
+        logger.debug("Attempting fallback authentication for admin via .env config. Hash starts with: ${config.security.adminPassword.take(10)}...")
         passwordMatches = try {
             if (config.security.adminPassword.startsWith("$2a$") ||
                 config.security.adminPassword.startsWith("$2b$")) {
                 BCrypt.checkpw(password, config.security.adminPassword)
             } else {
-                logger.error("Admin password is not BCrypt-hashed. Please re-run the setup wizard to fix this.")
+                logger.error("Admin password in config is not BCrypt-hashed.")
                 false
             }
         } catch (e: Exception) {

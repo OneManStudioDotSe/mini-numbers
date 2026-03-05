@@ -12,20 +12,20 @@ A technical overview of how Mini Numbers is built, for developers and contributo
 
 ## Tech stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Language** | Kotlin 2.3.0 |
-| **Framework** | Ktor 3.4.0 |
-| **Runtime** | JVM (JDK 21) |
-| **Server** | Netty (embedded) |
-| **Database** | SQLite or PostgreSQL via Exposed ORM |
-| **Connection pooling** | HikariCP |
-| **Caching** | Caffeine |
-| **Geolocation** | MaxMind GeoIP2 (bundled offline database) |
-| **User agent parsing** | UserAgentUtils |
-| **Serialization** | kotlinx.serialization |
-| **Build tool** | Gradle with Kotlin DSL |
-| **Static analysis** | Detekt |
+| Layer                  | Technology                                |
+|------------------------|-------------------------------------------|
+| **Language**           | Kotlin 2.3.0                              |
+| **Framework**          | Ktor 3.4.0                                |
+| **Runtime**            | JVM (JDK 21)                              |
+| **Server**             | Netty (embedded)                          |
+| **Database**           | SQLite or PostgreSQL via Exposed ORM      |
+| **Connection pooling** | HikariCP                                  |
+| **Caching**            | Caffeine                                  |
+| **Geolocation**        | MaxMind GeoIP2 (bundled offline database) |
+| **User agent parsing** | UserAgentUtils                            |
+| **Serialization**      | kotlinx.serialization                     |
+| **Build tool**         | Gradle with Kotlin DSL                    |
+| **Static analysis**    | Detekt                                    |
 
 ---
 
@@ -132,23 +132,23 @@ JSON response → Dashboard
 
 **Events** — The primary data table. Every page view, heartbeat, and custom event is stored here.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | Long | Auto-incrementing primary key |
-| projectId | UUID | Which project this event belongs to |
-| visitorHash | String | Anonymous visitor identifier |
-| sessionId | String | Random session identifier |
-| eventType | String | `pageview`, `heartbeat`, or `custom` |
-| eventName | String? | Name for custom events |
-| path | String | Page URL path |
-| referrer | String? | Where the visitor came from |
-| country | String? | Visitor's country |
-| city | String? | Visitor's city |
-| browser | String? | Browser name |
-| os | String? | Operating system |
-| device | String? | Device type |
-| duration | Int | Time on page in seconds |
-| timestamp | DateTime | When the event occurred |
+| Column      | Type     | Description                          |
+|-------------|----------|--------------------------------------|
+| id          | Long     | Auto-incrementing primary key        |
+| projectId   | UUID     | Which project this event belongs to  |
+| visitorHash | String   | Anonymous visitor identifier         |
+| sessionId   | String   | Random session identifier            |
+| eventType   | String   | `pageview`, `heartbeat`, or `custom` |
+| eventName   | String?  | Name for custom events               |
+| path        | String   | Page URL path                        |
+| referrer    | String?  | Where the visitor came from          |
+| country     | String?  | Visitor's country                    |
+| city        | String?  | Visitor's city                       |
+| browser     | String?  | Browser name                         |
+| os          | String?  | Operating system                     |
+| device      | String?  | Device type                          |
+| duration    | Int      | Time on page in seconds              |
+| timestamp   | DateTime | When the event occurred              |
 
 **8 composite indexes** ensure fast query performance across all analytics dimensions.
 
@@ -165,11 +165,11 @@ JSON response → Dashboard
 
 Mini Numbers uses Caffeine for three caching layers:
 
-| Cache | Max entries | TTL | Purpose |
-|-------|------------|-----|---------|
-| **Query cache** | 500 | 30 seconds | Dashboard report results |
-| **GeoIP cache** | 10,000 | 1 hour | IP-to-location lookups |
-| **Rate limiter** | Per-config | 1 minute | Request counting per IP/key |
+| Cache            | Max entries | TTL        | Purpose                     |
+|------------------|-------------|------------|-----------------------------|
+| **Query cache**  | 500         | 30 seconds | Dashboard report results    |
+| **GeoIP cache**  | 10,000      | 1 hour     | IP-to-location lookups      |
+| **Rate limiter** | Per-config  | 1 minute   | Request counting per IP/key |
 
 The query cache is automatically invalidated when new data is collected, ensuring the dashboard always shows fresh results.
 
@@ -203,18 +203,18 @@ The full API is documented with an **OpenAPI 3.0.3** specification available at 
 
 288 tests organized by layer:
 
-| Category | Tests | What's tested |
-|----------|-------|--------------|
-| Security | 13 | Visitor hashing, hash rotation |
-| Service lifecycle | 13 | ServiceManager states and transitions |
-| Input validation | 26 | Sanitization, edge cases, XSS prevention |
-| User agent parsing | 22 | Browser/OS/device detection |
-| Analytics | 22 | Calculations, aggregations |
-| Data collection | 19 | `/collect` endpoint behavior |
-| Admin API | 14 | Project management, reports |
-| Health endpoint | 6 | Health check responses |
-| Setup wizard | 10 | Configuration flow |
-| End-to-end | 9 | Full tracking workflows |
+| Category           | Tests | What's tested                            |
+|--------------------|-------|------------------------------------------|
+| Security           | 13    | Visitor hashing, hash rotation           |
+| Service lifecycle  | 13    | ServiceManager states and transitions    |
+| Input validation   | 26    | Sanitization, edge cases, XSS prevention |
+| User agent parsing | 22    | Browser/OS/device detection              |
+| Analytics          | 22    | Calculations, aggregations               |
+| Data collection    | 19    | `/collect` endpoint behavior             |
+| Admin API          | 14    | Project management, reports              |
+| Health endpoint    | 6     | Health check responses                   |
+| Setup wizard       | 10    | Configuration flow                       |
+| End-to-end         | 9     | Full tracking workflows                  |
 
 Run the full suite:
 
@@ -226,13 +226,13 @@ Run the full suite:
 
 ## Build system
 
-| Command | What it does |
-|---------|-------------|
-| `./gradlew run` | Start the development server |
-| `./gradlew test` | Run all tests |
-| `./gradlew build` | Build everything |
-| `./gradlew buildFatJar` | Create a standalone JAR with all dependencies |
-| `./gradlew detekt` | Run static analysis |
-| `./gradlew minifyTracker` | Minify the tracking script |
+| Command                   | What it does                                  |
+|---------------------------|-----------------------------------------------|
+| `./gradlew run`           | Start the development server                  |
+| `./gradlew test`          | Run all tests                                 |
+| `./gradlew build`         | Build everything                              |
+| `./gradlew buildFatJar`   | Create a standalone JAR with all dependencies |
+| `./gradlew detekt`        | Run static analysis                           |
+| `./gradlew minifyTracker` | Minify the tracking script                    |
 
 The Docker build uses a multi-stage process: build the fat JAR in a Gradle container, then copy it into a minimal JRE runtime image.

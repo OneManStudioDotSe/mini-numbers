@@ -9,6 +9,8 @@ const SetupWizard = {
     particles: [],
     ctx: null,
     canvas: null,
+    dotColor: 'rgba(99, 102, 241, 0.15)',
+    lineColor: 'rgba(99, 102, 241, 0.05)',
 
     init() {
         this.initTheme();
@@ -23,8 +25,9 @@ const SetupWizard = {
         const saved = localStorage.getItem('mn_theme');
         if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.body.classList.add('dark-mode');
-            this.updateThemeIcons();
         }
+        this.updateThemeIcons();
+        this.updateAnimationColors();
     },
 
     toggleTheme() {
@@ -32,6 +35,13 @@ const SetupWizard = {
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem('mn_theme', isDark ? 'dark' : 'light');
         this.updateThemeIcons();
+        this.updateAnimationColors();
+    },
+
+    updateAnimationColors() {
+        const style = getComputedStyle(document.body);
+        this.dotColor = style.getPropertyValue('--canvas-dot').trim();
+        this.lineColor = style.getPropertyValue('--canvas-line').trim();
     },
 
     updateThemeIcons() {
@@ -114,22 +124,22 @@ const SetupWizard = {
                 this.y += this.vy;
                 if (this.x < 0 || this.x > self.canvas.width) this.vx *= -1;
                 if (this.y < 0 || this.y > self.canvas.height) this.vy *= -1;
-            }
             draw() {
                 self.ctx.beginPath();
                 self.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                self.ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--canvas-dot');
+                self.ctx.fillStyle = self.dotColor;
                 self.ctx.fill();
             }
-        }
+            }
 
-        for (let i = 0; i < 80; i++) this.particles.push(new Particle());
+            for (let i = 0; i < 80; i++) this.particles.push(new Particle());
 
-        const animate = () => {
+            const animate = () => {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--canvas-line');
+
+            this.ctx.strokeStyle = this.lineColor;
             this.ctx.lineWidth = 0.8;
-            for (let i = 0; i < this.particles.length; i++) {
+
                 for (let j = i + 1; j < this.particles.length; j++) {
                     const dx = this.particles[i].x - this.particles[j].x;
                     const dy = this.particles[i].y - this.particles[j].y;

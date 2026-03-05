@@ -12,6 +12,11 @@ import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.services.GeoLocationService
 
 fun Route.publicRoutes(config: AppConfig) {
+    // Prevent favicon 404
+    get("/favicon.ico") {
+        call.respond(HttpStatusCode.NoContent)
+    }
+
     // Prometheus-style metrics endpoint
     get("/metrics") {
         val geoStats = GeoLocationService.cacheStats()

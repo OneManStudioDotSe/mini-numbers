@@ -45,12 +45,12 @@ To count unique visitors without cookies or personal data, Mini Numbers creates 
 
 Hash rotation is a key privacy feature. It controls how long a visitor's anonymous identifier stays the same.
 
-| Rotation period | Effect |
-|----------------|--------|
-| **1 hour** | Maximum privacy — visitors are "new" every hour |
-| **24 hours** (default) | Good balance — accurate daily visitor counts |
-| **168 hours** (1 week) | Better for tracking weekly patterns |
-| **8760 hours** (1 year) | Most accurate long-term counts, least privacy |
+| Rotation period         | Effect                                          |
+|-------------------------|-------------------------------------------------|
+| **1 hour**              | Maximum privacy — visitors are "new" every hour |
+| **24 hours** (default)  | Good balance — accurate daily visitor counts    |
+| **168 hours** (1 week)  | Better for tracking weekly patterns             |
+| **8760 hours** (1 year) | Most accurate long-term counts, least privacy   |
 
 You can set this to any value between 1 and 8760 hours using the `HASH_ROTATION_HOURS` setting.
 
@@ -154,12 +154,12 @@ Mini Numbers is designed to be GDPR-friendly:
 
 ## Comparison with other tools
 
-| Feature | Mini Numbers | Google Analytics | Plausible | Umami |
-|---------|-------------|-----------------|-----------|-------|
-| Cookies | None | Multiple | None | None |
-| IP storage | Never | Yes | Never | Never |
-| Privacy modes | 3 levels | None | 1 level | 1 level |
-| Hash rotation | Configurable | N/A | Daily | Daily |
-| Self-hosted | Yes | No | Optional | Yes |
-| Consent needed | No | Yes | No | No |
-| Data stays on your server | Yes | No | Optional | Yes |
+| Feature                   | Mini Numbers | Google Analytics | Plausible | Umami   |
+|---------------------------|--------------|------------------|-----------|---------|
+| Cookies                   | None         | Multiple         | None      | None    |
+| IP storage                | Never        | Yes              | Never     | Never   |
+| Privacy modes             | 3 levels     | None             | 1 level   | 1 level |
+| Hash rotation             | Configurable | N/A              | Daily     | Daily   |
+| Self-hosted               | Yes          | No               | Optional  | Yes     |
+| Consent needed            | No           | Yes              | No        | No      |
+| Data stays on your server | Yes          | No               | Optional  | Yes     |

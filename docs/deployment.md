@@ -12,11 +12,11 @@ This guide covers running Mini Numbers in production — from Docker containers 
 
 ## Requirements
 
-| Resource | Minimum |
-|----------|---------|
-| **CPU** | 1 core |
-| **RAM** | 512 MB |
-| **Disk** | 100 MB (plus database storage) |
+| Resource    | Minimum                              |
+|-------------|--------------------------------------|
+| **CPU**     | 1 core                               |
+| **RAM**     | 512 MB                               |
+| **Disk**    | 100 MB (plus database storage)       |
 | **Runtime** | Java 21+ (included in Docker images) |
 
 ---

@@ -179,10 +179,10 @@ If your website is built with React, Vue, Next.js, or similar frameworks, Mini N
 
 Choose the level of data collection that matches your privacy requirements:
 
-| Mode | What's collected |
-|------|-----------------|
+| Mode         | What's collected                               |
+|--------------|------------------------------------------------|
 | **Standard** | Page views, country, city, browser, OS, device |
-| **Strict** | Page views, country only, browser, OS, device |
-| **Paranoid** | Page views only — no location or device data |
+| **Strict**   | Page views, country only, browser, OS, device  |
+| **Paranoid** | Page views only — no location or device data   |
 
 Read more in the [Privacy](privacy) guide.

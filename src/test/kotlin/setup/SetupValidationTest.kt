@@ -14,6 +14,7 @@ class SetupValidationTest {
         adminUsername = "admin",
         adminPassword = "securepassword123",
         serverSalt = "x".repeat(64),
+        privacyMode = "STANDARD",
         allowedOrigins = "",
         database = DatabaseSetupDTO(
             type = "sqlite",

@@ -1,4 +1,4 @@
-<p align="center">
+<p>
   <img src="https://img.shields.io/badge/version-1.0.0--beta-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/tests-288%20passing-brightgreen" alt="Tests">
@@ -14,16 +14,16 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 
 ## Why Mini Numbers?
 
-| | Google Analytics | Plausible | Umami | **Mini Numbers** |
-|---|---|---|---|---|
-| No cookies | | Yes | Yes | **Yes** |
-| Self-hosted | | Optional | Yes | **Yes** |
-| Privacy modes | | | | **3 levels** |
-| Tracker size | 45KB+ | ~1KB | ~2KB | **1.3KB** |
-| Conversion goals | Yes | Yes | | **Yes** |
-| Funnels | Yes | Yes | | **Yes** |
-| User segments | Yes | | | **Yes** |
-| Free & open source | | Paid/CE | Yes | **Yes** |
+|                    | Google Analytics | Plausible | Umami | **Mini Numbers** |
+|--------------------|------------------|-----------|-------|------------------|
+| No cookies         |                  | Yes       | Yes   | **Yes**          |
+| Self-hosted        |                  | Optional  | Yes   | **Yes**          |
+| Privacy modes      |                  |           |       | **3 levels**     |
+| Tracker size       | 45KB+            | ~1KB      | ~2KB  | **1.3KB**        |
+| Conversion goals   | Yes              | Yes       |       | **Yes**          |
+| Funnels            | Yes              | Yes       |       | **Yes**          |
+| User segments      | Yes              |           |       | **Yes**          |
+| Free & open source |                  | Paid/CE   | Yes   | **Yes**          |
 
 ## Key Features
 
@@ -71,15 +71,15 @@ That's it. Visit your dashboard to see analytics flowing in.
 
 Full documentation is available at **[onemanstudiodotse.github.io/mini-numbers](https://onemanstudiodotse.github.io/mini-numbers/)**.
 
-| Guide | Description |
-|-------|-------------|
+| Guide                                                                               | Description                               |
+|-------------------------------------------------------------------------------------|-------------------------------------------|
 | [Getting Started](https://onemanstudiodotse.github.io/mini-numbers/getting-started) | Installation, setup wizard, first project |
-| [Configuration](https://onemanstudiodotse.github.io/mini-numbers/configuration) | All settings and environment variables |
-| [Features](https://onemanstudiodotse.github.io/mini-numbers/features) | Full feature overview with examples |
-| [Dashboard Guide](https://onemanstudiodotse.github.io/mini-numbers/dashboard-guide) | How to use the analytics dashboard |
-| [Privacy](https://onemanstudiodotse.github.io/mini-numbers/privacy) | How your visitors' privacy is protected |
-| [Deployment](https://onemanstudiodotse.github.io/mini-numbers/deployment) | Docker, cloud platforms, reverse proxies |
-| [Architecture](https://onemanstudiodotse.github.io/mini-numbers/architecture) | Technical details for developers |
+| [Configuration](https://onemanstudiodotse.github.io/mini-numbers/configuration)     | All settings and environment variables    |
+| [Features](https://onemanstudiodotse.github.io/mini-numbers/features)               | Full feature overview with examples       |
+| [Dashboard Guide](https://onemanstudiodotse.github.io/mini-numbers/dashboard-guide) | How to use the analytics dashboard        |
+| [Privacy](https://onemanstudiodotse.github.io/mini-numbers/privacy)                 | How your visitors' privacy is protected   |
+| [Deployment](https://onemanstudiodotse.github.io/mini-numbers/deployment)           | Docker, cloud platforms, reverse proxies  |
+| [Architecture](https://onemanstudiodotse.github.io/mini-numbers/architecture)       | Technical details for developers          |
 
 ## Tech Stack
 

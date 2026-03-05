@@ -38,12 +38,12 @@ To create a new project, click the **"+"** button in the sidebar and enter your 
 
 At the top of the dashboard, you'll see four key numbers:
 
-| Metric | What it means |
-|--------|--------------|
-| **Total Views** | The total number of page views in the selected time period |
-| **Unique Visitors** | How many different people visited (estimated without cookies) |
-| **Bounce Rate** | Percentage of visitors who left after viewing only one page. Lower is better |
-| **Top Page** | Your most-visited page in the selected time period |
+| Metric              | What it means                                                                |
+|---------------------|------------------------------------------------------------------------------|
+| **Total Views**     | The total number of page views in the selected time period                   |
+| **Unique Visitors** | How many different people visited (estimated without cookies)                |
+| **Bounce Rate**     | Percentage of visitors who left after viewing only one page. Lower is better |
+| **Top Page**        | Your most-visited page in the selected time period                           |
 
 Each metric includes a **comparison arrow** showing the change compared to the previous period. Green means improvement, red means decline.
 
@@ -53,13 +53,13 @@ Each metric includes a **comparison arrow** showing the change compared to the p
 
 Use the time filter buttons at the top of the dashboard:
 
-| Filter | Shows data from |
-|--------|----------------|
-| **24h** | The last 24 hours |
-| **3d** | The last 3 days |
-| **7d** | The last 7 days (default) |
-| **30d** | The last 30 days |
-| **365d** | The last year |
+| Filter   | Shows data from           |
+|----------|---------------------------|
+| **24h**  | The last 24 hours         |
+| **3d**   | The last 3 days           |
+| **7d**   | The last 7 days (default) |
+| **30d**  | The last 30 days          |
+| **365d** | The last year             |
 
 The charts and metrics update automatically when you change the filter.
 

@@ -82,13 +82,13 @@ src/test/kotlin/        # Test suite (288 tests)
 
 Tests are organized by package mirroring the source structure:
 
-| Directory | What it tests |
-|-----------|--------------|
-| `core/` | Security, hashing, service lifecycle |
-| `middleware/` | Input validation, sanitization |
-| `services/` | User agent parsing |
-| `analytics/` | Analytics calculations |
-| `integration/` | HTTP endpoints, end-to-end flows |
+| Directory      | What it tests                        |
+|----------------|--------------------------------------|
+| `core/`        | Security, hashing, service lifecycle |
+| `middleware/`  | Input validation, sanitization       |
+| `services/`    | User agent parsing                   |
+| `analytics/`   | Analytics calculations               |
+| `integration/` | HTTP endpoints, end-to-end flows     |
 
 ### Writing tests
 
