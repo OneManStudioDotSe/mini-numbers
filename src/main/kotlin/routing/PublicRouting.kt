@@ -41,8 +41,7 @@ fun Route.publicRoutes(config: AppConfig) {
         })
     }
 
-    // Static resources for landing page, tracker, and setup wizard
-    staticResources("/", "landing", index = "index.html")
+    // Static resources for setup wizard and tracker
     staticResources("/setup", "setup", index = "wizard.html")
     staticResources("/tracker", "tracker")
     
