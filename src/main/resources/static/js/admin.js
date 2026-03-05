@@ -640,7 +640,7 @@ const Dashboard = {
     if (!this.state.currentProjectId) return;
 
     try {
-      // Show loading skeletons
+      // Show loading skeletons for the entire dashboard
       this.showLoadingState();
 
       // Fetch comparison report with time series
@@ -664,10 +664,10 @@ const Dashboard = {
       this.updateSparklines(data.timeSeries);
       this.updateCharts(data.current);
 
-      // Hide loading state after primary data renders
+      // Hide primary loading state
       this.hideLoadingState();
 
-      // Load secondary data in parallel (non-blocking)
+      // Load secondary data in parallel (non-blocking) with unified error/empty handling
       Promise.allSettled([
         this.loadContributionCalendar(),
         this.loadGoalsAndFunnels(),
@@ -678,35 +678,121 @@ const Dashboard = {
       ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
-      Utils.toast.error('Failed to load analytics data');
       this.hideLoadingState();
+      this.showDashboardError('Failed to load analytics data');
     }
   },
 
   /**
-   * Show loading skeleton states
+   * Show loading skeleton states for primary metrics and charts
    */
   showLoadingState() {
     // Show skeletons on stat card values
     document.querySelectorAll('.stat-card__value').forEach(el => {
-      el.dataset.originalText = el.textContent;
       el.innerHTML = '<span class="skeleton skeleton-text" style="width: 80px; display: inline-block;">&nbsp;</span>';
     });
 
-    // Show skeletons on chart containers
-    document.querySelectorAll('.chart-card__container').forEach(el => {
-      if (!el.querySelector('.skeleton-chart')) {
-        const skeleton = document.createElement('div');
-        skeleton.className = 'skeleton skeleton-chart';
-        skeleton.style.width = '100%';
-        el.prepend(skeleton);
+    // Show skeletons on main charts
+    const mainCharts = ['chart-timeseries', 'chart-pages', 'chart-referrers', 'chart-browsers', 'chart-os', 'chart-devices', 'chart-countries', 'chart-heatmap'];
+    mainCharts.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const container = el.parentElement;
+        if (container && !container.querySelector('.skeleton-chart')) {
+          const skeleton = document.createElement('div');
+          skeleton.className = 'skeleton skeleton-chart';
+          skeleton.style.cssText = 'position:absolute; inset:0; z-index:5; border-radius:inherit;';
+          container.appendChild(skeleton);
+        }
       }
     });
+  },
 
-    // Dim comparisons
-    document.querySelectorAll('.stat-card__comparison').forEach(el => {
-      el.style.opacity = '0.3';
+  /**
+   * Hide loading skeletons
+   */
+  hideLoadingState() {
+    document.querySelectorAll('.skeleton-chart').forEach(el => el.remove());
+  },
+
+  /**
+   * Show a unified error message across all chart containers
+   */
+  showDashboardError(message) {
+    const containers = ['chart-timeseries', 'chart-pages', 'chart-referrers', 'chart-browsers', 'chart-os', 'chart-devices', 'chart-countries', 'chart-heatmap'];
+    containers.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) Utils.dom.showError(el.parentElement, message, () => this.refreshReport());
     });
+  },
+
+  /**
+   * Enhanced Contribution Calendar Loader
+   */
+  async loadContributionCalendar() {
+    const container = document.getElementById('contribution-calendar');
+    if (!container) return;
+
+    try {
+      const data = await Utils.api.fetch(`/admin/projects/${this.state.currentProjectId}/calendar`);
+      if (data && data.days?.length) {
+        // Render implementation handled in admin.js elsewhere or via existing logic
+        this.renderContributionCalendar(data);
+      } else {
+        Utils.dom.showEmptyState(container, { icon: '&#128197;', message: 'No activity recorded yet' });
+      }
+    } catch (e) {
+      Utils.dom.showError(container, 'Failed to load calendar', () => this.loadContributionCalendar());
+    }
+  },
+
+  /**
+   * Enhanced Goals and Funnels Loader
+   */
+  async loadGoalsAndFunnels() {
+    const goalsContainer = document.getElementById('goals-grid');
+    const funnelsContainer = document.getElementById('funnels-container');
+    
+    try {
+      const [goals, funnels] = await Promise.all([
+        Utils.api.fetch(`/admin/projects/${this.state.currentProjectId}/goals/stats?filter=${this.state.currentFilter}`),
+        // Note: Funnels might need a similar stats endpoint or we iterate current funnels
+        Utils.api.fetch(`/admin/projects/${this.state.currentProjectId}/funnels`)
+      ]);
+
+      if (goalsContainer) {
+        if (goals.length) this.renderGoals(goals);
+        else Utils.dom.showEmptyState(goalsContainer, { icon: '&#127919;', message: 'No goals defined', hint: 'Create goals to track key conversions' });
+      }
+
+      if (funnelsContainer) {
+        if (funnels.length) this.renderFunnels(funnels);
+        else Utils.dom.showEmptyState(funnelsContainer, { icon: '&#128202;', message: 'No funnels defined', hint: 'Funnels help visualize multi-step journeys' });
+      }
+    } catch (e) {
+      if (goalsContainer) Utils.dom.showError(goalsContainer, 'Failed to load goals');
+      if (funnelsContainer) Utils.dom.showError(funnelsContainer, 'Failed to load funnels');
+    }
+  },
+
+  /**
+   * Enhanced Segments Loader
+   */
+  async loadSegments() {
+    const container = document.getElementById('segments-container');
+    if (!container) return;
+
+    try {
+      const segments = await Utils.api.fetch(`/admin/projects/${this.state.currentProjectId}/segments`);
+      if (segments.length) {
+        // Assume renderSegments exists in segments.js or admin.js
+        if (typeof SegmentsManager !== 'undefined') SegmentsManager.render(segments);
+      } else {
+        Utils.dom.showEmptyState(container, { icon: '&#128101;', message: 'No segments created', hint: 'Filter your audience into meaningful groups' });
+      }
+    } catch (e) {
+      Utils.dom.showError(container, 'Failed to load segments');
+    }
   },
 
   /**
@@ -1680,17 +1766,31 @@ const Dashboard = {
   /**
    * Load and render webhooks for current project
    */
+  /**
+   * Load and render webhooks for current project
+   */
   async loadWebhooks() {
     if (!this.state.currentProjectId) return;
+    const container = document.getElementById('webhooks-list-container');
 
     try {
       if (typeof WebhooksManager !== 'undefined') {
         WebhooksManager.initModal(this.state.currentProjectId);
         const webhooks = await WebhooksManager.loadWebhooks(this.state.currentProjectId);
-        WebhooksManager.renderWebhooks(webhooks, this.state.currentProjectId);
+        
+        if (webhooks && webhooks.length > 0) {
+          WebhooksManager.renderWebhooks(webhooks, this.state.currentProjectId);
+        } else if (container) {
+          Utils.dom.showEmptyState(container, { 
+            icon: '&#128279;', 
+            message: 'No webhooks configured', 
+            hint: 'Send real-time event data to your own server or tools like Slack/Zapier.' 
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to load webhooks:', error);
+      if (container) Utils.dom.showError(container, 'Failed to load webhooks');
     }
   },
 
@@ -1699,15 +1799,26 @@ const Dashboard = {
    */
   async loadEmailReports() {
     if (!this.state.currentProjectId) return;
+    const container = document.getElementById('email-reports-list-container');
 
     try {
       if (typeof EmailReportsManager !== 'undefined') {
         EmailReportsManager.initModal(this.state.currentProjectId);
         const reports = await EmailReportsManager.loadReports(this.state.currentProjectId);
-        EmailReportsManager.renderReports(reports, this.state.currentProjectId);
+        
+        if (reports && reports.length > 0) {
+          EmailReportsManager.renderReports(reports, this.state.currentProjectId);
+        } else if (container) {
+          Utils.dom.showEmptyState(container, { 
+            icon: '&#128231;', 
+            message: 'No email reports scheduled', 
+            hint: 'Get automated PDF/HTML summaries of your analytics delivered to your inbox.' 
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to load email reports:', error);
+      if (container) Utils.dom.showError(container, 'Failed to load email reports');
     }
   },
 
@@ -2303,10 +2414,16 @@ const Dashboard = {
    * @param {Array} heatmapData - Array of {dayOfWeek, hourOfDay, count}
    */
   updatePeakTimeStats(heatmapData) {
-    if (!heatmapData || !heatmapData.length) return;
-
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    if (!heatmapData || !heatmapData.length) {
+      document.getElementById('peak-day-value').textContent = '-';
+      document.getElementById('peak-hour-value').textContent = '-';
+      document.getElementById('peak-day-count').textContent = '0 visits';
+      document.getElementById('peak-hour-count').textContent = '0 visits';
+      return;
+    }
 
     // 1. Peak Day
     const dayCounts = new Array(7).fill(0);
@@ -2323,24 +2440,29 @@ const Dashboard = {
     document.getElementById('peak-hour-value').textContent = hourLabel;
     document.getElementById('peak-hour-count').textContent = `${Utils.format.number(hourCounts[maxHourIdx])} visits`;
 
-    // 3. Top Month (Derived from last visits if available, or current month as placeholder)
-    // Since heatmap data doesn't have month info, we use the project's time series or report data
-    if (this.state.data?.current?.timeSeries?.length) {
+    // 3. Top Month
+    const peakMonthVal = document.getElementById('peak-month-value');
+    const peakMonthCount = document.getElementById('peak-month-count');
+    
+    if (this.state.data?.timeSeries?.length) {
         const monthCounts = {};
-        this.state.data.current.timeSeries.forEach(ts => {
+        this.state.data.timeSeries.forEach(ts => {
             const date = new Date(ts.timestamp);
             const m = months[date.getMonth()];
             monthCounts[m] = (monthCounts[m] || 0) + ts.count;
         });
-        const topMonth = Object.entries(monthCounts).sort((a,b) => b[1] - a[1])[0];
-        if (topMonth) {
-            document.getElementById('peak-month-value').textContent = topMonth[0];
-            document.getElementById('peak-month-count').textContent = `${Utils.format.number(topMonth[1])} visits`;
+        const entries = Object.entries(monthCounts).sort((a,b) => b[1] - a[1]);
+        if (entries.length) {
+            peakMonthVal.textContent = entries[0][0];
+            peakMonthCount.textContent = `${Utils.format.number(entries[0][1])} visits`;
+        } else {
+            peakMonthVal.textContent = '-';
+            peakMonthCount.textContent = 'No monthly data';
         }
     } else {
         const now = new Date();
-        document.getElementById('peak-month-value').textContent = months[now.getMonth()];
-        document.getElementById('peak-month-count').textContent = 'Current period';
+        peakMonthVal.textContent = months[now.getMonth()];
+        peakMonthCount.textContent = 'Current period';
     }
   },
 
@@ -2395,8 +2517,46 @@ const Dashboard = {
   },
 
   /**
-   * Update time filter labels - now just updates the date range display card
+   * Show loading skeletons for the entire dashboard
    */
+  showDashboardLoading() {
+    // Stat cards
+    const statCards = ['total-views', 'unique-visitors', 'total-sessions', 'bounce-rate', 'avg-session-duration', 'overall-conversion-rate'];
+    statCards.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span>';
+    });
+
+    // Charts
+    const charts = ['chart-timeseries', 'chart-pages', 'chart-referrers', 'chart-browsers', 'chart-os', 'chart-devices', 'chart-countries', 'chart-heatmap'];
+    charts.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const container = el.parentElement;
+        // Don't show skeleton if it's already there or if we are in map/globe view
+        if (container && !container.querySelector('.skeleton')) {
+          const skeleton = document.createElement('div');
+          skeleton.className = 'skeleton skeleton-chart';
+          skeleton.style.height = '100%';
+          skeleton.style.width = '100%';
+          skeleton.style.position = 'absolute';
+          skeleton.style.top = '0';
+          skeleton.style.left = '0';
+          skeleton.style.zIndex = '5';
+          container.appendChild(skeleton);
+        }
+      }
+    });
+  },
+
+  /**
+   * Hide all loading skeletons
+   */
+  hideDashboardLoading() {
+    document.querySelectorAll('.skeleton').forEach(el => {
+      if (el.classList.contains('skeleton-chart')) el.remove();
+    });
+  },
   updateTimeFilterLabels() {
     this.updateDateRangeDisplay();
   },

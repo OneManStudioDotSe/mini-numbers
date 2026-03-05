@@ -37,13 +37,32 @@ const RevenueManager = {
     const section = document.getElementById('revenue-section');
     if (!section) return;
 
+    // First-time load: capture original HTML to restore it later if data arrives
+    if (!section.dataset.originalHtml) {
+      section.dataset.originalHtml = section.innerHTML;
+    }
+
     const stats = this.state.stats;
+    
+    // If no stats or zero revenue, show premium empty state instead of hiding
     if (!stats || stats.totalRevenue === 0) {
-      section.style.display = 'none';
+      section.style.display = ''; // Keep section visible
+      section.innerHTML = ''; // Clear for empty state
+      Utils.dom.showEmptyState(section, { 
+        icon: '&#128176;', 
+        message: 'No revenue data yet', 
+        hint: 'Start tracking income by adding a "revenue" property to your custom events.' 
+      });
       return;
     }
 
     section.style.display = '';
+    // Restore layout if it was an empty state
+    if (section.innerHTML.includes('empty-state')) {
+      section.innerHTML = section.dataset.originalHtml;
+      this.initGuide(); // Re-bind guide events after restoring HTML
+    }
+    
     this.renderStatCards(stats);
     this.renderBreakdown(this.state.breakdown);
     this.renderAttribution(this.state.attribution);
