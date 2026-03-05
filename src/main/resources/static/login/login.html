@@ -3,225 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mini Numbers Analytics</title>
+    <title>Login - Mini Numbers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-base: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --error-bg: #fef2f2;
+            --canvas-dot: rgba(99, 102, 241, 0.15);
+            --canvas-line: rgba(99, 102, 241, 0.05);
         }
 
+        body.dark-mode {
+            --bg-base: #0f172a;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: #334155;
+            --error-bg: rgba(239, 68, 68, 0.1);
+            --canvas-dot: rgba(255, 255, 255, 0.1);
+            --canvas-line: rgba(255, 255, 255, 0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #6366f1 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-base);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 100px 20px;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            font-size: 20px;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+        .theme-toggle:hover { transform: scale(1.05); border-color: var(--primary); }
 
         .login-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
-            padding: 40px 30px;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            padding: 50px 40px;
+            position: relative;
+            animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .login-header h1 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 8px;
-        }
+        .login-header { text-align: center; margin-bottom: 40px; }
+        .app-logo { font-size: 48px; margin-bottom: 12px; }
+        .app-name { font-size: 28px; font-weight: 800; letter-spacing: -0.025em; color: var(--text-main); margin-bottom: 4px; }
+        .app-subtitle { font-size: 14px; color: var(--text-muted); }
 
-        .login-header p {
-            font-size: 14px;
-            color: #666;
-        }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; margin-left: 2px; }
 
-        .form-group {
-            margin-bottom: 20px;
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 14px 18px; background: var(--input-bg);
+            border: 1.5px solid var(--input-border); border-radius: 16px; font-size: 15px;
+            transition: all 0.2s ease; color: var(--text-main);
         }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        input.invalid { border-color: var(--error); background: var(--error-bg); }
 
         .btn {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%; padding: 16px; border-radius: 18px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none; display: flex; align-items: center; justify-content: center;
+            background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            margin-top: 32px;
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 20px;
-            display: none;
+            display: none; align-items: center; gap: 8px;
+            color: var(--error); font-size: 13px; font-weight: 600;
+            margin-bottom: 24px; padding: 12px 16px; background: var(--error-bg);
+            border-radius: 14px; border-left: 4px solid var(--error);
+            animation: shake 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .error-message.show {
-            display: block;
-        }
+        .error-message.show { display: flex; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
         .loading-spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #6366f1;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
+            width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin-right: 10px;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .footer-text { text-align: center; margin-top: 32px; font-size: 13px; color: var(--text-muted); }
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+        <span class="sun">☀️</span>
+        <span class="moon" style="display: none;">🌙</span>
+    </button>
+    <canvas id="bg-canvas"></canvas>
+
     <div class="login-container">
         <div class="login-header">
-            <h1>📊 Mini Numbers</h1>
-            <p>Privacy-first web analytics</p>
+            <div class="app-logo">🔢</div>
+            <h1 class="app-name">Mini Numbers</h1>
+            <p class="app-subtitle">Sign in to your analytics dashboard</p>
         </div>
 
-        <div id="error-message" class="error-message"></div>
+        <div id="error-message" class="error-message">
+            <span>⚠️</span>
+            <span id="error-text"></span>
+        </div>
 
         <form id="login-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    required
-                    autocomplete="username"
-                    autofocus
-                >
+                <input type="text" id="username" name="username" required autocomplete="username" autofocus placeholder="Enter your username">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    required
-                    autocomplete="current-password"
-                >
+                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
             </div>
 
             <button type="submit" class="btn" id="login-btn">
                 Sign in
             </button>
         </form>
+
+        <div class="footer-text">
+            Self-hosted & Privacy-focused
+        </div>
     </div>
 
     <script>
         const form = document.getElementById('login-form');
         const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
         const loginBtn = document.getElementById('login-btn');
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
 
+        // --- Theme & Animation Colors ---
+        let dotColor = 'rgba(99, 102, 241, 0.15)';
+        let lineColor = 'rgba(99, 102, 241, 0.05)';
+
+        function updateAnimationColors() {
+            const style = getComputedStyle(document.body);
+            dotColor = style.getPropertyValue('--canvas-dot').trim();
+            lineColor = style.getPropertyValue('--canvas-line').trim();
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('mn_theme');
+            if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeIcons();
+            updateAnimationColors();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('mn_theme', isDark ? 'dark' : 'light');
+            updateThemeIcons();
+            updateAnimationColors(); // Update colors only on toggle
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.querySelector('.sun').style.display = isDark ? 'none' : 'block';
+            document.querySelector('.moon').style.display = isDark ? 'block' : 'none';
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        initTheme();
+
+        // --- Background Animation ---
+        function initBackgroundAnimation() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.4;
+                    this.vy = (Math.random() - 0.5) * 0.4;
+                    this.radius = Math.random() * 1.5 + 1;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = dotColor; // Cached value
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = lineColor; // Cached value
+                ctx.lineWidth = 0.8;
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 140) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        initBackgroundAnimation();
+
+        // --- Login Logic ---
         function showError(message) {
-            errorMessage.textContent = message;
+            errorText.textContent = message;
             errorMessage.classList.add('show');
+            usernameInput.classList.add('invalid');
+            passwordInput.classList.add('invalid');
         }
 
         function hideError() {
             errorMessage.classList.remove('show');
+            usernameInput.classList.remove('invalid');
+            passwordInput.classList.remove('invalid');
         }
+
+        [usernameInput, passwordInput].forEach(input => {
+            input.addEventListener('input', () => {
+                if (errorMessage.classList.contains('show')) hideError();
+            });
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideError();
-
             const username = usernameInput.value.trim();
             const password = passwordInput.value;
-
-            if (!username || !password) {
-                showError('Please enter both username and password');
-                return;
-            }
-
-            // Disable button and show loading state
+            if (!username || !password) { showError('Enter both username and password'); return; }
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<span class="loading-spinner"></span> Signing in...';
-
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password }),
                 });
-
                 const data = await response.json();
-
-                if (response.ok) {
-                    // Login successful - redirect to admin panel
-                    window.location.href = '/admin-panel';
-                } else {
-                    // Login failed - show error
-                    showError(data.error || 'Login failed. Please try again.');
+                if (response.ok) { window.location.href = '/admin-panel'; } 
+                else {
+                    showError(data.error || 'Invalid credentials');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = 'Sign in';
                     passwordInput.value = '';

@@ -39,7 +39,7 @@ object AnalyticsSecurity {
     fun isInitialized(): Boolean = serverSalt != null
 
     /**
-     * Initialise the security module.
+     * Initialize the security module.
      *
      * @param salt       Server-wide secret (min 32 chars). Changing this
      *                   invalidates **all** existing visitor hashes.

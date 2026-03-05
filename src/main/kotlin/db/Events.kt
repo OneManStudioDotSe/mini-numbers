@@ -18,7 +18,7 @@ import java.time.LocalDateTime
  * | `download`   | Click on a file-download link.                             |
  *
  * ## Privacy
- * `visitorHash` is a rotating SHA-256 hash (see [AnalyticsSecurity]).
+ * `visitorHash` is a rotating SHA-256 hash (see [se.onemanstudio.core.AnalyticsSecurity]).
  * Raw IP addresses are **never** persisted. Geographic data (`country`,
  * `city`, `region`, `latitude`, `longitude`) comes from in-memory GeoIP
  * lookups and can be omitted entirely in STRICT or PARANOID privacy modes.
