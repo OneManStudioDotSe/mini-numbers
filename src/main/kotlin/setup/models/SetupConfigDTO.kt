@@ -10,6 +10,7 @@ data class SetupConfigDTO(
     val adminUsername: String,
     val adminPassword: String,
     val serverSalt: String,
+    val privacyMode: String,
     val allowedOrigins: String,
     val database: DatabaseSetupDTO,
     val server: ServerSetupDTO,

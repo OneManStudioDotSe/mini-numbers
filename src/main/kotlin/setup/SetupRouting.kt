@@ -265,6 +265,7 @@ private fun buildEnvContent(config: SetupConfigDTO): String {
     lines.add("ADMIN_PASSWORD=${hashedPassword}")
 
     lines.add("SERVER_SALT=${config.serverSalt}")
+    lines.add("PRIVACY_MODE=${config.privacyMode}")
     lines.add("")
 
     // CORS configuration
