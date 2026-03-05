@@ -326,7 +326,8 @@ const ChartManager = {
               autoSkip: false,
               maxRotation: 0,
               color: colors.textSecondary,
-              font: { size: 9, weight: '500' },
+              font: { size: 9, weight: '600' },
+              padding: 8,
               callback: (val) => {
                 if (val < 0 || val > 23 || val !== Math.floor(val)) return '';
                 return `${String(val).padStart(2, '0')}:00`;
@@ -335,8 +336,9 @@ const ChartManager = {
             grid: { 
               display: true,
               color: colors.border,
-              drawBorder: false,
-              drawOnChartArea: false
+              drawBorder: true,
+              drawOnChartArea: true,
+              tickLength: 4
             }
           },
           y: {
@@ -348,7 +350,8 @@ const ChartManager = {
               stepSize: 1,
               autoSkip: false,
               color: colors.textSecondary,
-              font: { size: 11, weight: '500' },
+              font: { size: 11, weight: '600' },
+              padding: 8,
               callback: (val) => {
                 if (val < 0 || val > 6 || val !== Math.floor(val)) return '';
                 return yLabels[val] || '';
@@ -357,8 +360,9 @@ const ChartManager = {
             grid: { 
               display: true,
               color: colors.border,
-              drawBorder: false,
-              drawOnChartArea: false
+              drawBorder: true,
+              drawOnChartArea: true,
+              tickLength: 4
             }
           }
         }

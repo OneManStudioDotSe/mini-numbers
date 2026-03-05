@@ -96,6 +96,7 @@ const Dashboard = {
 
     // Set up realtime demo toggle
     this.setupRealtimeDemo();
+    this.setupTimePatternsZoom();
 
     // New features: UI/UX improvements
     this.setupModals();
@@ -1116,10 +1117,37 @@ const Dashboard = {
         // Show random demo count between 5-42
         const demoCount = Math.floor(Math.random() * 38) + 5;
         if (el) animateCountUp(el, demoCount, 400, v => v.toString());
+        
+        // Show simulated feed items
+        this.renderSimulatedLiveFeed(demoCount);
       } else {
         // Resume real data
         this.updateRealtimeCount();
+        this.updateLiveFeed();
       }
+    });
+  },
+
+  /**
+   * Setup zoom toggle for Time Patterns section
+   */
+  setupTimePatternsZoom() {
+    const toggle = document.getElementById('time-zoom-toggle');
+    if (!toggle) return;
+
+    const buttons = toggle.querySelectorAll('.view-toggle__btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.dataset.view;
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        document.getElementById('heatmap-view').classList.toggle('hidden', view !== 'heatmap');
+        document.getElementById('calendar-view').classList.toggle('hidden', view !== 'calendar');
+        
+        // Trigger resize to ensure charts render correctly
+        window.dispatchEvent(new Event('resize'));
+      });
     });
   },
 
