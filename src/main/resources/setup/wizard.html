@@ -10,6 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+        <span class="sun">☀️</span>
+        <span class="moon" style="display: none;">🌙</span>
+    </button>
     <canvas id="bg-canvas"></canvas>
 
     <div class="wizard-container">
@@ -127,7 +131,7 @@
                         <input type="radio" name="privacyMode" value="STANDARD" checked>
                         <div class="card-content">
                             <div class="card-title">Standard</div>
-                            <div class="card-description">Full Geolocation (City/Country) and Device detection. 100% cookie-free.</div>
+                            <div class="card-description">Full Geolocation (city/country) and Device detection. 100% cookie-free.</div>
                         </div>
                     </label>
                     <label class="radio-card">
@@ -190,12 +194,6 @@
                         <input type="number" name="rateLimitPerApiKey" value="10000" placeholder="Per API Key">
                     </div>
                     <div class="field-tip">Pros: Prevents DDoS. Cons: May drop data during massive traffic spikes.</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Geolocation database</label>
-                    <input type="text" name="geoipPath" value="src/main/resources/geo/geolite2-city.mmdb" readonly>
-                    <div class="field-tip">Path to the MaxMind internal database. Automatically managed by Mini Numbers.</div>
                 </div>
             </div>
 
