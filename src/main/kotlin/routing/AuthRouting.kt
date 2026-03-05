@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.LoginRequest
-import se.onemanstudio.api.models.PasswordResetRequest
+import se.onemanstudio.api.models.admin.PasswordResetRequest
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.JwtService

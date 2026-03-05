@@ -61,7 +61,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<GoalRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }
@@ -190,7 +190,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<FunnelRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }
@@ -322,7 +322,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<SegmentRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }
@@ -472,7 +472,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<CreateWebhookRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }
@@ -654,7 +654,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<CreateEmailReportRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }
@@ -704,7 +704,7 @@ fun Route.adminFeatureRoutes() {
 
         val request = try {
             call.receive<UpdateEmailReportRequest>()
-        } catch (_: ContentTransformationException) {
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
             return@put call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid request body"))
         }

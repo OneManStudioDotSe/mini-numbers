@@ -12,23 +12,10 @@ import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.services.GeoLocationService
 
 fun Route.publicRoutes(config: AppConfig) {
-    // Health check endpoint (for monitoring / liveness probes)
-    get("/health") {
-        val status = if (ServiceManager.isInitialized()) "up" else "down"
-        val uptimeSeconds = (System.currentTimeMillis() - ServiceManager.getStartTime()) / 1000
-        call.respond(mapOf(
-            "status" to status,
-            "version" to "1.0.0-beta",
-            "uptime" to uptimeSeconds,
-            "environment" to if (config.server.isDevelopment) "dev" else "prod",
-            "initialized" to ServiceManager.isInitialized()
-        ))
-    }
-
     // Prometheus-style metrics endpoint
     get("/metrics") {
         val geoStats = GeoLocationService.cacheStats()
-        val uptimeSeconds = (System.currentTimeMillis() - ServiceManager.getStartTime()) / 1000
+        val uptimeSeconds = ServiceManager.getUptimeSeconds()
         
         val metrics = StringBuilder()
         metrics.append("# HELP mini_numbers_uptime_seconds Uptime of the application in seconds\n")

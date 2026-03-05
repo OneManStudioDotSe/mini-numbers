@@ -101,28 +101,25 @@ fun Application.configureSetupRouting() {
             val setupNeeded = ConfigLoader.isSetupNeeded()
             val state = ServiceManager.getState()
 
-            when (state) {
-                ServiceManager.State.ERROR -> {
-                    call.respond(
-                        HttpStatusCode.ServiceUnavailable,
-                        buildJsonObject {
-                            put("status", "error")
-                            put("servicesReady", false)
-                            put("message", ServiceManager.getLastError()?.message ?: "Service initialization failed")
-                        }
-                    )
-                }
-                else -> {
-                    call.respond(
-                        HttpStatusCode.OK,
-                        buildJsonObject {
-                            put("status", "ok")
-                            put("servicesReady", servicesReady)
-                            put("setupNeeded", setupNeeded)
-                        }
-                    )
-                }
+            val status = when (state) {
+                ServiceManager.State.ERROR -> "unhealthy"
+                ServiceManager.State.READY -> "healthy"
+                else -> "ok"
             }
+
+            call.respond(
+                HttpStatusCode.OK,
+                buildJsonObject {
+                    put("status", status)
+                    put("state", state.toString())
+                    put("version", "1.0.0-beta")
+                    put("servicesReady", servicesReady)
+                    put("setupNeeded", setupNeeded)
+                    if (state == ServiceManager.State.ERROR) {
+                        put("message", ServiceManager.getLastError()?.message ?: "Service initialization failed")
+                    }
+                }
+            )
         }
 
         // API: Save configuration and initialize services (NO RESTART!)
