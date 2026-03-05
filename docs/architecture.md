@@ -22,7 +22,7 @@ A technical overview of how Mini Numbers is built, for developers and contributo
 | **Connection pooling** | HikariCP                                  |
 | **Caching**            | Caffeine                                  |
 | **Geolocation**        | MaxMind GeoIP2 (bundled offline database) |
-| **User agent parsing** | UserAgentUtils                            |
+| **User agent parsing** | Custom Regex-based parser                 |
 | **Serialization**      | kotlinx.serialization                     |
 | **Build tool**         | Gradle with Kotlin DSL                    |
 | **Static analysis**    | Detekt                                    |
@@ -31,29 +31,33 @@ A technical overview of how Mini Numbers is built, for developers and contributo
 
 ## Project structure
 
+The project follows a standard Kotlin/JVM structure, with all code residing in the `se.onemanstudio` package.
+
 ```
 mini-numbers/
-├── src/main/kotlin/
-│   ├── Application.kt              # Entry point
-│   ├── Routing.kt                  # All API endpoints
-│   ├── DataAnalysisUtils.kt        # Analytics calculations
-│   ├── ConversionAnalysisUtils.kt  # Goal & funnel logic
-│   ├── api/models/                 # Request/response data classes
-│   ├── config/                     # Configuration loading
-│   ├── core/                       # Security, auth, service lifecycle
-│   ├── db/                         # Database tables and setup
-│   ├── middleware/                  # Validation, caching, rate limiting
-│   ├── services/                   # GeoIP and user agent services
-│   └── setup/                      # Setup wizard backend
+├── src/main/kotlin/se/onemanstudio/
+│   ├── Application.kt              # Entry point & Ktor module configuration
+│   ├── Routing.kt                  # Main route installation
+│   ├── WidgetRouting.kt            # Sparkline and public widget endpoints
+│   ├── api/models/                 # Shared request/response DTOs
+│   ├── config/                     # Configuration loading & validation logic
+│   ├── core/                       # Auth, ServiceManager, and JWT services
+│   ├── db/                         # Table schemas and DatabaseFactory
+│   ├── middleware/                 # Rate limiting, Cache, and Input validation
+│   ├── routing/                    # Modular API route definitions
+│   │   ├── AdminAnalyticsRouting.kt # Reports and stats
+│   │   ├── AdminFeatureRouting.kt   # Goals, Funnels, Webhooks
+│   │   ├── AdminProjectRouting.kt   # Project CRUD
+│   │   ├── AuthRouting.kt           # Login, Token, Password Reset
+│   │   └── CollectionRouting.kt     # The /collect endpoint
+│   ├── services/                   # Business logic (GeoIP, Email, Webhooks)
+│   └── utils/                      # High-performance analytics aggregators
 ├── src/main/resources/
-│   ├── static/                     # Dashboard frontend (HTML/CSS/JS)
-│   ├── setup/                      # Setup wizard frontend
+│   ├── static/                     # Dashboard frontend (Vanilla JS/CSS)
+│   ├── setup/                      # Premium Setup Wizard (HTML5 Canvas)
+│   ├── tracker/                    # tracker.js and minified versions
 │   └── geo/                        # Bundled GeoIP database
-├── src/test/kotlin/                # Test suite (288 tests)
-├── docs/                           # GitHub Pages documentation
-├── _docs/                          # Internal project docs
-├── Dockerfile                      # Multi-stage production build
-└── docker-compose.yml              # Docker deployment
+└── src/test/kotlin/se/onemanstudio/ # Comprehensive test suite (288 tests)
 ```
 
 ---
@@ -64,23 +68,16 @@ Mini Numbers uses a **ServiceManager** that handles startup and hot-reload witho
 
 ### Startup flow
 
-1. **Configuration loaded** — Environment variables or `.env` file parsed
-2. **Security initialized** — Server salt and hash rotation configured
-3. **Database connected** — SQLite or PostgreSQL initialized, tables created
-4. **GeoIP loaded** — MaxMind database opened (optional, non-fatal if missing)
-5. **Data retention started** — Background timer for automatic data purge
-6. **HTTP configured** — CORS, content negotiation, session auth
-7. **Routes installed** — Data collection and admin API endpoints registered
+1. **Configuration loaded** — Environment variables or `.env` file parsed.
+2. **Security initialized** — Server salt, hash rotation, and JWT signing configured.
+3. **Database connected** — SQLite or PostgreSQL initialized, tables created/updated.
+4. **GeoIP loaded** — MaxMind database opened (optional, non-fatal if missing).
+5. **Data retention started** — Background timer for automatic data purge.
+6. **Unified Routing** — Public, Setup, and Admin routes installed.
 
 ### Zero-restart setup
 
-The setup wizard can configure and initialize the application without a restart. The ServiceManager coordinates this:
-
-```
-Setup Wizard → Save Config → Initialize Services → Ready
-```
-
-This means users can go from first launch to a working dashboard without touching config files or restarting the server.
+The premium setup wizard can configure the entire application mid-session. The ServiceManager handles the reload of all internal components (DB, Cache, GeoIP) without killing the Ktor process.
 
 ---
 
@@ -91,148 +88,55 @@ This means users can go from first launch to a working dashboard without touchin
 ```
 Visitor's browser
     ↓ (HTTP POST /collect)
-Rate limiter
-    ↓ (check limits)
-Input validator
-    ↓ (sanitize payload)
-Privacy processor
-    ↓ (hash IP, apply privacy mode)
-GeoIP lookup (in memory)
-    ↓ (country/city from IP, then discard IP)
-User agent parser
-    ↓ (extract browser/OS/device, discard raw UA)
-Database insert
-    ↓ (store anonymized event)
-Cache invalidation
-    ↓ (clear stale query cache)
+Rate limiter (Caffeine-backed)
+    ↓ (check IP and API Key limits)
+Input validator (Regex-based sanitization)
+    ↓
+Privacy processor (Hash IP + UA + Salt)
+    ↓
+GeoIP lookup (Enforced by PRIVACY_MODE)
+    ↓ (STANDARD: City/Country, STRICT: Country, PARANOID: None)
+User agent parser (Extract Browser/OS/Device)
+    ↓
+Database insert (Exposed DSL)
+    ↓
+Cache invalidation (Invalidate current project's report cache)
 Response → 204 No Content
 ```
-
-### Serving a dashboard report
-
-```
-Admin dashboard
-    ↓ (GET /admin/projects/{id}/report)
-Session auth check
-    ↓ (verify login session)
-Query cache lookup
-    ↓ (return cached result if fresh)
-Database query
-    ↓ (aggregated analytics via indexed queries)
-Cache store (30-second TTL)
-    ↓
-JSON response → Dashboard
-```
-
----
-
-## Database schema
-
-### Core tables
-
-**Events** — The primary data table. Every page view, heartbeat, and custom event is stored here.
-
-| Column      | Type     | Description                          |
-|-------------|----------|--------------------------------------|
-| id          | Long     | Auto-incrementing primary key        |
-| projectId   | UUID     | Which project this event belongs to  |
-| visitorHash | String   | Anonymous visitor identifier         |
-| sessionId   | String   | Random session identifier            |
-| eventType   | String   | `pageview`, `heartbeat`, or `custom` |
-| eventName   | String?  | Name for custom events               |
-| path        | String   | Page URL path                        |
-| referrer    | String?  | Where the visitor came from          |
-| country     | String?  | Visitor's country                    |
-| city        | String?  | Visitor's city                       |
-| browser     | String?  | Browser name                         |
-| os          | String?  | Operating system                     |
-| device      | String?  | Device type                          |
-| duration    | Int      | Time on page in seconds              |
-| timestamp   | DateTime | When the event occurred              |
-
-**8 composite indexes** ensure fast query performance across all analytics dimensions.
-
-### Supporting tables
-
-- **Projects** — Website projects with name, domain, and API key
-- **ConversionGoals** — URL or event-based goals with match patterns
-- **Funnels / FunnelSteps** — Multi-step conversion funnels
-- **Segments** — User segments with JSON filter definitions
 
 ---
 
 ## Caching strategy
 
-Mini Numbers uses Caffeine for three caching layers:
-
 | Cache            | Max entries | TTL        | Purpose                     |
 |------------------|-------------|------------|-----------------------------|
-| **Query cache**  | 500         | 30 seconds | Dashboard report results    |
+| **Query cache**  | 500         | 30 seconds | Aggregated dashboard data   |
+| **Widget cache** | 1,000       | 5 minutes  | Sparkline & widget SVG data |
 | **GeoIP cache**  | 10,000      | 1 hour     | IP-to-location lookups      |
-| **Rate limiter** | Per-config  | 1 minute   | Request counting per IP/key |
+| **Rate limiter** | Dynamic     | 1 minute   | Request counting            |
 
-The query cache is automatically invalidated when new data is collected, ensuring the dashboard always shows fresh results.
-
----
-
-## Authentication
-
-- **Session-based auth** with secure cookies (HttpOnly, Secure, SameSite=Strict)
-- **Brute force protection** — 5 failed attempts triggers a 15-minute lockout
-- **Session timeout** — 4-hour inactivity timeout, 7-day maximum age
-- **Public endpoints** (`/collect`, `/health`, `/tracker/*`) require no authentication
-- **Admin endpoints** (`/admin/*`) require an active session
+The query cache is project-aware and automatically clears when new events arrive, ensuring data is always "Live."
 
 ---
 
-## API design
+## Authentication & Security
 
-All API endpoints follow consistent patterns:
-
-- **JSON** request and response bodies
-- **Standardized errors** with code, message, and optional details
-- **Pagination** via `?page=&limit=` query parameters
-- **Cache headers** on report endpoints
-- **Rate limiting** on all endpoints
-
-The full API is documented with an **OpenAPI 3.0.3** specification available at `/admin-panel/openapi.yaml`.
+- **Multi-layered Auth**: Supports Session-based auth for the Dashboard and JWT for programmatic API access.
+- **RBAC**: Roles for `ADMIN` (full access) and `VIEWER` (read-only, masked API keys).
+- **Brute force protection**: Sliding window rate limiting on all sensitive endpoints.
+- **CSP**: Strict Content Security Policy allowing only trusted CDNs and Google Fonts.
 
 ---
 
-## Testing
+## Testing & Quality
 
-288 tests organized by layer:
-
-| Category           | Tests | What's tested                            |
-|--------------------|-------|------------------------------------------|
-| Security           | 13    | Visitor hashing, hash rotation           |
-| Service lifecycle  | 13    | ServiceManager states and transitions    |
-| Input validation   | 26    | Sanitization, edge cases, XSS prevention |
-| User agent parsing | 22    | Browser/OS/device detection              |
-| Analytics          | 22    | Calculations, aggregations               |
-| Data collection    | 19    | `/collect` endpoint behavior             |
-| Admin API          | 14    | Project management, reports              |
-| Health endpoint    | 6     | Health check responses                   |
-| Setup wizard       | 10    | Configuration flow                       |
-| End-to-end         | 9     | Full tracking workflows                  |
-
-Run the full suite:
-
-```bash
-./gradlew test
-```
-
----
-
-## Build system
+288 tests verify the project across all layers (Unit, Integration, and E2E).
 
 | Command                   | What it does                                  |
 |---------------------------|-----------------------------------------------|
-| `./gradlew run`           | Start the development server                  |
-| `./gradlew test`          | Run all tests                                 |
-| `./gradlew build`         | Build everything                              |
-| `./gradlew buildFatJar`   | Create a standalone JAR with all dependencies |
-| `./gradlew detekt`        | Run static analysis                           |
-| `./gradlew minifyTracker` | Minify the tracking script                    |
+| `./gradlew test`          | Run the full test suite                       |
+| `./gradlew detekt`        | Run static analysis (custom thresholds)       |
+| `./gradlew compileKotlin` | Full type-check and compilation               |
+| `./gradlew minifyTracker` | Minify the tracker.js script                  |
 
-The Docker build uses a multi-stage process: build the fat JAR in a Gradle container, then copy it into a minimal JRE runtime image.
+The build is verified against **JDK 21** and enforces clean code standards via **Detekt**.

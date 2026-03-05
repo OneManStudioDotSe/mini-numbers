@@ -1,188 +1,71 @@
 ---
 title: Features
 layout: default
-nav_order: 4
+nav_order: 2
 ---
 
 # Features
 
-An overview of everything Mini Numbers can do for you.
+Mini Numbers provides a robust set of web analytics features focused on performance, privacy, and actionable insights.
 
 ---
 
-## Real-time analytics
+## 🛡️ Privacy by Design
 
-Your dashboard updates in real time. See who's on your site right now, which pages they're viewing, and where they're visiting from — all without refreshing the page.
+Privacy isn't a checkbox; it's our architecture. Mini Numbers offers three distinct privacy modes to suit your needs:
 
-The **live feed** shows visitors from the last 5 minutes with their location, current page, and device information.
+- **Standard Mode**: Detailed Geolocation (City/Country) and Device detection. 100% cookie-free and GDPR-compliant.
+- **Strict Mode**: Country-level location only. No city or region data is ever processed or stored.
+- **Paranoid Mode**: Zero-PII. No location, device, or browser data. Only the page path and a rotating timestamp are recorded.
 
----
-
-## Page view tracking
-
-Every page visit is automatically tracked when you add the tracking script. You'll see:
-
-- **Total page views** with comparison to the previous period
-- **Unique visitors** counted without cookies or personal data
-- **Bounce rate** — the percentage of visitors who leave after viewing one page
-- **Top pages** — your most popular content ranked by traffic
+**Key Privacy Attributes:**
+- **No Cookies**: We never store or read cookies from the visitor's browser.
+- **Rotating Hashes**: Visitor IDs are hashed with a server salt and rotated every 24 hours.
+- **No PII**: No IP addresses or personal data ever touch the database.
 
 ---
 
-## Time-based insights
+## 📊 Analytics Dashboard
 
-### Time series charts
+A premium, unified dashboard that gives you a complete view of your site's health.
 
-See how your traffic changes over time with flexible time filters:
-- Last 24 hours, 3 days, 7 days, 30 days, or 365 days
-- Automatic granularity (hourly, daily, or weekly) based on the time range
-
-### Activity heatmap
-
-A 7-day by 24-hour grid showing when your site gets the most traffic. Each cell is color-coded by intensity — great for spotting patterns like lunch-hour traffic spikes or weekend dips.
-
-### Peak time analysis
-
-Quickly identify your busiest hours and days so you know the best times to publish content or run promotions.
-
-### Contribution calendar
-
-A GitHub-style 365-day view of your site's activity. Each day is colored by traffic intensity, giving you a big-picture view of trends over the year.
+- **Real-time Feed**: See visitors as they arrive with a simulated "Live Feed" and active visitor count.
+- **Unified Time Analysis**:
+    - **Hourly Heatmap**: Visualize peak activity times throughout the week.
+    - **Activity Calendar**: Track long-term trends across 365 days.
+    - **Zoom Logic**: Effortlessly switch between period-specific and yearly views.
+- **Peak Metrics**: Instant identification of your Busiest Day, Peak Hour, and Top Month.
+- **Interactive Globe**: A 3D-style visualization of where your traffic is coming from.
 
 ---
 
-## Visitor breakdowns
+## 🎯 Conversion & Growth
 
-Understand your audience with detailed breakdowns:
+Go beyond page views to understand how your site performs as a business tool.
 
-- **Browsers** — Chrome, Firefox, Safari, Edge, and others
-- **Operating systems** — Windows, macOS, Linux, iOS, Android
-- **Devices** — Desktop, mobile, tablet
-- **Referrers** — Where your visitors came from (search engines, social media, other sites)
-- **Countries and cities** — Geographic distribution with interactive maps
-
----
-
-## Custom event tracking
-
-Track any action on your site by adding a simple JavaScript call:
-
-```javascript
-MiniNumbers.track("signup");
-MiniNumbers.track("add-to-cart");
-MiniNumbers.track("download");
-```
-
-Events appear in a dedicated section of your dashboard with a bar chart showing relative frequency.
+- **Conversion Goals**: Track key actions like signups, downloads, or specific URL arrivals.
+- **Multi-step Funnels**: Visualize where users drop off in your onboarding or checkout flows.
+- **User Segments**: Create meaningful groups (e.g., "Mobile Users", "US Traffic") to analyze behavior in isolation.
+- **Revenue Tracking**: Attribute monetary value to events to calculate AOV (Average Order Value) and RPV (Revenue per Visitor).
 
 ---
 
-## Conversion goals
+## 🛠️ Developer & Admin Tools
 
-Set up goals to measure how well your site converts visitors into actions.
+Built for those who want control and flexibility.
 
-### URL-based goals
-
-Track when visitors reach a specific page:
-- Thank-you page after a purchase
-- Confirmation page after a signup
-- Any URL pattern you define
-
-### Event-based goals
-
-Track when visitors trigger a custom event:
-- Click a "Buy" button
-- Submit a contact form
-- Complete an onboarding flow
-
-Each goal shows its **conversion rate** — the percentage of visitors who completed the action — with comparisons to the previous period.
+- **Premium Setup Wizard**: A streamlined, animated onboarding flow that configures your server in minutes.
+- **Modular API**: Full REST API support with both Session and JWT authentication.
+- **Webhooks**: Send real-time event data to Slack, Discord, or your own custom backend.
+- **Automated Email Reports**: Schedule daily, weekly, or monthly analytics summaries delivered to your inbox.
+- **Raw Events Viewer**: A high-performance, paginated browser for inspecting every anonymized event in detail.
+- **One-Click Demo Data**: Instantly populate your dashboard with realistic sample data to test your setup.
 
 ---
 
-## Funnels
+## ⚡ Technical Excellence
 
-Funnels help you understand multi-step processes on your site. Define a sequence of steps (pages or events), and Mini Numbers shows you:
-
-- How many visitors entered the funnel
-- How many completed each step
-- Where the biggest drop-offs happen
-- The overall completion rate
-
-For example, a checkout funnel might track: Product Page → Add to Cart → Checkout → Payment → Confirmation.
-
----
-
-## User segments
-
-Create custom audience segments using a visual filter builder. Combine conditions with AND/OR logic to isolate specific groups:
-
-- Visitors from a specific country
-- Mobile users who visited a certain page
-- Visitors referred from a particular source
-- Any combination of the above
-
-Segments help you understand how different groups of visitors behave differently on your site.
-
----
-
-## Multi-project support
-
-Track multiple websites from a single Mini Numbers instance. Each project has:
-
-- Its own API key
-- Separate statistics and dashboards
-- Independent goals, funnels, and segments
-
-Switch between projects from the sidebar in the dashboard.
-
----
-
-## Data export
-
-Export any report as a **CSV file** for further analysis in spreadsheets or other tools. The raw events view lets you browse and export individual tracking events with filtering and sorting.
-
----
-
-## Embeddable widgets
-
-Share live stats publicly by embedding widgets on any page:
-
-```html
-<!-- Real-time visitor count -->
-<div data-mn-widget="realtime" data-mn-key="YOUR_API_KEY"></div>
-
-<!-- Page view counter -->
-<div data-mn-widget="pageviews" data-mn-key="YOUR_API_KEY"></div>
-
-<!-- Top pages list -->
-<div data-mn-widget="toppages" data-mn-key="YOUR_API_KEY"></div>
-
-<!-- Sparkline chart -->
-<div data-mn-widget="sparkline" data-mn-key="YOUR_API_KEY"></div>
-```
-
----
-
-## Dark mode
-
-Toggle between light and dark themes from the dashboard. Your preference is saved automatically.
-
----
-
-## Single-page app (SPA) support
-
-If your website is built with React, Vue, Next.js, or similar frameworks, Mini Numbers automatically tracks page navigation without any extra setup. This can be turned off if needed.
-
----
-
-## Privacy modes
-
-Choose the level of data collection that matches your privacy requirements:
-
-| Mode         | What's collected                               |
-|--------------|------------------------------------------------|
-| **Standard** | Page views, country, city, browser, OS, device |
-| **Strict**   | Page views, country only, browser, OS, device  |
-| **Paranoid** | Page views only — no location or device data   |
-
-Read more in the [Privacy](privacy) guide.
+- **Ultra-lightweight Tracker**: The `tracker.js` script is under 2KB, ensuring zero impact on your site's performance.
+- **Single-Binary Deployment**: Self-host anywhere with a single Fat JAR or a minimal Docker image.
+- **Multi-Database Support**: Use SQLite for simplicity or PostgreSQL for scale.
+- **Zero-Restart Config**: Update your server settings via the UI without dropping a single visitor event.
