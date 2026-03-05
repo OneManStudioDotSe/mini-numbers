@@ -10,12 +10,18 @@
     var spaEnabled = s.getAttribute('data-disable-spa') !== 'true';
 
     // Session ID (per tab, no cookies)
-    var sid = sessionStorage.getItem('mn_sid');
-    if (!sid) {
-        var a = new Uint8Array(16);
-        crypto.getRandomValues(a);
-        sid = Array.from(a, function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-        sessionStorage.setItem('mn_sid', sid);
+    var sid = null;
+    try {
+        sid = sessionStorage.getItem('mn_sid');
+        if (!sid) {
+            var a = new Uint8Array(16);
+            crypto.getRandomValues(a);
+            sid = Array.from(a, function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+            sessionStorage.setItem('mn_sid', sid);
+        }
+    } catch (e) {
+        // Fallback for browsers with disabled storage (e.g. private mode)
+        sid = 'anon-' + Math.random().toString(36).substring(2, 15);
     }
 
     // UTM parameter extraction and persistence
@@ -24,8 +30,13 @@
         var map = {utm_source:'utmSource', utm_medium:'utmMedium', utm_campaign:'utmCampaign', utm_term:'utmTerm', utm_content:'utmContent'};
         var utm = {};
         for (var k in map) { var v = params.get(k); if (v) utm[map[k]] = v; }
-        if (Object.keys(utm).length) sessionStorage.setItem('mn_utm', JSON.stringify(utm));
-        try { return JSON.parse(sessionStorage.getItem('mn_utm') || '{}'); } catch(e) { return {}; }
+        
+        try {
+            if (Object.keys(utm).length) sessionStorage.setItem('mn_utm', JSON.stringify(utm));
+            return JSON.parse(sessionStorage.getItem('mn_utm') || '{}');
+        } catch(e) { 
+            return utm; // Return current UTMs even if storage fails
+        }
     }
 
     // Send event to server
@@ -55,9 +66,14 @@
 
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
-            clearInterval(hb);
+            if (hb) {
+                clearInterval(hb);
+                hb = null;
+            }
         } else {
-            hb = setInterval(function() { send('heartbeat'); }, heartbeatInterval);
+            if (!hb) {
+                hb = setInterval(function() { send('heartbeat'); }, heartbeatInterval);
+            }
         }
     });
 
