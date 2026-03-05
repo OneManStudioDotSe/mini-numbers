@@ -18,6 +18,7 @@ import se.onemanstudio.api.models.dashboard.TopPage
 import se.onemanstudio.api.models.dashboard.VisitSnippet
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
+import se.onemanstudio.middleware.getUserRole
 import se.onemanstudio.db.*
 import se.onemanstudio.middleware.QueryCache
 import se.onemanstudio.middleware.WidgetCache
