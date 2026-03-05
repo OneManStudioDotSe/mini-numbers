@@ -47,7 +47,20 @@ const ChartManager = {
             if (label) {
               label += ': ';
             }
-            label += Utils.format.number(context.parsed.y || context.parsed);
+            
+            // Axis-aware value extraction to avoid [object Object] and mismatched data
+            let value;
+            const parsed = context.parsed;
+            const options = context.chart.config.options;
+            
+            if (parsed && typeof parsed === 'object') {
+              // If horizontal bar chart (indexAxis: 'y'), value is in x. Else in y.
+              value = (options.indexAxis === 'y') ? parsed.x : (parsed.y !== undefined ? parsed.y : parsed.v);
+            } else {
+              value = parsed;
+            }
+            
+            label += Utils.format.number(value);
             return label;
           },
         },
@@ -319,7 +332,12 @@ const ChartManager = {
                 return `${String(val).padStart(2, '0')}:00`;
               }
             },
-            grid: { display: false }
+            grid: { 
+              display: true,
+              color: colors.border,
+              drawBorder: false,
+              drawOnChartArea: false
+            }
           },
           y: {
             type: 'linear',
@@ -336,7 +354,12 @@ const ChartManager = {
                 return yLabels[val] || '';
               }
             },
-            grid: { display: false }
+            grid: { 
+              display: true,
+              color: colors.border,
+              drawBorder: false,
+              drawOnChartArea: false
+            }
           }
         }
       }
@@ -380,17 +403,26 @@ const ChartManager = {
         scales: {
           r: {
             beginAtZero: true,
-            ticks: {
-              color: colors.text,
-              backdropColor: 'transparent'
+            angleLines: {
+              display: true,
+              color: colors.border
             },
             grid: {
-              color: colors.grid
+              color: colors.border
+            },
+            ticks: {
+              display: true,
+              color: colors.textSecondary,
+              backdropColor: 'transparent',
+              font: { size: 10 }
             },
             pointLabels: {
+              display: true,
               color: colors.text,
               font: {
-                size: 12
+                family: 'var(--font-family-base)',
+                size: 11,
+                weight: '500'
               }
             }
           }
@@ -449,11 +481,13 @@ const ChartManager = {
         scales: {
           x: {
             beginAtZero: true,
-            grace: '5%',
             grid: {
               display: true,
+              drawBorder: false,
+              color: colors.border,
             },
             ticks: {
+              maxTicksLimit: 8,
               callback: function (value) {
                 return Utils.format.compact(value);
               },
@@ -465,6 +499,7 @@ const ChartManager = {
             },
             ticks: {
               padding: 8,
+              autoSkip: true,
             },
           },
         },
@@ -529,7 +564,6 @@ const ChartManager = {
     chartEl.className = 'icon-bar-chart';
 
     chartEl.innerHTML = items.map(item => {
-      const pct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
       const pctOfTotal = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
       const displayLabel = item.label.replace(/^https?:\/\//, '');
       let iconHtml = '';
@@ -549,7 +583,7 @@ const ChartManager = {
             <span class="icon-bar-chart__name">${Utils.escapeHtml(displayLabel)}</span>
           </div>
           <div class="icon-bar-chart__bar-wrap">
-            <div class="icon-bar-chart__bar" style="width: ${pct}%"></div>
+            <div class="icon-bar-chart__bar" style="width: ${pctOfTotal}%"></div>
           </div>
           <div class="icon-bar-chart__value">
             ${Utils.format.compact(item.value)}<span class="icon-bar-chart__pct">${pctOfTotal}%</span>

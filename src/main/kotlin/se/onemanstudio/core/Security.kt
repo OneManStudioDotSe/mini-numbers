@@ -66,7 +66,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
                 (Users.username eq username) and (Users.isActive eq true)
             }.singleOrNull()
         }
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
         null // DB not available yet (setup mode)
     }
 
@@ -76,7 +76,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
         val storedHash = dbUser[Users.passwordHash]
         passwordMatches = try {
             BCrypt.checkpw(password, storedHash)
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Password verification error: ${e.message}")
             false
         }
@@ -97,7 +97,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
                 logger.error("Admin password in config is not BCrypt-hashed.")
                 false
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Password verification error: ${e.message}")
             false
         }

@@ -120,7 +120,7 @@ object ServiceManager {
             try {
                 GeoLocationService.init(config.geoip.databasePath)
                 logger.info("GeoIP service initialized successfully")
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.warn("GeoIP service initialization failed: ${e.message}")
                 logger.warn("Location tracking will be disabled")
             }
@@ -145,7 +145,7 @@ object ServiceManager {
             logger.info("All services initialized successfully")
             return true
 
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             currentState = State.ERROR
             lastError = e
             logger.error("Failed to initialize services: ${e.message}", e)
@@ -173,7 +173,7 @@ object ServiceManager {
             currentState = State.UNINITIALIZED
             startTime = 0
             logger.info("All services shut down successfully")
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Error during shutdown: ${e.message}", e)
         }
     }
@@ -196,7 +196,7 @@ object ServiceManager {
                         if (deleted > 0) {
                             logger.info("Data retention cleanup: deleted $deleted events older than $retentionDays days")
                         }
-                    } catch (e: Exception) {
+                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                         logger.error("Data retention cleanup failed: ${e.message}")
                     }
                 }

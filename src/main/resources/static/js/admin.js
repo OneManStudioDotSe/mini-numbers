@@ -909,11 +909,14 @@ const Dashboard = {
       }
     });
 
-    // Custom Events - Bar Chart (show section only when data exists)
+    // Custom Events - Icon Bar Chart (show section only when data exists)
     const customEventsSection = document.getElementById('custom-events-section');
-    if (data.customEvents?.length && document.getElementById('chart-custom-events')) {
+    const customEventsEl = document.getElementById('chart-custom-events');
+    if (data.customEvents?.length && customEventsEl) {
       if (customEventsSection) customEventsSection.style.display = '';
-      ChartManager.createBarChart('chart-custom-events', data.customEvents);
+      
+      // Use the premium proportional icon bar chart
+      this.renderIconBarChartWithShowMore('chart-custom-events', data.customEvents, 'custom', 5);
 
       // Update annotation with total count and top event
       const annotation = document.getElementById('custom-events-annotation');
@@ -968,7 +971,8 @@ const Dashboard = {
     // Activity Heatmap
     const heatmapEl = document.getElementById('chart-heatmap');
     if (data.activityHeatmap?.length && heatmapEl) {
-      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap);
+      ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, null, null, this.getHeatmapDateLabels());
+      this.updatePeakTimeStats(data.activityHeatmap);
     } else if (heatmapEl) {
       Utils.dom.showEmptyState(heatmapEl.parentElement, { icon: '&#128197;', message: 'No activity data yet' });
     }
@@ -1120,6 +1124,44 @@ const Dashboard = {
   },
 
   /**
+   * Render simulated live feed items for demo mode
+   */
+  renderSimulatedLiveFeed(count) {
+    const feedEl = document.getElementById('live-feed');
+    if (!feedEl) return;
+
+    const paths = ['/', '/blog', '/pricing', '/docs', '/about', '/features', '/blog/new-release'];
+    const locations = [
+      { country: 'United States', city: 'New York', code: 'US' },
+      { country: 'United Kingdom', city: 'London', code: 'GB' },
+      { country: 'Germany', city: 'Berlin', code: 'DE' },
+      { country: 'France', city: 'Paris', code: 'FR' },
+      { country: 'Japan', city: 'Tokyo', code: 'JP' },
+      { country: 'Canada', city: 'Toronto', code: 'CA' }
+    ];
+
+    const itemCount = Math.min(count, 8); // Show up to 8 simulated items
+    let html = '';
+
+    for (let i = 0; i < itemCount; i++) {
+      const path = paths[Math.floor(Math.random() * paths.length)];
+      const loc = locations[Math.floor(Math.random() * locations.length)];
+      const flag = Utils.icons.countryFlag(loc.country);
+      const time = Math.floor(Math.random() * 5); // 0-4 mins ago
+
+      html += `
+        <div class="live-feed__item">
+          <div class="live-feed__path">${path}</div>
+          <div class="live-feed__meta">
+            ${flag ? `<span class="flag-emoji">${flag}</span> ` : ''}${loc.city}, ${loc.country} • ${time === 0 ? 'just now' : time + 'm ago'}
+          </div>
+        </div>`;
+    }
+
+    feedEl.innerHTML = html;
+  },
+
+  /**
    * Update live feed
    */
   async updateLiveFeed() {
@@ -1238,10 +1280,13 @@ const Dashboard = {
     canvas.style.display = '';
 
     if (type === 'bar') {
+      container.classList.remove('chart-card__container--radar');
       ChartManager.createIconBarChart(chartId, items, iconType);
     } else if (type === 'radar') {
+      container.classList.add('chart-card__container--radar');
       ChartManager.createRadarChart(chartId, items);
     } else {
+      container.classList.remove('chart-card__container--radar');
       ChartManager.createIconDoughnutChart(chartId, items, iconType);
     }
   },
@@ -2118,17 +2163,41 @@ const Dashboard = {
       if (!data.events || data.events.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">No events found</td></tr>';
       } else {
+        const today = new Date().toDateString();
         tbody.innerHTML = data.events.map(e => {
           const badgeClass = e.eventType === 'pageview' ? 'primary' : e.eventType === 'custom' ? 'accent' : 'secondary';
           const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${e.eventName}` : e.eventType;
+          
+          // Timestamp logic
+          const dateDate = new Date(e.timestamp);
+          const isToday = dateDate.toDateString() === today;
+          const timestampDisplay = isToday 
+            ? Utils.time.formatTime(e.timestamp)
+            : `<div style="display: flex; flex-direction: column; line-height: 1.2;"><span style="font-size: 0.85em; color: var(--color-text-muted);">${Utils.time.formatDate(e.timestamp)}</span><span>${Utils.time.formatTime(e.timestamp)}</span></div>`;
+
+          // Location logic
+          const flag = e.country ? Utils.icons.countryFlag(e.country) : '';
+          const countryName = e.country || 'Unknown';
+          const regionName = e.city || e.region || '';
+          const locationDisplay = `<div style="display: flex; align-items: center; gap: 6px;">
+            ${flag ? `<span style="font-size: 1.2em; line-height: 1;">${flag}</span>` : ''}
+            <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                <span>${Utils.escapeHtml(countryName)}</span>
+                ${regionName ? `<span style="font-size: 0.85em; color: var(--color-text-muted);">${Utils.escapeHtml(regionName)}</span>` : ''}
+            </div>
+          </div>`;
+
+          // Path logic
+          const pathDisplay = `<code style="font-family: monospace; font-size: 0.9em; color: var(--color-primary); background: var(--color-bg-tertiary); padding: 2px 4px; border-radius: 4px; word-break: break-all; display: inline-block;">${Utils.escapeHtml(e.path)}</code>`;
+
           return `
           <tr>
-            <td>${Utils.time.formatTime(e.timestamp)}</td>
+            <td style="white-space: nowrap;">${timestampDisplay}</td>
             <td><span class="badge badge-${badgeClass}">${typeLabel}</span></td>
-            <td>${e.path}</td>
-            <td>${e.city || 'Unknown'}, ${e.country || 'Unknown'}</td>
-            <td>${e.browser || 'Unknown'}</td>
-            <td>${e.device || 'Unknown'}</td>
+            <td style="min-width: 200px; max-width: 400px; word-break: break-word;">${pathDisplay}</td>
+            <td>${locationDisplay}</td>
+            <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(e.browser)}">${Utils.escapeHtml(e.browser || 'Unknown')}</td>
+            <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(e.device)}">${Utils.escapeHtml(e.device || 'Unknown')}</td>
             <td>${e.duration || 0}s</td>
           </tr>
         `}).join('');
@@ -2202,6 +2271,52 @@ const Dashboard = {
   },
 
   /**
+   * Update the peak time summary cards based on heatmap data
+   * @param {Array} heatmapData - Array of {dayOfWeek, hourOfDay, count}
+   */
+  updatePeakTimeStats(heatmapData) {
+    if (!heatmapData || !heatmapData.length) return;
+
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // 1. Peak Day
+    const dayCounts = new Array(7).fill(0);
+    heatmapData.forEach(d => { dayCounts[d.dayOfWeek] += d.count; });
+    const maxDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
+    document.getElementById('peak-day-value').textContent = days[maxDayIdx];
+    document.getElementById('peak-day-count').textContent = `${Utils.format.number(dayCounts[maxDayIdx])} visits`;
+
+    // 2. Peak Hour
+    const hourCounts = new Array(24).fill(0);
+    heatmapData.forEach(d => { hourCounts[d.hourOfDay] += d.count; });
+    const maxHourIdx = hourCounts.indexOf(Math.max(...hourCounts));
+    const hourLabel = maxHourIdx === 0 ? '12 AM' : maxHourIdx === 12 ? '12 PM' : maxHourIdx > 12 ? `${maxHourIdx - 12} PM` : `${maxHourIdx} AM`;
+    document.getElementById('peak-hour-value').textContent = hourLabel;
+    document.getElementById('peak-hour-count').textContent = `${Utils.format.number(hourCounts[maxHourIdx])} visits`;
+
+    // 3. Top Month (Derived from last visits if available, or current month as placeholder)
+    // Since heatmap data doesn't have month info, we use the project's time series or report data
+    if (this.state.data?.current?.timeSeries?.length) {
+        const monthCounts = {};
+        this.state.data.current.timeSeries.forEach(ts => {
+            const date = new Date(ts.timestamp);
+            const m = months[date.getMonth()];
+            monthCounts[m] = (monthCounts[m] || 0) + ts.count;
+        });
+        const topMonth = Object.entries(monthCounts).sort((a,b) => b[1] - a[1])[0];
+        if (topMonth) {
+            document.getElementById('peak-month-value').textContent = topMonth[0];
+            document.getElementById('peak-month-count').textContent = `${Utils.format.number(topMonth[1])} visits`;
+        }
+    } else {
+        const now = new Date();
+        document.getElementById('peak-month-value').textContent = months[now.getMonth()];
+        document.getElementById('peak-month-count').textContent = 'Current period';
+    }
+  },
+
+  /**
    * Setup geographic drill-down functionality
    */
   setupGeographicDrillDown() {
@@ -2214,46 +2329,41 @@ const Dashboard = {
       document.getElementById('geo-title').textContent = 'Geographic distribution';
       backBtn.style.display = 'none';
 
-      // Restore countries view using icon bar chart (same as initial render)
+      // Restore countries view using the icon bar chart (proportional bars)
       if (this.state.data.current?.countries) {
-        MapManager.createMap('chart-countries', this.state.data.current.countries);
+        this.renderIconBarChartWithShowMore('chart-countries', this.state.data.current.countries, 'country', 5);
       }
     });
   },
 
   /**
-   * Drill down to show cities for a specific country
+   * Drill down to show regions and cities for a specific country
    * @param {string} countryName - Country name to drill down into
    */
   async drillDownToCountry(countryName) {
     this.state.geoState.view = 'cities';
     this.state.geoState.selectedCountry = countryName;
 
-    // Filter to cities in this country
-    const citiesData = this.state.data.current.lastVisits
+    // Filter to regions and cities in this country from the lastVisits data
+    // (This matches the backend's region/city detection)
+    const regionsData = this.state.data.current.lastVisits
       .filter(v => v.country === countryName)
       .reduce((acc, v) => {
-        const city = v.city || 'Unknown';
-        acc[city] = (acc[city] || 0) + 1;
+        const region = v.region || v.city || 'Unknown';
+        acc[region] = (acc[region] || 0) + 1;
         return acc;
       }, {});
 
-    const citiesArray = Object.entries(citiesData)
+    const regionsArray = Object.entries(regionsData)
       .map(([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 10);
+      .slice(0, 15);
 
-    document.getElementById('geo-title').textContent = `Cities in ${countryName}`;
+    document.getElementById('geo-title').textContent = `Regions in ${countryName}`;
     document.getElementById('geo-back-btn').style.display = 'flex';
 
-    // Remove icon bar chart and restore canvas before rendering
-    const container = document.getElementById('chart-countries')?.parentElement;
-    const existingIconChart = container?.querySelector('.icon-bar-chart');
-    if (existingIconChart) existingIconChart.remove();
-    const canvas = document.getElementById('chart-countries');
-    if (canvas) canvas.style.display = '';
-
-    ChartManager.createBarChart('chart-countries', citiesArray);
+    // Use the standard icon bar chart for regions (consistent with countries)
+    this.renderIconBarChartWithShowMore('chart-countries', regionsArray, null, 10);
   },
 
   /**

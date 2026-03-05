@@ -58,7 +58,7 @@ object EmailService {
         executor.submit {
             try {
                 sendReport(projectId, recipientEmail, period, reportId)
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.error("Failed to send email report to $recipientEmail: ${e.message}")
             }
         }
@@ -157,7 +157,7 @@ object EmailService {
                 override fun run() {
                     try {
                         checkAndSendDueReports()
-                    } catch (e: Exception) {
+                    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                         logger.error("Email report scheduler error: ${e.message}")
                     }
                 }
@@ -216,7 +216,7 @@ object EmailService {
                         period = period,
                         reportId = report[EmailReports.id]
                     )
-                } catch (e: Exception) {
+                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                     logger.error("Failed to send scheduled report ${report[EmailReports.id]}: ${e.message}")
                 }
             }

@@ -107,6 +107,7 @@ fun computeGlobeData(projectId: UUID, cutoff: LocalDateTime): GlobeData {
  */
 fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
     if (count == 0) return 0
+    val effectiveTimeScope = maxOf(1, timeScope)
 
     val paths = listOf(
         "/", "/about", "/contact", "/blog", "/products", "/services",
@@ -257,7 +258,7 @@ fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
 
     transaction {
         while (remaining > 0) {
-            val daysAgo = random.nextInt(timeScope)
+            val daysAgo = random.nextInt(effectiveTimeScope)
             val sessionStart = now.minusDays(daysAgo.toLong())
                 .minusHours(random.nextInt(24).toLong())
                 .minusMinutes(random.nextInt(60).toLong())
@@ -337,14 +338,18 @@ fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
                         when {
                             evName == "purchase" -> {
                                 val rev = listOf(9.99, 19.99, 29.99, 49.99, 99.99, 149.99).random()
-                                it[Events.properties] = """{"revenue":$rev,"currency":"USD","product":"${listOf("Starter","Pro","Enterprise","Add-on").random()}"}"""
+                                val prod = listOf("Starter", "Pro", "Enterprise", "Add-on").random()
+                                it[Events.properties] = """{"revenue":$rev,"currency":"USD","product":"$prod"}"""
                             }
                             evName == "add_to_cart" && random.nextDouble() < 0.3 -> {
                                 val rev = listOf(9.99, 19.99, 29.99, 49.99).random()
-                                it[Events.properties] = """{"revenue":$rev,"currency":"USD","item":"${listOf("Widget","Plugin","Theme").random()}"}"""
+                                val item = listOf("Widget", "Plugin", "Theme").random()
+                                it[Events.properties] = """{"revenue":$rev,"currency":"USD","item":"$item"}"""
                             }
                             random.nextDouble() < 0.3 -> {
-                                it[Events.properties] = """{"plan":"${listOf("free","pro","enterprise").random()}","value":"${random.nextInt(100)}"}"""
+                                val plan = listOf("free", "pro", "enterprise").random()
+                                val value = random.nextInt(100)
+                                it[Events.properties] = """{"plan":"$plan","value":"$value"}"""
                             }
                         }
                     }

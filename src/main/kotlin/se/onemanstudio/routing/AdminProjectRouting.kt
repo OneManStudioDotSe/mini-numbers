@@ -257,10 +257,19 @@ fun Route.adminProjectRoutes() {
         val count = params["count"] ?: 500
         val timeScope = params["timeScope"] ?: 30
         
-        val generated = generateDemoData(id, count, timeScope)
-        QueryCache.invalidateProject(id.toString())
-        WidgetCache.invalidateProject(id.toString())
-        
-        call.respond(mapOf("generated" to generated, "success" to true))
+        try {
+            // Also seed goals, funnels and segments for a better demo experience
+            seedDemoGoalsFunnelsSegments(id)
+            
+            val generated = generateDemoData(id, count, timeScope)
+            QueryCache.invalidateProject(id.toString())
+            WidgetCache.invalidateProject(id.toString())
+            
+            call.respond(mapOf("generated" to generated, "success" to true))
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            call.application.environment.log.error("Demo data generation failed for project $id: ${e.message}", e)
+            call.respond(HttpStatusCode.InternalServerError,
+                ApiError.internalError("Failed to generate demo data: ${e.message}"))
+        }
     }
 }

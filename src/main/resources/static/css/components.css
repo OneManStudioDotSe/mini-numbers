@@ -2643,3 +2643,37 @@ tbody tr:nth-child(even):hover td {
     transition: none !important;
   }
 }
+
+/* ============================================
+   SETTINGS GRID LAYOUT
+   ============================================ */
+
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+  .grid-2-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-section-content {
+  font-size: 0.9rem;
+}
+
+.settings-section-content label {
+  font-size: 0.85rem;
+}
+
+.settings-section-content .input,
+.settings-section-content .select {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.chart-card__container--radar {
+  height: 360px !important; /* 20% larger than default 300px */
+}

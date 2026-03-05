@@ -77,7 +77,7 @@ object WebhookService {
                 Thread.sleep(attempt * 5000L)
                 deliver(webhookId, url, secret, eventType, payload, attempt + 1)
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Webhook delivery error (attempt $attempt/3): ${e.message}")
             recordDelivery(
                 webhookId = webhookId,
@@ -121,7 +121,7 @@ object WebhookService {
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Failed to record webhook delivery: ${e.message}")
         }
     }
