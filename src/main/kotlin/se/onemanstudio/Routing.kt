@@ -1,5 +1,3 @@
-package se.onemanstudio
-
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
@@ -25,7 +23,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
         collectionRoutes(rateLimiter, privacyMode)
 
         // Authentication & Password Reset
-        authRoutes(config)
+        authRoutes()
 
         // Protected Admin API (supports both Session and JWT)
         authenticate("admin-session", "api-jwt") {

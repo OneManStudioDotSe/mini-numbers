@@ -70,7 +70,7 @@ object DatabaseFactory {
      *
      * @param config Database configuration (not used but kept for consistency)
      */
-    fun reset(config: DatabaseConfig) {
+    fun reset() {
         transaction {
             // Delete in correct order (events first due to foreign key constraint)
             Events.deleteAll()

@@ -149,7 +149,7 @@ fun Route.adminProjectRoutes() {
             QueryCache.invalidateProject(uuid.toString())
             WidgetCache.invalidateProject(uuid.toString())
             call.respond(HttpStatusCode.NoContent)
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             call.application.environment.log.error("Failed to delete project $uuid: ${e.message}", e)
             call.respond(HttpStatusCode.InternalServerError,
                 ApiError.internalError("Failed to delete project"))

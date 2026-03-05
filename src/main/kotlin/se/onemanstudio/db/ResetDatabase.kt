@@ -33,7 +33,7 @@ fun main() {
     logger.info("Resetting database...")
 
     try {
-        DatabaseFactory.reset(config.database)
+        DatabaseFactory.reset()
         logger.info("Database reset successfully!")
     } catch (e: Exception) {
         logger.error("Failed to reset database: ${e.message}")

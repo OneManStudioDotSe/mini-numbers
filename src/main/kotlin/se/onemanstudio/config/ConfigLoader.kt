@@ -25,7 +25,8 @@ object ConfigLoader {
         try {
             loadDotEnvFile()
         } catch (_: java.io.IOException) {
-            // .env loading failed - fall through to check other sources
+            // .env loading failed - likely file permission issue or missing file
+            // Fall through to check other sources as expected
         }
 
         // Check for required configuration from any source (env vars, system properties, or .env)

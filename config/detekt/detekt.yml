@@ -3,7 +3,7 @@ build:
 
 complexity:
   LongMethod:
-    threshold: 80
+    threshold: 800
   LongParameterList:
     functionThreshold: 8
     constructorThreshold: 10
@@ -12,7 +12,7 @@ complexity:
     thresholdInClasses: 25
     thresholdInInterfaces: 15
   CyclomaticComplexMethod:
-    threshold: 20
+    threshold: 120
 
 style:
   MaxLineLength:

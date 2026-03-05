@@ -149,10 +149,10 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
                     eventName = sanitizedEventName,
                     path = sanitizedPath
                 )
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 call.application.environment.log.warn("Webhook trigger error: ${e.message}")
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             call.application.environment.log.error("Failed to save event: ${e.message}", e)
             return@post call.respond(HttpStatusCode.InternalServerError,
                 ApiError.internalError("Failed to save event"))

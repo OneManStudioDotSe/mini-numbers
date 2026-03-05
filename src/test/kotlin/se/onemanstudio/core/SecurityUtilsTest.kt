@@ -180,12 +180,14 @@ class SecurityUtilsTest {
     }
 
     @Test
-    fun `verify existing hash from env works`() {
-        val password = "admin123456"
-        val hash = "\$2a\$12\$tiOZgMonlxF8Ubz7CXf./.OMBklOec6JIhT882KpaZpXT4poB6dwS"
-        
-        val matches = org.mindrot.jbcrypt.BCrypt.checkpw(password, hash)
-        
-        assertTrue(matches, "Password 'admin123456' should match hash from .env")
+    fun `generateVisitorHash is deterministic within same day`() {
+        AnalyticsSecurity.init("test-salt-" + "x".repeat(50))
+
+        val hashes = (1..10).map {
+            AnalyticsSecurity.generateVisitorHash("192.168.1.1", "Mozilla/5.0", "project-1")
+        }
+
+        // All hashes should be identical
+        assertTrue(hashes.all { it == hashes[0] }, "Hash should be deterministic")
     }
 }
