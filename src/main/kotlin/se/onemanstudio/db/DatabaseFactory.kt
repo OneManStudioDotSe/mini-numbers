@@ -168,7 +168,7 @@ object DatabaseFactory {
         try {
             dataSource?.close()
             dataSource = null
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             // Log error but don't throw - shutdown should continue
             logger.error("Error closing database connection: ${e.message}", e)
         }

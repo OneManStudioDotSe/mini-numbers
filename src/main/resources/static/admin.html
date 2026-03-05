@@ -146,7 +146,7 @@
                 </button>
                 <div class="dashboard-section__content" id="section-overview-content">
                     <!-- Primary Stat Cards -->
-                    <div class="grid grid-cols-3" role="region" aria-label="Key metrics">
+                    <div class="grid grid-cols-4" role="region" aria-label="Key metrics">
                         <div class="card stat-card" role="status" aria-label="Total page views">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-eye-line"></i></div>
@@ -167,6 +167,15 @@
                             <div class="stat-card__comparison" id="visitors-comparison">Loading...</div>
                         </div>
 
+                        <div class="card stat-card" role="status" aria-label="Total sessions">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-stack-line"></i></div>
+                                <small>Total sessions</small>
+                            </div>
+                            <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
+                        </div>
+
                         <div class="card stat-card" role="status" aria-label="Bounce rate">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-logout-box-r-line"></i></div>
@@ -178,16 +187,7 @@
                     </div>
 
                     <!-- Extended Metrics -->
-                    <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Extended metrics">
-                        <div class="card stat-card" role="status" aria-label="Total sessions">
-                            <div class="stat-card__header">
-                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-stack-line"></i></div>
-                                <small>Total sessions</small>
-                            </div>
-                            <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
-                            <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
-                        </div>
-
+                    <div class="grid grid-cols-2 mt-lg" role="region" aria-label="Extended metrics">
                         <div class="card stat-card" role="status" aria-label="Average session duration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-timer-line"></i></div>
@@ -338,27 +338,39 @@
                     </div>
 
                     <!-- UTM Campaigns -->
-                    <div class="card chart-card mt-lg" id="utm-section" style="display: none;">
-                        <div class="chart-card__header">
-                            <h3 class="chart-card__title">
-                                <i class="ri-megaphone-line"></i> UTM campaigns
-                            </h3>
-                        </div>
-                        <div class="grid grid-cols-3" style="gap: var(--spacing-md); padding: var(--spacing-md);">
-                            <div>
-                                <h4 class="text-sm text-muted mb-sm">Sources</h4>
+                    <div id="utm-section" style="display: none; margin-top: var(--spacing-lg);">
+                        <div class="grid grid-cols-3" style="gap: var(--spacing-md);">
+                            <!-- UTM Sources -->
+                            <div class="card chart-card">
+                                <div class="chart-card__header">
+                                    <h3 class="chart-card__title">
+                                        <i class="ri-megaphone-line"></i> UTM Sources
+                                    </h3>
+                                </div>
                                 <div class="chart-card__container chart-card__container--short">
                                     <canvas id="chart-utm-sources"></canvas>
                                 </div>
                             </div>
-                            <div>
-                                <h4 class="text-sm text-muted mb-sm">Mediums</h4>
+
+                            <!-- UTM Mediums -->
+                            <div class="card chart-card">
+                                <div class="chart-card__header">
+                                    <h3 class="chart-card__title">
+                                        <i class="ri-base-station-line"></i> UTM Mediums
+                                    </h3>
+                                </div>
                                 <div class="chart-card__container chart-card__container--short">
                                     <canvas id="chart-utm-mediums"></canvas>
                                 </div>
                             </div>
-                            <div>
-                                <h4 class="text-sm text-muted mb-sm">Campaigns</h4>
+
+                            <!-- UTM Campaigns -->
+                            <div class="card chart-card">
+                                <div class="chart-card__header">
+                                    <h3 class="chart-card__title">
+                                        <i class="ri-flag-line"></i> UTM Campaigns
+                                    </h3>
+                                </div>
                                 <div class="chart-card__container chart-card__container--short">
                                     <canvas id="chart-utm-campaigns"></canvas>
                                 </div>
@@ -421,18 +433,6 @@
                                 </div>
                                 <div id="globe-canvas" class="globe-canvas"></div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Regions / States -->
-                    <div class="card chart-card mt-lg" id="regions-section" style="display: none;">
-                        <div class="chart-card__header">
-                            <h3 class="chart-card__title">
-                                <i class="ri-map-pin-2-line"></i> Regions / States
-                            </h3>
-                        </div>
-                        <div class="chart-card__container chart-card__container--short">
-                            <canvas id="chart-regions"></canvas>
                         </div>
                     </div>
 
@@ -528,44 +528,77 @@
                     <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
                 </button>
                 <div class="dashboard-section__content" id="section-time-content">
-                    <!-- Activity Heatmap -->
-                    <div class="card chart-card">
-                        <div class="chart-card__header">
-                            <h3 class="chart-card__title">
-                                <i class="ri-calendar-line"></i> Activity heatmap
-                            </h3>
-                            <div class="chart-card__actions">
-                                <div class="heatmap-legend">
-                                    <span class="text-muted text-xs">Less</span>
-                                    <div class="legend-gradient"></div>
-                                    <span class="text-muted text-xs">More</span>
-                                </div>
-                            </div>
+                    <!-- Peak Time Cards -->
+                    <div class="grid grid-cols-3 mb-lg">
+                        <div class="card stat-card">
+                            <div class="stat-card__label">Busiest Day</div>
+                            <div class="stat-card__value text-lg" id="peak-day-value">-</div>
+                            <div class="stat-card__sub" id="peak-day-count">0 visits</div>
                         </div>
-                        <div class="chart-card__container chart-card__container--tall">
-                            <canvas id="chart-heatmap"></canvas>
+                        <div class="card stat-card">
+                            <div class="stat-card__label">Peak Hour</div>
+                            <div class="stat-card__value text-lg" id="peak-hour-value">-</div>
+                            <div class="stat-card__sub" id="peak-hour-count">0 visits</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-card__label">Top Month</div>
+                            <div class="stat-card__value text-lg" id="peak-month-value">-</div>
+                            <div class="stat-card__sub" id="peak-month-count">0 visits</div>
                         </div>
                     </div>
 
-                    <!-- Contribution Calendar -->
-                    <div class="card chart-card mt-lg">
+                    <!-- Unified Time Analysis Card -->
+                    <div class="card chart-card">
                         <div class="chart-card__header">
                             <h3 class="chart-card__title">
-                                <i class="ri-pulse-line"></i> Activity calendar (last 365 days)
+                                <i class="ri-time-line"></i> Time Analysis
                             </h3>
-                            <div class="contribution-legend">
-                                <span class="text-muted text-xs">Less</span>
-                                <div class="contribution-level" data-level="0"></div>
-                                <div class="contribution-level" data-level="1"></div>
-                                <div class="contribution-level" data-level="2"></div>
-                                <div class="contribution-level" data-level="3"></div>
-                                <div class="contribution-level" data-level="4"></div>
-                                <span class="text-muted text-xs">More</span>
+                            <div class="chart-card__actions">
+                                <span class="text-xs text-muted mr-sm">Zoom:</span>
+                                <div class="view-toggle" id="time-zoom-toggle">
+                                    <button class="view-toggle__btn active" data-view="heatmap" title="Detailed Heatmap">
+                                        <i class="ri-zoom-in-line"></i>
+                                    </button>
+                                    <button class="view-toggle__btn" data-view="calendar" title="365-Day Calendar">
+                                        <i class="ri-zoom-out-line"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="chart-card__container">
-                            <div id="contribution-calendar" class="contribution-calendar">
-                                Loading...
+                        
+                        <div class="chart-card__container chart-card__container--tall" id="time-analysis-container">
+                            <!-- Heatmap View -->
+                            <div id="heatmap-view">
+                                <div class="flex justify-between items-center mb-md">
+                                    <p class="text-sm text-secondary">Hourly distribution for selected period</p>
+                                    <div class="heatmap-legend">
+                                        <span class="text-muted text-xs">Less</span>
+                                        <div class="legend-gradient"></div>
+                                        <span class="text-muted text-xs">More</span>
+                                    </div>
+                                </div>
+                                <div style="height: 300px;">
+                                    <canvas id="chart-heatmap"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Calendar View (hidden by default) -->
+                            <div id="calendar-view" class="hidden">
+                                <div class="flex justify-between items-center mb-md">
+                                    <p class="text-sm text-secondary">Activity calendar (last 365 days)</p>
+                                    <div class="contribution-legend">
+                                        <span class="text-muted text-xs">Less</span>
+                                        <div class="contribution-level" data-level="0"></div>
+                                        <div class="contribution-level" data-level="1"></div>
+                                        <div class="contribution-level" data-level="2"></div>
+                                        <div class="contribution-level" data-level="3"></div>
+                                        <div class="contribution-level" data-level="4"></div>
+                                        <span class="text-muted text-xs">More</span>
+                                    </div>
+                                </div>
+                                <div id="contribution-calendar" class="contribution-calendar">
+                                    Loading...
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -968,14 +1001,16 @@ MiniNumbers.track("donation", {
                 <div id="project-settings-section" style="display: none;">
                     <h3 style="margin-top: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Project information</h3>
 
-                    <div class="form-group">
-                        <label for="setting-project-name">Project name*</label>
-                        <input type="text" id="setting-project-name" class="input" placeholder="My Website" />
-                    </div>
+                    <div class="grid-2-cols">
+                        <div class="form-group">
+                            <label for="setting-project-name">Project name*</label>
+                            <input type="text" id="setting-project-name" class="input" placeholder="My Website" />
+                        </div>
 
-                    <div class="form-group">
-                        <label>Domain (read-only)</label>
-                        <input type="text" id="setting-project-domain" class="input" readonly style="background: var(--color-bg-tertiary); cursor: not-allowed;" />
+                        <div class="form-group">
+                            <label>Domain (read-only)</label>
+                            <input type="text" id="setting-project-domain" class="input" readonly style="background: var(--color-bg-tertiary); cursor: not-allowed;" />
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -992,60 +1027,62 @@ MiniNumbers.track("donation", {
                 </div>
 
                 <!-- Dashboard Settings Section -->
-                <div class="form-group">
-                    <label for="setting-time-format">Time format</label>
-                    <select id="setting-time-format" class="select">
-                        <option value="24h">24-hour (13:00)</option>
-                        <option value="12h">12-hour (1:00 PM)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="setting-date-format">Date format</label>
-                    <select id="setting-date-format" class="select">
-                        <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
-                        <option value="DD/MM/YYYY">DD/MM/YYYY (EU)</option>
-                        <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="setting-heatmap-colors">Activity heatmap colors</label>
-                    <select id="setting-heatmap-colors" class="select">
-                        <option value="blue">Blue (Default)</option>
-                        <option value="green">Green (GitHub-style)</option>
-                        <option value="purple">Purple</option>
-                        <option value="orange">Orange</option>
-                    </select>
+                <div class="grid-2-cols settings-section-content">
+                    <div class="form-group">
+                        <label for="setting-time-format">Time format</label>
+                        <select id="setting-time-format" class="select">
+                            <option value="24h">24-hour (13:00)</option>
+                            <option value="12h">12-hour (1:00 PM)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="setting-date-format">Date format</label>
+                        <select id="setting-date-format" class="select">
+                            <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                            <option value="DD/MM/YYYY">DD/MM/YYYY (EU)</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="setting-heatmap-colors">Activity heatmap colors</label>
+                        <select id="setting-heatmap-colors" class="select">
+                            <option value="blue">Blue (Default)</option>
+                            <option value="green">Green (GitHub-style)</option>
+                            <option value="purple">Purple</option>
+                            <option value="orange">Orange</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Export Report Section -->
                 <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Export report</h3>
                 <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">Select which data to include in the downloadable CSV report.</p>
-                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                <div class="grid-2-cols settings-section-content" style="margin-bottom: var(--spacing-md);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="views-visitors" checked> Page views & visitors
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="top-pages" checked> Top pages
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="referrers" checked> Referrers
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="utm-campaigns"> UTM campaigns
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="tech" checked> Browsers / OS / Devices
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="countries" checked> Countries & regions
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="custom-events"> Custom events
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="revenue"> Revenue attribution
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: var(--font-size-sm);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="raw-events"> Raw events <span class="text-muted">(large file)</span>
                     </label>
                 </div>
@@ -1078,7 +1115,7 @@ MiniNumbers.track("donation", {
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Raw Events</h2>
+                <h2>Raw events</h2>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
                         <i class="ri-download-line"></i>
@@ -1376,21 +1413,24 @@ valid = hmac.compare_digest(signature, expected)</pre>
                 <!-- Create Form -->
                 <div class="form-section">
                     <h3 style="margin-top: 0;">Add new webhook</h3>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="form-group" style="flex: 2; min-width: 250px;">
+                    <div class="grid-2-cols settings-section-content">
+                        <div class="form-group">
                             <label for="webhook-url">Webhook URL (HTTPS)</label>
                             <input type="url" id="webhook-url" class="input" placeholder="https://your-server.com/webhook">
                         </div>
-                        <button class="btn btn-primary" id="create-webhook-btn" style="margin-bottom: var(--spacing-md);">Add webhook</button>
+                        <div class="form-group">
+                            <label>Events</label>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                                    <input type="checkbox" class="webhook-event-cb" value="goal_conversion" checked> goal_conversion
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                                    <input type="checkbox" class="webhook-event-cb" value="traffic_spike" checked> traffic_spike
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: var(--spacing-xs);">
-                        <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
-                            <input type="checkbox" class="webhook-event-cb" value="goal_conversion" checked> goal_conversion
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
-                            <input type="checkbox" class="webhook-event-cb" value="traffic_spike" checked> traffic_spike
-                        </label>
-                    </div>
+                    <button class="btn btn-primary" id="create-webhook-btn" style="margin-top: var(--spacing-sm);">Add webhook</button>
                 </div>
 
                 <!-- Secret Display (shown once after creation) -->
@@ -1523,50 +1563,52 @@ SMTP_STARTTLS=true</pre>
                     <h3 style="margin-top: 0;">Add new email report</h3>
 
                     <!-- Basic settings -->
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="form-group" style="flex: 2; min-width: 200px;">
+                    <div class="grid-2-cols settings-section-content">
+                        <div class="form-group">
                             <label for="email-report-recipient">Recipient email</label>
                             <input type="email" id="email-report-recipient" class="input" placeholder="you@example.com">
                         </div>
-                        <div class="form-group" style="flex: 1; min-width: 120px;">
-                            <label for="email-report-schedule">Frequency</label>
-                            <select id="email-report-schedule" class="select">
-                                <option value="DAILY">Daily</option>
-                                <option value="WEEKLY" selected>Weekly</option>
-                                <option value="MONTHLY">Monthly</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="flex: 0; min-width: 80px;">
-                            <label for="email-report-hour">Send hour</label>
-                            <select id="email-report-hour" class="select">
-                                <option value="6">06:00</option>
-                                <option value="7">07:00</option>
-                                <option value="8" selected>08:00</option>
-                                <option value="9">09:00</option>
-                                <option value="10">10:00</option>
-                                <option value="12">12:00</option>
-                                <option value="18">18:00</option>
-                            </select>
+                        <div class="grid-2-cols" style="gap: var(--spacing-sm);">
+                            <div class="form-group">
+                                <label for="email-report-schedule">Frequency</label>
+                                <select id="email-report-schedule" class="select">
+                                    <option value="DAILY">Daily</option>
+                                    <option value="WEEKLY" selected>Weekly</option>
+                                    <option value="MONTHLY">Monthly</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="email-report-hour">Send hour</label>
+                                <select id="email-report-hour" class="select">
+                                    <option value="6">06:00</option>
+                                    <option value="7">07:00</option>
+                                    <option value="8" selected>08:00</option>
+                                    <option value="9">09:00</option>
+                                    <option value="10">10:00</option>
+                                    <option value="12">12:00</option>
+                                    <option value="18">18:00</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Report sections -->
                     <div style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
                         <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); display: block; margin-bottom: var(--spacing-xs);">Include sections:</label>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                        <div class="grid-2-cols settings-section-content">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
                                 <input type="checkbox" class="email-section-cb" value="overview" checked> Overview
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
                                 <input type="checkbox" class="email-section-cb" value="pages" checked> Top pages
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
                                 <input type="checkbox" class="email-section-cb" value="referrers" checked> Referrers
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
                                 <input type="checkbox" class="email-section-cb" value="geo" checked> Geographic
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer; font-size: var(--font-size-sm);">
+                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
                                 <input type="checkbox" class="email-section-cb" value="events" checked> Custom events
                             </label>
                         </div>
@@ -1577,19 +1619,19 @@ SMTP_STARTTLS=true</pre>
                         <summary style="cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
                             <i class="ri-palette-line" style="margin-right: 0.25rem;"></i> Customize template (optional)
                         </summary>
-                        <div style="padding-top: var(--spacing-sm);">
-                            <div class="form-group">
-                                <label for="email-report-subject" style="font-size: var(--font-size-sm);">Subject line</label>
-                                <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics &#8212; {period}" style="font-size: var(--font-size-sm);">
+                        <div style="padding-top: var(--spacing-sm);" class="grid-2-cols settings-section-content">
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="email-report-subject">Subject line</label>
+                                <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics &#8212; {period}">
                                 <small class="help-text">Variables: {project_name}, {period}, {date}</small>
                             </div>
                             <div class="form-group">
-                                <label for="email-report-header" style="font-size: var(--font-size-sm);">Header text</label>
-                                <input type="text" id="email-report-header" class="input" placeholder="e.g. Your weekly analytics summary" style="font-size: var(--font-size-sm);">
+                                <label for="email-report-header">Header text</label>
+                                <input type="text" id="email-report-header" class="input" placeholder="e.g. Your weekly analytics summary">
                             </div>
                             <div class="form-group">
-                                <label for="email-report-footer" style="font-size: var(--font-size-sm);">Footer text</label>
-                                <input type="text" id="email-report-footer" class="input" placeholder="e.g. Powered by Mini Numbers" style="font-size: var(--font-size-sm);">
+                                <label for="email-report-footer">Footer text</label>
+                                <input type="text" id="email-report-footer" class="input" placeholder="e.g. Powered by Mini Numbers">
                             </div>
                         </div>
                     </details>

@@ -14,7 +14,8 @@ fun main() {
 
     val config = try {
         ConfigLoader.load()
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+
         logger.error("Failed to load configuration: ${e.message}")
         logger.error("Please ensure .env file exists with required configuration.")
         logger.error("See .env.example for template.")
@@ -25,7 +26,8 @@ fun main() {
 
     try {
         DatabaseFactory.init(config.database)
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+
         logger.error("Failed to initialize database: ${e.message}")
         return
     }
@@ -35,7 +37,8 @@ fun main() {
     try {
         DatabaseFactory.reset()
         logger.info("Database reset successfully!")
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+
         logger.error("Failed to reset database: ${e.message}")
         return
     }

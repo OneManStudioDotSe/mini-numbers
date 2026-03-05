@@ -53,7 +53,6 @@ class DataAnalysisUtilsTest {
     }
 
     private fun initAndSeed(
-        eventCount: Int = 0,
         customSetup: ((UUID) -> Unit)? = null
     ): UUID {
         val config = createTestConfig()

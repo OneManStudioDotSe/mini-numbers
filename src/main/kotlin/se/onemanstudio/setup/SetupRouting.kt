@@ -70,7 +70,7 @@ fun Application.configureSetupRouting() {
                         }
                     )
                 )
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                 environment.log.error("Error checking setup status", e)
                 call.respond(
                     HttpStatusCode.InternalServerError,
@@ -84,7 +84,7 @@ fun Application.configureSetupRouting() {
             try {
                 val salt = generateSecureToken(64)
                 call.respond(SaltResponse(salt = salt))
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                 environment.log.error("Error generating salt", e)
                 call.respond(
                     HttpStatusCode.InternalServerError,
@@ -156,7 +156,7 @@ fun Application.configureSetupRouting() {
                 try {
                     writeEnvFileAtomic(envContent)
                     environment.log.info("Configuration saved successfully to .env")
-                } catch (e: Exception) {
+                } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                     environment.log.error("Failed to write .env file", e)
                     call.respond(
                         HttpStatusCode.InternalServerError,
@@ -196,7 +196,7 @@ fun Application.configureSetupRouting() {
                         configureHTTP(reloadedConfig)
                         configureRouting(reloadedConfig, rateLimiter)
                         configureWidgetRouting(rateLimiter)
-                    } catch (e: Exception) {
+                    } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                         environment.log.warn("Could not install plugins dynamically: ${e.message}")
                         // This is expected if plugins are already installed - not a fatal error
                     }
@@ -220,7 +220,7 @@ fun Application.configureSetupRouting() {
 
                 // NO exitProcess() call - services are ready NOW!
 
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                 environment.log.error("Error saving configuration", e)
                 call.respond(
                     HttpStatusCode.InternalServerError,
