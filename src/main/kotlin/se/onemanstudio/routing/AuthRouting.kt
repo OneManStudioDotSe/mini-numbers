@@ -29,7 +29,7 @@ import se.onemanstudio.db.RefreshTokens
 import java.time.LocalDateTime
 import java.util.UUID
 
-fun Route.authRoutes(config: AppConfig) {
+fun Route.authRoutes() {
     // Serve login page
     staticResources("/login", "static/login") {
         default("login.html")

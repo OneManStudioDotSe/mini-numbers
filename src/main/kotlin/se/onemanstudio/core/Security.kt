@@ -88,7 +88,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
             return false
         }
 
-        logger.debug("Attempting fallback authentication for admin via .env config. Hash starts with: ${config.security.adminPassword.take(10)}...")
+        logger.debug("Attempting fallback authentication for admin via .env config")
         passwordMatches = try {
             if (config.security.adminPassword.startsWith("$2a$") ||
                 config.security.adminPassword.startsWith("$2b$")) {

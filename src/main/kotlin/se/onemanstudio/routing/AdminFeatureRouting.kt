@@ -357,7 +357,10 @@ fun Route.adminFeatureRoutes() {
                 it[projectId] = pid
                 it[name] = request.name.trim()
                 it[description] = request.description?.trim()
-                it[filtersJson] = Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(SegmentFilter.serializer()), request.filters)
+                it[filtersJson] = Json.encodeToString(
+                    kotlinx.serialization.builtins.ListSerializer(SegmentFilter.serializer()),
+                    request.filters
+                )
             }
         }
 

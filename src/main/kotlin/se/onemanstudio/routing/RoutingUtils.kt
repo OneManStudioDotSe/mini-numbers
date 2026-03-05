@@ -129,58 +129,114 @@ fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
     val oses = listOf("Windows", "macOS", "Linux", "iOS", "Android")
     val devices = listOf("Desktop", "Mobile", "Tablet")
 
-    val countries = listOf("United States", "United Kingdom", "Canada", "Germany", "France", "Spain", "Italy", "Australia", "Japan", "Brazil")
+    val countries = listOf(
+        "United States", "United Kingdom", "Canada", "Germany", "France",
+        "Spain", "Italy", "Australia", "Japan", "Brazil"
+    )
+    val usCities = listOf("New York", "Los Angeles", "Chicago", "Houston", "Phoenix")
+    val ukCities = listOf("London", "Manchester", "Birmingham", "Leeds", "Glasgow")
+    val caCities = listOf("Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa")
+    val deCities = listOf("Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne")
+    val frCities = listOf("Paris", "Marseille", "Lyon", "Toulouse", "Nice")
+    val esCities = listOf("Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza")
+    val itCities = listOf("Rome", "Milan", "Naples", "Turin", "Florence")
+    val auCities = listOf("Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide")
+    val jpCities = listOf("Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo")
+    val brCities = listOf("São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza")
+
     val cities = mapOf(
-        "United States" to listOf("New York", "Los Angeles", "Chicago", "Houston", "Phoenix"),
-        "United Kingdom" to listOf("London", "Manchester", "Birmingham", "Leeds", "Glasgow"),
-        "Canada" to listOf("Toronto", "Montreal", "Vancouver", "Calgary", "Ottawa"),
-        "Germany" to listOf("Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"),
-        "France" to listOf("Paris", "Marseille", "Lyon", "Toulouse", "Nice"),
-        "Spain" to listOf("Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza"),
-        "Italy" to listOf("Rome", "Milan", "Naples", "Turin", "Florence"),
-        "Australia" to listOf("Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"),
-        "Japan" to listOf("Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo"),
-        "Brazil" to listOf("São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza")
+        "United States" to usCities,
+        "United Kingdom" to ukCities,
+        "Canada" to caCities,
+        "Germany" to deCities,
+        "France" to frCities,
+        "Spain" to esCities,
+        "Italy" to itCities,
+        "Australia" to auCities,
+        "Japan" to jpCities,
+        "Brazil" to brCities
     )
+
+    val usRegions = listOf("California", "New York", "Texas", "Florida", "Illinois")
+    val ukRegions = listOf("England", "Scotland", "Wales")
+    val caRegions = listOf("Ontario", "Quebec", "British Columbia", "Alberta")
+    val deRegions = listOf("Bavaria", "North Rhine-Westphalia", "Berlin", "Hamburg")
+    val frRegions = listOf("Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes")
+    val esRegions = listOf("Catalonia", "Madrid", "Andalusia", "Valencia")
+    val itRegions = listOf("Lombardy", "Lazio", "Campania", "Tuscany")
+    val auRegions = listOf("New South Wales", "Victoria", "Queensland", "Western Australia")
+    val jpRegions = listOf("Tokyo", "Osaka", "Kanagawa", "Aichi")
+    val brRegions = listOf("São Paulo", "Rio de Janeiro", "Minas Gerais", "Bahia")
+
     val regions = mapOf(
-        "United States" to listOf("California", "New York", "Texas", "Florida", "Illinois"),
-        "United Kingdom" to listOf("England", "Scotland", "Wales"),
-        "Canada" to listOf("Ontario", "Quebec", "British Columbia", "Alberta"),
-        "Germany" to listOf("Bavaria", "North Rhine-Westphalia", "Berlin", "Hamburg"),
-        "France" to listOf("Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes"),
-        "Spain" to listOf("Catalonia", "Madrid", "Andalusia", "Valencia"),
-        "Italy" to listOf("Lombardy", "Lazio", "Campania", "Tuscany"),
-        "Australia" to listOf("New South Wales", "Victoria", "Queensland", "Western Australia"),
-        "Japan" to listOf("Tokyo", "Osaka", "Kanagawa", "Aichi"),
-        "Brazil" to listOf("São Paulo", "Rio de Janeiro", "Minas Gerais", "Bahia")
+        "United States" to usRegions,
+        "United Kingdom" to ukRegions,
+        "Canada" to caRegions,
+        "Germany" to deRegions,
+        "France" to frRegions,
+        "Spain" to esRegions,
+        "Italy" to itRegions,
+        "Australia" to auRegions,
+        "Japan" to jpRegions,
+        "Brazil" to brRegions
     )
-    val cityCoordinates = mapOf(
-        "New York" to (40.7128 to -74.0060), "Los Angeles" to (34.0522 to -118.2437),
-        "Chicago" to (41.8781 to -87.6298), "Houston" to (29.7604 to -95.3698),
-        "Phoenix" to (33.4484 to -112.0740), "London" to (51.5074 to -0.1278),
-        "Manchester" to (53.4808 to -2.2426), "Birmingham" to (52.4862 to -1.8904),
-        "Leeds" to (53.8008 to -1.5491), "Glasgow" to (55.8642 to -4.2518),
-        "Toronto" to (43.6532 to -79.3832), "Montreal" to (45.5017 to -73.5673),
-        "Vancouver" to (49.2827 to -123.1207), "Calgary" to (51.0447 to -114.0719),
-        "Ottawa" to (45.4215 to -75.6972), "Berlin" to (52.5200 to 13.4050),
-        "Munich" to (48.1351 to 11.5820), "Hamburg" to (53.5511 to 9.9937),
-        "Frankfurt" to (50.1109 to 8.6821), "Cologne" to (50.9375 to 6.9603),
-        "Paris" to (48.8566 to 2.3522), "Marseille" to (43.2965 to 5.3698),
-        "Lyon" to (45.7640 to 4.8357), "Toulouse" to (43.6047 to 1.4442),
-        "Nice" to (43.7102 to 7.2620), "Madrid" to (40.4168 to -3.7038),
-        "Barcelona" to (41.3874 to 2.1686), "Valencia" to (39.4699 to -0.3763),
-        "Seville" to (37.3891 to -5.9845), "Zaragoza" to (41.6488 to -0.8891),
-        "Rome" to (41.9028 to 12.4964), "Milan" to (45.4642 to 9.1900),
-        "Naples" to (40.8518 to 14.2681), "Turin" to (45.0703 to 7.6869),
-        "Florence" to (43.7696 to 11.2558), "Sydney" to (-33.8688 to 151.2093),
-        "Melbourne" to (-37.8136 to 144.9631), "Brisbane" to (-27.4698 to 153.0251),
-        "Perth" to (-31.9505 to 115.8605), "Adelaide" to (-34.9285 to 138.6007),
-        "Tokyo" to (35.6762 to 139.6503), "Osaka" to (34.6937 to 135.5023),
-        "Yokohama" to (35.4437 to 139.6380), "Nagoya" to (35.1815 to 136.9066),
-        "Sapporo" to (43.0618 to 141.3545), "São Paulo" to (-23.5505 to -46.6333),
-        "Rio de Janeiro" to (-22.9068 to -43.1729), "Brasília" to (-15.8267 to -47.9218),
-        "Salvador" to (-12.9714 to -38.5124), "Fortaleza" to (-3.7172 to -38.5433)
+    val usCityCoords = mapOf(
+        "New York" to (40.7128 to -74.0060),
+        "Los Angeles" to (34.0522 to -118.2437),
+        "Chicago" to (41.8781 to -87.6298),
+        "Houston" to (29.7604 to -95.3698),
+        "Phoenix" to (33.4484 to -112.0740)
     )
+    val euCityCoords = mapOf(
+        "London" to (51.5074 to -0.1278),
+        "Manchester" to (53.4808 to -2.2426),
+        "Birmingham" to (52.4862 to -1.8904),
+        "Leeds" to (53.8008 to -1.5491),
+        "Glasgow" to (55.8642 to -4.2518),
+        "Berlin" to (52.5200 to 13.4050),
+        "Munich" to (48.1351 to 11.5820),
+        "Hamburg" to (53.5511 to 9.9937),
+        "Frankfurt" to (50.1109 to 8.6821),
+        "Cologne" to (50.9375 to 6.9603),
+        "Paris" to (48.8566 to 2.3522),
+        "Marseille" to (43.2965 to 5.3698),
+        "Lyon" to (45.7640 to 4.8357),
+        "Toulouse" to (43.6047 to 1.4442),
+        "Nice" to (43.7102 to 7.2620),
+        "Madrid" to (40.4168 to -3.7038),
+        "Barcelona" to (41.3874 to 2.1686),
+        "Valencia" to (39.4699 to -0.3763),
+        "Seville" to (37.3891 to -5.9845),
+        "Zaragoza" to (41.6488 to -0.8891),
+        "Rome" to (41.9028 to 12.4964),
+        "Milan" to (45.4642 to 9.1900),
+        "Naples" to (40.8518 to 14.2681),
+        "Turin" to (45.0703 to 7.6869),
+        "Florence" to (43.7696 to 11.2558)
+    )
+    val otherCityCoords = mapOf(
+        "Toronto" to (43.6532 to -79.3832),
+        "Montreal" to (45.5017 to -73.5673),
+        "Vancouver" to (49.2827 to -123.1207),
+        "Calgary" to (51.0447 to -114.0719),
+        "Ottawa" to (45.4215 to -75.6972),
+        "Sydney" to (-33.8688 to 151.2093),
+        "Melbourne" to (-37.8136 to 144.9631),
+        "Brisbane" to (-27.4698 to 153.0251),
+        "Perth" to (-31.9505 to 115.8605),
+        "Adelaide" to (-34.9285 to 138.6007),
+        "Tokyo" to (35.6762 to 139.6503),
+        "Osaka" to (34.6937 to 135.5023),
+        "Yokohama" to (35.4437 to 139.6380),
+        "Nagoya" to (35.1815 to 136.9066),
+        "Sapporo" to (43.0618 to 141.3545),
+        "São Paulo" to (-23.5505 to -46.6333),
+        "Rio de Janeiro" to (-22.9068 to -43.1729),
+        "Brasília" to (-15.8267 to -47.9218),
+        "Salvador" to (-12.9714 to -38.5124),
+        "Fortaleza" to (-3.7172 to -38.5433)
+    )
+    val cityCoordinates = usCityCoords + euCityCoords + otherCityCoords
     val utmSources = listOf(null, null, null, "google", "facebook", "twitter", "newsletter", "linkedin")
     val utmMediums = listOf(null, null, null, "cpc", "social", "email", "organic", "referral")
     val utmCampaigns = listOf(null, null, null, "spring_sale", "product_launch", "brand_awareness", "retargeting")
@@ -421,7 +477,8 @@ fun seedDemoGoalsFunnelsSegments(projectId: UUID) {
             Triple(
                 "Chrome desktop users",
                 "Desktop visitors using Chrome",
-                """[{"field":"browser","operator":"equals","value":"Chrome","logic":"AND"},{"field":"device","operator":"equals","value":"Desktop","logic":"AND"}]"""
+                """[{"field":"browser","operator":"equals","value":"Chrome","logic":"AND"},""" +
+                        """{"field":"device","operator":"equals","value":"Desktop","logic":"AND"}]"""
             ),
         )
         for ((name, description, filtersJson) in segments) {

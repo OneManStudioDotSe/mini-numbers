@@ -12,12 +12,11 @@ import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
 import se.onemanstudio.setup.models.*
-import se.onemanstudio.configureRouting
+import configureRouting
 import se.onemanstudio.configureWidgetRouting
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.core.configureHTTP
-import se.onemanstudio.core.configureSecurity
 import se.onemanstudio.middleware.RedirectValidator
 import java.io.File
 import java.security.SecureRandom

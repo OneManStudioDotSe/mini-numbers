@@ -30,9 +30,10 @@ fun Application.configureHTTP(config: AppConfig) {
         // Allows same-origin scripts/styles, inline styles (for admin panel), and CDN resources
         header("Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " +  // Allow CDN scripts (Chart.js, Feather, Leaflet)
-            "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://fonts.googleapis.com; " +   // Allow CDN styles & Google Fonts
-            "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; " +  // Allow CDN fonts & Google Fonts files
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " +
+            "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net " +
+            "https://fonts.googleapis.com; " +
+            "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
             "img-src 'self' data: https:; " +        // Allow images from same origin, data URIs, and HTTPS
             "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com; " +  // Allow AJAX to same origin and CDN source maps
             "frame-ancestors 'none'; " +             // Prevent embedding (redundant with X-Frame-Options)

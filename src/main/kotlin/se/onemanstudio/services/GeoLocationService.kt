@@ -79,7 +79,7 @@ object GeoLocationService {
                 logger.info("GeoIP database initialized from classpath (extracted to temp file)")
                 return
             } catch (e: Exception) {
-                logger.warn("Failed to extract GeoIP database from classpath: ${e.message}")
+                logger.warn("Failed to extract GeoIP database from classpath: ${e.message}", e)
             }
         }
 
@@ -103,6 +103,7 @@ object GeoLocationService {
                 val longitude = response?.location()?.longitude()
                 GeoResult(country, city, region, latitude, longitude)
             } catch (e: Exception) {
+                logger.debug("GeoIP lookup failed for $ipString: ${e.message}")
                 GeoResult()
             }
         }
