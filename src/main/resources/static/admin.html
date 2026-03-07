@@ -35,7 +35,7 @@
     <!-- Sidebar -->
     <nav id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-            <img src="/assets/mini_numbers_logo.png" alt="Mini Numbers" class="sidebar-logo" style="height:36px;margin-bottom:4px;display:block;">
+            <img src="/assets/mini_numbers_logo.png" alt="Mini Numbers" class="sidebar-logo" style="height:52px;margin:0 auto 4px;display:block;">
             <div class="sidebar-subtitle">Privacy-first analytics</div>
         </div>
 
@@ -71,11 +71,11 @@
         <div class="dashboard-header">
             <h1 id="active-title">Select a project</h1>
             <div class="flex items-center gap-md">
-                <button class="btn btn-secondary btn-sm" id="generate-demo-btn" style="display: none;">
+                <button class="btn btn-secondary btn-sm" id="generate-demo-btn" style="display: none; white-space: nowrap; flex-shrink: 0;">
                     <i class="ri-database-2-line"></i>
                     <span>Generate demo data</span>
                 </button>
-                <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none;">
+                <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none; white-space: nowrap; flex-shrink: 0;">
                     <i class="ri-list-unordered"></i>
                     <span>Raw events</span>
                 </button>
@@ -106,8 +106,6 @@
                     <i class="ri-calendar-line"></i>
                     <span id="date-range-display">Loading...</span>
                 </div>
-
-                <div class="filter-bar__divider"></div>
 
                 <div class="filter-selector">
                     <label>Filter by:</label>
@@ -150,7 +148,6 @@
                     <!-- Primary Stat Cards -->
                     <div class="grid grid-cols-4" role="region" aria-label="Key metrics">
                         <div class="card stat-card" role="status" aria-label="Total page views">
-                            <img src="/assets/set_3/png/001-graph.png" alt="" aria-hidden="true" class="stat-card__illustration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-eye-line"></i></div>
                                 <small>Total page views</small>
@@ -161,7 +158,6 @@
                         </div>
 
                         <div class="card stat-card" role="status" aria-label="Unique visitors">
-                            <img src="/assets/set_3/png/021-online%20data.png" alt="" aria-hidden="true" class="stat-card__illustration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-group-line"></i></div>
                                 <small>Unique visitors</small>
@@ -172,7 +168,6 @@
                         </div>
 
                         <div class="card stat-card" role="status" aria-label="Total sessions">
-                            <img src="/assets/set_3/png/002-bar%20graph.png" alt="" aria-hidden="true" class="stat-card__illustration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-stack-line"></i></div>
                                 <small>Total sessions</small>
@@ -182,7 +177,6 @@
                         </div>
 
                         <div class="card stat-card" role="status" aria-label="Bounce rate">
-                            <img src="/assets/set_3/png/033-speed.png" alt="" aria-hidden="true" class="stat-card__illustration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-logout-box-r-line"></i></div>
                                 <small>Bounce rate</small>
@@ -1130,7 +1124,7 @@ MiniNumbers.track("donation", {
                 </div>
             </div>
             <div class="modal-body">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                     <select id="raw-events-type" class="select">
                         <option value="">All event types</option>
                         <option value="pageview">Pageviews</option>
@@ -1147,6 +1141,15 @@ MiniNumbers.track("donation", {
 
                 <div class="table-container">
                     <table id="raw-events-table">
+                        <colgroup>
+                            <col style="width: 14%">
+                            <col style="width: 9%">
+                            <col style="width: 31%">
+                            <col style="width: 18%">
+                            <col style="width: 11%">
+                            <col style="width: 9%">
+                            <col style="width: 8%">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Timestamp</th>

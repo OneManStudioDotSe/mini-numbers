@@ -13,7 +13,7 @@ const SetupWizard = {
     lineColor: 'rgba(99, 102, 241, 0.05)',
 
     init() {
-        this.initTheme();
+        this.updateAnimationColors();
         this.setupEventListeners();
         this.generateInitialSalt();
         this.checkSetupStatus();
@@ -21,37 +21,13 @@ const SetupWizard = {
         this.initBackgroundAnimation();
     },
 
-    initTheme() {
-        const saved = localStorage.getItem('mn_theme');
-        if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.classList.add('dark-mode');
-        }
-        this.updateThemeIcons();
-        this.updateAnimationColors();
-    },
-
-    toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('mn_theme', isDark ? 'dark' : 'light');
-        this.updateThemeIcons();
-        this.updateAnimationColors();
-    },
-
     updateAnimationColors() {
-        const style = getComputedStyle(document.body);
+        const style = getComputedStyle(document.documentElement);
         this.dotColor = style.getPropertyValue('--canvas-dot').trim();
         this.lineColor = style.getPropertyValue('--canvas-line').trim();
     },
 
-    updateThemeIcons() {
-        const isDark = document.body.classList.contains('dark-mode');
-        document.querySelector('.sun').style.display = isDark ? 'none' : 'block';
-        document.querySelector('.moon').style.display = isDark ? 'block' : 'none';
-    },
-
     setupEventListeners() {
-        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
         document.getElementById('btn-quick-setup').addEventListener('click', () => this.quickSetup());
         document.getElementById('btn-next').addEventListener('click', () => this.nextStep());
         document.getElementById('btn-previous').addEventListener('click', () => this.previousStep());
@@ -166,7 +142,7 @@ const SetupWizard = {
         try {
             const response = await fetch('/setup/api/status');
             const data = await response.json();
-            if (!data.setupNeeded) window.location.href = '/admin-panel';
+            if (!data.setupNeeded) window.location.href = '/login';
         } catch (e) {}
     },
 

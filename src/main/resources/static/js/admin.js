@@ -227,6 +227,10 @@ const Dashboard = {
 
       // Handle empty state (no projects)
       if (!projects || projects.length === 0) {
+        // Show demo button when no projects exist
+        const demoBtn = document.getElementById('demo-project-btn');
+        if (demoBtn) demoBtn.style.display = '';
+
         // Hide the entire projects section when empty
         if (section) section.style.display = 'none';
         menu.innerHTML = '';
@@ -241,6 +245,12 @@ const Dashboard = {
 
       // Show the projects section
       if (section) section.style.display = '';
+
+      // Hide the demo project button if a demo project already exists
+      const demoBtn = document.getElementById('demo-project-btn');
+      if (demoBtn) {
+        demoBtn.style.display = projects.some(p => p.name === 'Demo project') ? 'none' : '';
+      }
 
       // Show projects list with domain info
       menu.innerHTML = projects
@@ -722,7 +732,7 @@ const Dashboard = {
     const containers = ['chart-timeseries', 'chart-pages', 'chart-referrers', 'chart-browsers', 'chart-os', 'chart-devices', 'chart-countries', 'chart-heatmap'];
     containers.forEach(id => {
       const el = document.getElementById(id);
-      if (el) Utils.dom.showError(el.parentElement, message, () => this.refreshReport());
+      if (el) Utils.dom.showError(el.parentElement, message, () => this.refreshReport(), '/assets/set_3/png/030-research.png');
     });
   },
 
@@ -739,10 +749,10 @@ const Dashboard = {
         // Render implementation handled in admin.js elsewhere or via existing logic
         this.renderContributionCalendar(data);
       } else {
-        Utils.dom.showEmptyState(container, { icon: '&#128197;', message: 'No activity recorded yet' });
+        Utils.dom.showEmptyState(container, { illustration: '/assets/set_3/png/010-clipboard.png', message: 'No activity recorded yet' });
       }
     } catch (e) {
-      Utils.dom.showError(container, 'Failed to load calendar', () => this.loadContributionCalendar());
+      Utils.dom.showError(container, 'Failed to load calendar', () => this.loadContributionCalendar(), '/assets/set_3/png/030-research.png');
     }
   },
 
@@ -762,16 +772,16 @@ const Dashboard = {
 
       if (goalsContainer) {
         if (goals.length) this.renderGoals(goals);
-        else Utils.dom.showEmptyState(goalsContainer, { icon: '&#127919;', message: 'No goals defined', hint: 'Create goals to track key conversions' });
+        else Utils.dom.showEmptyState(goalsContainer, { illustration: '/assets/set_3/png/013-economy%20forecast.png', message: 'No goals defined', hint: 'Create goals to track key conversions' });
       }
 
       if (funnelsContainer) {
         if (funnels.length) this.renderFunnels(funnels);
-        else Utils.dom.showEmptyState(funnelsContainer, { icon: '&#128202;', message: 'No funnels defined', hint: 'Funnels help visualize multi-step journeys' });
+        else Utils.dom.showEmptyState(funnelsContainer, { illustration: '/assets/set_3/png/011-graph%20fork.png', message: 'No funnels defined', hint: 'Funnels help visualize multi-step journeys' });
       }
     } catch (e) {
-      if (goalsContainer) Utils.dom.showError(goalsContainer, 'Failed to load goals');
-      if (funnelsContainer) Utils.dom.showError(funnelsContainer, 'Failed to load funnels');
+      if (goalsContainer) Utils.dom.showError(goalsContainer, 'Failed to load goals', null, '/assets/set_3/png/030-research.png');
+      if (funnelsContainer) Utils.dom.showError(funnelsContainer, 'Failed to load funnels', null, '/assets/set_3/png/030-research.png');
     }
   },
 
@@ -788,10 +798,10 @@ const Dashboard = {
         // Assume renderSegments exists in segments.js or admin.js
         if (typeof SegmentsManager !== 'undefined') SegmentsManager.render(segments);
       } else {
-        Utils.dom.showEmptyState(container, { icon: '&#128101;', message: 'No segments created', hint: 'Filter your audience into meaningful groups' });
+        Utils.dom.showEmptyState(container, { illustration: '/assets/set_3/png/007-data%20mining.png', message: 'No segments created', hint: 'Filter your audience into meaningful groups' });
       }
     } catch (e) {
-      Utils.dom.showError(container, 'Failed to load segments');
+      Utils.dom.showError(container, 'Failed to load segments', null, '/assets/set_3/png/030-research.png');
     }
   },
 
@@ -893,7 +903,7 @@ const Dashboard = {
       const { text, className } = Utils.format.percentageChange(viewsChange);
       const previousFormatted = Utils.format.number(previous.totalViews);
       viewsCompEl.innerHTML = `
-        ${text} vs previous period
+        ${text} <span class="comparison-period-label">vs previous period</span>
         <span class="comparison-detail">(${previousFormatted} previously)</span>
       `;
       viewsCompEl.className = `stat-card__comparison ${className}`;
@@ -905,7 +915,7 @@ const Dashboard = {
       const { text, className } = Utils.format.percentageChange(visitorsChange);
       const previousFormatted = Utils.format.number(previous.uniqueVisitors);
       visitorsCompEl.innerHTML = `
-        ${text} vs previous period
+        ${text} <span class="comparison-period-label">vs previous period</span>
         <span class="comparison-detail">(${previousFormatted} previously)</span>
       `;
       visitorsCompEl.className = `stat-card__comparison ${className}`;
@@ -920,7 +930,7 @@ const Dashboard = {
       const className = bounceChange < 0 ? 'positive' : bounceChange > 0 ? 'negative' : '';
       const previousFormatted = previous.bounceRate.toFixed(1) + '%';
       bounceCompEl.innerHTML = `
-        ${text} vs previous period
+        ${text} <span class="comparison-period-label">vs previous period</span>
         <span class="comparison-detail">(${previousFormatted} previously)</span>
       `;
       bounceCompEl.className = `stat-card__comparison ${className}`;
@@ -931,7 +941,7 @@ const Dashboard = {
     if (sessionsCompEl && current.totalSessions != null && previous.totalSessions != null) {
       const sessionsChange = this.calculatePercentChange(current.totalSessions, previous.totalSessions);
       const { text, className } = Utils.format.percentageChange(sessionsChange);
-      sessionsCompEl.innerHTML = `${text} vs previous period`;
+      sessionsCompEl.innerHTML = `${text} <span class="comparison-period-label">vs previous period</span>`;
       sessionsCompEl.className = `stat-card__comparison ${className}`;
     }
 
@@ -940,7 +950,7 @@ const Dashboard = {
     if (durationCompEl && current.avgSessionDuration != null && previous.avgSessionDuration != null) {
       const durationChange = this.calculatePercentChange(current.avgSessionDuration, previous.avgSessionDuration);
       const { text, className } = Utils.format.percentageChange(durationChange);
-      durationCompEl.innerHTML = `${text} vs previous period`;
+      durationCompEl.innerHTML = `${text} <span class="comparison-period-label">vs previous period</span>`;
       durationCompEl.className = `stat-card__comparison ${className}`;
     }
 
@@ -949,7 +959,7 @@ const Dashboard = {
     if (convCompEl && current.conversionRate != null && previous.conversionRate != null) {
       const convChange = this.calculatePercentChange(current.conversionRate, previous.conversionRate);
       const { text, className } = Utils.format.percentageChange(convChange);
-      convCompEl.innerHTML = `${text} vs previous period`;
+      convCompEl.innerHTML = `${text} <span class="comparison-period-label">vs previous period</span>`;
       convCompEl.className = `stat-card__comparison ${className}`;
     }
   },
@@ -965,7 +975,7 @@ const Dashboard = {
       const allPages = Utils.aggregate.groupTopN(data.topPages, 10);
       this.renderBarChartWithShowMore('chart-pages', allPages, 5);
     } else if (pagesEl) {
-      Utils.dom.showEmptyState(pagesEl.parentElement, { icon: '&#128196;', message: 'No page views yet', hint: 'Page views will appear once visitors arrive' });
+      Utils.dom.showEmptyState(pagesEl.parentElement, { illustration: '/assets/set_3/png/023-page.png', message: 'No page views yet', hint: 'Page views will appear once visitors arrive' });
     }
 
     // Referrers - Icon Bar Chart with show more
@@ -974,17 +984,17 @@ const Dashboard = {
       const allReferrers = Utils.aggregate.groupTopN(data.referrers, 10);
       this.renderIconBarChartWithShowMore('chart-referrers', allReferrers, 'referrer', 5);
     } else if (referrersEl) {
-      Utils.dom.showEmptyState(referrersEl.parentElement, { icon: '&#128279;', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
+      Utils.dom.showEmptyState(referrersEl.parentElement, { illustration: '/assets/set_3/png/031-seo.png', message: 'No referrer data', hint: 'Referrer data appears when visitors come from external sites' });
     }
 
     // Browsers, OS, Devices — charts with view toggles
     const chartConfigs = [
-      { key: 'browsers', dataField: 'browsers', stateKey: 'browsersData', iconType: 'browser', emptyIcon: '&#127760;', emptyMsg: 'No browser data' },
-      { key: 'os', dataField: 'oss', stateKey: 'osData', iconType: 'os', emptyIcon: '&#128187;', emptyMsg: 'No OS data' },
-      { key: 'devices', dataField: 'devices', stateKey: 'devicesData', iconType: 'device', emptyIcon: '&#128241;', emptyMsg: 'No device data' },
+      { key: 'browsers', dataField: 'browsers', stateKey: 'browsersData', iconType: 'browser', emptyMsg: 'No browser data' },
+      { key: 'os', dataField: 'oss', stateKey: 'osData', iconType: 'os', emptyMsg: 'No OS data' },
+      { key: 'devices', dataField: 'devices', stateKey: 'devicesData', iconType: 'device', emptyMsg: 'No device data' },
     ];
 
-    chartConfigs.forEach(({ key, dataField, stateKey, iconType, emptyIcon, emptyMsg }) => {
+    chartConfigs.forEach(({ key, dataField, stateKey, iconType, emptyMsg }) => {
       const el = document.getElementById(`chart-${key}`);
       if (data[dataField]?.length && el) {
         this.state[stateKey] = data[dataField];
@@ -992,7 +1002,7 @@ const Dashboard = {
         const chartType = localStorage.getItem(`chart-view-${key}`) || 'doughnut';
         this.renderChartByType(`chart-${key}`, topItems, chartType, iconType);
       } else if (el) {
-        Utils.dom.showEmptyState(el.parentElement, { icon: emptyIcon, message: emptyMsg });
+        Utils.dom.showEmptyState(el.parentElement, { illustration: '/assets/set_3/png/022-computer.png', message: emptyMsg });
       }
     });
 
@@ -1042,7 +1052,7 @@ const Dashboard = {
         });
       }
     } else if (countriesEl) {
-      Utils.dom.showEmptyState(countriesEl.parentElement, { icon: '&#127758;', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
+      Utils.dom.showEmptyState(countriesEl.parentElement, { illustration: '/assets/set_3/png/034-web%20optimization.png', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
 
     // Time Series - Line Chart (uses pre-aggregated time series from comparison report)
@@ -1052,7 +1062,7 @@ const Dashboard = {
       const timeData = tsData.map(point => ({ timestamp: point.timestamp, count: point.views }));
       ChartManager.createLineChart('chart-timeseries', timeData);
     } else if (timeseriesEl) {
-      Utils.dom.showEmptyState(timeseriesEl.parentElement, { icon: '&#128200;', message: 'No time series data' });
+      Utils.dom.showEmptyState(timeseriesEl.parentElement, { illustration: '/assets/set_3/png/032-graph%20line.png', message: 'No time series data' });
     }
 
     // Activity Heatmap
@@ -1061,7 +1071,7 @@ const Dashboard = {
       ChartManager.createHeatmap('chart-heatmap', data.activityHeatmap, null, null, this.getHeatmapDateLabels());
       this.updatePeakTimeStats(data.activityHeatmap);
     } else if (heatmapEl) {
-      Utils.dom.showEmptyState(heatmapEl.parentElement, { icon: '&#128197;', message: 'No activity data yet' });
+      Utils.dom.showEmptyState(heatmapEl.parentElement, { illustration: '/assets/set_3/png/005-board.png', message: 'No activity data yet' });
     }
 
     // Peak times analysis
@@ -1790,7 +1800,7 @@ const Dashboard = {
       }
     } catch (error) {
       console.error('Failed to load webhooks:', error);
-      if (container) Utils.dom.showError(container, 'Failed to load webhooks');
+      if (container) Utils.dom.showError(container, 'Failed to load webhooks', null, '/assets/set_3/png/030-research.png');
     }
   },
 
@@ -1818,7 +1828,7 @@ const Dashboard = {
       }
     } catch (error) {
       console.error('Failed to load email reports:', error);
-      if (container) Utils.dom.showError(container, 'Failed to load email reports');
+      if (container) Utils.dom.showError(container, 'Failed to load email reports', null, '/assets/set_3/png/030-research.png');
     }
   },
 

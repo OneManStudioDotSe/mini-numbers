@@ -29,6 +29,18 @@
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-blur: 12px;
 
+  /* Glassmorphism — strong variant (used on standalone pages) */
+  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-border-strong: rgba(255, 255, 255, 0.6);
+  --glass-bg-input: rgba(255, 255, 255, 0.9);
+
+  /* Canvas background animation */
+  --canvas-dot: rgba(99, 102, 241, 0.15);
+  --canvas-line: rgba(99, 102, 241, 0.05);
+
+  /* Danger background (for error states) */
+  --color-danger-bg: #fef2f2;
+
   /* Neutral Colors - Backgrounds */
   --color-bg-primary: #f8fafc;
   --color-bg-secondary: #ffffff;
@@ -199,7 +211,7 @@
   --input-border-width: 1px;
 
   /* Tables */
-  --table-row-hover: var(--color-bg-tertiary);
+  --table-row-hover: var(--color-bg-hover);
   --table-border: var(--color-border);
 
   /* ============================================

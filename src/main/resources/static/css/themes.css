@@ -45,6 +45,12 @@
   /* Glassmorphism - dark */
   --glass-bg: rgba(30, 41, 59, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(30, 41, 59, 0.7);
+  --glass-border-strong: rgba(255, 255, 255, 0.05);
+  --glass-bg-input: rgba(15, 23, 42, 0.6);
+  --canvas-dot: rgba(255, 255, 255, 0.1);
+  --canvas-line: rgba(255, 255, 255, 0.03);
+  --color-danger-bg: rgba(239, 68, 68, 0.1);
 
   /* Glow shadows - dark */
   --shadow-glow-primary: 0 0 20px rgba(129, 140, 248, 0.2);
@@ -79,7 +85,7 @@
   --chart-bg-5: rgba(52, 211, 153, 0.15);
 
   /* Table */
-  --table-row-hover: var(--color-bg-tertiary);
+  --table-row-hover: var(--color-bg-hover);
 
   /* Loading skeleton */
   --skeleton-start: var(--color-bg-tertiary);

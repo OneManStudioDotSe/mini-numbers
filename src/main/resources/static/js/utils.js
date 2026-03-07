@@ -268,11 +268,14 @@ const Utils = {
      * @param {HTMLElement} container - Target container
      * @param {Object} options - Icon, message, hint
      */
-    showEmptyState(container, { icon, message, hint } = {}) {
+    showEmptyState(container, { icon, illustration, message, hint } = {}) {
       if (!container) return;
+      const iconHtml = illustration
+        ? `<img src="${illustration}" class="empty-state__illustration" alt="" aria-hidden="true">`
+        : `<div class="empty-state__icon">${icon || '&#128202;'}</div>`;
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state__icon">${icon || '&#128202;'}</div>
+          ${iconHtml}
           <div class="empty-state__message">${Utils.escapeHtml(message || 'No data available')}</div>
           ${hint ? `<div class="empty-state__suggestion">${Utils.escapeHtml(hint)}</div>` : ''}
         </div>
@@ -285,11 +288,14 @@ const Utils = {
      * @param {string} message - Error message
      * @param {Function} retryCallback - Optional retry function
      */
-    showError(container, message, retryCallback) {
+    showError(container, message, retryCallback, illustration) {
       if (!container) return;
+      const iconHtml = illustration
+        ? `<img src="${illustration}" class="empty-state__illustration" alt="" aria-hidden="true">`
+        : `<div class="empty-state__icon">&#9888;</div>`;
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state__icon">&#9888;</div>
+          ${iconHtml}
           <div class="empty-state__message">${Utils.escapeHtml(message)}</div>
           ${retryCallback ? '<button class="btn btn-secondary btn-sm empty-state__retry">Retry</button>' : ''}
         </div>

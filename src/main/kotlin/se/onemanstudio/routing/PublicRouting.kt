@@ -50,6 +50,8 @@ fun Route.publicRoutes(config: AppConfig) {
     staticResources("/setup", "setup", index = "wizard.html")
     staticResources("/tracker", "tracker")
     staticResources("/assets", "assets")
+    staticResources("/css", "static/css")
+    staticResources("/js", "static/js")
     
     // Serve minified tracker script directly
     get("/tracker/tracker.min.js") {
