@@ -224,6 +224,23 @@ img { max-width: 100%; display: block; }
   background-clip: text;
 }
 
+.landing-logo-img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+.landing-tab-illustration {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+
 .landing-nav-version {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);

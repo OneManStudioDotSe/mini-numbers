@@ -428,7 +428,7 @@
 
     createNumbers() {
       const isMobile = window.innerWidth < 768;
-      const count = isMobile ? 20 : 40;
+      const count = isMobile ? 20 : 60;
       this.numbers = [];
 
       for (let i = 0; i < count; i++) {
@@ -453,21 +453,13 @@
       const { width, height } = this.canvas;
       this.ctx.clearRect(0, 0, width, height);
 
-      this.ctx.font = '600 24px -apple-system, BlinkMacSystemFont, Inter, sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-
+      // Update all positions first
       for (const n of this.numbers) {
-        // Update position
         n.x += n.vx;
         n.y += n.vy;
         n.rotation += n.rotationSpeed;
         n.opacityPhase += n.opacitySpeed;
 
-        // Pulse opacity
-        const opacity = n.baseOpacity + Math.sin(n.opacityPhase) * 0.02;
-
-        // Wrap around edges
         if (n.y < -40) {
           n.y = height + 40;
           n.x = Math.random() * width;
@@ -475,12 +467,35 @@
         }
         if (n.x < -40) n.x = width + 40;
         if (n.x > width + 40) n.x = -40;
+      }
 
-        // Draw number
+      // Draw connecting lines
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      this.ctx.lineWidth = 0.8;
+      for (let i = 0; i < this.numbers.length; i++) {
+        for (let j = i + 1; j < this.numbers.length; j++) {
+          const dx = this.numbers[i].x - this.numbers[j].x;
+          const dy = this.numbers[i].y - this.numbers[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.numbers[i].x, this.numbers[i].y);
+            this.ctx.lineTo(this.numbers[j].x, this.numbers[j].y);
+            this.ctx.stroke();
+          }
+        }
+      }
+
+      // Draw digit characters
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      for (const n of this.numbers) {
+        const opacity = n.baseOpacity + Math.sin(n.opacityPhase) * 0.02;
+
         this.ctx.save();
         this.ctx.translate(n.x, n.y);
         this.ctx.rotate(n.rotation);
-        this.ctx.font = `600 ${n.size}px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
+        this.ctx.font = `600 14px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
         this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, opacity)})`;
         this.ctx.fillText(n.digit, 0, 0);
         this.ctx.restore();

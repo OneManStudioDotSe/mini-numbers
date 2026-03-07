@@ -14,8 +14,10 @@
   <!-- Remix Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
 
+  <link rel="icon" type="image/png" href="assets/mini_numbers_logo.png">
+
   <!-- Styles -->
-  <link rel="stylesheet" href="/landing/css/landing.css">
+  <link rel="stylesheet" href="landing.css">
 </head>
 <body>
 
@@ -28,8 +30,7 @@
 <nav class="landing-nav" role="navigation" aria-label="Main navigation">
   <div class="landing-nav-inner">
     <a href="#" class="landing-nav-brand" aria-label="Mini Numbers home">
-      <i class="ri-bar-chart-grouped-line"></i>
-      Mini Numbers
+      <img src="assets/mini_numbers_logo.png" alt="Mini Numbers" class="landing-logo-img">
       <span class="landing-nav-version">v1.0.0-beta</span>
     </a>
 
@@ -205,7 +206,8 @@
     </div>
 
     <!-- Dashboard tab -->
-    <div class="landing-tab-content active" data-tab="dashboard" role="tabpanel">
+    <div class="landing-tab-content active" data-tab="dashboard" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/003-bar%20graph.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Beautiful, actionable insights</h3>
         <p>See your traffic at a glance with stat cards, comparison reports, and time series charts. Filter by time range and watch trends emerge.</p>
@@ -239,7 +241,8 @@
     </div>
 
     <!-- Custom Events tab -->
-    <div class="landing-tab-content" data-tab="events" role="tabpanel">
+    <div class="landing-tab-content" data-tab="events" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/019-idea.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Track what matters</h3>
         <p>Go beyond page views. Track signups, purchases, and any custom interaction with a single line of code.</p>
@@ -273,7 +276,8 @@
     </div>
 
     <!-- Visualizations tab -->
-    <div class="landing-tab-content" data-tab="viz" role="tabpanel">
+    <div class="landing-tab-content" data-tab="viz" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/025-pie%20chart.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Data that tells a story</h3>
         <p>Go beyond bar charts. See your data come alive with unique visualizations that help you spot patterns at a glance.</p>
@@ -322,7 +326,8 @@
     </div>
 
     <!-- Live Monitoring tab -->
-    <div class="landing-tab-content" data-tab="live" role="tabpanel">
+    <div class="landing-tab-content" data-tab="live" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/021-online%20data.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>See your visitors in real-time</h3>
         <p>Watch visitors arrive as they browse your site. See where they come from and what pages they view — all live.</p>
@@ -359,7 +364,8 @@
     </div>
 
     <!-- Segmentation tab -->
-    <div class="landing-tab-content" data-tab="segments" role="tabpanel">
+    <div class="landing-tab-content" data-tab="segments" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/031-seo.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Slice your data any way you want</h3>
         <p>Build segments with a visual filter builder, define conversion goals, and track multi-step funnels with drop-off analysis.</p>
@@ -386,7 +392,8 @@
     </div>
 
     <!-- Export & API tab -->
-    <div class="landing-tab-content" data-tab="api" role="tabpanel">
+    <div class="landing-tab-content" data-tab="api" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/023-page.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Your data, your way</h3>
         <p>Export any report as CSV, integrate with your tools via the REST API, or explore with the built-in OpenAPI documentation.</p>
@@ -423,7 +430,8 @@
     </div>
 
     <!-- Widgets tab -->
-    <div class="landing-tab-content" data-tab="widgets" role="tabpanel">
+    <div class="landing-tab-content" data-tab="widgets" role="tabpanel" style="position:relative;">
+      <img src="assets/set_3/png/032-graph%20line.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Embeddable widgets for your site</h3>
         <p>Show real-time stats on your website with lightweight, self-updating widgets. Drop in a script tag and you're done.</p>
@@ -965,6 +973,6 @@ java -jar build/libs/mini-numbers-all.jar
 </footer>
 
 <!-- JavaScript -->
-<script src="/landing/js/landing.js"></script>
+<script src="landing.js"></script>
 </body>
 </html>

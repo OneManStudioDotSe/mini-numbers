@@ -100,16 +100,18 @@ const SetupWizard = {
         this.canvas = document.getElementById('bg-canvas');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
-        
+
         const resize = () => {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
         };
-        
+
         window.addEventListener('resize', resize);
         resize();
 
         const self = this;
+        const CHARS = ['0','1','2','3','4','5','6','7','8','9'];
+
         class Particle {
             constructor() { this.reset(); }
             reset() {
@@ -117,29 +119,30 @@ const SetupWizard = {
                 this.y = Math.random() * self.canvas.height;
                 this.vx = (Math.random() - 0.5) * 0.4;
                 this.vy = (Math.random() - 0.5) * 0.4;
-                this.radius = Math.random() * 1.5 + 1;
+                this.char = CHARS[Math.floor(Math.random() * CHARS.length)];
             }
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
                 if (this.x < 0 || this.x > self.canvas.width) this.vx *= -1;
                 if (this.y < 0 || this.y > self.canvas.height) this.vy *= -1;
+            }
             draw() {
-                self.ctx.beginPath();
-                self.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                self.ctx.font = '11px monospace';
                 self.ctx.fillStyle = self.dotColor;
-                self.ctx.fill();
+                self.ctx.fillText(this.char, this.x, this.y);
             }
-            }
+        }
 
-            for (let i = 0; i < 80; i++) this.particles.push(new Particle());
+        for (let i = 0; i < 80; i++) this.particles.push(new Particle());
 
-            const animate = () => {
+        const animate = () => {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             this.ctx.strokeStyle = this.lineColor;
             this.ctx.lineWidth = 0.8;
 
+            for (let i = 0; i < this.particles.length; i++) {
                 for (let j = i + 1; j < this.particles.length; j++) {
                     const dx = this.particles[i].x - this.particles[j].x;
                     const dy = this.particles[i].y - this.particles[j].y;
@@ -152,6 +155,7 @@ const SetupWizard = {
                     }
                 }
             }
+
             this.particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         };
