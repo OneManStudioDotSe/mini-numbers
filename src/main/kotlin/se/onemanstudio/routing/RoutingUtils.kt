@@ -418,7 +418,7 @@ fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
 /**
  * Seed demo conversion goals, funnels, and segments for a project.
  */
-fun seedDemoGoalsFunnelsSegments(projectId: UUID) {
+fun seedDemoGoalsFunnelsSegments(projectId: UUID) = transaction {
     val hasGoals = ConversionGoals.selectAll().where { ConversionGoals.projectId eq projectId }.count() > 0
     val hasFunnels = Funnels.selectAll().where { Funnels.projectId eq projectId }.count() > 0
     val hasSegments = Segments.selectAll().where { Segments.projectId eq projectId }.count() > 0
