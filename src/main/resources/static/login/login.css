@@ -1,0 +1,80 @@
+/**
+ * Login page — layout styles
+ * Design tokens from /css/variables.css + /css/themes.css
+ * Shared components (buttons, inputs, form-group) from /css/components.css
+ */
+
+/* Body layout override (base.css sets font/colors; we set positioning) */
+body {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 80px 20px;
+}
+
+#bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
+
+.theme-toggle {
+    position: fixed; top: 24px; left: 24px;
+    width: 44px; height: 44px; border-radius: var(--radius-lg);
+    background: var(--glass-bg-strong); border: 1px solid var(--glass-border-strong);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; z-index: var(--z-index-sticky);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+.theme-toggle:hover { transform: scale(1.05); border-color: var(--color-primary); }
+
+.login-container {
+    width: 100%; max-width: 480px;
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border-strong);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+    padding: 40px 36px; position: relative;
+    animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-header { text-align: center; margin-bottom: 28px; }
+.app-logo-img { height: 48px; margin-bottom: 12px; display: block; margin: 0 auto 12px; }
+.app-name { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); letter-spacing: -0.025em; color: var(--color-text-primary); margin-bottom: 4px; }
+.app-subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); font-size: 13px; }
+
+/* Login inputs use the glass input background instead of opaque admin bg */
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    background-color: var(--glass-bg-input);
+    border-width: 1.5px;
+}
+
+.btn-login { width: 100%; margin-top: 24px; }
+
+/* Login error banner */
+.error-banner {
+    display: none; align-items: center; gap: 8px;
+    color: var(--color-danger); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
+    margin-bottom: 24px; padding: 10px 14px;
+    background: var(--color-danger-bg);
+    border-radius: var(--radius-sm); border-left: 4px solid var(--color-danger);
+}
+.error-banner.show { display: flex; animation: shake 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+
+/* Inline loading spinner inside button */
+.loading-spinner-sm {
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin-right: 10px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.footer-text { text-align: center; margin-top: 32px; font-size: var(--font-size-sm); color: var(--color-text-muted); }

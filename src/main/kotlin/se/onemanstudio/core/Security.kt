@@ -192,10 +192,13 @@ fun Application.configureSecurity(config: AppConfig) {
                 }
             }
             challenge {
-                // Return 401 JSON so frontend fetch() calls get a proper error
-                // instead of being redirected to an HTML login page
-                call.respond(HttpStatusCode.Unauthorized,
-                    ApiError.unauthorized("Authentication required"))
+                val acceptsHtml = call.request.headers["Accept"]?.contains("text/html") == true
+                if (acceptsHtml) {
+                    call.respondRedirect("/login")
+                } else {
+                    call.respond(HttpStatusCode.Unauthorized,
+                        ApiError.unauthorized("Authentication required"))
+                }
             }
         }
 

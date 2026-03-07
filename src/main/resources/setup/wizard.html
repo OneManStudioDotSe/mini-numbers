@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup Mini Numbers</title>
     <link rel="icon" type="image/png" href="/assets/mini_numbers_logo.png">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/setup/css/wizard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/js/theme.js"></script>
 </head>
 <body>
     <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
@@ -232,7 +237,7 @@
         <div class="countdown-card">
             <div class="app-logo">✨</div>
             <h2 style="margin-bottom: 8px;">You're all set!</h2>
-            <p style="color: var(--text-muted); margin-bottom: 24px;">Configuration saved. Redirecting to your new dashboard.</p>
+            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Configuration saved. Redirecting to your new dashboard.</p>
             <div class="countdown-number" id="countdown-number">5</div>
             <div class="countdown-card__progress">
                 <div class="countdown-card__bar" id="countdown-bar"></div>
@@ -244,12 +249,30 @@
     <div id="error-modal" class="modal" style="display: none;">
         <div class="countdown-card">
             <div class="app-logo">⚠️</div>
-            <h2 style="color: var(--error);">Setup failed</h2>
+            <h2 style="color: var(--color-danger);">Setup failed</h2>
             <p id="error-message" style="margin: 16px 0;"></p>
             <button class="btn btn-primary" onclick="document.getElementById('error-modal').style.display='none'">Try again</button>
         </div>
     </div>
 
     <script src="/setup/js/wizard.js"></script>
+    <script>
+        // Wire theme toggle button to the shared ThemeManager (loaded from theme.js)
+        function updateThemeIcons() {
+            const isDark = ThemeManager.isDark();
+            document.querySelector('.sun').style.display = isDark ? 'none' : 'block';
+            document.querySelector('.moon').style.display = isDark ? 'block' : 'none';
+        }
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            ThemeManager.toggle();
+            updateThemeIcons();
+            SetupWizard.updateAnimationColors();
+        });
+        window.addEventListener('themeChange', () => {
+            updateThemeIcons();
+            SetupWizard.updateAnimationColors();
+        });
+        updateThemeIcons();
+    </script>
 </body>
 </html>

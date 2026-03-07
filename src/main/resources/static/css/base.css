@@ -127,13 +127,21 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-xl);
-  flex-wrap: wrap;
   gap: var(--spacing-md);
+  min-width: 0;
 }
 
 .dashboard-header h1 {
   margin: 0;
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-header > div {
+  flex-shrink: 0;
 }
 
 /* ============================================
