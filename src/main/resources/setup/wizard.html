@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup Mini Numbers</title>
+    <link rel="icon" type="image/png" href="/assets/mini_numbers_logo.png">
     <link rel="stylesheet" href="/setup/css/wizard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +21,7 @@
         <button type="button" class="btn-quick-setup" id="btn-quick-setup">Quick Setup</button>
         
         <header class="wizard-header">
-            <div class="app-logo">🔢</div>
-            <h1 class="app-name">Mini Numbers</h1>
+            <img src="/assets/mini_numbers_logo.png" alt="Mini Numbers" class="app-logo-img" style="height:56px;margin-bottom:8px;">
             <p class="app-subtitle">Privacy-first web analytics</p>
             
             <div class="progress-container">
@@ -36,7 +36,8 @@
 
         <form id="setup-form" class="wizard-form">
             <!-- Step 1: Admin -->
-            <div class="wizard-step active" data-step="1">
+            <div class="wizard-step active" data-step="1" style="position:relative;">
+                <img src="/assets/set_3/png/010-clipboard.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Secure your dashboard</h2>
                 <p class="step-description">Create your admin credentials and cryptographic salt.</p>
 
@@ -70,7 +71,8 @@
             </div>
 
             <!-- Step 2: Database -->
-            <div class="wizard-step" data-step="2">
+            <div class="wizard-step" data-step="2" style="position:relative;">
+                <img src="/assets/set_3/png/006-cloud%20data.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Choose storage</h2>
                 <p class="step-description">Select where your analytics data will live.</p>
 
@@ -122,7 +124,8 @@
             </div>
 
             <!-- Step 3: Privacy (NEW) -->
-            <div class="wizard-step" data-step="3">
+            <div class="wizard-step" data-step="3" style="position:relative;">
+                <img src="/assets/set_3/png/029-research.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Privacy approach</h2>
                 <p class="step-description">How anonymous should your visitors be?</p>
 
@@ -152,7 +155,8 @@
             </div>
 
             <!-- Step 4: Server -->
-            <div class="wizard-step" data-step="4">
+            <div class="wizard-step" data-step="4" style="position:relative;">
+                <img src="/assets/set_3/png/022-computer.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Server settings</h2>
                 <p class="step-description">Configure how the server handles requests.</p>
 
@@ -180,7 +184,8 @@
             </div>
 
             <!-- Step 5: Advanced -->
-            <div class="wizard-step" data-step="5">
+            <div class="wizard-step" data-step="5" style="position:relative;">
+                <img src="/assets/set_3/png/033-speed.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Fine-tuning</h2>
                 <p class="step-description">Optional settings for performance.</p>
 
@@ -198,7 +203,8 @@
             </div>
 
             <!-- Step 6: Review -->
-            <div class="wizard-step" data-step="6">
+            <div class="wizard-step" data-step="6" style="position:relative;">
+                <img src="/assets/set_3/png/024-paper.png" alt="" aria-hidden="true" style="position:absolute;top:-8px;right:-8px;width:80px;height:80px;opacity:0.12;pointer-events:none;user-select:none;">
                 <h2>Ready to launch?</h2>
                 <p class="step-description">Review your final configuration summary.</p>
                 <div id="review-content" class="review-content"></div>

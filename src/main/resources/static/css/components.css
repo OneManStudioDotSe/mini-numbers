@@ -23,9 +23,22 @@
 
 /* Stat Cards */
 .stat-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+}
+
+.stat-card__illustration {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
 }
 
 .stat-card__header {
