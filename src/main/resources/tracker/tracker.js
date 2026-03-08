@@ -39,6 +39,44 @@
         }
     }
 
+    // Offline queue: persist failed events and replay on reconnect
+    var MN_QUEUE_KEY = 'mn_queue';
+    var MN_QUEUE_MAX = 20;
+
+    function queuePush(payload) {
+        try {
+            var queue = JSON.parse(localStorage.getItem(MN_QUEUE_KEY) || '[]');
+            if (!Array.isArray(queue)) queue = [];
+            if (queue.length < MN_QUEUE_MAX) {
+                queue.push(payload);
+                localStorage.setItem(MN_QUEUE_KEY, JSON.stringify(queue));
+            }
+        } catch (e) { /* storage unavailable */ }
+    }
+
+    function queueDrain() {
+        try {
+            var queue = JSON.parse(localStorage.getItem(MN_QUEUE_KEY) || '[]');
+            if (!Array.isArray(queue) || !queue.length) return;
+            var remaining = [];
+            for (var i = 0; i < queue.length; i++) {
+                var ok = navigator.sendBeacon(endpoint + '?key=' + key, JSON.stringify(queue[i]));
+                if (!ok) remaining.push(queue[i]);
+            }
+            if (remaining.length) {
+                localStorage.setItem(MN_QUEUE_KEY, JSON.stringify(remaining));
+            } else {
+                localStorage.removeItem(MN_QUEUE_KEY);
+            }
+        } catch (e) { /* storage unavailable */ }
+    }
+
+    // Drain queued events on page load (handles previous offline session)
+    queueDrain();
+
+    // Drain on reconnect
+    window.addEventListener('online', queueDrain);
+
     // Send event to server
     function send(type, eventName, extra) {
         var payload = {
@@ -55,7 +93,8 @@
         }
         // Merge any extra fields (scrollDepth, targetUrl, properties)
         if (extra) { for (var k in extra) payload[k] = extra[k]; }
-        navigator.sendBeacon(endpoint + '?key=' + key, JSON.stringify(payload));
+        var sent = navigator.sendBeacon(endpoint + '?key=' + key, JSON.stringify(payload));
+        if (!sent) queuePush(payload);
     }
 
     // Initial pageview

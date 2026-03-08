@@ -735,4 +735,74 @@ const Utils = {
       return map[name.toLowerCase()] || '';
     },
   },
+
+  /**
+   * Focus trap for accessible modals.
+   * Call openModal(el) when showing a modal, closeModal() when hiding.
+   * Traps Tab/Shift+Tab within the modal and closes on Escape.
+   */
+  focusTrap: {
+    _handler: null,
+    _previousFocus: null,
+
+    _getFocusable(container) {
+      return Array.from(container.querySelectorAll(
+        'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+      )).filter(el => !el.closest('[hidden]') && el.offsetParent !== null);
+    },
+
+    openModal(modalEl, onEscape) {
+      this._previousFocus = document.activeElement;
+
+      // Move focus to the first focusable element (or the modal itself)
+      const focusable = this._getFocusable(modalEl);
+      if (focusable.length) {
+        focusable[0].focus();
+      } else {
+        modalEl.setAttribute('tabindex', '-1');
+        modalEl.focus();
+      }
+
+      this._handler = (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          if (onEscape) onEscape();
+          return;
+        }
+        if (e.key !== 'Tab') return;
+
+        const focusableEls = this._getFocusable(modalEl);
+        if (!focusableEls.length) { e.preventDefault(); return; }
+
+        const first = focusableEls[0];
+        const last = focusableEls[focusableEls.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+
+      document.addEventListener('keydown', this._handler);
+    },
+
+    closeModal() {
+      if (this._handler) {
+        document.removeEventListener('keydown', this._handler);
+        this._handler = null;
+      }
+      if (this._previousFocus && typeof this._previousFocus.focus === 'function') {
+        this._previousFocus.focus();
+      }
+      this._previousFocus = null;
+    },
+  },
+
 };

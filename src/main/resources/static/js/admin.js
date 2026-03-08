@@ -1974,6 +1974,7 @@ const Dashboard = {
     // Open modal
     generateBtn.addEventListener('click', () => {
       modal.classList.add('show');
+      Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
     });
 
     // Close modal handlers
@@ -1987,7 +1988,15 @@ const Dashboard = {
     // Generate demo data
     confirmBtn.addEventListener('click', async () => {
       const count = parseInt(document.getElementById('demo-count').value) || 500;
-      await this.generateDemoData(count);
+      const originalText = confirmBtn.textContent;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Generating…';
+      try {
+        await this.generateDemoData(count);
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalText;
+      }
       closeModal();
     });
   },
@@ -2094,6 +2103,15 @@ const Dashboard = {
     document.querySelectorAll('.modal-content').forEach(el => {
       el.addEventListener('click', (e) => e.stopPropagation());
     });
+
+    // Auto-release focus trap whenever any dialog modal loses its 'show' class
+    document.querySelectorAll('.modal[role="dialog"]').forEach(modal => {
+      new MutationObserver(() => {
+        if (!modal.classList.contains('show')) {
+          Utils.focusTrap.closeModal();
+        }
+      }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+    });
   },
 
   /**
@@ -2105,12 +2123,14 @@ const Dashboard = {
     const saveBtn = document.getElementById('save-settings');
     const cancelBtn = document.getElementById('cancel-settings');
     const copyProjectKeyBtn = document.getElementById('copy-project-api-key');
+    const rotateProjectKeyBtn = document.getElementById('rotate-project-api-key');
 
     if (!modal || !openBtn) return;
 
     openBtn.addEventListener('click', () => {
       // Show modal immediately
       modal.classList.add('show');
+      Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
 
       // Load dashboard settings (synchronous)
       const settings = SettingsManager.load();
@@ -2207,7 +2227,10 @@ const Dashboard = {
         modal.classList.remove('show');
         this.loadWebhooks();
         const webhooksModal = document.getElementById('webhooks-modal');
-        if (webhooksModal) webhooksModal.classList.add('show');
+        if (webhooksModal) {
+          webhooksModal.classList.add('show');
+          Utils.focusTrap.openModal(webhooksModal, () => webhooksModal.classList.remove('show'));
+        }
       });
     }
 
@@ -2218,7 +2241,10 @@ const Dashboard = {
         modal.classList.remove('show');
         this.loadEmailReports();
         const emailReportsModal = document.getElementById('email-reports-modal');
-        if (emailReportsModal) emailReportsModal.classList.add('show');
+        if (emailReportsModal) {
+          emailReportsModal.classList.add('show');
+          Utils.focusTrap.openModal(emailReportsModal, () => emailReportsModal.classList.remove('show'));
+        }
       });
     }
 
@@ -2229,6 +2255,32 @@ const Dashboard = {
         if (key) {
           navigator.clipboard.writeText(key);
           Utils.toast.success('API key copied!');
+        }
+      });
+    }
+
+    // Rotate project API key handler
+    if (rotateProjectKeyBtn) {
+      rotateProjectKeyBtn.addEventListener('click', async () => {
+        if (!this.state.currentProjectId) return;
+        if (!confirm('Rotate the API key? The old key will stop working immediately and your tracker script must be updated.')) return;
+
+        const originalText = rotateProjectKeyBtn.innerHTML;
+        rotateProjectKeyBtn.disabled = true;
+        rotateProjectKeyBtn.innerHTML = '<i class="ri-loader-4-line"></i> Rotating…';
+
+        try {
+          const result = await Utils.api.post(`/admin/projects/${this.state.currentProjectId}/rotate-api-key`, {});
+          if (!result?.apiKey) throw new Error('No API key in response');
+          document.getElementById('setting-project-api-key').textContent = result.apiKey;
+          await this.loadProjects();
+          Utils.toast.success('API key rotated. Update your tracker script.');
+        } catch (error) {
+          console.error('Failed to rotate API key:', error);
+          Utils.toast.error('Failed to rotate API key');
+        } finally {
+          rotateProjectKeyBtn.disabled = false;
+          rotateProjectKeyBtn.innerHTML = originalText;
         }
       });
     }
@@ -2259,6 +2311,7 @@ const Dashboard = {
 
     openBtn.addEventListener('click', () => {
       modal.classList.add('show');
+      Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
       this.loadRawEvents(0);
     });
 

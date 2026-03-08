@@ -1,6 +1,6 @@
 # Mini Numbers - Roadmap & Status
 
-**Last Updated**: February 27, 2026
+**Last Updated**: March 8, 2026 (v1.2.0)
 
 ---
 
@@ -74,8 +74,26 @@
 - [x] Error handling improvements (global error handlers, API retry with exponential backoff)
 - [x] Accessibility (ARIA labels, keyboard navigation, skip-to-content link, semantic HTML roles)
 - [x] Empty state designs (contextual empty states for all charts, tables, and data sections)
+- [x] Empty/error state illustrations — all panels now render a contextual set_3 PNG illustration; error states use a research icon
 - [x] Dashboard UI overhaul (merged filter bar, show more buttons, custom events breakdown, heatmap dates)
+- [x] Filter bar redesign — date range text large and bold (xl, 700), "Filter by" group pushed to far right with `margin-left: auto`
+- [x] Header layout fix — title ellipsis-truncates instead of wrapping; right-side controls never compress or wrap
+- [x] Theme toggle fixed — pill overflow clipping, Remixicon icon correctly centered
+- [x] Table row hover color — visually distinct from zebra stripe in both light and dark themes
+- [x] "vs previous period" label — `xs` size, muted color, normal weight; subordinate to percentage value
+- [x] Overview stat cards — decorative background illustrations removed; clean card layout
+- [x] Raw Events modal — wider Path (31%) and Location (18%) columns; filter dropdowns always side-by-side
+- [x] Sidebar app icon — 20% larger, centered; sidebar header text-aligned center
+- [x] Demo project button — auto-hidden in sidebar when project list already contains "Demo project"
+- [x] Header action buttons — `white-space: nowrap; flex-shrink: 0` prevents text wrapping at any viewport width
+- [x] Bug fix: demo data generation 500 error — `seedDemoGoalsFunnelsSegments` missing `transaction {}` wrapper
 - [x] Project delete from sidebar with confirmation dialog
+- [x] Dark mode WCAG AA contrast — `--color-text-muted` lightened from `#94a3b8` to `#a8b8cc` on dark backgrounds
+- [x] Filter warning visible state — background, border, border-radius, and padding added to `.filter-warning`
+- [x] Stat card mobile grid — `.grid-cols-4` collapses to 2 columns ≤900 px and 1 column ≤480 px
+- [x] Demo data loading state — "Generating…" spinner state on confirm button during API call
+- [x] Modal accessibility — `role="dialog"`, `aria-modal`, `aria-labelledby` on all five primary modals; `aria-label="Close"` on all close buttons
+- [x] Focus trap utility — `Utils.focusTrap` with Tab/Shift+Tab trapping, Escape key, and focus restoration; wired to all dialog modals via MutationObserver
 - [x] Enhanced demo data (10 custom event types, auto-seeds goals/funnels/segments)
 - [x] Onboarding flow after first login (modal with checklist, localStorage persistence)
 - [x] Database query optimization (8 composite indexes)
@@ -110,8 +128,16 @@
 - [x] Email reports -- SMTP service, scheduler, templates, admin UI, settings panel
 - [x] Webhooks -- event triggers (goal_conversion, traffic_spike), admin UI, HMAC delivery
 - [x] Revenue tracking -- aggregation, attribution by source/UTM, dashboard section
+- [x] API key rotation -- `POST /admin/projects/{id}/rotate-api-key` endpoint + "Rotate key" button in Settings modal
+- [x] Retention preview -- `GET /admin/projects/{id}/retention-preview?days=N` read-only preview before enabling auto-retention
+- [x] Goals / funnels / segments pagination -- `?page=&limit=` support, backward-compatible flat-array fallback
+- [x] Tracker offline queue -- `mn_queue` localStorage buffer (max 20), drains on page load and `online` event
+- [x] OpenAPI spec completion -- 20+ missing endpoints documented; JWT auth, user management, widget endpoints, securitySchemes, shared error responses
+- [x] Cross-project isolation tests -- 8 new integration tests verifying auth boundaries and project isolation
+- [x] Documentation: tracker reference, widget embed guide, troubleshooting guide, upgrading guide (4 new public doc pages)
+- [x] Documentation: features.md, index.md, configuration.md, dashboard-guide.md expanded to cover all implemented features
 
-**Milestone**: v1.0.0-beta
+**Milestone**: v1.0.0-beta → v1.2.0
 
 ---
 

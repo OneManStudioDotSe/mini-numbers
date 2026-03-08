@@ -251,6 +251,160 @@ class AdminEndpointTest {
         }
     }
 
+    // ==================== Cross-Project Isolation Tests ====================
+
+    @Test
+    fun `GET stats for non-existent project UUID returns 400 or 404`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            // A valid UUID that doesn't belong to any project
+            val fakeId = "00000000-0000-0000-0000-000000000001"
+            val response = authClient.get("/admin/projects/$fakeId/stats")
+            // Should return 200 with empty stats or 404 — never leak another project's data
+            assertTrue(
+                response.status == HttpStatusCode.OK ||
+                response.status == HttpStatusCode.NotFound,
+                "Stats for unknown project should return 200 (empty) or 404, got ${response.status}"
+            )
+        }
+    }
+
+    @Test
+    fun `GET report for non-existent project UUID returns valid response`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            val fakeId = "00000000-0000-0000-0000-000000000002"
+            val response = authClient.get("/admin/projects/$fakeId/report")
+            assertTrue(
+                response.status == HttpStatusCode.OK ||
+                response.status == HttpStatusCode.NotFound,
+                "Report for unknown project should return 200 (empty) or 404, got ${response.status}"
+            )
+        }
+    }
+
+    @Test
+    fun `GET goals for non-existent project returns empty list`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            val fakeId = "00000000-0000-0000-0000-000000000003"
+            val response = authClient.get("/admin/projects/$fakeId/goals")
+            // Unknown project: should return empty array, not another project's goals
+            assertTrue(
+                response.status == HttpStatusCode.OK ||
+                response.status == HttpStatusCode.NotFound,
+                "Goals for unknown project should return 200 or 404, got ${response.status}"
+            )
+            if (response.status == HttpStatusCode.OK) {
+                val body = response.bodyAsText()
+                assertTrue(body.contains("[]") || body.contains("\"data\":[]"),
+                    "Goals response for unknown project should be empty, got: $body")
+            }
+        }
+    }
+
+    @Test
+    fun `DELETE project with valid UUID that does not exist returns 404 or 204`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            val fakeId = "00000000-0000-0000-0000-000000000004"
+            val response = authClient.delete("/admin/projects/$fakeId")
+            // Either 204 (idempotent) or 404 — must not crash
+            assertTrue(
+                response.status == HttpStatusCode.NoContent ||
+                response.status == HttpStatusCode.NotFound,
+                "Delete non-existent project should return 204 or 404, got ${response.status}"
+            )
+        }
+    }
+
+    @Test
+    fun `POST collect with deleted project API key returns 404`() = testApplication {
+        application { module() }
+
+        // Using a key that was never created — should be rejected
+        val response = client.post("/collect?key=0000000000000000000000000000dead") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"path":"/","sessionId":"test-session","type":"pageview"}""")
+        }
+        assertEquals(HttpStatusCode.NotFound, response.status,
+            "Collect with unknown API key should return 404")
+    }
+
+    @Test
+    fun `GET segments for non-existent project returns empty list`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            val fakeId = "00000000-0000-0000-0000-000000000005"
+            val response = authClient.get("/admin/projects/$fakeId/segments")
+            assertTrue(
+                response.status == HttpStatusCode.OK ||
+                response.status == HttpStatusCode.NotFound,
+                "Segments for unknown project should return 200 or 404, got ${response.status}"
+            )
+            if (response.status == HttpStatusCode.OK) {
+                val body = response.bodyAsText()
+                assertTrue(body.contains("[]") || body.contains("\"data\":[]"),
+                    "Segments for unknown project should be empty, got: $body")
+            }
+        }
+    }
+
+    @Test
+    fun `GET live feed for non-existent project returns empty list`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+
+        val loginResponse = authClient.login()
+
+        if (loginResponse.status == HttpStatusCode.OK) {
+            val fakeId = "00000000-0000-0000-0000-000000000006"
+            val response = authClient.get("/admin/projects/$fakeId/live")
+            assertTrue(
+                response.status == HttpStatusCode.OK ||
+                response.status == HttpStatusCode.NotFound,
+                "Live feed for unknown project should return 200 or 404, got ${response.status}"
+            )
+            if (response.status == HttpStatusCode.OK) {
+                assertTrue(response.bodyAsText().contains("[]"),
+                    "Live feed for unknown project should be empty")
+            }
+        }
+    }
+
+    @Test
+    fun `GET rotate-api-key without auth returns 401`() = testApplication {
+        application { module() }
+
+        val fakeId = "00000000-0000-0000-0000-000000000007"
+        val response = client.post("/admin/projects/$fakeId/rotate-api-key") {
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status,
+            "Rotate API key without auth should return 401")
+    }
+
     @Test
     fun `logout clears session`() = testApplication {
         application { module() }

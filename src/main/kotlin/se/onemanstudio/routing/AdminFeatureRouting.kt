@@ -36,6 +36,9 @@ fun Route.adminFeatureRoutes() {
             ?: return@get call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
 
+        val page = call.request.queryParameters["page"]?.toIntOrNull()
+        val limit = call.request.queryParameters["limit"]?.toIntOrNull()
+
         val goals = transaction {
             ConversionGoals.selectAll().where { ConversionGoals.projectId eq pid }
                 .orderBy(ConversionGoals.createdAt, SortOrder.DESC)
@@ -50,7 +53,21 @@ fun Route.adminFeatureRoutes() {
                     )
                 }
         }
-        call.respond(goals)
+
+        if (page != null && limit != null) {
+            val total = goals.size.toLong()
+            val start = (page * limit).coerceAtMost(goals.size)
+            val end = ((page + 1) * limit).coerceAtMost(goals.size)
+            call.respond(mapOf(
+                "data" to goals.subList(start, end),
+                "total" to total,
+                "page" to page,
+                "limit" to limit,
+                "totalPages" to ((total + limit - 1) / limit)
+            ))
+        } else {
+            call.respond(goals)
+        }
     }
 
     post("/projects/{id}/goals") {
@@ -153,6 +170,9 @@ fun Route.adminFeatureRoutes() {
             ?: return@get call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
 
+        val page = call.request.queryParameters["page"]?.toIntOrNull()
+        val limit = call.request.queryParameters["limit"]?.toIntOrNull()
+
         val funnels = transaction {
             Funnels.selectAll().where { Funnels.projectId eq pid }
                 .orderBy(Funnels.createdAt, SortOrder.DESC)
@@ -179,7 +199,21 @@ fun Route.adminFeatureRoutes() {
                     )
                 }
         }
-        call.respond(funnels)
+
+        if (page != null && limit != null) {
+            val total = funnels.size.toLong()
+            val start = (page * limit).coerceAtMost(funnels.size)
+            val end = ((page + 1) * limit).coerceAtMost(funnels.size)
+            call.respond(mapOf(
+                "data" to funnels.subList(start, end),
+                "total" to total,
+                "page" to page,
+                "limit" to limit,
+                "totalPages" to ((total + limit - 1) / limit)
+            ))
+        } else {
+            call.respond(funnels)
+        }
     }
 
     post("/projects/{id}/funnels") {
@@ -296,6 +330,9 @@ fun Route.adminFeatureRoutes() {
             ?: return@get call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
 
+        val page = call.request.queryParameters["page"]?.toIntOrNull()
+        val limit = call.request.queryParameters["limit"]?.toIntOrNull()
+
         val segments = transaction {
             Segments.selectAll().where { Segments.projectId eq pid }
                 .orderBy(Segments.createdAt, SortOrder.DESC)
@@ -311,7 +348,21 @@ fun Route.adminFeatureRoutes() {
                     )
                 }
         }
-        call.respond(segments)
+
+        if (page != null && limit != null) {
+            val total = segments.size.toLong()
+            val start = (page * limit).coerceAtMost(segments.size)
+            val end = ((page + 1) * limit).coerceAtMost(segments.size)
+            call.respond(mapOf(
+                "data" to segments.subList(start, end),
+                "total" to total,
+                "page" to page,
+                "limit" to limit,
+                "totalPages" to ((total + limit - 1) / limit)
+            ))
+        } else {
+            call.respond(segments)
+        }
     }
 
     post("/projects/{id}/segments") {

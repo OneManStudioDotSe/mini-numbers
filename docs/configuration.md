@@ -79,6 +79,23 @@ For PostgreSQL, you'll also need to set the standard PostgreSQL connection varia
 | `RATE_LIMIT_PER_IP`      | `1000`  | Maximum requests per IP address per minute |
 | `RATE_LIMIT_PER_API_KEY` | `10000` | Maximum requests per API key per minute    |
 
+When a rate limit is exceeded, the `/collect` endpoint returns **HTTP 429 Too Many Requests**. The tracker script does not retry on 429 — the event is silently dropped to protect your server. Monitor rate limit hits via the `/metrics` endpoint (`rate_limited_requests` counter).
+
+### PostgreSQL
+
+For PostgreSQL deployments, set these additional variables:
+
+| Setting             | Default    | Description                          |
+|---------------------|------------|--------------------------------------|
+| `DB_HOST`           | `localhost` | PostgreSQL host                     |
+| `DB_PORT`           | `5432`     | PostgreSQL port                      |
+| `DB_NAME`           | `mini_numbers` | Database name                    |
+| `DB_USER`           | *(required)* | Database user                      |
+| `DB_PASSWORD`       | *(required)* | Database password                  |
+| `DB_PG_MAX_POOL_SIZE` | `10`     | HikariCP connection pool size        |
+
+**Migrating from SQLite to PostgreSQL:** Schema creation is automatic — Mini Numbers calls `createMissingTablesAndColumns()` on every startup. To migrate existing data, export from SQLite and import into PostgreSQL using standard SQL tools. Always take a database backup before switching engines.
+
 ### Tracker
 
 | Setting                      | Default | Description                                                                                        |

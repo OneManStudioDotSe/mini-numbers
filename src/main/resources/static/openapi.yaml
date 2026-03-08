@@ -98,6 +98,197 @@ paths:
         '404': { description: Invalid API key }
         '429': { description: Rate limit exceeded }
 
+  /api/token:
+    post:
+      summary: Get JWT access + refresh tokens
+      description: Authenticate with username/password and receive a short-lived access token (15 min) and a long-lived refresh token (7 days). Use the Bearer token in the Authorization header for subsequent requests.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+                  tokenType: { type: string, example: Bearer }
+                  expiresIn: { type: integer, example: 900 }
+        '401': { description: Invalid credentials }
+
+  /api/token/refresh:
+    post:
+      summary: Rotate refresh token
+      description: Exchange a valid refresh token for a new access token and a new refresh token. The old refresh token is immediately revoked (token rotation).
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: New tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+                  tokenType: { type: string }
+                  expiresIn: { type: integer }
+        '401': { description: Invalid or expired refresh token }
+
+  /api/password-reset:
+    post:
+      summary: Reset admin password
+      description: Reset the admin password using the server salt as proof of server ownership. Invalidates all active sessions and refresh tokens.
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newPassword, serverSalt]
+              properties:
+                newPassword: { type: string, minLength: 8 }
+                serverSalt: { type: string, description: Must match SERVER_SALT in your .env }
+      responses:
+        '200': { description: Password updated, all sessions invalidated }
+        '400': { description: Password too short }
+        '403': { description: Invalid server salt }
+
+  /admin/me:
+    get:
+      summary: Current authenticated user
+      tags: [Authentication]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username: { type: string }
+                  role: { type: string, enum: [admin, viewer] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/users:
+    get:
+      summary: List all users
+      tags: [User Management]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create a new user
+      tags: [User Management]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              properties:
+                username: { type: string, maxLength: 100 }
+                password: { type: string, minLength: 8 }
+                role: { type: string, enum: [admin, viewer] }
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  success: { type: boolean }
+        '400': { description: Validation error }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { description: Username already exists }
+
+  /admin/users/{userId}/role:
+    put:
+      summary: Update user role
+      tags: [User Management]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [admin, viewer] }
+      responses:
+        '200': { description: Role updated }
+        '400': { description: Invalid role }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: User not found }
+
+  /admin/users/{userId}:
+    delete:
+      summary: Delete user
+      tags: [User Management]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: User deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: User not found }
+
   /api/login:
     post:
       summary: Admin login
@@ -426,6 +617,224 @@ paths:
       responses:
         '200': { description: Segment analysis }
 
+  /admin/projects/{id}/rotate-api-key:
+    post:
+      summary: Rotate project API key
+      description: Generates a new 64-character hex API key for the project. The old key stops working immediately. Update your tracker script with the new key.
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: New API key generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  apiKey: { type: string, description: The new API key (64 hex chars) }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /admin/projects/{id}/retention-preview:
+    get:
+      summary: Data retention dry-run preview
+      description: Returns how many events would be deleted if retention is set to N days. Read-only — no data is deleted.
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: days
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1 }
+          description: Simulate deleting events older than this many days
+      responses:
+        '200':
+          description: Preview result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventsToDelete: { type: integer, description: Number of events that would be deleted }
+                  oldestEvent: { type: string, description: Timestamp of the oldest event in the project, or empty string }
+        '400':
+          description: Missing or invalid days parameter
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/projects/{id}/realtime-count:
+    get:
+      summary: Active visitor count (last 5 minutes)
+      description: Returns the number of distinct visitors who sent events in the last 5 minutes. Not cached.
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Active visitor count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeVisitors: { type: integer }
+                  timestamp: { type: string, format: date-time }
+        '400': { description: Invalid project ID }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/projects/{id}/globe:
+    get:
+      summary: Globe visualization data
+      description: Returns aggregated visitor locations grouped by rounded coordinates for globe rendering. Use `range=realtime` for live data (not cached), or a time range for cached results.
+      tags: [Analytics]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: range
+          in: query
+          schema: { type: string, enum: [realtime, 1m, 1h, 1d], default: realtime }
+      responses:
+        '200':
+          description: Globe data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GlobeData' }
+        '400': { description: Invalid project ID }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/projects/{id}/demo-data:
+    post:
+      summary: Generate demo analytics data
+      description: Inserts realistic synthetic events into the project for testing and demonstration. Also seeds example goals, funnels, and segments if none exist. Admin role required.
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                count: { type: integer, minimum: 0, maximum: 3000, default: 500, description: Number of events to generate }
+                timeScope: { type: integer, minimum: 1, default: 30, description: Spread events over this many past days }
+      responses:
+        '200':
+          description: Generation complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  generated: { type: integer }
+                  success: { type: boolean }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /admin/projects/{id}/goals/{goalId}:
+    put:
+      summary: Update conversion goal
+      description: Update goal name, type, match value, or active status.
+      tags: [Goals]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: goalId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                goalType: { type: string, enum: [url, event] }
+                matchValue: { type: string }
+                isActive: { type: boolean }
+      responses:
+        '200': { description: Goal updated }
+        '400': { description: Invalid input }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      summary: Delete conversion goal
+      tags: [Goals]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: goalId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Goal deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /admin/projects/{id}/funnels/{funnelId}:
+    delete:
+      summary: Delete funnel and all its steps
+      tags: [Funnels]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: funnelId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Funnel deleted }
+        '404': { description: Funnel not found }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /admin/projects/{id}/segments/{segmentId}:
+    delete:
+      summary: Delete user segment
+      tags: [Segments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: segmentId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Segment deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /admin/projects/{id}/webhooks:
     get:
       summary: List webhooks
@@ -713,6 +1122,115 @@ paths:
                 items:
                   $ref: '#/components/schemas/RevenueAttribution'
 
+  # ── Widget Endpoints ─────────────────────────────────────────
+
+  /widget/realtime:
+    get:
+      summary: Active visitor count widget
+      description: Returns distinct visitors active in the last 5 minutes. Cached for 60 seconds. No authentication required — use your project API key.
+      tags: [Widgets]
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema: { type: string }
+          description: Project API key (tracking ID)
+      responses:
+        '200':
+          description: Active visitor count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeVisitors: { type: integer }
+                  timestamp: { type: string, format: date-time }
+        '404': { description: Invalid API key }
+        '429': { description: Rate limit exceeded }
+
+  /widget/pageviews:
+    get:
+      summary: Page view counter widget
+      description: Returns total page views for the given period. Cached for 60 seconds.
+      tags: [Widgets]
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema: { type: string }
+        - name: filter
+          in: query
+          schema: { type: string, enum: ['24h', '7d', '30d'], default: '7d' }
+      responses:
+        '200':
+          description: Page view count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pageviews: { type: integer }
+                  period: { type: string }
+        '404': { description: Invalid API key }
+        '429': { description: Rate limit exceeded }
+
+  /widget/toppages:
+    get:
+      summary: Top pages widget
+      description: Returns the most visited pages ordered by view count. Cached for 60 seconds.
+      tags: [Widgets]
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 20, default: 5 }
+        - name: filter
+          in: query
+          schema: { type: string, enum: ['24h', '7d', '30d'], default: '7d' }
+      responses:
+        '200':
+          description: Top pages list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pages:
+                    type: array
+                    items: { $ref: '#/components/schemas/TopPage' }
+        '404': { description: Invalid API key }
+        '429': { description: Rate limit exceeded }
+
+  /widget/sparkline:
+    get:
+      summary: 7-day sparkline widget
+      description: Returns daily page view counts for the last 7 days. Suitable for trend charts. Cached for 60 seconds.
+      tags: [Widgets]
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Sparkline data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { type: integer }
+                  labels:
+                    type: array
+                    items: { type: string }
+        '404': { description: Invalid API key }
+        '429': { description: Rate limit exceeded }
+
 components:
   schemas:
     ApiError:
@@ -895,3 +1413,58 @@ components:
         transactions: { type: integer }
         avgValue: { type: number, format: double }
         conversionRate: { type: number, format: double }
+
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        role: { type: string, enum: [admin, viewer] }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    GlobeVisitor:
+      type: object
+      properties:
+        lat: { type: number, format: double }
+        lng: { type: number, format: double }
+        city: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        count: { type: integer }
+        lastSeen: { type: string, format: date-time }
+
+    GlobeData:
+      type: object
+      properties:
+        visitors:
+          type: array
+          items: { $ref: '#/components/schemas/GlobeVisitor' }
+        totalActive: { type: integer }
+
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: SESSION
+      description: Session cookie obtained via POST /api/login
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained via POST /api/token
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Forbidden:
+      description: Admin role required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+security:
+  - sessionCookie: []
+  - bearerAuth: []

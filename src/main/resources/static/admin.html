@@ -874,12 +874,12 @@ MiniNumbers.track("donation", {
     </main>
 
     <!-- Demo Data Generator Modal -->
-    <div id="demo-data-modal" class="modal">
+    <div id="demo-data-modal" class="modal" role="dialog" aria-labelledby="demo-data-modal-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Generate demo data</h2>
-                <button class="modal-close" id="close-demo-modal">&times;</button>
+                <h2 id="demo-data-modal-title">Generate demo data</h2>
+                <button class="modal-close" id="close-demo-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Generate realistic dummy analytics data for testing purposes.</p>
@@ -989,12 +989,12 @@ MiniNumbers.track("donation", {
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
+    <div id="settings-modal" class="modal" role="dialog" aria-labelledby="settings-modal-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Settings</h2>
-                <button class="modal-close" id="close-settings">&times;</button>
+                <h2 id="settings-modal-title">Settings</h2>
+                <button class="modal-close" id="close-settings" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- Project Information Section -->
@@ -1014,11 +1014,14 @@ MiniNumbers.track("donation", {
                     </div>
 
                     <div class="form-group">
-                        <label>Tracking ID (read-only)</label>
+                        <label>Tracking ID</label>
                         <div class="api-key-display">
                             <code id="setting-project-api-key">...</code>
                             <button class="btn btn-ghost btn-icon" id="copy-project-api-key" title="Copy to clipboard">
                                 <i class="ri-file-copy-line"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-sm" id="rotate-project-api-key" title="Generate a new API key (old key stops working immediately)">
+                                <i class="ri-refresh-line"></i> Rotate key
                             </button>
                         </div>
                     </div>
@@ -1111,16 +1114,16 @@ MiniNumbers.track("donation", {
     </div>
 
     <!-- Raw Events Viewer Modal -->
-    <div id="raw-events-modal" class="modal">
+    <div id="raw-events-modal" class="modal" role="dialog" aria-labelledby="raw-events-modal-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Raw events</h2>
+                <h2 id="raw-events-modal-title">Raw events</h2>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
                         <i class="ri-download-line"></i>
                     </button>
-                    <button class="modal-close" id="close-raw-events">&times;</button>
+                    <button class="modal-close" id="close-raw-events" aria-label="Close">&times;</button>
                 </div>
             </div>
             <div class="modal-body">
@@ -1179,12 +1182,12 @@ MiniNumbers.track("donation", {
     </div>
 
     <!-- Goals Management Modal -->
-    <div id="goals-modal" class="modal">
+    <div id="goals-modal" class="modal" role="dialog" aria-labelledby="goals-modal-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Manage conversion goals</h2>
-                <button class="modal-close" id="close-goals-modal">&times;</button>
+                <h2 id="goals-modal-title">Manage conversion goals</h2>
+                <button class="modal-close" id="close-goals-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">
@@ -1231,12 +1234,12 @@ MiniNumbers.track("donation", {
     </div>
 
     <!-- Funnels Management Modal -->
-    <div id="funnels-modal" class="modal">
+    <div id="funnels-modal" class="modal" role="dialog" aria-labelledby="funnels-modal-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2>Manage funnels</h2>
-                <button class="modal-close" id="close-funnels-modal">&times;</button>
+                <h2 id="funnels-modal-title">Manage funnels</h2>
+                <button class="modal-close" id="close-funnels-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">

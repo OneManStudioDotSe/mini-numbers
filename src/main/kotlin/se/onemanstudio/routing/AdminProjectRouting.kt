@@ -11,6 +11,7 @@ import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.transactions.transaction
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.dashboard.ProjectStats
@@ -156,6 +157,34 @@ fun Route.adminProjectRoutes() {
         }
     }
 
+    // Rotate API key for a project
+    post("/projects/{id}/rotate-api-key") {
+        if (!call.requireRole(UserRole.ADMIN)) return@post
+        val uuid = safeParseUUID(call.parameters["id"])
+            ?: return@post call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing project ID"))
+
+        val newKey = java.security.SecureRandom().let { rng ->
+            val bytes = ByteArray(32)
+            rng.nextBytes(bytes)
+            bytes.joinToString("") { "%02x".format(it) }
+        }
+
+        val updated = transaction {
+            Projects.update({ Projects.id eq uuid }) {
+                it[apiKey] = newKey
+            } > 0
+        }
+
+        if (!updated) {
+            return@post call.respond(HttpStatusCode.NotFound, ApiError.notFound("Project not found"))
+        }
+
+        QueryCache.invalidateProject(uuid.toString())
+        WidgetCache.invalidateProject(uuid.toString())
+        call.respond(buildJsonObject { put("apiKey", newKey) })
+    }
+
     // Get stats for a specific project
     get("/projects/{id}/stats") {
         val pid = safeParseUUID(call.parameters["id"])
@@ -244,6 +273,42 @@ fun Route.adminProjectRoutes() {
             }
         }
         call.respond(globeData)
+    }
+
+    // Data retention dry-run preview
+    get("/projects/{id}/retention-preview") {
+        val id = safeParseUUID(call.parameters["id"])
+            ?: return@get call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing project ID"))
+
+        val days = call.request.queryParameters["days"]?.toIntOrNull()
+            ?: return@get call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Query parameter 'days' is required"))
+
+        if (days < 1) {
+            return@get call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("'days' must be at least 1"))
+        }
+
+        val cutoff = LocalDateTime.now().minusDays(days.toLong())
+
+        val (count, oldest) = transaction {
+            val toDelete = Events.selectAll()
+                .where { (Events.projectId eq id) and (Events.timestamp lessEq cutoff) }
+                .count()
+            val oldestTs = Events.select(Events.timestamp)
+                .where { Events.projectId eq id }
+                .orderBy(Events.timestamp, SortOrder.ASC)
+                .limit(1)
+                .map { it[Events.timestamp].toString() }
+                .firstOrNull()
+            toDelete to oldestTs
+        }
+
+        call.respond(buildJsonObject {
+            put("eventsToDelete", count)
+            if (oldest != null) put("oldestEvent", oldest) else put("oldestEvent", "")
+        })
     }
 
     // Demo data generation

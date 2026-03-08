@@ -32,6 +32,8 @@ Optional attributes:
 - `data-heartbeat-interval="30000"` - Heartbeat interval in milliseconds (default: 30s)
 - `data-disable-spa="false"` - Disable SPA route detection (default: enabled)
 
+The tracker includes a built-in **offline queue**: if a pageview or event cannot be delivered (network offline or server unreachable), the payload is stored in `localStorage` (`mn_queue`, max 20 entries) and automatically replayed the next time the page loads or the browser reconnects.
+
 ---
 
 ## Dashboard overview
@@ -63,13 +65,16 @@ The top row shows four stat cards:
 
 Each card includes:
 - **Sparkline** - Mini trend chart for the metric
-- **Comparison** - Percentage change vs. the previous period (e.g., "7d" compares current 7 days to prior 7 days)
+- **Comparison** - Percentage change vs. the previous period (e.g., "7d" compares current 7 days to prior 7 days). The percentage value is styled prominently; the "vs previous period" label is rendered smaller and in muted text to avoid visual clutter.
 
 ---
 
 ## Time filtering
 
-The filter dropdown and date range are displayed together in a unified filter bar at the top of the dashboard:
+A unified filter bar sits at the top of the dashboard content area, below the header.
+
+- **Left side** — The currently selected date range is displayed in large, bold text (e.g., "Feb 8 – Mar 8, 2026") with a primary-coloured calendar icon. This makes the active period immediately prominent at a glance.
+- **Right side** — The "Filter by" dimension dropdown (and, when a dimension is selected, the value dropdown and Clear button) are pushed to the far right end of the bar.
 
 | Filter | Description |
 |--------|-------------|
@@ -78,8 +83,6 @@ The filter dropdown and date range are displayed together in a unified filter ba
 | Last 7 days | Daily granularity (default) |
 | Last 30 days | Daily granularity |
 | Last 365 days | Weekly granularity |
-
-The date range is displayed next to the filter dropdown.
 
 ---
 
@@ -212,10 +215,12 @@ Each chart card has an export button (download icon) that exports the visible da
 
 ### Raw events
 
-Click the **Raw Events** button to open a paginated viewer of all collected events. Features:
-- Search/filter by any field
-- Pagination (50 events per page)
-- Export all raw events as CSV
+Click the **Raw Events** button (visible when a project is selected) to open a paginated viewer of all collected events. Features:
+- Filter by event type and sort order using the two dropdowns at the top — they are always displayed side-by-side on the same line
+- The **Path** column is intentionally wide (31%) to accommodate long URL paths without truncation
+- The **Location** column is wider than typical (18%) to show country and city comfortably
+- Pagination (50 events per page) with Previous / Next controls
+- Export all raw events as CSV via the download icon in the modal header
 
 ---
 
@@ -228,10 +233,18 @@ Click the gear icon in the header to open settings:
 | **Time Format** | 12-hour or 24-hour clock |
 | **Date Format** | Short (Jan 1) or long (January 1, 2026) |
 | **Heatmap Colors** | Blue (default), green, purple, or orange — applies to both the activity heatmap and contribution calendar |
-| **API Key** | View the project's API key with copy button |
+| **API Key** | View the project's API key with copy button. Click **Rotate key** to generate a new key immediately — the old key is invalidated at once, so update your tracker `<script>` tag before rotating. |
 | **Tracking Script** | Copy-paste snippet for your website |
 | **Rename Project** | Change the project name |
 | **Delete Project** | Permanently delete the project and all its data |
+
+---
+
+## Keyboard navigation
+
+All primary modals (settings, raw events, goals, funnels, demo data) are fully keyboard accessible:
+- **Tab / Shift+Tab** — cycles focus within the open modal; focus never escapes to the page behind it.
+- **Escape** — closes the modal and returns focus to the element that opened it.
 
 ---
 
