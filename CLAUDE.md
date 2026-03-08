@@ -74,6 +74,7 @@ object ServiceManager {
 - **SPA support:** History API patching (`pushState`/`replaceState` + `popstate`), can be disabled
 - **Custom events:** `MiniNumbers.track("event_name")` API for tracking custom interactions
 - **Session management:** Uses sessionStorage (no cookies)
+- **Offline queue:** Failed events buffered in `localStorage` (`mn_queue`, max 20 entries); drained automatically on next page load or `online` event — no data loss during brief outages
 - **Build optimization:** Gradle `minifyTracker` task auto-generates `tracker.min.js`
 
 ### 2. Analytics dashboard
@@ -111,6 +112,9 @@ Located at `/admin-panel`, provides comprehensive insights:
 #### UI features
 - Loading skeleton screens during data fetching
 - ARIA labels and semantic HTML for accessibility
+- Full ARIA dialog attributes (`role="dialog"`, `aria-modal`, `aria-labelledby`) on all primary modals
+- Focus trap (`Utils.focusTrap`) — Tab/Shift+Tab trapping, Escape-to-close, and focus restoration on all dialog modals; implemented via MutationObserver in `setupModals()` for automatic release on any close path
+- WCAG AA contrast — `--color-text-muted` lightened in dark theme for ≥4.5:1 contrast ratio
 - Skip-to-content link for keyboard navigation
 - Light/dark theme support
 - CSV export for all data types
@@ -118,9 +122,10 @@ Located at `/admin-panel`, provides comprehensive insights:
 
 ### 3. Multi-project support
 - Manage multiple websites from one dashboard
-- Each project has unique API key
+- Each project has unique API key with **rotation support** (`POST /admin/projects/{id}/rotate-api-key`) — invalidates old key immediately, updates all caches
 - Per-project statistics, goals, funnels, and segments
 - CRUD operations for projects
+- **Retention preview** (`GET /admin/projects/{id}/retention-preview?days=N`) — read-only count of events that would be purged before enabling auto-retention
 
 ### 4. Privacy modes
 
@@ -200,44 +205,66 @@ Indexes: idx_events_timestamp, idx_events_project_timestamp, idx_events_project_
 - `GET /setup/api/generate-salt` - Generate cryptographically secure server salt
 - `POST /setup/api/save` - Save configuration and initialize services (no restart)
 
-### Admin panel (session auth protected)
+### Admin panel (session auth or JWT protected)
+
+#### Authentication / user management
+- `POST /api/token` - Issue JWT access + refresh token pair
+- `POST /api/token/refresh` - Refresh access token using a valid refresh token
+- `POST /api/password-reset` - Trigger password reset flow
+- `GET /admin/me` - Current authenticated user info
+- `GET /admin/users` - List all users (admin only)
+- `POST /admin/users` - Create a new user (admin only)
+- `PUT /admin/users/{userId}/role` - Update user role (admin only)
+- `DELETE /admin/users/{userId}` - Delete user (admin only)
 
 #### Project management
 - `GET /admin/projects` - List projects (supports `?page=&limit=` pagination)
 - `POST /admin/projects` - Create new project
 - `DELETE /admin/projects/{id}` - Delete project (cascade deletes events, goals, funnels, segments)
+- `POST /admin/projects/{id}/rotate-api-key` - Generate new API key; old key invalidated immediately
+- `POST /admin/projects/{id}/demo-data` - Seed realistic demo events, goals, funnels, segments
 
 #### Analytics & reports
 - `GET /admin/projects/{id}/stats` - Basic statistics (cached)
 - `GET /admin/projects/{id}/live` - Live visitor feed (last 5 minutes)
+- `GET /admin/projects/{id}/realtime-count` - Active visitor count (last 5 minutes)
+- `GET /admin/projects/{id}/globe` - Visitor locations for 3D globe visualization
 - `GET /admin/projects/{id}/report?filter=7d` - Full analytics report (cached)
 - `GET /admin/projects/{id}/report/comparison?filter=7d` - Comparison report with time series (cached)
 - `GET /admin/projects/{id}/calendar` - 365-day contribution calendar (cached)
 - `GET /admin/projects/{id}/events` - Raw events with pagination, filtering, and sorting
+- `GET /admin/projects/{id}/retention-preview?days=N` - Read-only preview of events that would be purged
 
 #### Conversion goals
-- `GET /admin/projects/{id}/goals` - List goals
+- `GET /admin/projects/{id}/goals` - List goals (supports `?page=&limit=` pagination)
 - `POST /admin/projects/{id}/goals` - Create goal
 - `PUT /admin/projects/{id}/goals/{goalId}` - Toggle goal active/inactive
 - `DELETE /admin/projects/{id}/goals/{goalId}` - Delete goal
 - `GET /admin/projects/{id}/goals/stats?filter=7d` - Goal statistics (cached)
 
 #### Funnels
-- `GET /admin/projects/{id}/funnels` - List funnels
+- `GET /admin/projects/{id}/funnels` - List funnels (supports `?page=&limit=` pagination)
 - `POST /admin/projects/{id}/funnels` - Create funnel
 - `DELETE /admin/projects/{id}/funnels/{funnelId}` - Delete funnel
 - `GET /admin/projects/{id}/funnels/{funnelId}/analysis?filter=7d` - Funnel analysis
 
 #### Segments
-- `GET /admin/projects/{id}/segments` - List segments
+- `GET /admin/projects/{id}/segments` - List segments (supports `?page=&limit=` pagination)
 - `POST /admin/projects/{id}/segments` - Create segment
 - `DELETE /admin/projects/{id}/segments/{segmentId}` - Delete segment
 - `GET /admin/projects/{id}/segments/{segmentId}/analysis?filter=7d` - Segment analysis
 
+#### Embeddable widgets (public, key-authenticated)
+- `GET /widget/realtime?key=<KEY>` - Active visitor count (last 5 minutes); cached 60s
+- `GET /widget/pageviews?key=<KEY>&scope=site&filter=7d` - Page view count; cached 60s
+- `GET /widget/toppages?key=<KEY>&filter=7d&limit=5` - Top pages by views; cached 60s
+- `GET /widget/sparkline?key=<KEY>` - Daily view counts for the last 7 days; cached 60s
+
 #### API documentation
-- `GET /admin-panel/openapi.yaml` - OpenAPI 3.0.3 specification
+- `GET /admin-panel/openapi.yaml` - OpenAPI 3.0.3 specification (all endpoints documented)
 
 All error responses use standardized `ApiError` format: `{ error, code, details[] }`.
+Authentication: session cookie (default) or `Authorization: Bearer <JWT>` header.
 
 ## Privacy implementation
 
@@ -283,6 +310,9 @@ MiniNumbers.track("purchase");
 | `data-heartbeat-interval` | `30000` | Heartbeat interval in ms |
 | `data-disable-spa` | `false` | Set to `"true"` to disable SPA tracking |
 
+### Offline queue
+When `sendBeacon` fails (network offline or server unreachable), the payload is pushed into `localStorage` under `mn_queue` (max 20 entries, validated as an array on read). The queue is drained — replaying each entry via `sendBeacon` and removing successful ones — on the next page load and on the browser's `online` event.
+
 ## Configuration
 
 All configuration via `.env` file or environment variables:
@@ -294,6 +324,12 @@ All configuration via `.env` file or environment variables:
 | `ADMIN_USERNAME` | No | `admin` | Admin panel username |
 | `DB_TYPE` | No | `SQLITE` | Database type (`SQLITE` or `POSTGRESQL`) |
 | `DB_SQLITE_PATH` | No | `./stats.db` | SQLite database file path |
+| `DB_HOST` | No | `localhost` | PostgreSQL host (when `DB_TYPE=POSTGRESQL`) |
+| `DB_PORT` | No | `5432` | PostgreSQL port |
+| `DB_NAME` | No | `mininumbers` | PostgreSQL database name |
+| `DB_USER` | No | `postgres` | PostgreSQL username |
+| `DB_PASSWORD` | No | — | PostgreSQL password |
+| `DB_PG_MAX_POOL_SIZE` | No | `10` | HikariCP maximum pool size (PostgreSQL only) |
 | `SERVER_PORT` | No | `8080` | Server port |
 | `KTOR_DEVELOPMENT` | No | `false` | Development mode (relaxes CORS) |
 | `ALLOWED_ORIGINS` | No | — | Comma-separated allowed CORS origins |
@@ -308,7 +344,7 @@ All configuration via `.env` file or environment variables:
 
 ## Testing
 
-288 tests covering critical functionality, edge cases, and error scenarios.
+296 tests covering critical functionality, edge cases, and error scenarios.
 
 ```bash
 ./gradlew test
@@ -329,7 +365,7 @@ src/test/kotlin/
 ├── services/
 │   └── UserAgentParserTest.kt       (22 tests) — UA parsing
 └── integration/
-    ├── AdminEndpointTest.kt         (14 tests) — admin API
+    ├── AdminEndpointTest.kt         (22 tests) — admin API + cross-project isolation
     ├── CollectEndpointTest.kt       (19 tests) — data collection
     ├── HealthEndpointTest.kt        (6 tests) — health endpoint
     ├── SetupWizardTest.kt           (10 tests) — setup wizard
@@ -338,11 +374,13 @@ src/test/kotlin/
 
 Test databases are written to the `test-dbs/` directory (gitignored).
 
+Cross-project isolation tests verify: unknown project IDs return correct status codes; `POST /collect` rejects API keys from deleted projects; authentication is enforced on mutation endpoints.
+
 ## Project structure
 
 ```
 mini-numbers/
-├── _docs/                           # Project documentation
+├── _docs/                           # Internal project documentation
 │   ├── CHANGELOG.md                 # Version history
 │   ├── DASHBOARD_GUIDE.md           # Dashboard user guide
 │   ├── DEPLOYMENT.md                # Deployment & operations guide
@@ -352,6 +390,16 @@ mini-numbers/
 │   ├── ROADMAP.md                   # Development roadmap & task tracking
 │   ├── SECURITY.md                  # Security architecture & audit
 │   └── TESTING_PLAN.md              # Manual testing plan
+├── docs/                            # Public Jekyll documentation site (just-the-docs theme)
+│   ├── index.md                     # Home page
+│   ├── features.md                  # Feature overview
+│   ├── configuration.md             # All environment variables
+│   ├── dashboard-guide.md           # Dashboard user guide
+│   ├── tracker-reference.md         # tracker.js full API reference
+│   ├── widgets.md                   # Embeddable widget embed guide
+│   ├── troubleshooting.md           # Common issues & fixes
+│   ├── upgrading.md                 # Upgrade / migration guide
+│   └── _config.yml                  # Jekyll nav config
 ├── .github/workflows/               # CI/CD
 │   ├── build.yml                    # Test + build + Detekt + Docker verify
 │   └── docker-publish.yml           # Docker multi-platform publish
@@ -426,15 +474,28 @@ mini-numbers/
 │   ├── geo/
 │   │   └── geolite2-city.mmdb      # GeoIP database
 │   ├── setup/                      # Setup wizard frontend
+│   ├── tracker/
+│   │   ├── tracker.js              # Client tracking script (1.9KB) — includes offline queue
+│   │   └── tracker.min.js          # Minified tracker (1.3KB, auto-generated)
 │   └── static/                     # Admin panel frontend
-│       ├── admin.html
-│       ├── tracker.js              # Client tracking script (1.9KB)
-│       ├── tracker.min.js          # Minified tracker (1.3KB, auto-generated)
-│       ├── openapi.yaml            # OpenAPI 3.0.3 specification
+│       ├── admin.html              # Main SPA shell; all modals carry role="dialog" + aria-modal
+│       ├── openapi.yaml            # OpenAPI 3.0.3 specification (all endpoints)
 │       ├── login/login.html
 │       ├── css/                    # base, components, themes, variables
-│       └── js/                     # admin, charts, goals, segments, map, settings, theme, utils
-├── src/test/kotlin/                # Test suite (288 tests)
+│       └── js/
+│           ├── admin.js            # Core dashboard logic; setupModals() wires MutationObserver focus-trap release
+│           ├── charts.js           # Chart rendering
+│           ├── goals.js            # Goals + funnels modals
+│           ├── segments.js         # Segments modal
+│           ├── webhooks.js         # Webhooks modal
+│           ├── email-reports.js    # Email reports modal
+│           ├── revenue.js          # Revenue section
+│           ├── map.js              # Leaflet map
+│           ├── globe.js            # 3D globe visualization
+│           ├── settings.js         # SettingsManager (localStorage preferences)
+│           ├── theme.js            # Light/dark theme toggle
+│           └── utils.js            # Utils object: api, toast, dom, cache, icons, focusTrap
+├── src/test/kotlin/                # Test suite (296 tests)
 └── test-dbs/                       # Test database files (gitignored)
 ```
 
