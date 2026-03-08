@@ -27,9 +27,14 @@ Think of it as a simpler, privacy-respecting alternative to Google Analytics tha
 - **Page views** — See which pages get the most traffic
 - **Visitors** — Count unique visitors without identifying them
 - **Referrers** — Know where your traffic comes from
+- **UTM campaigns** — Source/medium/campaign attribution for paid and email traffic
 - **Geography** — See which countries and cities your visitors are in
 - **Devices** — Desktop vs. mobile vs. tablet breakdown
+- **Scroll depth** — How far visitors read on each page (25%, 50%, 75%, 100%)
+- **Outbound links** — Clicks to external websites
+- **File downloads** — PDF, ZIP, and other file download events
 - **Custom events** — Track button clicks, signups, purchases, or any action
+- **Revenue** — Attach monetary value to events to calculate AOV and RPV
 - **Conversion goals** — Measure how many visitors complete specific actions
 - **Funnels** — See where visitors drop off in multi-step processes
 
@@ -49,3 +54,10 @@ New to Mini Numbers? Start here:
 - **[Privacy](privacy)** — How visitor privacy is protected
 - **[Deployment](deployment)** — Run in production with Docker, cloud platforms, or bare metal
 - **[Architecture](architecture)** — Technical details for developers and contributors
+
+## Reference
+
+- **[Tracker Reference](tracker-reference)** — Complete `tracker.js` API: all attributes and the public JavaScript API
+- **[Embeddable Widgets](widgets)** — Add live analytics widgets to your own pages
+- **[Troubleshooting](troubleshooting)** — Common issues and how to fix them
+- **[Upgrading](upgrading)** — How to upgrade Mini Numbers between versions

@@ -14,7 +14,18 @@ A walkthrough of the Mini Numbers dashboard and how to interpret your analytics 
 
 When you first log in, you'll see your **Project List** in the sidebar. Select a project to load its "Live" dashboard.
 
-**Pro Tip:** Use the **"One-Click Demo Data"** button in the project settings if you want to explore the dashboard features with realistic sample traffic before your site goes live.
+**Pro Tip:** Use the **"Generate Demo Data"** button in the page header (visible when a project is selected) to populate your dashboard with realistic sample traffic instantly. The button is hidden automatically once a Demo project already exists in your list.
+
+---
+
+## 🗓️ Filter bar
+
+Just below the page header sits the **unified filter bar**. Its two-part layout makes the current context immediately clear:
+
+- **Left — selected period**: Displayed in large, bold text with a primary-coloured calendar icon (e.g., "Feb 8 – Mar 8, 2026"). You can't miss it.
+- **Right — dimension filter**: The "Filter by" dropdown (Browser, OS, Device, Country, Referrer) is anchored to the far right of the bar. When a dimension is selected, a value picker and a "Clear" button appear next to it.
+
+The time period itself is selected from the **time filter** dropdown in the main page header (24h / 3d / 7d / 30d / 365d).
 
 ---
 
@@ -83,10 +94,21 @@ Mini Numbers identifies where your traffic comes from without storing personal d
 
 ---
 
+## 🔍 Raw Events Viewer
+
+Click **Raw Events** in the header (visible when a project is selected) to open a full-screen paginated view of every recorded event.
+
+- Two filter dropdowns (event type and sort order) sit side-by-side at the top
+- The **Path** column is intentionally wide to accommodate long URLs; the **Location** column is wider than typical to show country/city without truncation
+- Use the download icon to export everything as CSV
+
+---
+
 ## ⚙️ Project Settings
 
-Click the **Gear Icon** next to your project name to:
+Click the **Gear Icon** in the page header to:
 - Rename your project or view your Tracking ID.
+- **Rotate API Key**: Click the **Rotate key** button next to your Tracking ID to generate a new API key immediately. The old key stops working right away — update your tracker `<script>` tag with the new key to resume tracking.
 - **2-Column Layout**: Configure dashboard preferences (Date/Time formats) and Export settings side-by-side.
 - **Automations**: Access Webhook management and Scheduled Email Reports.
 - **CSV Export**: Select exactly which dimensions you want to include in your data export.

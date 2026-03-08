@@ -91,6 +91,7 @@ const SegmentsManager = {
 
     manageBtn.addEventListener('click', () => {
       modal.classList.add('show');
+      Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
       this.filterCount = 0;
       document.getElementById('segment-filters-container').innerHTML = '';
       this.addFilterRow();

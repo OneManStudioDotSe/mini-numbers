@@ -58,8 +58,8 @@ Built for those who want control and flexibility.
 - **Modular API**: Full REST API support with both Session and JWT authentication.
 - **Webhooks**: Send real-time event data to Slack, Discord, or your own custom backend.
 - **Automated Email Reports**: Schedule daily, weekly, or monthly analytics summaries delivered to your inbox.
-- **Raw Events Viewer**: A high-performance, paginated browser for inspecting every anonymized event in detail.
-- **One-Click Demo Data**: Instantly populate your dashboard with realistic sample data to test your setup.
+- **Raw Events Viewer**: A high-performance, paginated browser for inspecting every anonymized event in detail. The Path and Location columns are wider than usual to reduce truncation; filter dropdowns sit side-by-side for convenience.
+- **One-Click Demo Data**: Instantly populate your dashboard with realistic sample data to test your setup. The button is automatically hidden once a demo project already exists.
 
 ---
 
@@ -69,3 +69,73 @@ Built for those who want control and flexibility.
 - **Single-Binary Deployment**: Self-host anywhere with a single Fat JAR or a minimal Docker image.
 - **Multi-Database Support**: Use SQLite for simplicity or PostgreSQL for scale.
 - **Zero-Restart Config**: Update your server settings via the UI without dropping a single visitor event.
+
+## 🔔 Webhooks
+
+Send real-time event data to any HTTPS endpoint the moment a goal is converted or a traffic spike is detected.
+
+- Each project can have multiple webhooks
+- Webhook secrets use HMAC-SHA256 signatures — verify payloads in your receiver
+- 3-attempt retry with exponential backoff on delivery failure
+- Inspect delivery history (last 50 attempts) and send test events from the dashboard
+- See the [Dashboard Guide](dashboard-guide#%EF%B8%8F-project-settings) for setup instructions
+
+---
+
+## 📧 Email Reports
+
+Schedule automated analytics summaries delivered directly to your inbox.
+
+- Schedules: **Daily**, **Weekly**, or **Monthly**
+- Configurable send hour and day
+- Customizable subject line, header, and footer
+- Choose which sections to include (page views, referrers, top pages, custom events, revenue, etc.)
+- Requires SMTP configuration (see [Configuration](configuration))
+
+---
+
+## 💰 Revenue Tracking
+
+Attribute monetary value to custom events to measure e-commerce and subscription performance.
+
+- Attach `revenue` and `currency` to any `MiniNumbers.track()` call
+- Dashboard shows **Total Revenue**, **Transactions**, **Average Order Value (AOV)**, and **Revenue per Visitor (RPV)**
+- Revenue breakdown by event name
+- Revenue attribution by referrer source and UTM campaign
+
+```javascript
+MiniNumbers.track("purchase", { revenue: 49.99, currency: "USD", product: "Pro Plan" });
+```
+
+---
+
+## 👤 User Management / RBAC
+
+Control who can access your analytics instance with role-based access control.
+
+- **Admin** role: full access — create/delete projects, manage goals, rotate API keys
+- **Viewer** role: read-only access to analytics data
+- JWT authentication available as an alternative to session-based login (`POST /api/token`)
+- Manage users via the admin panel or the `/admin/users` API
+
+---
+
+## 🧩 Embeddable Widgets
+
+Embed live analytics counters on your own pages without exposing admin credentials.
+
+- `GET /widget/realtime` — active visitors right now
+- `GET /widget/pageviews` — total page views for a period
+- `GET /widget/toppages` — top 5 pages by traffic
+- `GET /widget/sparkline` — last-7-days trend data
+
+Each widget endpoint accepts a public `key` parameter — no login required. See [Widgets](widgets) for full embed instructions.
+
+---
+
+## 🎨 Dashboard polish
+
+- **Prominent date range**: The filter bar leads with the selected period in large, bold text — you always know exactly what you're looking at.
+- **Contextual empty states**: Every chart, table, and list renders a purpose-matched illustration when there is no data to display, so the UI is always informative rather than blank.
+- **Consistent hover feedback**: Table row hover uses a color visually distinct from both the default and zebra-stripe row colors, in both light and dark themes.
+- **Light/dark theme toggle**: A pill-shaped toggle in the header switches themes instantly. Your preference is saved and respects your system's `prefers-color-scheme` on first visit.

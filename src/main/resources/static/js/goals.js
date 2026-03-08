@@ -257,6 +257,7 @@ const GoalsManager = {
     if (!modal) return;
 
     modal.classList.add('show');
+    Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
     this.refreshGoalList(projectId);
   },
 
@@ -268,6 +269,7 @@ const GoalsManager = {
     if (!modal) return;
 
     modal.classList.add('show');
+    Utils.focusTrap.openModal(modal, () => modal.classList.remove('show'));
     this.refreshFunnelList(projectId);
     this.resetFunnelForm();
   },
