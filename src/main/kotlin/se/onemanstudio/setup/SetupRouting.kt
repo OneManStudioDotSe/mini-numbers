@@ -123,6 +123,15 @@ fun Application.configureSetupRouting() {
 
         // API: Save configuration and initialize services (NO RESTART!)
         post("/setup/api/save") {
+            // Guard: prevent re-entry after setup is complete
+            if (ServiceManager.isReady()) {
+                call.respond(
+                    HttpStatusCode.Forbidden,
+                    ErrorResponse(error = "Setup already completed. Use server access for config changes.")
+                )
+                return@post
+            }
+
             try {
                 // Parse configuration from request
                 val config = try {

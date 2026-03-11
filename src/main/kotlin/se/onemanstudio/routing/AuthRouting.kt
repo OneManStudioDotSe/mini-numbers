@@ -214,6 +214,18 @@ fun Route.authRoutes() {
                 ApiError(error = "Invalid server salt", code = "FORBIDDEN"))
         }
 
+        // Verify current password before allowing reset
+        val isCurrentPasswordValid = verifyCredentials(
+            resetConfig.security.adminUsername,
+            body.currentPassword,
+            resetConfig,
+            call.application.environment.log
+        )
+        if (!isCurrentPasswordValid) {
+            return@post call.respond(HttpStatusCode.Unauthorized,
+                ApiError.unauthorized("Current password is incorrect"))
+        }
+
         val hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(
             body.newPassword,
             org.mindrot.jbcrypt.BCrypt.gensalt(12)
