@@ -202,12 +202,18 @@ const GlobeManager = {
         `/admin/projects/${projectId}/globe?range=${range}`,
         { useCache: false }
       );
-      if (data && data.visitors) {
+      if (data && data.visitors && data.visitors.length > 0) {
         this.update(data.visitors);
-        // Update the total count display if available
         const countEl = document.getElementById('globe-visitor-count');
         if (countEl) {
           countEl.textContent = data.totalActive;
+        }
+      } else if (typeof Dashboard !== 'undefined' && Dashboard.isDemoProject()) {
+        // Auto-show demo markers for demo project when no real live data
+        this.showDemoMarkers();
+        const countEl = document.getElementById('globe-visitor-count');
+        if (countEl) {
+          countEl.textContent = this._demoMarkers.reduce((sum, d) => sum + d.count, 0);
         }
       }
     } catch (error) {
@@ -246,23 +252,37 @@ const GlobeManager = {
   },
 
   /**
-   * Load 10 test markers spread across the world
+   * Demo marker data for demo project visualization
+   */
+  _demoMarkers: [
+    { lat: 40.7128, lng: -74.0060, city: 'New York', country: 'United States', count: 12 },
+    { lat: 51.5074, lng: -0.1278, city: 'London', country: 'United Kingdom', count: 8 },
+    { lat: 35.6762, lng: 139.6503, city: 'Tokyo', country: 'Japan', count: 15 },
+    { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia', count: 5 },
+    { lat: 48.8566, lng: 2.3522, city: 'Paris', country: 'France', count: 7 },
+    { lat: -23.5505, lng: -46.6333, city: 'São Paulo', country: 'Brazil', count: 9 },
+    { lat: 55.7558, lng: 37.6173, city: 'Moscow', country: 'Russia', count: 4 },
+    { lat: 19.0760, lng: 72.8777, city: 'Mumbai', country: 'India', count: 11 },
+    { lat: 1.3521, lng: 103.8198, city: 'Singapore', country: 'Singapore', count: 6 },
+    { lat: -1.2921, lng: 36.8219, city: 'Nairobi', country: 'Kenya', count: 3 },
+  ],
+
+  /**
+   * Show demo markers with slight count variation to feel alive
+   */
+  showDemoMarkers() {
+    const data = this._demoMarkers.map(d => ({
+      ...d,
+      count: Math.max(1, d.count + Math.floor(Math.random() * 5) - 2)
+    }));
+    this.update(data);
+  },
+
+  /**
+   * Load 10 test markers spread across the world (legacy alias)
    */
   showTestMarkers() {
-    const testData = [
-      { lat: 40.7128, lng: -74.0060, city: 'New York', country: 'United States', count: 12 },
-      { lat: 51.5074, lng: -0.1278, city: 'London', country: 'United Kingdom', count: 8 },
-      { lat: 35.6762, lng: 139.6503, city: 'Tokyo', country: 'Japan', count: 15 },
-      { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia', count: 5 },
-      { lat: 48.8566, lng: 2.3522, city: 'Paris', country: 'France', count: 7 },
-      { lat: -23.5505, lng: -46.6333, city: 'São Paulo', country: 'Brazil', count: 9 },
-      { lat: 55.7558, lng: 37.6173, city: 'Moscow', country: 'Russia', count: 4 },
-      { lat: 19.0760, lng: 72.8777, city: 'Mumbai', country: 'India', count: 11 },
-      { lat: 1.3521, lng: 103.8198, city: 'Singapore', country: 'Singapore', count: 6 },
-      { lat: -1.2921, lng: 36.8219, city: 'Nairobi', country: 'Kenya', count: 3 },
-    ];
-
-    this.update(testData);
+    this.showDemoMarkers();
   },
 
   /**
