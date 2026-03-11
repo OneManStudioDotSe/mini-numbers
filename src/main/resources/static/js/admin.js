@@ -31,6 +31,7 @@ const Dashboard = {
   // Application state
   state: {
     currentProjectId: null,
+    currentProjectName: null,
     currentFilter: '7d',
     liveInterval: null,
     previousData: null, // For comparison metrics
@@ -315,6 +316,7 @@ const Dashboard = {
       // If we deleted the currently selected project, clear the view
       if (this.state.currentProjectId === projectId) {
         this.state.currentProjectId = null;
+        this.state.currentProjectName = null;
         const dashboardContent = document.getElementById('dashboard-content');
         if (dashboardContent) Utils.dom.hide(dashboardContent);
       }
@@ -581,8 +583,13 @@ const Dashboard = {
    * @param {string} id - Project ID
    * @param {string} name - Project name
    */
+  isDemoProject() {
+    return this.state.currentProjectName === 'Demo project';
+  },
+
   async selectProject(id, name) {
     this.state.currentProjectId = id;
+    this.state.currentProjectName = name;
 
     // Update UI
     const titleEl = document.getElementById('active-title');
@@ -1185,7 +1192,7 @@ const Dashboard = {
   },
 
   async updateRealtimeCount() {
-    if (this.state.realtimeDemo) return; // Skip API call in demo mode
+    if (this.state.realtimeDemo) return; // Skip API call in manual demo mode
     if (!this.state.currentProjectId) return;
     try {
       const data = await Utils.api.fetch(
@@ -1193,8 +1200,17 @@ const Dashboard = {
         { useCache: false }
       );
       const el = document.getElementById('realtime-number');
+      const count = data.activeVisitors || 0;
+
+      // Auto-simulate for demo project when no real live visitors
+      if (count === 0 && this.isDemoProject()) {
+        const demoCount = Math.floor(Math.random() * 38) + 5;
+        if (el) animateCountUp(el, demoCount, 400, v => v.toString());
+        return;
+      }
+
       if (el) {
-        animateCountUp(el, data.activeVisitors || 0, 400, v => v.toString());
+        animateCountUp(el, count, 400, v => v.toString());
       }
     } catch (e) { /* silent fail for realtime */ }
   },
@@ -1300,6 +1316,11 @@ const Dashboard = {
       if (!feedEl) return;
 
       if (!data || data.length === 0) {
+        // Auto-simulate for demo project when no real live events
+        if (this.isDemoProject()) {
+          this.renderSimulatedLiveFeed(Math.floor(Math.random() * 6) + 3);
+          return;
+        }
         feedEl.innerHTML = '<div class="text-muted">No recent activity</div>';
         return;
       }
