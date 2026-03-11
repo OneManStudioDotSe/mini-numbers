@@ -40,4 +40,5 @@ out/
 test-dbs/
 .env
 .env.backup
+.env.backup*
 /.kotlin
