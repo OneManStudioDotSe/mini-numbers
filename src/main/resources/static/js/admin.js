@@ -307,7 +307,6 @@ const Dashboard = {
     try {
       await fetch(`/admin/projects/${projectId}`, {
         method: 'DELETE',
-        headers: Utils.auth.getHeader(),
       });
 
       const modal = document.getElementById('delete-project-modal');

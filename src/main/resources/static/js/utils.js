@@ -4,19 +4,6 @@
  */
 
 const Utils = {
-  // Authentication
-  auth: {
-    /**
-     * Get auth header for API requests
-     * @returns {Object} Authorization header
-     */
-    getHeader() {
-      return {
-        Authorization: 'Basic ' + btoa('admin:your-password'),
-      };
-    },
-  },
-
   // Cache management
   cache: {
     data: {},
@@ -425,7 +412,6 @@ const Utils = {
         try {
           const response = await fetch(url, {
             headers: {
-              ...Utils.auth.getHeader(),
               ...fetchOptions.headers,
             },
             ...fetchOptions,
@@ -484,7 +470,6 @@ const Utils = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...Utils.auth.getHeader(),
           },
           body: JSON.stringify(data),
         });
