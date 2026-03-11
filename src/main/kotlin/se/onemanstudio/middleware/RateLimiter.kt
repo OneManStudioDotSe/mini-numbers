@@ -89,7 +89,7 @@ class RateLimiter(
                 tokens = AtomicInteger(maxTokens),
                 lastRefillTime = AtomicLong(System.currentTimeMillis())
             )
-        }!!
+        } ?: throw IllegalStateException("Rate limit bucket creation failed for key: $key")
 
         // Synchronize on bucket to prevent race conditions
         // This ensures check-and-update is atomic across concurrent requests

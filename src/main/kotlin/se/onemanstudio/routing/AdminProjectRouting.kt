@@ -79,13 +79,8 @@ fun Route.adminProjectRoutes() {
         val newDomain = params["domain"] ?: return@post call.respond(HttpStatusCode.BadRequest,
             ApiError.badRequest("Project domain is required"))
 
-        // Accept client-generated API key if valid (32-char hex), otherwise generate one
-        val clientKey = params["apiKey"]
-        val resolvedApiKey = if (clientKey != null && clientKey.matches(Regex("^[0-9a-f]{32}$"))) {
-            clientKey
-        } else {
-            UUID.randomUUID().toString().replace("-", "")
-        }
+        // Always generate API key server-side for security
+        val resolvedApiKey = UUID.randomUUID().toString().replace("-", "")
 
         // Normalize domain: strip protocol, www prefix, trailing slashes
         val normalizedDomain = newDomain

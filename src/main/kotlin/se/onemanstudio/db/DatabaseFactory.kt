@@ -79,68 +79,6 @@ object DatabaseFactory {
     }
 
     /**
-     * Seed database with demo data
-     * Creates one demo project with realistic sample events
-     * NOTE: This function has been disabled to prevent automatic demo project creation.
-     * Use the "Generate Demo Data" button in the admin panel instead.
-     *
-     * @param count Number of events to generate (default: 1000)
-     */
-    /*
-    fun seedDemoData(count: Int = 1000) {
-        val demoId = UUID.randomUUID()
-
-        // Create demo project
-        Projects.insert {
-            it[id] = demoId
-            it[name] = "Professional demo"
-            it[domain] = "localhost"
-            it[apiKey] = "demo-key-123"
-        }
-
-        // Sample data for realistic events
-        val paths = listOf("/home", "/pricing", "/blog/post-1", "/docs", "/contact")
-        val referrers = listOf("google.com", "twitter.com", "github.com", null, "linkedin.com")
-        val browsers = listOf("Chrome", "Firefox", "Safari", "Edge")
-        val oss = listOf("MacOS", "Windows", "iOS", "Android", "Linux")
-        val locations = listOf(
-            "USA" to "New York",
-            "Greece" to "Athens",
-            "Sweden" to "Stockholm",
-            "UK" to "London",
-            "Germany" to "Berlin"
-        )
-
-        // Generate sample events spread across the past year
-        for (i in 1..count) {
-            val randomTimestamp = LocalDateTime.now()
-                .minusDays((0..365).random().toLong())      // Random day in past year
-                .minusMinutes((0..1440).random().toLong())  // Random time of day
-
-            Events.insert {
-                it[projectId] = demoId
-                it[visitorHash] = "v-${(1..200).random()}"  // Simulate 200 unique visitors
-                it[sessionId] = "sess-${UUID.randomUUID()}"
-                it[eventType] = "pageview"
-                it[path] = paths.random()
-                it[referrer] = referrers.random()
-                it[duration] = (5..300).random()
-                it[timestamp] = randomTimestamp
-
-                // Random location
-                val loc = locations.random()
-                it[country] = loc.first
-                it[city] = loc.second
-
-                // Random browser and OS
-                it[browser] = browsers.random()
-                it[os] = oss.random()
-            }
-        }
-    }
-    */
-
-    /**
      * Create HikariCP connection pool for PostgreSQL
      * Provides connection pooling, health checks, and optimal performance
      *

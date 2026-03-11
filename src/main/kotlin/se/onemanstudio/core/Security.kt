@@ -49,7 +49,8 @@ private val loginAttempts: Cache<String, LoginAttempt> = Caffeine.newBuilder()
 
 fun verifyCredentials(username: String, password: String, config: AppConfig, logger: org.slf4j.Logger): Boolean {
     // Check if username is locked out
-    val attempt = loginAttempts.get(username) { LoginAttempt() }!!
+    val attempt = loginAttempts.get(username) { LoginAttempt() }
+        ?: throw IllegalStateException("Login attempt tracking failed for user: $username")
     val now = System.currentTimeMillis()
     val lockoutUntil = attempt.lockoutUntil.get()
 
