@@ -61,8 +61,12 @@ class SetupWizardTest {
         assertTrue(body.length > 64)
     }
 
+    // When services are already initialized (as in the test environment),
+    // POST /setup/api/save must return 403 to prevent re-entry.
+    // These tests verify the setup guard rejects all save attempts post-setup.
+
     @Test
-    fun `POST setup api save with invalid JSON returns 400`() = testApplication {
+    fun `POST setup api save with invalid JSON returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -70,11 +74,13 @@ class SetupWizardTest {
             setBody("invalid json {{{")
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
+        val body = response.bodyAsText()
+        assertTrue(body.contains("Setup already completed"))
     }
 
     @Test
-    fun `POST setup api save with missing required fields returns validation error`() = testApplication {
+    fun `POST setup api save with missing required fields returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -86,13 +92,13 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
         val body = response.bodyAsText()
-        assertTrue(body.contains("valid") || body.contains("error"))
+        assertTrue(body.contains("Setup already completed"))
     }
 
     @Test
-    fun `POST setup api save with short password returns validation error`() = testApplication {
+    fun `POST setup api save with short password returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -122,13 +128,11 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
-        val body = response.bodyAsText()
-        assertTrue(body.contains("password") || body.contains("valid"))
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
-    fun `POST setup api save with short salt returns validation error`() = testApplication {
+    fun `POST setup api save with short salt returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -158,13 +162,11 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
-        val body = response.bodyAsText()
-        assertTrue(body.contains("salt") || body.contains("valid"))
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
-    fun `POST setup api save with invalid port returns validation error`() = testApplication {
+    fun `POST setup api save with invalid port returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -194,13 +196,11 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
-        val body = response.bodyAsText()
-        assertTrue(body.contains("port") || body.contains("valid"))
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
-    fun `POST setup api save with negative rate limit returns validation error`() = testApplication {
+    fun `POST setup api save with negative rate limit returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -230,11 +230,11 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
-    fun `POST setup api save with PostgreSQL requires connection details`() = testApplication {
+    fun `POST setup api save with PostgreSQL returns 403 when services ready`() = testApplication {
         application { module() }
 
         val response = client.post("/setup/api/save") {
@@ -263,7 +263,7 @@ class SetupWizardTest {
             """.trimIndent())
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
