@@ -6,7 +6,7 @@
 # ==============================================================
 
 # Stage 1: Build the fat JAR
-FROM gradle:8-jdk21 AS build
+FROM gradle:8.14.4-jdk21 AS build
 WORKDIR /app
 
 # Copy Gradle configuration first for dependency caching
@@ -21,7 +21,7 @@ COPY src ./src
 RUN gradle buildFatJar --no-daemon
 
 # Stage 2: Runtime (minimal Alpine image)
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-alpine-3.23
 WORKDIR /app
 
 # Install wget for health checks
