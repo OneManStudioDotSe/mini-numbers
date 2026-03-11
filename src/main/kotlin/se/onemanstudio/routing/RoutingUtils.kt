@@ -77,12 +77,14 @@ fun computeGlobeData(projectId: UUID, cutoff: LocalDateTime): GlobeData {
         // Round coordinates to 1 decimal place for clustering
         data class GeoKey(val lat: Double, val lng: Double)
 
-        val grouped = events.groupBy { row ->
-            GeoKey(
-                (row[Events.latitude]!! * 10.0).roundToInt() / 10.0,
-                (row[Events.longitude]!! * 10.0).roundToInt() / 10.0
-            )
-        }
+        val grouped = events
+            .filter { it[Events.latitude] != null && it[Events.longitude] != null }
+            .groupBy { row ->
+                GeoKey(
+                    (row[Events.latitude]!! * 10.0).roundToInt() / 10.0,
+                    (row[Events.longitude]!! * 10.0).roundToInt() / 10.0
+                )
+            }
 
         val visitors = grouped.map { (key, rows) ->
             val mostRecent = rows.maxByOrNull { it[Events.timestamp] }

@@ -66,7 +66,7 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
 
         val validationResult = InputValidator.validatePageViewPayload(payload)
         if (!validationResult.isValid) {
-            call.application.environment.log.warn("Validation failed for API key $apiKey: ${validationResult.errors}")
+            call.application.environment.log.warn("Validation failed for API key ${apiKey.take(8)}****: ${validationResult.errors}")
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.validationFailed(validationResult.errors))
         }
