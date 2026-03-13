@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dashboard Grid**: Standardized all primary and revenue stat cards into a consistent 4-column layout.
 - **Icon Bar Charts**: Switched Referrers, Countries, and Custom Events to a premium proportional bar style.
 - **Raw Events Viewer**: Improved data formatting with monospace paths, country flags, and intelligent timestamping.
-- **Landing Page Separation**: Moved the landing page outside of the main source code for easier standalone deployment.
+- **Landing Page Separation**: Moved the landing page outside the main source code for easier standalone deployment.
 
 ### Fixed
 - **Tracker Leak**: Fixed a memory/network leak in `tracker.js` related to visibility change heartbeats.
