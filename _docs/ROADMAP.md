@@ -182,10 +182,10 @@
 
 ## Risk mitigation
 
-| Risk | Mitigation |
-|------|------------|
-| Security vulnerability | Security audit before launch, bug bounty, responsible disclosure |
-| Slow adoption | Strong launch (HN, Reddit, Product Hunt), excellent docs |
-| Maintenance burden | Build community early, automate testing/deployment |
-| Feature gaps | Prioritize most-requested features, deliver incrementally |
-| Competitors innovate faster | Focus on unique strengths (JVM, privacy, visuals) |
+| Risk                        | Mitigation                                                       |
+|-----------------------------|------------------------------------------------------------------|
+| Security vulnerability      | Security audit before launch, bug bounty, responsible disclosure |
+| Slow adoption               | Strong launch (HN, Reddit, Product Hunt), excellent docs         |
+| Maintenance burden          | Build community early, automate testing/deployment               |
+| Feature gaps                | Prioritize most-requested features, deliver incrementally        |
+| Competitors innovate faster | Focus on unique strengths (JVM, privacy, visuals)                |

@@ -53,7 +53,16 @@
       "Bash(chmod +x /tmp/check_nav_order.sh)",
       "Bash(/tmp/check_nav_order.sh)",
       "Bash(python3:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(curl -sL \"https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(curl -sL \"https://unpkg.com/chartjs-chart-geo@4.3.6/build/index.umd.min.js\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(curl -sL \"https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(curl -sL \"https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(curl -sL \"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(curl -sL \"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
+      "Bash(grep -r \"your-password\" /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/src/ 2>/dev/null; echo \"Exit: $?\")"
     ]
   }
 }

@@ -39,12 +39,12 @@ rotationBucket = hoursSinceEpoch / HASH_ROTATION_HOURS
 
 The `HASH_ROTATION_HOURS` environment variable controls how often hashes rotate:
 
-| Value | Behavior | Use Case |
-|-------|----------|----------|
-| 1 | Hourly rotation | Maximum privacy |
-| 24 | Daily rotation (default) | Good balance of privacy and analytics accuracy |
-| 168 | Weekly rotation | Better visitor counting accuracy |
-| 8760 | Yearly rotation | Maximum analytics accuracy |
+| Value | Behavior                 | Use Case                                       |
+|-------|--------------------------|------------------------------------------------|
+| 1     | Hourly rotation          | Maximum privacy                                |
+| 24    | Daily rotation (default) | Good balance of privacy and analytics accuracy |
+| 168   | Weekly rotation          | Better visitor counting accuracy               |
+| 8760  | Yearly rotation          | Maximum analytics accuracy                     |
 
 Shorter rotation = more privacy but less accurate unique visitor counts (same person counted as new visitor after each rotation).
 
@@ -82,12 +82,12 @@ Minimal data collection:
 
 The `DATA_RETENTION_DAYS` environment variable controls automatic data purging:
 
-| Value | Behavior |
-|-------|----------|
-| 0 | Disabled (keep data forever) |
-| 30 | Delete events older than 30 days |
-| 90 | Delete events older than 90 days |
-| 365 | Delete events older than 1 year |
+| Value | Behavior                         |
+|-------|----------------------------------|
+| 0     | Disabled (keep data forever)     |
+| 30    | Delete events older than 30 days |
+| 90    | Delete events older than 90 days |
+| 365   | Delete events older than 1 year  |
 
 A background timer runs every 6 hours to purge expired events.
 
@@ -127,20 +127,20 @@ A background timer runs every 6 hours to purge expired events.
 
 The `Events` table stores:
 
-| Column | Description |
-|--------|-------------|
-| `visitorHash` | SHA-256 hash (rotated, not reversible to IP) |
-| `sessionId` | Random session identifier (tab-scoped) |
-| `eventType` | "pageview", "heartbeat", or custom event name |
-| `path` | Page path (e.g., `/blog/post-1`) |
-| `referrer` | Traffic source URL (nullable) |
-| `country` | Country name from GeoIP (nullable, mode-dependent) |
-| `city` | City name from GeoIP (nullable, mode-dependent) |
-| `browser` | Browser name (nullable, mode-dependent) |
-| `os` | OS name (nullable, mode-dependent) |
-| `device` | Device type (nullable, mode-dependent) |
-| `duration` | Time on page in seconds |
-| `timestamp` | When the event occurred |
+| Column        | Description                                        |
+|---------------|----------------------------------------------------|
+| `visitorHash` | SHA-256 hash (rotated, not reversible to IP)       |
+| `sessionId`   | Random session identifier (tab-scoped)             |
+| `eventType`   | "pageview", "heartbeat", or custom event name      |
+| `path`        | Page path (e.g., `/blog/post-1`)                   |
+| `referrer`    | Traffic source URL (nullable)                      |
+| `country`     | Country name from GeoIP (nullable, mode-dependent) |
+| `city`        | City name from GeoIP (nullable, mode-dependent)    |
+| `browser`     | Browser name (nullable, mode-dependent)            |
+| `os`          | OS name (nullable, mode-dependent)                 |
+| `device`      | Device type (nullable, mode-dependent)             |
+| `duration`    | Time on page in seconds                            |
+| `timestamp`   | When the event occurred                            |
 
 ---
 
@@ -174,12 +174,12 @@ Mini Numbers is designed to be GDPR-friendly:
 
 ## Comparison with other analytics tools
 
-| Feature | Mini Numbers | Google Analytics | Plausible | Umami |
-|---------|-------------|-----------------|-----------|-------|
-| Cookies | None | Multiple | None | None |
-| IP storage | Never | Yes (processed) | Never | Never |
-| Hash rotation | Configurable (1h-1yr) | N/A | Daily | Daily |
-| Privacy modes | 3 levels | 1 | 1 | 1 |
-| Data retention | Configurable | 14-26 months | Configurable | Configurable |
-| Self-hosted | Yes | No | Yes | Yes |
-| Consent needed | No | Yes | No | No |
+| Feature        | Mini Numbers          | Google Analytics | Plausible    | Umami        |
+|----------------|-----------------------|------------------|--------------|--------------|
+| Cookies        | None                  | Multiple         | None         | None         |
+| IP storage     | Never                 | Yes (processed)  | Never        | Never        |
+| Hash rotation  | Configurable (1h-1yr) | N/A              | Daily        | Daily        |
+| Privacy modes  | 3 levels              | 1                | 1            | 1            |
+| Data retention | Configurable          | 14-26 months     | Configurable | Configurable |
+| Self-hosted    | Yes                   | No               | Yes          | Yes          |
+| Consent needed | No                    | Yes              | No           | No           |

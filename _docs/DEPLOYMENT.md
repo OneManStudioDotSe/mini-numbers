@@ -118,10 +118,10 @@ The Ktor Gradle plugin also includes built-in Docker support:
 
 #### Docker Compose Files
 
-| File | Database | Use Case |
-|------|----------|----------|
-| `docker-compose.yml` | SQLite | Simple single-server deployments |
-| `docker-compose.postgres.yml` | PostgreSQL | Production / high-traffic |
+| File                          | Database   | Use Case                         |
+|-------------------------------|------------|----------------------------------|
+| `docker-compose.yml`          | SQLite     | Simple single-server deployments |
+| `docker-compose.postgres.yml` | PostgreSQL | Production / high-traffic        |
 
 **Managing containers:**
 
@@ -253,7 +253,7 @@ After completing setup, the application initializes instantly (< 1 second, no re
 
 ### Quick Setup (Testing)
 
-For rapid testing, click the "Quick Setup (Testing)" button in the wizard header. This auto-fills all fields with sensible defaults and completes setup in one click.
+For rapid testing, click the "Quick Setup (Testing)" button in the wizard header. This autofills all fields with sensible defaults and completes setup in one click.
 
 ---
 
@@ -263,29 +263,29 @@ All configuration is stored in the `.env` file in the application root. Environm
 
 ### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `ADMIN_PASSWORD` | Admin panel password | `your-secure-password` |
-| `SERVER_SALT` | Cryptographic salt for visitor hashing (min 32 chars) | `openssl rand -hex 64` |
+| Variable         | Description                                           | Example                |
+|------------------|-------------------------------------------------------|------------------------|
+| `ADMIN_PASSWORD` | Admin panel password                                  | `your-secure-password` |
+| `SERVER_SALT`    | Cryptographic salt for visitor hashing (min 32 chars) | `openssl rand -hex 64` |
 
 ### Optional Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `ADMIN_USERNAME` | `admin` | Admin panel username |
-| `SERVER_PORT` | `8080` | HTTP port |
-| `KTOR_DEVELOPMENT` | `false` | Enable development mode (allows all CORS origins) |
-| `ALLOWED_ORIGINS` | _(empty)_ | Comma-separated list of allowed CORS origins |
-| `DB_TYPE` | `SQLITE` | Database type: `SQLITE` or `POSTGRESQL` |
-| `DB_SQLITE_PATH` | `./stats.db` | SQLite database file path |
-| `GEOIP_DATABASE_PATH` | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path |
-| `RATE_LIMIT_PER_IP` | `1000` | Max requests per minute per IP |
-| `RATE_LIMIT_PER_API_KEY` | `10000` | Max requests per minute per API key |
-| `HASH_ROTATION_HOURS` | `24` | Hash rotation period in hours (1-8760) |
-| `PRIVACY_MODE` | `STANDARD` | Privacy mode: `STANDARD`, `STRICT`, or `PARANOID` |
-| `DATA_RETENTION_DAYS` | `0` | Auto-delete events older than N days (0 = disabled) |
-| `TRACKER_HEARTBEAT_INTERVAL` | `30` | Default heartbeat interval in seconds |
-| `TRACKER_SPA_ENABLED` | `true` | Enable SPA tracking by default |
+| Variable                     | Default                                     | Description                                         |
+|------------------------------|---------------------------------------------|-----------------------------------------------------|
+| `ADMIN_USERNAME`             | `admin`                                     | Admin panel username                                |
+| `SERVER_PORT`                | `8080`                                      | HTTP port                                           |
+| `KTOR_DEVELOPMENT`           | `false`                                     | Enable development mode (allows all CORS origins)   |
+| `ALLOWED_ORIGINS`            | _(empty)_                                   | Comma-separated list of allowed CORS origins        |
+| `DB_TYPE`                    | `SQLITE`                                    | Database type: `SQLITE` or `POSTGRESQL`             |
+| `DB_SQLITE_PATH`             | `./stats.db`                                | SQLite database file path                           |
+| `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path                                 |
+| `RATE_LIMIT_PER_IP`          | `1000`                                      | Max requests per minute per IP                      |
+| `RATE_LIMIT_PER_API_KEY`     | `10000`                                     | Max requests per minute per API key                 |
+| `HASH_ROTATION_HOURS`        | `24`                                        | Hash rotation period in hours (1-8760)              |
+| `PRIVACY_MODE`               | `STANDARD`                                  | Privacy mode: `STANDARD`, `STRICT`, or `PARANOID`   |
+| `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
+| `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Default heartbeat interval in seconds               |
+| `TRACKER_SPA_ENABLED`        | `true`                                      | Enable SPA tracking by default                      |
 
 ### PostgreSQL Variables (required when `DB_TYPE=POSTGRESQL`)
 

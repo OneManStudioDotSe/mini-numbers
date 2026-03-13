@@ -8,17 +8,17 @@ Comprehensive security reference covering all implemented security measures, aud
 
 ## Audit summary
 
-| Category | Rating | Notes |
-|----------|--------|-------|
-| Authentication | Good | BCrypt, brute force protection, session management |
-| Input Validation | Excellent | Comprehensive with 26 dedicated tests |
-| XSS | Good | Fixed remaining unescaped outputs |
-| SQL Injection | Excellent | ORM parameterization throughout |
-| Rate Limiting | Good | Adequate for single-instance |
-| CORS | Good | Configurable, restrictive by default |
-| Privacy | Excellent | Industry-leading approach |
-| Dependencies | Good | No known vulnerabilities |
-| API Security | Good | Proper auth checks, no data leaks |
+| Category         | Rating    | Notes                                              |
+|------------------|-----------|----------------------------------------------------|
+| Authentication   | Good      | BCrypt, brute force protection, session management |
+| Input Validation | Excellent | Comprehensive with 26 dedicated tests              |
+| XSS              | Good      | Fixed remaining unescaped outputs                  |
+| SQL Injection    | Excellent | ORM parameterization throughout                    |
+| Rate Limiting    | Good      | Adequate for single-instance                       |
+| CORS             | Good      | Configurable, restrictive by default               |
+| Privacy          | Excellent | Industry-leading approach                          |
+| Dependencies     | Good      | No known vulnerabilities                           |
+| API Security     | Good      | Proper auth checks, no data leaks                  |
 
 ### Recommendations (priority order)
 
@@ -81,10 +81,10 @@ Refresh tokens use a **family-based rotation** scheme to detect replay attacks:
 
 Two roles:
 
-| Role | Read access | Write access | User management |
-|------|-------------|--------------|-----------------|
-| **admin** | All endpoints | Create/update/delete projects, goals, funnels, segments, webhooks | Yes |
-| **viewer** | All GET endpoints | None | No |
+| Role       | Read access       | Write access                                                      | User management |
+|------------|-------------------|-------------------------------------------------------------------|-----------------|
+| **admin**  | All endpoints     | Create/update/delete projects, goals, funnels, segments, webhooks | Yes             |
+| **viewer** | All GET endpoints | None                                                              | No              |
 
 - Roles stored in `users` table
 - Checked via `call.requireRole(UserRole.ADMIN)` guard on write endpoints
@@ -145,13 +145,13 @@ ALLOWED_ORIGINS=https://analytics.example.com,https://admin.example.com
 
 ## 6. Rate limiting
 
-| Endpoint group | Limit | Strategy |
-|---------------|-------|----------|
-| `/collect` | 1000 req/min per IP, 10000 req/min per API key | Token bucket |
-| `/widget/*` | Same as /collect | Token bucket |
-| `/admin/*` | 200 req/min per IP | Token bucket |
-| Login | 5 failed attempts = 15min lockout | Counter + lockout |
-| `/api/password-reset` | Inherits admin rate limit | Token bucket |
+| Endpoint group        | Limit                                          | Strategy          |
+|-----------------------|------------------------------------------------|-------------------|
+| `/collect`            | 1000 req/min per IP, 10000 req/min per API key | Token bucket      |
+| `/widget/*`           | Same as /collect                               | Token bucket      |
+| `/admin/*`            | 200 req/min per IP                             | Token bucket      |
+| Login                 | 5 failed attempts = 15min lockout              | Counter + lockout |
+| `/api/password-reset` | Inherits admin rate limit                      | Token bucket      |
 
 - Buckets auto-expire after 5 minutes of inactivity
 - Rate limit state stored in-memory (Caffeine cache)
@@ -189,13 +189,13 @@ All database queries use Exposed ORM with parameterized expressions (`eq`, `less
 
 ## 8. Cookie security
 
-| Attribute | Value | Purpose |
-|-----------|-------|---------|
-| `HttpOnly` | `true` | Prevents JavaScript access (XSS mitigation) |
-| `Secure` | `true` in production | Ensures HTTPS-only transmission |
-| `SameSite` | `Strict` | Prevents CSRF attacks |
-| `Path` | `/` | Scoped to entire application |
-| `MaxAge` | 7 days | Absolute session lifetime |
+| Attribute  | Value                | Purpose                                     |
+|------------|----------------------|---------------------------------------------|
+| `HttpOnly` | `true`               | Prevents JavaScript access (XSS mitigation) |
+| `Secure`   | `true` in production | Ensures HTTPS-only transmission             |
+| `SameSite` | `Strict`             | Prevents CSRF attacks                       |
+| `Path`     | `/`                  | Scoped to entire application                |
+| `MaxAge`   | 7 days               | Absolute session lifetime                   |
 
 **Inactivity timeout:** Sessions are invalidated after 4 hours of inactivity, even if the cookie hasn't expired.
 
@@ -242,11 +242,11 @@ All admin endpoints validate that the requested resource belongs to the authenti
 
 ## 11. Privacy architecture
 
-| Mode | Geolocation | Browser/OS/device | Hash rotation |
-|------|-------------|-------------------|---------------|
-| STANDARD | Country + city | Full | Configurable |
-| STRICT | Country only | Full | Configurable |
-| PARANOID | None | None | Configurable |
+| Mode     | Geolocation    | Browser/OS/device | Hash rotation |
+|----------|----------------|-------------------|---------------|
+| STANDARD | Country + city | Full              | Configurable  |
+| STRICT   | Country only   | Full              | Configurable  |
+| PARANOID | None           | None              | Configurable  |
 
 - IP addresses are **never stored** -- processed in-memory only
 - Visitor identification via rotating SHA-256 hash: `SHA256(ip + ua + projectId + salt + rotationBucket)`
@@ -278,11 +278,11 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains  (production only
 - Server logs full exception details for debugging
 - Standardized error format: `{ "error": "...", "code": "...", "details": [...] }`
 
-| Exception | Status | Client message |
-|-----------|--------|----------------|
-| `SerializationException` | 400 | "Invalid request format" |
-| `Throwable` (catch-all) | 500 | "An unexpected error occurred" |
-| Status 404 | 404 | "Resource not found" |
+| Exception                | Status | Client message                 |
+|--------------------------|--------|--------------------------------|
+| `SerializationException` | 400    | "Invalid request format"       |
+| `Throwable` (catch-all)  | 500    | "An unexpected error occurred" |
+| Status 404               | 404    | "Resource not found"           |
 
 > **Audit finding (PASS)**: No stack traces or internal details in error responses.
 

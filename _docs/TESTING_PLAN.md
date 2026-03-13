@@ -2,21 +2,21 @@
 
 ## Browser matrix
 
-| Browser | Windows | macOS | Linux | iOS | Android |
-|---------|---------|-------|-------|-----|---------|
-| Chrome (latest) | Yes | Yes | Yes | - | Yes |
-| Firefox (latest) | Yes | Yes | Yes | - | - |
-| Safari (latest) | - | Yes | - | Yes | - |
-| Edge (latest) | Yes | - | - | - | - |
+| Browser          | Windows | macOS | Linux | iOS | Android |
+|------------------|---------|-------|-------|-----|---------|
+| Chrome (latest)  | Yes     | Yes   | Yes   | -   | Yes     |
+| Firefox (latest) | Yes     | Yes   | Yes   | -   | -       |
+| Safari (latest)  | -       | Yes   | -     | Yes | -       |
+| Edge (latest)    | Yes     | -     | -     | -   | -       |
 
 ## Device breakpoints
 
-| Device | Width | Priority |
-|--------|-------|----------|
-| Desktop | 1440px+ | High |
-| Small Desktop | 1024px-1440px | High |
-| Tablet | 768px-1024px | Medium |
-| Mobile | 320px-767px | Medium |
+| Device        | Width         | Priority |
+|---------------|---------------|----------|
+| Desktop       | 1440px+       | High     |
+| Small Desktop | 1024px-1440px | High     |
+| Tablet        | 768px-1024px  | Medium   |
+| Mobile        | 320px-767px   | Medium   |
 
 ## Test scenarios
 
