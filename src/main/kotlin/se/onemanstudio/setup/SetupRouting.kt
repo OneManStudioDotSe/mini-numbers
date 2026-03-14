@@ -11,8 +11,8 @@ import kotlinx.serialization.json.put
 import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
+import se.onemanstudio.configureRouting
 import se.onemanstudio.setup.models.*
-import configureRouting
 import se.onemanstudio.configureWidgetRouting
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.core.ServiceManager
