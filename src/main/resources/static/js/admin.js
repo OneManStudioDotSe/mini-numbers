@@ -2048,7 +2048,8 @@ const Dashboard = {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate demo data');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate demo data');
       }
 
       const result = await response.json();
@@ -2058,7 +2059,7 @@ const Dashboard = {
       await this.refreshReport();
     } catch (error) {
       console.error('Demo data generation failed:', error);
-      Utils.toast.error('Failed to generate demo data');
+      Utils.toast.error(error.message || 'Failed to generate demo data');
     }
   },
 
