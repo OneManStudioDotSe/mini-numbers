@@ -8,62 +8,62 @@
      COLOR SYSTEM - LIGHT THEME (DEFAULT)
      ============================================ */
 
-  /* Primary Colors (Indigo/Violet) */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #e0e7ff;
+  /* Primary Colors (Burnt Amber) */
+  --color-primary: #d97706;
+  --color-primary-hover: #b45309;
+  --color-primary-light: #fef3c7;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --color-info: #06b6d4;
+  --color-info: #0ea5e9;
 
   /* Gradient Tokens */
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --gradient-primary-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  --gradient-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-primary: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  --gradient-primary-subtle: linear-gradient(135deg, rgba(217, 119, 6, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  --gradient-accent: linear-gradient(135deg, #78716c 0%, #44403c 100%);
   --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 
   /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg: rgba(250, 250, 249, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-blur: 12px;
 
   /* Glassmorphism — strong variant (used on standalone pages) */
-  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-bg-strong: rgba(250, 250, 249, 0.85);
   --glass-border-strong: rgba(255, 255, 255, 0.6);
   --glass-bg-input: rgba(255, 255, 255, 0.9);
 
   /* Canvas background animation */
-  --canvas-dot: rgba(99, 102, 241, 0.15);
-  --canvas-line: rgba(99, 102, 241, 0.05);
+  --canvas-dot: rgba(217, 119, 6, 0.12);
+  --canvas-line: rgba(217, 119, 6, 0.04);
 
   /* Danger background (for error states) */
-  --color-danger-bg: #fef2f2;
+  --color-danger-bg: #fff1f2;
 
-  /* Neutral Colors - Backgrounds */
-  --color-bg-primary: #f8fafc;
+  /* Neutral Colors - Backgrounds (Stone) */
+  --color-bg-primary: #fafaf9;
   --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f1f5f9;
-  --color-bg-hover: #e2e8f0;
+  --color-bg-tertiary: #f5f5f4;
+  --color-bg-hover: #e7e5e4;
 
-  /* Neutral Colors - Text */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
+  /* Neutral Colors - Text (Stone) */
+  --color-text-primary: #1c1917;
+  --color-text-secondary: #57534e;
+  --color-text-muted: #a8a29e;
   --color-text-inverse: #ffffff;
 
   /* Border Colors */
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
-  --color-border-dark: #cbd5e1;
+  --color-border: #e7e5e4;
+  --color-border-light: #f5f5f4;
+  --color-border-dark: #d6d3d1;
 
   /* Sidebar Colors */
-  --color-sidebar-bg: #1e293b;
-  --color-sidebar-text: #f1f5f9;
-  --color-sidebar-text-muted: #94a3b8;
-  --color-sidebar-hover: #334155;
-  --color-sidebar-active: #475569;
+  --color-sidebar-bg: #292524;
+  --color-sidebar-text: #fafaf9;
+  --color-sidebar-text-muted: #a8a29e;
+  --color-sidebar-hover: #44403c;
+  --color-sidebar-active: #57534e;
 
   /* ============================================
      SPACING SYSTEM
@@ -151,22 +151,22 @@
      CHART COLOR PALETTE
      ============================================ */
 
-  --chart-color-1: #6366f1;   /* Indigo */
-  --chart-color-2: #8b5cf6;   /* Purple */
-  --chart-color-3: #ec4899;   /* Pink */
-  --chart-color-4: #f59e0b;   /* Amber */
+  --chart-color-1: #d97706;   /* Amber */
+  --chart-color-2: #78716c;   /* Stone */
+  --chart-color-3: #0d9488;   /* Teal */
+  --chart-color-4: #44403c;   /* Warm Gray */
   --chart-color-5: #10b981;   /* Emerald */
-  --chart-color-6: #06b6d4;   /* Cyan */
-  --chart-color-7: #6366f1;   /* Indigo */
-  --chart-color-8: #f97316;   /* Orange */
-  --chart-color-9: #14b8a6;   /* Teal */
-  --chart-color-10: #a855f7;  /* Violet */
+  --chart-color-6: #0ea5e9;   /* Sky */
+  --chart-color-7: #f59e0b;   /* Amber-500 */
+  --chart-color-8: #fb923c;   /* Orange */
+  --chart-color-9: #14b8a6;   /* Teal-500 */
+  --chart-color-10: #d6d3d1;  /* Stone-300 */
 
   /* Chart Background Colors (lighter versions) */
-  --chart-bg-1: rgba(99, 102, 241, 0.1);
-  --chart-bg-2: rgba(139, 92, 246, 0.1);
-  --chart-bg-3: rgba(236, 72, 153, 0.1);
-  --chart-bg-4: rgba(245, 158, 11, 0.1);
+  --chart-bg-1: rgba(217, 119, 6, 0.1);
+  --chart-bg-2: rgba(120, 113, 108, 0.1);
+  --chart-bg-3: rgba(13, 148, 136, 0.1);
+  --chart-bg-4: rgba(68, 64, 60, 0.1);
   --chart-bg-5: rgba(16, 185, 129, 0.1);
 
   /* ============================================
