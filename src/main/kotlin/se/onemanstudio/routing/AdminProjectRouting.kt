@@ -27,6 +27,8 @@ import se.onemanstudio.middleware.requireRole
 import java.time.LocalDateTime
 import java.util.UUID
 
+import se.onemanstudio.api.models.admin.DemoDataRequest
+
 fun Route.adminProjectRoutes() {
     // List all projects (with pagination)
     get("/projects") {
@@ -313,9 +315,9 @@ fun Route.adminProjectRoutes() {
             ?: return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
         
-        val params = call.receive<Map<String, Int>>()
-        val count = params["count"] ?: 500
-        val timeScope = params["timeScope"] ?: 30
+        val params = call.receive<DemoDataRequest>()
+        val count = params.count
+        val timeScope = params.timeScope
         
         try {
             // Also seed goals, funnels and segments for a better demo experience
