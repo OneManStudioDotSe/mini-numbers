@@ -28,6 +28,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import se.onemanstudio.api.models.admin.DemoDataRequest
+import se.onemanstudio.api.models.admin.DemoDataResponse
 
 fun Route.adminProjectRoutes() {
     // List all projects (with pagination)
@@ -327,7 +328,7 @@ fun Route.adminProjectRoutes() {
             QueryCache.invalidateProject(id.toString())
             WidgetCache.invalidateProject(id.toString())
             
-            call.respond(mapOf("generated" to generated, "success" to true))
+            call.respond(DemoDataResponse(generated = generated))
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             call.application.environment.log.error("Demo data generation failed for project $id: ${e.message}", e)
             call.respond(HttpStatusCode.InternalServerError,
