@@ -9,34 +9,39 @@ import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.routing.*
 
 fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
+    val privacyMode = config.privacy.privacyMode
+
     routing {
         // Public, non-rate-limited routes (tracker, metrics, etc.)
         publicRoutes(config)
         
         // Collection endpoint (rate-limited)
-        collectionRoutes(rateLimiter)
+        collectionRoutes(rateLimiter, privacyMode)
 
-        // Authenticated admin API
-        authenticate("session-auth") {
+        // Authentication & Password Reset
+        authRoutes()
+
+        // Protected Admin API (supports both Session and JWT)
+        authenticate("admin-session", "api-jwt") {
             route("/admin") {
                 adminProjectRoutes()
                 adminAnalyticsRoutes()
-                adminUserRoutes()
                 adminFeatureRoutes()
+                adminUserRoutes()
             }
-        }
-        
-        // Authentication routes (login/logout)
-        authRoutes()
 
-        // Serve the main landing page
-        staticResources("/", "static") {
-            default("index.html")
-        }
-        
-        // Serve the Admin SPA dashboard
-        staticResources("/admin-panel", "static") {
-            default("admin.html")
+            // Also expose as /api for JWT programmatic access
+            route("/api") {
+                adminProjectRoutes()
+                adminAnalyticsRoutes()
+                adminFeatureRoutes()
+                adminUserRoutes()
+            }
+
+            // Serve the Admin SPA dashboard
+            staticResources("/admin-panel", "static") {
+                default("admin.html")
+            }
         }
     }
 }

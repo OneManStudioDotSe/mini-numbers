@@ -1,6 +1,5 @@
 package se.onemanstudio
 
-import configureRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
