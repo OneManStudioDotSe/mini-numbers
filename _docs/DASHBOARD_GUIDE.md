@@ -319,7 +319,7 @@ Add a `<script>` tag for each widget you want to display. The widget renders its
 <script async src="https://your-analytics-domain.com/widget/widget.js"
   data-project-key="YOUR_API_KEY"
   data-widget="sparkline"
-  data-color="#6366f1"
+  data-color="#d97706"
   data-width="120"
   data-height="32"></script>
 ```
@@ -341,7 +341,7 @@ All widgets require `data-project-key` and `data-widget`. Additional attributes 
 | `data-limit` | toppages | `5` | Number of pages to show (1–10) |
 | `data-title` | toppages | `Popular pages` | Heading text above the list |
 | `data-poll` | realtime | `12000` | Polling interval in milliseconds |
-| `data-color` | sparkline | `#6366f1` | Line and fill color |
+| `data-color` | sparkline | `#d97706` | Line and fill color |
 | `data-width` | sparkline | `120` | SVG width in pixels |
 | `data-height` | sparkline | `32` | SVG height in pixels |
 
