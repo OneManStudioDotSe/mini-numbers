@@ -138,4 +138,4 @@ Each widget endpoint accepts a public `key` parameter — no login required. See
 - **Prominent date range**: The filter bar leads with the selected period in large, bold text — you always know exactly what you're looking at.
 - **Contextual empty states**: Every chart, table, and list renders a purpose-matched illustration when there is no data to display, so the UI is always informative rather than blank.
 - **Consistent hover feedback**: Table row hover uses a color visually distinct from both the default and zebra-stripe row colors, in both light and dark themes.
-- **Light/dark theme toggle**: A pill-shaped toggle in the header switches themes instantly. Your preference is saved and respects your system's `prefers-color-scheme` on first visit.
+- **Light/dark theme toggle**: A pill-shaped toggle in the dashboard header switches themes instantly. Your preference is saved and respects your system's `prefers-color-scheme` on first visit.

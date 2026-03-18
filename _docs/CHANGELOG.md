@@ -5,6 +5,17 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-03-15
+
+### Changed
+
+- **Landing page design alignment**: Replaced the indigo/slate color scheme with the burnt amber/stone palette used by the admin panel, login page, and setup wizard — the entire application now shares a single consistent design system.
+- **Landing page nav cleanup**: Removed the theme toggle button and login/dashboard button from the navigation bar on the main landing page and all sub-pages (contact, how-it-works, privacy-policy, setup-guide, terms).
+- **Landing page link fixes**: All internal links across landing sub-pages changed from absolute `/landing/`-prefixed paths to relative paths (e.g. `how-it-works.html` instead of `/landing/how-it-works.html`), fixing broken navigation. CSS and JS references in sub-pages also corrected.
+- **Footer link casing**: Footer link text changed from Title Case to sentence case (e.g. "Terms of Service" → "Terms of service").
+
+---
+
 ## [1.2.0] - 2026-03-08
 
 ### Added
@@ -68,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dashboard Grid**: Standardized all primary and revenue stat cards into a consistent 4-column layout.
 - **Icon Bar Charts**: Switched Referrers, Countries, and Custom Events to a premium proportional bar style.
 - **Raw Events Viewer**: Improved data formatting with monospace paths, country flags, and intelligent timestamping.
-- **Landing Page Separation**: Moved the landing page outside the main source code for easier standalone deployment.
+- **Landing Page Separation**: Moved the landing page outside the main source code for easier standalone deployment. Sub-page links use relative paths for portability.
 
 ### Fixed
 - **Tracker Leak**: Fixed a memory/network leak in `tracker.js` related to visibility change heartbeats.
@@ -112,7 +123,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Particle canvas hero background with mouse-reactive animation
   - Gradient text effects and floating trust badges
   - Revenue Intelligence showcase section with animated mockup
-  - Login/Dashboard link in navigation
   - Updated content: 288 tests, v1.0.0-beta version, 2026 copyright
 
 ### Changed
