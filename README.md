@@ -1,7 +1,7 @@
 <p>
-  <img src="https://img.shields.io/badge/version-1.0.0--beta-blue" alt="Version">
+  <img src="https://img.shields.io/github/v/release/onemanstudiodotse/mini-numbers?label=version&color=blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/tests-288%20passing-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-296%20passing-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/tracker-1.3KB-orange" alt="Tracker Size">
   <img src="https://img.shields.io/badge/cookies-zero-purple" alt="No Cookies">
 </p>
@@ -23,6 +23,8 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 | Conversion goals   | Yes              | Yes       |       | **Yes**          |
 | Funnels            | Yes              | Yes       |       | **Yes**          |
 | User segments      | Yes              |           |       | **Yes**          |
+| Revenue tracking   | Yes              | Yes       |       | **Yes**          |
+| Webhooks           |                  |           |       | **Yes**          |
 | Free & open source |                  | Paid/CE   | Yes   | **Yes**          |
 
 ## Key Features
@@ -30,13 +32,17 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 - **Real-time dashboard** — Live visitor feed, time series charts, activity heatmaps
 - **Privacy by design** — Three modes (Standard, Strict, Paranoid) with configurable hash rotation
 - **Conversion tracking** — Goals, multi-step funnels, and user segments with visual filter builder
+- **Revenue analytics** — Track purchases and AOV with `MiniNumbers.track("purchase", { revenue: 29.99 })`
+- **Webhooks** — HMAC-signed delivery on goal conversions and traffic spikes
+- **Email reports** — Scheduled daily/weekly/monthly analytics emails via SMTP
 - **Tiny footprint** — 1.3KB tracking script, SQLite or PostgreSQL, runs anywhere
 - **Multi-project** — Manage multiple websites from a single instance
 - **No cookies** — GDPR-friendly by default, no consent banners required
 - **Dark mode** — Full light/dark theme support with accessible UI
-- **CSV export** — Export any report for offline analysis
 
 ## Quick Start
+
+**Up and running in under a minute:**
 
 ### 1. Run the server
 
@@ -62,7 +68,7 @@ Open your browser and visit your server URL. The setup wizard walks you through 
 
 ```javascript
 MiniNumbers.track("signup");
-MiniNumbers.track("purchase");
+MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" });
 ```
 
 That's it. Visit your dashboard to see analytics flowing in.
@@ -71,15 +77,15 @@ That's it. Visit your dashboard to see analytics flowing in.
 
 Full documentation is available at **[onemanstudiodotse.github.io/mini-numbers](https://onemanstudiodotse.github.io/mini-numbers/)**.
 
-| Guide                                                                               | Description                               |
-|-------------------------------------------------------------------------------------|-------------------------------------------|
+| Guide | Description |
+|-------|-------------|
 | [Getting Started](https://onemanstudiodotse.github.io/mini-numbers/getting-started) | Installation, setup wizard, first project |
-| [Configuration](https://onemanstudiodotse.github.io/mini-numbers/configuration)     | All settings and environment variables    |
-| [Features](https://onemanstudiodotse.github.io/mini-numbers/features)               | Full feature overview with examples       |
-| [Dashboard Guide](https://onemanstudiodotse.github.io/mini-numbers/dashboard-guide) | How to use the analytics dashboard        |
-| [Privacy](https://onemanstudiodotse.github.io/mini-numbers/privacy)                 | How your visitors' privacy is protected   |
-| [Deployment](https://onemanstudiodotse.github.io/mini-numbers/deployment)           | Docker, cloud platforms, reverse proxies  |
-| [Architecture](https://onemanstudiodotse.github.io/mini-numbers/architecture)       | Technical details for developers          |
+| [Configuration](https://onemanstudiodotse.github.io/mini-numbers/configuration) | All settings and environment variables |
+| [Features](https://onemanstudiodotse.github.io/mini-numbers/features) | Full feature overview with examples |
+| [Dashboard Guide](https://onemanstudiodotse.github.io/mini-numbers/dashboard-guide) | How to use the analytics dashboard |
+| [Privacy](https://onemanstudiodotse.github.io/mini-numbers/privacy) | How your visitors' privacy is protected |
+| [Deployment](https://onemanstudiodotse.github.io/mini-numbers/deployment) | Docker, cloud platforms, reverse proxies |
+| [Architecture](https://onemanstudiodotse.github.io/mini-numbers/architecture) | Technical details for developers |
 
 ## Tech Stack
 
