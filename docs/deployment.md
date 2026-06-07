@@ -262,7 +262,7 @@ Mini Numbers provides a health endpoint at `/health` that returns:
 {
   "status": "healthy",
   "uptime": 86400,
-  "version": "1.0.0-beta"
+  "version": "1.0.0"
 }
 ```
 

@@ -32,7 +32,7 @@ fun Application.configureSetupRouting() {
         get("/") {
             when {
                 ConfigLoader.isSetupNeeded() -> call.respondRedirect(RedirectValidator.safeRedirect("/setup", "/setup"))
-                ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/landing/"))
+                ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/admin-panel"))
                 else -> {
                     val error = ServiceManager.getLastError()
                     call.respondText(
@@ -111,7 +111,7 @@ fun Application.configureSetupRouting() {
                 buildJsonObject {
                     put("status", status)
                     put("state", state.toString())
-                    put("version", "1.0.0-beta")
+                    put("version", "1.0.0")
                     put("servicesReady", servicesReady)
                     put("setupNeeded", setupNeeded)
                     if (state == ServiceManager.State.ERROR) {
