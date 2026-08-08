@@ -84,7 +84,6 @@ When brainstorming ideas or going through the planning phase, always offer alter
 If an idea is genuinely unclear, ask (don't guess) and then continue to implement it. At the end, verify that it matches the initial and decided scope and then verify it (see Definition of Done).
 
 Regarding the design of what we are working on, always ask me for screenshots, screen grabs, links with inspiration, color palettes, font combinations, links with similar ideas and in general push me to provide input for the design rather than use generic AI designs and patterns.
-If a simpler approach exists than the one requested, say so before building the complicated one. Push back when warranted.
 
 ## Conventions (stack / naming / layout)
 
@@ -124,24 +123,23 @@ Specifically for this project:
 
 **Always:**
 
-- Run `./gradlew test detekt` before calling anything done.
+- Run the related tests before calling anything done.
+- Update `_docs/ARCHITECTURE.md` — not this file — when changes related with important changes happen.
+- Update the `_docs/CHANGELOG.md` when a meaningful change, update, addition or deletion of a feature, task or bug is done.
 - Test UI changes in both light and dark themes.
-- Check behavior against all three privacy modes when touching collection, geo, or user-agent-parsing code.
-- Verify schema changes against both the SQLite and PostgreSQL code paths.
 
 ## Definition of done
 
 Turn the task into a verifiable goal before starting, not after: a bug fix means a failing test that reproduces it and then passes; a feature means stated success criteria you can check against when you're done.
 
-Then, specifically for this project verify the following:
+Before claiming that a task or feature is completed, do the following:
 
-- [ ] `./gradlew test` and `./gradlew detekt` pass.
-- [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the golden path and the relevant edge cases, not just "it compiles."
+- [ ] Run all related tests that are involved directly or indirectly with the feature, task, fix or bug we worked on.
+- [ ] Evaluate if a full build of the project is needed to verify that a feature, task, fix or bug is fixed/completed and and only then build the whole project.
 - [ ] UI changes verified in both light and dark themes.
-- [ ] Before/after screenshot attached for UI changes (manual today — see Tools for the aspirational automated path).
-- [ ] No regression against the accessibility bar in `_docs/TESTING_PLAN.md` (WCAG AA, keyboard navigation).
+- [ ] If you introduce regression errors, fix them directly without my feedback and make sure that you don't get stuck in a loop with these regressions.
 - [ ] `_docs/ARCHITECTURE.md` updated for anything technical; `_docs/CHANGELOG.md` entry added for user-facing changes.
-- [ ] Commit/PR message explains why, not what; PR title under 70 characters.
+- [ ] Suggest commit PR title for the included changes of your work and keep the PR title under 70 characters.
 
 ## Roles & escalation
 
