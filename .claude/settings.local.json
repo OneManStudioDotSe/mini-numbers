@@ -62,7 +62,9 @@
       "Bash(curl -sL \"https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
       "Bash(curl -sL \"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
       "Bash(curl -sL \"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" | openssl dgst -sha384 -binary | openssl base64 -A && echo \"\")",
-      "Bash(grep -r \"your-password\" /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/src/ 2>/dev/null; echo \"Exit: $?\")"
+      "Bash(grep -r \"your-password\" /Users/sotirisfalieris/Documents/Repos/Web/mini-numbers/src/ 2>/dev/null; echo \"Exit: $?\")",
+      "Bash(git grep *)",
+      "Bash(xargs du -h)"
     ]
   }
 }

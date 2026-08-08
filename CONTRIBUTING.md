@@ -35,7 +35,7 @@ cd mini-numbers
 
 ## Project structure
 
-See [CLAUDE.md](CLAUDE.md) for a full technical architecture reference. Key directories:
+See [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) for a full technical architecture reference. Key directories:
 
 ```
 src/main/kotlin/se/onemanstudio/
