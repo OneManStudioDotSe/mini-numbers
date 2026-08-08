@@ -101,18 +101,8 @@ These are the guardrails that should always be respected in the project.
 
 **Never:**
 
-- Commit anything containing real credentials/API keys.
-- Commit any code by yourself to the repository. I should always have the last saying of pushing something to the live repository.
-
-**Always:**
-
-- Run the related tests before calling anything done.
-- Update `_docs/ARCHITECTURE.md` — not this file — when schema, config vars, or endpoints change.
-- Update the `_docs/CHANGELOG.md` when a meaningful and useful change, update, addition or deletion of a feature, task or bug is done.
-
-Specifically for this project:
-**Never:**
-
+- Commit code on your own — always let me review the diff and give the go-ahead before
+  you run `git commit`, and never push without separate approval either.
 - Commit `.env`, `*.db`, or anything containing real credentials/API keys.
 - Store PII or persist raw IP addresses. IP exists only in memory during request handling.
 - Disable or route around rate limiting, CORS checks, or auth to unblock a task. Flag the
