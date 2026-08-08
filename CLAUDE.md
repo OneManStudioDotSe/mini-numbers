@@ -1,16 +1,26 @@
-# Mini Numbers - Privacy-first web analytics platform
+# Mini Numbers - Working guidelines
 
-## 1. Think Before Coding
+This file is about **how we work on this project**, not what the code does. For
+architecture, database schema, API endpoints, configuration variables, and project
+structure, see [\_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) — keep that file, not this
+one, updated whenever schema/endpoints/config/source code change.
+
+## AI and software development guidelines
+
+Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
+
+### 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
 Before implementing:
+
 - State your assumptions explicitly. If uncertain, ask.
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
-## 2. Simplicity First
+### 2. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**
 
@@ -22,32 +32,36 @@ Before implementing:
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-## 3. Surgical Changes
+### 3. Surgical Changes
 
 **Touch only what you must. Clean up only your own mess.**
 
 When editing existing code:
+
 - Don't "improve" adjacent code, comments, or formatting.
 - Don't refactor things that aren't broken.
 - Match existing style, even if you'd do it differently.
 - If you notice unrelated dead code, mention it - don't delete it.
 
 When your changes create orphans:
+
 - Remove imports/variables/functions that YOUR changes made unused.
 - Don't remove pre-existing dead code unless asked.
 
 The test: Every changed line should trace directly to the user's request.
 
-## 4. Goal-Driven Execution
+### 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
 Transform tasks into verifiable goals:
+
 - "Add validation" → "Write tests for invalid inputs, then make them pass"
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
 - "Refactor X" → "Ensure tests pass before and after"
 
 For multi-step tasks, state a brief plan:
+
 ```
 1. [Step] → verify: [check]
 2. [Step] → verify: [check]
@@ -56,528 +70,88 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## Overview
+## Project context (what we build, for whom)
 
-Mini Numbers is a **privacy-focused, minimalist web analytics platform** built with Kotlin and Ktor. It provides essential website traffic insights without compromising visitor privacy - a lightweight, self-hosted alternative to services like Google Analytics.
+Mini Numbers is a privacy-first, self-hosted web analytics platform that can be used as an
+alternative to Google Analytics/Plausible/Fathom for site owners and small teams who want
+traffic insight without tracking their visitors or handing data to a third party. No
+cookies, no stored PII, no persistent visitor identifiers.
 
-## Core philosophy
+## Ideation loop
 
-**Privacy-first approach:**
-- No cookies or persistent tracking identifiers
-- IP addresses are processed in-memory only (never stored)
-- Configurable hash rotation (1-8760 hours, default 24h)
-- Three privacy modes: STANDARD, STRICT (country-only geo), PARANOID (no geo/UA)
-- No Personally Identifiable Information (PII) is stored
-- Compliant with privacy regulations (GDPR-friendly design)
-- Data retention policies with automatic purge
+When brainstorming ideas or going through the planning phase, always offer alternatives that are focusing of simplicity, creativity and bold design choices. Help me understand the tradeoffs of the ideas I present. Bounce ideas back and forth with me until we reach consensus about the way forward. Always state the tradeoffs and always push me to start small, with a solid base of code and features and then expand to add more features, abilities and improvements. Do not let me push for too many tasks at the same time or for big, complicated features at a single pass, but instead push and insist on building iterationally and little by little until we have reached the desired final feature we are working on.
 
-**Minimalist design:**
-- Tiny tracking script (1.9KB source / 1.3KB minified)
-- Clean, focused feature set
-- Fast data collection with minimal overhead
-- SQLite or PostgreSQL database options
+If an idea is genuinely unclear, ask (don't guess) and then continue to implement it. At the end, verify that it matches the initial and decided scope and then verify it (see Definition of Done).
 
-## Technical architecture
+Regarding the design of what we are working on, always ask me for screenshots, screen grabs, links with inspiration, color palettes, font combinations, links with similar ideas and in general push me to provide input for the design rather than use generic AI designs and patterns.
+If a simpler approach exists than the one requested, say so before building the complicated one. Push back when warranted.
 
-### Backend stack
-- **Framework:** Ktor 3.4.0 (Kotlin web framework)
-- **Runtime:** Kotlin JVM 2.3.0 on JDK 21
-- **Database:** Exposed ORM with SQLite/PostgreSQL support
-- **Server:** Netty (embedded)
-- **Serialization:** kotlinx.serialization
-- **Caching:** Caffeine (query results + GeoIP lookups)
-- **Build Tool:** Gradle with Kotlin DSL
+## Conventions (stack / naming / layout)
 
-### Key dependencies
-- **MaxMind GeoIP2** - IP geolocation lookup (city/country)
-- **UserAgentUtils** - Browser/OS/device detection
-- **HikariCP** - Database connection pooling
-- **Caffeine** - High-performance caching (query results, GeoIP, rate limiting)
-- **Logback** - Logging framework
+**Naming**:
+We are aiming for simplified, consistent and industry-established way of naming files, variables, classes and folders.
+The project uses a system of components and modules that are consistently named and themed via a single file that contains the related variables, definitions and classes. This makes the complete change of the UI a matter of changing a single file, thus easy to experiment with different design languages, add new components and modules and mix-and-match them at the project.
 
-### Zero-restart architecture
+**Layout**: The project uses a components-based approach to the items related with the layout of the project. These components are stand-alone, isolated in terms of the functionality they offer and as minimal as possible when it comes to inter-dependencies with other components.
 
-**ServiceManager** - Centralized lifecycle management for hot-reload capability:
+**Code shape**: minimum code that solves the problem — no speculative abstractions, no config/flexibility that wasn't asked for. Touch only what the task requires; match existing style even where you'd personally do it differently. If you notice unrelated dead code or drift, mention it rather than fixing it unprompted.
 
-```kotlin
-object ServiceManager {
-    enum class State { UNINITIALIZED, INITIALIZING, READY, ERROR }
+## Guardrails
 
-    fun initialize(config: AppConfig, logger: Logger): Boolean
-    fun reload(config: AppConfig, logger: Logger): Boolean
-    fun isReady(): Boolean
-    fun getState(): State
-    fun getUptimeSeconds(): Long
-    fun getLastError(): Throwable?
-}
-```
+These are the guardrails that should always be respected in the project.
 
-**Initialization flow:**
-1. **Security module** - Initialize `AnalyticsSecurity` with server salt and hash rotation hours
-2. **Database** - Connect to SQLite or PostgreSQL via `DatabaseFactory`
-3. **GeoIP service** - Load MaxMind database (optional, non-fatal if missing)
-4. **Data retention** - Start auto-purge timer if retention days configured
-5. **HTTP/CORS** - Configure allowed origins and headers
-6. **Authentication** - Set up session-based auth with login page
-7. **Routing** - Install data collection and admin endpoints
+**Never:**
 
-## Core features
+- Commit anything containing real credentials/API keys.
+- Commit any code by yourself to the repository. I should always have the last saying of pushing something to the live repository.
 
-### 1. Data collection
-- **Real-time tracking:** Lightweight JavaScript tracker (`tracker.js`, 1.9KB source / 1.3KB minified)
-- **Page views:** Automatic pageview tracking
-- **Heartbeat system:** Configurable intervals (default 30s) to measure time-on-page (visibility-aware)
-- **SPA support:** History API patching (`pushState`/`replaceState` + `popstate`), can be disabled
-- **Custom events:** `MiniNumbers.track("event_name")` API for tracking custom interactions
-- **Session management:** Uses sessionStorage (no cookies)
-- **Offline queue:** Failed events buffered in `localStorage` (`mn_queue`, max 20 entries); drained automatically on next page load or `online` event — no data loss during brief outages
-- **Build optimization:** Gradle `minifyTracker` task auto-generates `tracker.min.js`
+**Always:**
 
-### 2. Analytics dashboard
-Located at `/admin-panel`, provides comprehensive insights:
+- Run the related tests before calling anything done.
+- Update `_docs/ARCHITECTURE.md` — not this file — when schema, config vars, or endpoints change.
+- Update the `_docs/CHANGELOG.md` when a meaningful and useful change, update, addition or deletion of a feature, task or bug is done.
 
-#### Basic metrics
-- Total page views with period comparison
-- Unique visitors with period comparison
-- Bounce rate with inverted comparison (lower = better)
-- Top pages by traffic
-- Recent visits with location
+Specifically for this project:
+**Never:**
 
-#### Detailed breakdowns
-- **Browsers:** Chrome, Firefox, Safari, etc.
-- **Operating systems:** Windows, macOS, Linux, iOS, Android
-- **Devices:** Desktop, Mobile, Tablet
-- **Referrers:** Traffic sources
-- **Geographic data:** Countries and cities (via GeoIP2) with drill-down
-- **Custom events:** Named event tracking with bar chart visualization
+- Commit `.env`, `*.db`, or anything containing real credentials/API keys.
+- Store PII or persist raw IP addresses. IP exists only in memory during request handling.
+- Disable or route around rate limiting, CORS checks, or auth to unblock a task. Flag the
+  gap instead of quietly working around it — an existing unwired guard is a tracked gap,
+  not precedent for adding another.
+- Force-push to `main` or rewrite published history without explicit approval.
+- Skip `./gradlew detekt` to get a build green. The zero-issue gate is intentional.
 
-#### Advanced analytics
-- **Activity heatmap:** 7 days x 24 hours traffic visualization
-- **Peak time analysis:** Identifies busiest hours and days
-- **Contribution calendar:** GitHub-style 365-day activity grid with intensity levels
-- **Time series data:** Trend charts with granular breakdowns (hourly/daily/weekly)
-- **Comparison reports:** Current vs. previous period metrics
-- **Conversion goals:** URL-based and event-based goal tracking with conversion rates
-- **Funnels:** Multi-step conversion tracking with drop-off analysis
-- **User segments:** Visual filter builder with AND/OR logic
+**Always:**
 
-#### Live monitoring
-- Real-time visitor feed (last 5 minutes)
-- Live location tracking on interactive map
+- Run `./gradlew test detekt` before calling anything done.
+- Test UI changes in both light and dark themes.
+- Check behavior against all three privacy modes when touching collection, geo, or user-agent-parsing code.
+- Verify schema changes against both the SQLite and PostgreSQL code paths.
 
-#### UI features
-- Loading skeleton screens during data fetching
-- ARIA labels and semantic HTML for accessibility
-- Full ARIA dialog attributes (`role="dialog"`, `aria-modal`, `aria-labelledby`) on all primary modals
-- Focus trap (`Utils.focusTrap`) — Tab/Shift+Tab trapping, Escape-to-close, and focus restoration on all dialog modals; implemented via MutationObserver in `setupModals()` for automatic release on any close path
-- WCAG AA contrast — `--color-text-muted` lightened in dark theme for ≥4.5:1 contrast ratio
-- Skip-to-content link for keyboard navigation
-- Light/dark theme support
-- CSV export for all data types
-- Interactive maps with Leaflet
+## Definition of done
 
-### 3. Multi-project support
-- Manage multiple websites from one dashboard
-- Each project has unique API key with **rotation support** (`POST /admin/projects/{id}/rotate-api-key`) — invalidates old key immediately, updates all caches
-- Per-project statistics, goals, funnels, and segments
-- CRUD operations for projects
-- **Retention preview** (`GET /admin/projects/{id}/retention-preview?days=N`) — read-only count of events that would be purged before enabling auto-retention
+Turn the task into a verifiable goal before starting, not after: a bug fix means a failing test that reproduces it and then passes; a feature means stated success criteria you can check against when you're done.
 
-### 4. Privacy modes
+Then, specifically for this project verify the following:
 
-| Mode | Geolocation | Browser/OS/device | Hash rotation |
-|------|-------------|-------------------|---------------|
-| STANDARD | Full (country + city) | Full | Configurable |
-| STRICT | Country only | Full | Configurable |
-| PARANOID | None | None | Configurable |
+- [ ] `./gradlew test` and `./gradlew detekt` pass.
+- [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the golden path and the relevant edge cases, not just "it compiles."
+- [ ] UI changes verified in both light and dark themes.
+- [ ] Before/after screenshot attached for UI changes (manual today — see Tools for the aspirational automated path).
+- [ ] No regression against the accessibility bar in `_docs/TESTING_PLAN.md` (WCAG AA, keyboard navigation).
+- [ ] `_docs/ARCHITECTURE.md` updated for anything technical; `_docs/CHANGELOG.md` entry added for user-facing changes.
+- [ ] Commit/PR message explains why, not what; PR title under 70 characters.
 
-### 5. Performance
-- **Query cache:** Caffeine-based, 500 entries, 30-second TTL, auto-invalidated on data changes
-- **GeoIP cache:** 10,000 entries, 1-hour TTL
-- **Database indexes:** 8 composite indexes for analytics query performance
-- **Data retention:** Configurable auto-purge (background timer every 6 hours)
+## Roles & escalation
 
-## Database schema
+**Act without stopping:** bug fixes with a clear reproduction, additive features scoped to a single area, behavior-preserving refactors, documentation updates.
 
-### Projects table
-```kotlin
-- id: UUID (Primary Key)
-- name: String (100 chars)
-- domain: String (255 chars)
-- apiKey: String (64 chars, unique)
-```
+**Stop and ask first:** schema or migration changes, anything touching auth/session/token logic, changes to privacy-mode behavior or data retention, deleting user data, force-push or history rewrite, adding a new dependency (check its license — this project already ships one LGPL dependency inside an MIT fat JAR that needs resolving, don't add a second compliance question), rotating or regenerating secrets, deploying or publishing.
 
-### Events table
-```kotlin
-- id: Long (Auto-increment)
-- projectId: UUID (FK → Projects)
-- visitorHash: String (64 chars)
-- sessionId: String (64 chars)
-- eventType: String (20 chars) - "pageview", "heartbeat", or "custom"
-- eventName: String? (100 chars, nullable)
-- path: String (512 chars)
-- referrer: String? (512 chars, nullable)
-- country: String? (100 chars, nullable)
-- city: String? (100 chars, nullable)
-- browser: String? (50 chars, nullable)
-- os: String? (50 chars, nullable)
-- device: String? (50 chars, nullable)
-- duration: Int (seconds)
-- timestamp: DateTime
+When a decision is genuinely the user's to make, ask — don't guess and move on.
 
-Indexes: idx_events_timestamp, idx_events_project_timestamp, idx_events_project_session,
-         idx_events_project_eventname, idx_events_project_visitor, idx_events_project_path,
-         idx_events_project_type_ts, idx_events_project_country, idx_events_project_browser
-```
+## Release / versioning
 
-### ConversionGoals table
-```kotlin
-- id: UUID (PK), projectId: UUID (FK), name, type (URL/EVENT), matchPattern, isActive, createdAt
-```
-
-### Funnels / FunnelSteps tables
-```kotlin
-- Funnels: id, projectId, name, createdAt
-- FunnelSteps: id, funnelId (FK), stepOrder, name, type (URL/EVENT), matchPattern
-```
-
-### Segments table
-```kotlin
-- id: UUID (PK), projectId: UUID (FK), name, description, filtersJson (JSON array), createdAt, updatedAt
-```
-
-## API endpoints
-
-### Public endpoints
-- `GET /` - Intelligent redirect based on application state
-- `GET /health` - Health check (uptime, version, state)
-- `GET /metrics` - Application metrics (event counts, cache stats, privacy config)
-- `GET /tracker/config` - Tracker configuration (heartbeat interval, SPA enabled)
-- `POST /collect` - Data collection endpoint (rate limited, privacy mode aware)
-
-### Setup wizard endpoints
-- `GET /setup` - Setup wizard static resources
-- `GET /setup/api/status` - Check setup status and service readiness
-- `GET /setup/api/generate-salt` - Generate cryptographically secure server salt
-- `POST /setup/api/save` - Save configuration and initialize services (no restart)
-
-### Admin panel (session auth or JWT protected)
-
-#### Authentication / user management
-- `POST /api/token` - Issue JWT access + refresh token pair
-- `POST /api/token/refresh` - Refresh access token using a valid refresh token
-- `POST /api/password-reset` - Trigger password reset flow
-- `GET /admin/me` - Current authenticated user info
-- `GET /admin/users` - List all users (admin only)
-- `POST /admin/users` - Create a new user (admin only)
-- `PUT /admin/users/{userId}/role` - Update user role (admin only)
-- `DELETE /admin/users/{userId}` - Delete user (admin only)
-
-#### Project management
-- `GET /admin/projects` - List projects (supports `?page=&limit=` pagination)
-- `POST /admin/projects` - Create new project
-- `DELETE /admin/projects/{id}` - Delete project (cascade deletes events, goals, funnels, segments)
-- `POST /admin/projects/{id}/rotate-api-key` - Generate new API key; old key invalidated immediately
-- `POST /admin/projects/{id}/demo-data` - Seed realistic demo events, goals, funnels, segments
-
-#### Analytics & reports
-- `GET /admin/projects/{id}/stats` - Basic statistics (cached)
-- `GET /admin/projects/{id}/live` - Live visitor feed (last 5 minutes)
-- `GET /admin/projects/{id}/realtime-count` - Active visitor count (last 5 minutes)
-- `GET /admin/projects/{id}/globe` - Visitor locations for 3D globe visualization
-- `GET /admin/projects/{id}/report?filter=7d` - Full analytics report (cached)
-- `GET /admin/projects/{id}/report/comparison?filter=7d` - Comparison report with time series (cached)
-- `GET /admin/projects/{id}/calendar` - 365-day contribution calendar (cached)
-- `GET /admin/projects/{id}/events` - Raw events with pagination, filtering, and sorting
-- `GET /admin/projects/{id}/retention-preview?days=N` - Read-only preview of events that would be purged
-
-#### Conversion goals
-- `GET /admin/projects/{id}/goals` - List goals (supports `?page=&limit=` pagination)
-- `POST /admin/projects/{id}/goals` - Create goal
-- `PUT /admin/projects/{id}/goals/{goalId}` - Toggle goal active/inactive
-- `DELETE /admin/projects/{id}/goals/{goalId}` - Delete goal
-- `GET /admin/projects/{id}/goals/stats?filter=7d` - Goal statistics (cached)
-
-#### Funnels
-- `GET /admin/projects/{id}/funnels` - List funnels (supports `?page=&limit=` pagination)
-- `POST /admin/projects/{id}/funnels` - Create funnel
-- `DELETE /admin/projects/{id}/funnels/{funnelId}` - Delete funnel
-- `GET /admin/projects/{id}/funnels/{funnelId}/analysis?filter=7d` - Funnel analysis
-
-#### Segments
-- `GET /admin/projects/{id}/segments` - List segments (supports `?page=&limit=` pagination)
-- `POST /admin/projects/{id}/segments` - Create segment
-- `DELETE /admin/projects/{id}/segments/{segmentId}` - Delete segment
-- `GET /admin/projects/{id}/segments/{segmentId}/analysis?filter=7d` - Segment analysis
-
-#### Embeddable widgets (public, key-authenticated)
-- `GET /widget/realtime?key=<KEY>` - Active visitor count (last 5 minutes); cached 60s
-- `GET /widget/pageviews?key=<KEY>&scope=site&filter=7d` - Page view count; cached 60s
-- `GET /widget/toppages?key=<KEY>&filter=7d&limit=5` - Top pages by views; cached 60s
-- `GET /widget/sparkline?key=<KEY>` - Daily view counts for the last 7 days; cached 60s
-
-#### API documentation
-- `GET /admin-panel/openapi.yaml` - OpenAPI 3.0.3 specification (all endpoints documented)
-
-All error responses use standardized `ApiError` format: `{ error, code, details[] }`.
-Authentication: session cookie (default) or `Authorization: Bearer <JWT>` header.
-
-## Privacy implementation
-
-### Visitor identification
-```kotlin
-// Configurable epoch-hour-based rotation buckets
-val epochHours = ChronoUnit.HOURS.between(epoch, now)
-val rotationBucket = epochHours / hashRotationHours
-visitorHash = SHA256(ip + userAgent + projectId + serverSalt + rotationBucket)
-```
-
-**Privacy guarantees:**
-1. IP address exists only in RAM during request processing
-2. Hash rotation is configurable (1 hour to 1 year)
-3. Cannot reverse-engineer the hash to get IP/user agent
-4. STRICT mode: only stores country (no city)
-5. PARANOID mode: stores no geolocation or user agent data
-
-## Client-side tracking script
-
-### Installation
-```html
-<script
-  async
-  src="https://your-domain.com/tracker/tracker.js"
-  data-project-key="YOUR_API_KEY"
-  data-heartbeat-interval="30000"
-  data-disable-spa="false">
-</script>
-```
-
-### Custom events
-```javascript
-MiniNumbers.track("signup");
-MiniNumbers.track("purchase");
-```
-
-### Configuration attributes
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `data-project-key` | Required | Project API key |
-| `data-api-endpoint` | Script origin | Custom API endpoint |
-| `data-heartbeat-interval` | `30000` | Heartbeat interval in ms |
-| `data-disable-spa` | `false` | Set to `"true"` to disable SPA tracking |
-
-### Offline queue
-When `sendBeacon` fails (network offline or server unreachable), the payload is pushed into `localStorage` under `mn_queue` (max 20 entries, validated as an array on read). The queue is drained — replaying each entry via `sendBeacon` and removing successful ones — on the next page load and on the browser's `online` event.
-
-## Configuration
-
-All configuration via `.env` file or environment variables:
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `ADMIN_PASSWORD` | Yes | — | Admin panel password |
-| `SERVER_SALT` | Yes | — | Server salt for visitor hashing (min 32 chars) |
-| `ADMIN_USERNAME` | No | `admin` | Admin panel username |
-| `DB_TYPE` | No | `SQLITE` | Database type (`SQLITE` or `POSTGRESQL`) |
-| `DB_SQLITE_PATH` | No | `./stats.db` | SQLite database file path |
-| `DB_HOST` | No | `localhost` | PostgreSQL host (when `DB_TYPE=POSTGRESQL`) |
-| `DB_PORT` | No | `5432` | PostgreSQL port |
-| `DB_NAME` | No | `mininumbers` | PostgreSQL database name |
-| `DB_USER` | No | `postgres` | PostgreSQL username |
-| `DB_PASSWORD` | No | — | PostgreSQL password |
-| `DB_PG_MAX_POOL_SIZE` | No | `10` | HikariCP maximum pool size (PostgreSQL only) |
-| `SERVER_PORT` | No | `8080` | Server port |
-| `KTOR_DEVELOPMENT` | No | `false` | Development mode (relaxes CORS) |
-| `ALLOWED_ORIGINS` | No | — | Comma-separated allowed CORS origins |
-| `RATE_LIMIT_PER_IP` | No | `1000` | Max requests per IP per minute |
-| `RATE_LIMIT_PER_API_KEY` | No | `10000` | Max requests per API key per minute |
-| `HASH_ROTATION_HOURS` | No | `24` | Hash rotation period (1-8760) |
-| `PRIVACY_MODE` | No | `STANDARD` | Privacy mode: STANDARD, STRICT, PARANOID |
-| `DATA_RETENTION_DAYS` | No | `0` | Auto-delete events older than N days (0 = disabled) |
-| `TRACKER_HEARTBEAT_INTERVAL` | No | `30` | Default heartbeat interval in seconds |
-| `TRACKER_SPA_ENABLED` | No | `true` | Enable SPA tracking by default |
-| `GEOIP_DATABASE_PATH` | No | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path |
-
-## Testing
-
-296 tests covering critical functionality, edge cases, and error scenarios.
-
-```bash
-./gradlew test
-```
-
-**Test organization:**
-
-```
-src/test/kotlin/
-├── ApplicationTest.kt
-├── analytics/
-│   └── DataAnalysisUtilsTest.kt     (22 tests) — analytics calculations
-├── core/
-│   ├── SecurityUtilsTest.kt         (13 tests) — visitor hashing, rotation
-│   └── ServiceManagerTest.kt        (13 tests) — service lifecycle
-├── middleware/
-│   └── InputValidatorTest.kt        (26 tests) — input validation
-├── services/
-│   └── UserAgentParserTest.kt       (22 tests) — UA parsing
-└── integration/
-    ├── AdminEndpointTest.kt         (22 tests) — admin API + cross-project isolation
-    ├── CollectEndpointTest.kt       (19 tests) — data collection
-    ├── HealthEndpointTest.kt        (6 tests) — health endpoint
-    ├── SetupWizardTest.kt           (10 tests) — setup wizard
-    └── TrackingWorkflowTest.kt      (9 tests) — end-to-end
-```
-
-Test databases are written to the `test-dbs/` directory (gitignored).
-
-Cross-project isolation tests verify: unknown project IDs return correct status codes; `POST /collect` rejects API keys from deleted projects; authentication is enforced on mutation endpoints.
-
-## Project structure
-
-```
-mini-numbers/
-├── _docs/                           # Internal project documentation
-│   ├── CHANGELOG.md                 # Version history
-│   ├── DASHBOARD_GUIDE.md           # Dashboard user guide
-│   ├── DEPLOYMENT.md                # Deployment & operations guide
-│   ├── EVALUATION.md                # Competitive analysis & market viability
-│   ├── PERFORMANCE.md               # Performance benchmarking guide
-│   ├── PRIVACY.md                   # Privacy architecture explanation
-│   ├── ROADMAP.md                   # Development roadmap & task tracking
-│   ├── SECURITY.md                  # Security architecture & audit
-│   └── TESTING_PLAN.md              # Manual testing plan
-├── docs/                            # Public Jekyll documentation site (just-the-docs theme)
-│   ├── index.md                     # Home page
-│   ├── features.md                  # Feature overview
-│   ├── configuration.md             # All environment variables
-│   ├── dashboard-guide.md           # Dashboard user guide
-│   ├── tracker-reference.md         # tracker.js full API reference
-│   ├── widgets.md                   # Embeddable widget embed guide
-│   ├── troubleshooting.md           # Common issues & fixes
-│   ├── upgrading.md                 # Upgrade / migration guide
-│   └── _config.yml                  # Jekyll nav config
-├── .github/workflows/               # CI/CD
-│   ├── build.yml                    # Test + build + Detekt + Docker verify
-│   └── docker-publish.yml           # Docker multi-platform publish
-├── config/detekt/                   # Static analysis config
-│   └── detekt.yml                   # Detekt rules (relaxed for existing code)
-├── CODE_OF_CONDUCT.md               # Contributor Covenant v2.1
-├── CONTRIBUTING.md                  # Contributing guidelines
-├── Dockerfile                       # Multi-stage production build
-├── docker-compose.yml               # SQLite deployment
-├── docker-compose.postgres.yml      # PostgreSQL deployment
-├── LICENSE                          # MIT License
-├── src/main/kotlin/
-│   ├── Application.kt              # Main entry point (unified mode)
-│   ├── Routing.kt                  # API endpoints & admin routes
-│   ├── DataAnalysisUtils.kt        # Analytics calculations
-│   ├── ConversionAnalysisUtils.kt  # Goal & funnel calculations
-│   ├── api/models/                 # API response/request models
-│   │   ├── ApiError.kt             # Standardized error responses
-│   │   ├── PaginatedResponse.kt    # Pagination wrapper
-│   │   ├── SegmentModels.kt        # Segment filter/response models
-│   │   ├── GoalModels.kt           # Goal request/response models
-│   │   ├── FunnelModels.kt         # Funnel request/response models
-│   │   ├── PageViewPayload.kt      # Data collection payload
-│   │   ├── ProjectReport.kt        # Full analytics report
-│   │   ├── ProjectStats.kt         # Basic project statistics
-│   │   ├── RawEvent.kt             # Raw event data
-│   │   ├── RawEventsResponse.kt    # Paginated raw events
-│   │   ├── StatEntry.kt            # Generic stat entry
-│   │   ├── VisitSnippet.kt         # Live visitor snippet
-│   │   └── dashboard/              # Dashboard-specific models
-│   ├── config/                     # Configuration system
-│   │   ├── ConfigLoader.kt         # Environment variable loader
-│   │   ├── ConfigurationException.kt
-│   │   └── models/                 # Config data classes
-│   │       ├── AppConfig.kt        # Root config (composes others)
-│   │       ├── DatabaseConfig.kt
-│   │       ├── GeoIPConfig.kt
-│   │       ├── PrivacyConfig.kt    # Hash rotation, modes, retention
-│   │       ├── RateLimitConfig.kt
-│   │       ├── SecurityConfig.kt
-│   │       ├── ServerConfig.kt
-│   │       └── TrackerConfig.kt    # Heartbeat interval, SPA toggle
-│   ├── core/                       # Core domain logic
-│   │   ├── AnalyticsSecurity.kt    # Visitor hashing (configurable rotation)
-│   │   ├── HTTP.kt                 # CORS & content negotiation
-│   │   ├── Security.kt             # Session auth & login page
-│   │   ├── ServiceManager.kt       # Lifecycle management + uptime + retention timer
-│   │   └── models/
-│   ├── db/                         # Database layer
-│   │   ├── DatabaseFactory.kt      # Database initialization
-│   │   ├── Events.kt               # Events table (8 indexes)
-│   │   ├── Projects.kt             # Projects table
-│   │   ├── ConversionGoals.kt      # Goals table
-│   │   ├── Funnels.kt              # Funnels table
-│   │   ├── FunnelSteps.kt          # Funnel steps table
-│   │   ├── Segments.kt             # Segments table (JSON filters)
-│   │   └── ResetDatabase.kt        # Database reset utility
-│   ├── middleware/                  # Request processing middleware
-│   │   ├── InputValidator.kt       # Input validation & sanitization
-│   │   ├── QueryCache.kt           # Caffeine query cache (30s TTL, 500 entries)
-│   │   ├── RateLimiter.kt          # Rate limiting logic
-│   │   └── models/
-│   ├── services/                   # External service integrations
-│   │   ├── GeoLocationService.kt.kt  # GeoIP lookup (with Caffeine cache)
-│   │   └── UserAgentParser.kt      # Browser/OS/device detection
-│   └── setup/                      # Setup wizard
-│       ├── SetupRouting.kt
-│       ├── SetupValidation.kt
-│       └── models/
-├── src/main/resources/
-│   ├── application.yaml
-│   ├── geo/
-│   │   └── geolite2-city.mmdb      # GeoIP database
-│   ├── setup/                      # Setup wizard frontend
-│   ├── tracker/
-│   │   ├── tracker.js              # Client tracking script (1.9KB) — includes offline queue
-│   │   └── tracker.min.js          # Minified tracker (1.3KB, auto-generated)
-│   └── static/                     # Admin panel frontend
-│       ├── admin.html              # Main SPA shell; all modals carry role="dialog" + aria-modal
-│       ├── openapi.yaml            # OpenAPI 3.0.3 specification (all endpoints)
-│       ├── login/login.html
-│       ├── css/                    # base, components, themes, variables
-│       └── js/
-│           ├── admin.js            # Core dashboard logic; setupModals() wires MutationObserver focus-trap release
-│           ├── charts.js           # Chart rendering
-│           ├── goals.js            # Goals + funnels modals
-│           ├── segments.js         # Segments modal
-│           ├── webhooks.js         # Webhooks modal
-│           ├── email-reports.js    # Email reports modal
-│           ├── revenue.js          # Revenue section
-│           ├── map.js              # Leaflet map
-│           ├── globe.js            # 3D globe visualization
-│           ├── settings.js         # SettingsManager (localStorage preferences)
-│           ├── theme.js            # Light/dark theme toggle
-│           └── utils.js            # Utils object: api, toast, dom, cache, icons, focusTrap
-├── src/test/kotlin/                # Test suite (296 tests)
-└── test-dbs/                       # Test database files (gitignored)
-```
-
-## Running the application
-
-### Development
-```bash
-./gradlew run
-```
-
-### Build fat JAR
-```bash
-./gradlew buildFatJar
-```
-
-### Docker
-```bash
-docker build -t mini-numbers .
-docker run -p 8080:8080 mini-numbers
-```
-
-### Testing
-```bash
-./gradlew test
-```
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
+- `_docs/CHANGELOG.md` follows Keep a Changelog + SemVer — every user-facing change gets an entry under Added/Changed/Fixed.
+- Version bumps: patch for fixes, minor for additive features, major for breaking config/schema changes. Confirm major bumps with the user rather than deciding alone.
