@@ -2,7 +2,7 @@
 
 This file is about **how we work on this project**, not what the code does. For
 architecture, database schema, API endpoints, configuration variables, and project
-structure, see [\_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) — keep that file, not this
+structure, see [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) — keep that file, not this
 one, updated whenever schema/endpoints/config/source code change.
 
 ## AI and software development guidelines
@@ -81,7 +81,7 @@ cookies, no stored PII, no persistent visitor identifiers.
 
 When brainstorming ideas or going through the planning phase, always offer alternatives that are focusing of simplicity, creativity and bold design choices. Help me understand the tradeoffs of the ideas I present. Bounce ideas back and forth with me until we reach consensus about the way forward. Always state the tradeoffs and always push me to start small, with a solid base of code and features and then expand to add more features, abilities and improvements. Do not let me push for too many tasks at the same time or for big, complicated features at a single pass, but instead push and insist on building iterationally and little by little until we have reached the desired final feature we are working on.
 
-If an idea is genuinely unclear, ask (don't guess) and then continue to implement it. At the end, verify that it matches the initial and decided scope and then verify it (see Definition of Done).
+If an idea is genuinely unclear, ask (don't guess) and then continue to implement it. At the end, verify that it matches the initial and decided scope (see Definition of Done).
 
 Regarding the design of what we are working on, always ask me for screenshots, screen grabs, links with inspiration, color palettes, font combinations, links with similar ideas and in general push me to provide input for the design rather than use generic AI designs and patterns.
 
@@ -114,7 +114,7 @@ These are the guardrails that should always be respected in the project.
 **Always:**
 
 - Run the related tests before calling anything done.
-- Update `_docs/ARCHITECTURE.md` — not this file — when changes related with important changes happen.
+- Update `_docs/ARCHITECTURE.md` — not this file — when schema, config vars, endpoints, or source code change.
 - Update the `_docs/CHANGELOG.md` when a meaningful change, update, addition or deletion of a feature, task or bug is done.
 - Test UI changes in both light and dark themes.
 
@@ -125,11 +125,13 @@ Turn the task into a verifiable goal before starting, not after: a bug fix means
 Before claiming that a task or feature is completed, do the following:
 
 - [ ] Run all related tests that are involved directly or indirectly with the feature, task, fix or bug we worked on.
-- [ ] Evaluate if a full build of the project is needed to verify that a feature, task, fix or bug is fixed/completed and and only then build the whole project.
+- [ ] Evaluate if a full build of the project is needed to verify that a feature, task, fix or bug is fixed/completed, and only then build the whole project.
 - [ ] UI changes verified in both light and dark themes.
 - [ ] If you introduce regression errors, fix them directly without my feedback and make sure that you don't get stuck in a loop with these regressions.
 - [ ] `_docs/ARCHITECTURE.md` updated for anything technical; `_docs/CHANGELOG.md` entry added for user-facing changes.
 - [ ] Suggest commit PR title for the included changes of your work and keep the PR title under 70 characters.
+
+For the exact commands and mechanics behind each check (gradle targets, browser/screenshot verification, the accessibility bar), see the Definition of Done checklist in `_docs/ARCHITECTURE.md`.
 
 ## Roles & escalation
 

@@ -33,19 +33,20 @@ for them, don't assume they're configured:
   Drive, etc.) aren't part of this project's workflow — don't pre-wire them; name the
   specific one if a real need shows up.
 
-## Definition of done
+## Definition of done — exact checks
 
-Turn the task into a verifiable goal before starting, not after: a bug fix means a failing test that reproduces it and then passes; a feature means stated success criteria you can check against when you're done.
+Companion to CLAUDE.md's Definition of Done: the exact commands and mechanics behind
+each general check, specific to this stack.
 
-Then, specifically for this project verify the following:
-
-- [ ] `./gradlew test` and `./gradlew detekt` pass.
-- [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the golden path and the relevant edge cases, not just "it compiles."
-- [ ] UI changes verified in both light and dark themes.
-- [ ] Before/after screenshot attached for UI changes (manual today — see the Tools section in `_docs/ARCHITECTURE.md` for the aspirational automated path).
-- [ ] No regression against the accessibility bar in `_docs/TESTING_PLAN.md` (WCAG AA, keyboard navigation).
-- [ ] `_docs/ARCHITECTURE.md` updated for anything technical; `_docs/CHANGELOG.md` entry added for user-facing changes.
-- [ ] Commit/PR message explains why, not what; PR title under 70 characters.
+- [ ] "Run all related tests" means: `./gradlew test` and `./gradlew detekt` pass.
+- [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the
+      golden path and the relevant edge cases, not just "it compiles."
+- [ ] Light/dark theme check: toggle the theme switcher and re-check the changed UI in both.
+- [ ] Screenshot: before/after attached for UI changes (manual today — see the Tools
+      section above for the aspirational automated path).
+- [ ] Accessibility: no regression against the bar in `_docs/TESTING_PLAN.md` (WCAG AA,
+      keyboard navigation).
+- [ ] "Suggest a PR title" means: explain why, not what, and keep it under 70 characters.
 
 ## Project structure
 
