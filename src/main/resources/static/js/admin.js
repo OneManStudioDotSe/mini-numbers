@@ -2389,7 +2389,7 @@ const Dashboard = {
         const today = new Date().toDateString();
         tbody.innerHTML = data.events.map(e => {
           const badgeClass = e.eventType === 'pageview' ? 'primary' : e.eventType === 'custom' ? 'accent' : 'secondary';
-          const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${e.eventName}` : e.eventType;
+          const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${Utils.escapeHtml(e.eventName)}` : e.eventType;
           
           // Timestamp logic
           const dateDate = new Date(e.timestamp);

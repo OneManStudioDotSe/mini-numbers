@@ -38,7 +38,9 @@ for them, don't assume they're configured:
 Companion to CLAUDE.md's Definition of Done: the exact commands and mechanics behind
 each general check, specific to this stack.
 
-- [ ] "Run all related tests" means: `./gradlew test` and `./gradlew detekt` pass.
+- [ ] "Run all related tests" means: `./gradlew test` and `./gradlew detekt` pass. The test task
+      creates `test-dbs/` (gitignored) itself. Detekt 1.23.x needs a JDK ≤ 21 on the Gradle
+      launcher; on a machine whose only JDK is 25 it fails with a bare version-number error.
 - [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the
       golden path and the relevant edge cases, not just "it compiles."
 - [ ] Light/dark theme check: toggle the theme switcher and re-check the changed UI in both.
