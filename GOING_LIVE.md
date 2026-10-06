@@ -9,6 +9,7 @@ Findings are grouped by severity, not by audit area. Each item lists what was ve
 ## Critical — fix before anything goes public
 
 ### 1. A live database with real credentials and API keys is committed to git history
+> **Status 2026-10-06**: `stats.db` is untracked (`git rm --cached`) in the working tree. The repo is already **public**, so the hash and keys must be treated as burned regardless. Still to do: rotate admin password / `SERVER_SALT` / project API keys, then purge history with `git filter-repo` and force-push (explicit approval required).
 `stats.db` (5.7MB) is tracked in git across 5 commits (`git log -- stats.db`). It is **not** an empty schema/fixture — it contains:
 - 1 real user (`admin`) with a bcrypt password hash
 - 3 real projects with live 32-character API keys, including one that is clearly a real production site ("Poofly — Where did the money go?" @ www.poofly.se), not just the demo project
@@ -23,6 +24,7 @@ Findings are grouped by severity, not by audit area. Each item lists what was ve
 - Rotate `SERVER_SALT` too, since it's what the visitor-hash and JWT signing derive from.
 
 ### 2. Test suite fails on a clean checkout (41/296 failing) — the "296 tests, zero failures" claim is false
+> **Status 2026-10-06**: fixed. The `test` task creates `test-dbs/` in a `doFirst`; CI history confirmed every `Build & Test` run on `main` had been red with exactly this failure. `Docker Publish` now depends on a passing test job. A second, unrelated time-of-day flake in `DataAnalysisUtilsTest` was fixed at the same time.
 Ran `./gradlew test` from a fresh state: **41 tests failed**. Root cause: `test-dbs/` is gitignored with no `.gitkeep`, and nothing creates the directory before tests write SQLite files into it. `ServiceManagerTest` fails to initialize (directory doesn't exist → `SQLException`), which cascades into `AdminEndpointTest`/`CollectEndpointTest`/`SetupWizardTest` getting wrong HTTP codes because the app never reaches "ready" state.
 
 This is a single root cause with a trivial fix, but as shipped, anyone who clones the repo and runs `./gradlew test` — including CI on a fresh runner — hits 41 failures immediately. This should be checked against recent GitHub Actions run history to confirm whether CI is actually green or has been silently failing/misreported.
@@ -30,6 +32,7 @@ This is a single root cause with a trivial fix, but as shipped, anyone who clone
 **Fix**: create `test-dbs/` before tests run (Gradle `doFirst` block, JUnit `@BeforeAll`, or commit a `.gitkeep`). Also clean up ~80 stray `test-*.db` files sitting in the repo root from local runs (gitignored, not tracked, but repo hygiene).
 
 ### 3. Stored XSS via public, unauthenticated input — reaches the admin's browser
+> **Status 2026-10-06**: escaping added at all three sites and verified in headless Chrome (payload rendered as text, no element created, no script executed, light and dark). **Severity downgraded**: `middleware/InputValidator.kt` rejects `<`/`>` in `eventName` (`^[a-zA-Z0-9_\-. ]+$`) and in all UTM fields (`^[a-zA-Z0-9_\-. +%()]+$`), so the payload could not reach the database through `/collect`. This was a defense-in-depth gap, not an exploitable stored XSS.
 Two places interpolate visitor-controlled data into `innerHTML` without escaping, unlike every other field in the same rendering path:
 - `js/admin.js` (~line 2391, Raw Events modal): `` `custom: ${e.eventName}` `` — `eventName` comes from `MiniNumbers.track()`, callable by any anonymous visitor via the public `/collect` endpoint.
 - `js/revenue.js:117` (`renderBreakdown`, `b.eventName`) and `js/revenue.js:142` (`renderAttribution`, `a.source` — UTM source, also visitor-controlled).

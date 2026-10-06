@@ -119,7 +119,7 @@ const RevenueManager = {
       return `
         <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
           <div style="flex: 1; min-width: 0;">
-            <div style="font-weight: 500; font-size: 0.9rem;">${b.eventName}</div>
+            <div style="font-weight: 500; font-size: 0.9rem;">${Utils.escapeHtml(b.eventName)}</div>
             <div style="font-size: 0.75rem; color: var(--color-text-muted);">${b.transactions} txn &middot; avg $${b.avgValue.toFixed(2)}</div>
           </div>
           <div style="width: 40%; position: relative; height: 20px; background: var(--color-bg-secondary); border-radius: 4px; overflow: hidden;">
@@ -141,7 +141,7 @@ const RevenueManager = {
 
     tbody.innerHTML = attribution.map(a => `
       <tr>
-        <td style="font-weight: 500;">${a.source}</td>
+        <td style="font-weight: 500;">${Utils.escapeHtml(a.source)}</td>
         <td style="font-weight: 600; color: var(--color-primary);">$${a.revenue.toFixed(2)}</td>
         <td>${a.transactions}</td>
         <td>$${a.avgValue.toFixed(2)}</td>

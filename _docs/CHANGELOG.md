@@ -5,6 +5,21 @@ All notable changes to Mini Numbers will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Test suite on a clean checkout**: the Gradle `test` task now creates the gitignored `test-dbs/` directory before running. Previously 41 of 296 tests failed on every fresh clone and on every CI run on `main`, because the SQLite test databases had nowhere to be written.
+- **Time-of-day dependent test**: `DataAnalysisUtilsTest."generateContributionCalendar assigns intensity levels correctly"` inserted 40 events starting at "now minus one day", so a run after 23:20 spilled 8 of them past midnight into the next day. Timestamps are now anchored to midday.
+- **HTML escaping of visitor-supplied strings (defense in depth)**: custom event names in the Raw Events modal and event names / traffic sources in the Revenue section are now passed through `Utils.escapeHtml()` like every other rendered field. Note: `/collect` already rejects `<` and `>` in event names and UTM fields (`InputValidator`), so this path was not exploitable through the tracker; the escaping protects against values that reach the database by other means.
+
+### Changed
+
+- **Docker image publishing is gated on tests**: the `Docker Publish` workflow now runs `./gradlew test detekt` in a `test` job that the `docker` job depends on. Previously a red test run still published an image to GHCR.
+- **`stats.db` removed from version control**: the development database is no longer tracked (it remains gitignored and on disk). It still exists in earlier commits; see `GOING_LIVE.md` item 1 for the rotation and history-purge steps.
+
+---
+
 ## [1.2.1] - 2026-03-15
 
 ### Changed

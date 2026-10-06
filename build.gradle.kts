@@ -81,6 +81,7 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
 // Test configuration: provide required config via system properties
 // so tests work without a .env file (matches CI environment)
 tasks.withType<Test> {
+    doFirst { file("test-dbs").mkdirs() }
     systemProperty("ADMIN_PASSWORD", "testpassword123")
     systemProperty("SERVER_SALT", "a]4k9Bp!2sLq8Fz#7mXr0Wd6Yh3NcEv5JtGu1PxAoKiRnMlHfCjQwSyTbUeOgZd")
     systemProperty("DB_SQLITE_PATH", "test-dbs/ci-test.db")

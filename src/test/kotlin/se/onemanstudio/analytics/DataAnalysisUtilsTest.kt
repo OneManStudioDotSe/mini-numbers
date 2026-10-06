@@ -592,7 +592,7 @@ class DataAnalysisUtilsTest {
                     it[sessionId] = "session-$i"
                     it[eventType] = "pageview"
                     it[path] = "/home"
-                    it[timestamp] = now.minusDays(1).plusMinutes(i.toLong())
+                    it[timestamp] = now.minusDays(1).withHour(12).withMinute(0).plusMinutes(i.toLong())
                     it[duration] = 0
                 }
             }
@@ -604,7 +604,7 @@ class DataAnalysisUtilsTest {
                     it[sessionId] = "session-low-$i"
                     it[eventType] = "pageview"
                     it[path] = "/home"
-                    it[timestamp] = now.minusDays(2).plusMinutes(i.toLong())
+                    it[timestamp] = now.minusDays(2).withHour(12).withMinute(0).plusMinutes(i.toLong())
                     it[duration] = 0
                 }
             }
