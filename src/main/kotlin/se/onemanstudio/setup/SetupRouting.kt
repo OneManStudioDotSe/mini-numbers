@@ -140,7 +140,7 @@ fun Application.configureSetupRouting() {
                     call.respond(HttpStatusCode.BadRequest,
                         ErrorResponse(error = "Invalid JSON format: ${e.message}"))
                     return@post
-                } catch (e: io.ktor.server.plugins.BadRequestException) {
+                } catch (_: io.ktor.server.plugins.BadRequestException) {
                     call.respond(HttpStatusCode.BadRequest,
                         ErrorResponse(error = "Invalid request format"))
                     return@post
@@ -363,8 +363,7 @@ private fun writeEnvFileAtomic(content: String) {
         envFile.setReadable(true, true)
         envFile.setWritable(true, true)
         envFile.setExecutable(false)
-    } catch (e: Exception) {
+    } catch (_: SecurityException) {
         // Permission setting might fail on some systems, but file is still created
-        // Log warning but don't fail
     }
 }

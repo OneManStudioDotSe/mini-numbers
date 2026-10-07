@@ -50,7 +50,7 @@ private val loginAttempts: Cache<String, LoginAttempt> = Caffeine.newBuilder()
 fun verifyCredentials(username: String, password: String, config: AppConfig, logger: org.slf4j.Logger): Boolean {
     // Check if username is locked out
     val attempt = loginAttempts.get(username) { LoginAttempt() }
-        ?: throw IllegalStateException("Login attempt tracking failed for user: $username")
+        ?: error("Login attempt tracking failed for user: $username")
     val now = System.currentTimeMillis()
     val lockoutUntil = attempt.lockoutUntil.get()
 
@@ -127,7 +127,7 @@ fun getUserRole(username: String): String {
                 Users.username eq username
             }.singleOrNull()?.get(Users.role) ?: "admin"
         }
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
         "admin" // DB not available, default to admin for .env-based auth
     }
 }
@@ -233,7 +233,7 @@ fun Application.configureSecurity(config: AppConfig) {
             verifier(
                 try {
                     JwtService.getVerifier()
-                } catch (e: UninitializedPropertyAccessException) {
+                } catch (_: UninitializedPropertyAccessException) {
                     // JWT not yet initialized (setup mode) — create a dummy verifier
                     JWT.require(com.auth0.jwt.algorithms.Algorithm.HMAC256("not-initialized")).build()
                 }

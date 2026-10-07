@@ -193,7 +193,7 @@ object ConfigLoader {
         val typeString = getEnvOrDefault("DB_TYPE", "SQLITE")
         val type = try {
             DatabaseType.valueOf(typeString.uppercase())
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             throw ConfigurationException(
                 "Invalid DB_TYPE: $typeString\n" +
                 "Must be SQLITE or POSTGRESQL"
@@ -327,7 +327,7 @@ object ConfigLoader {
         val privacyModeStr = getEnvOrDefault("PRIVACY_MODE", "STANDARD").uppercase()
         val privacyMode = try {
             PrivacyMode.valueOf(privacyModeStr)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             PrivacyMode.STANDARD
         }
         val dataRetentionDays = getEnvOrDefault("DATA_RETENTION_DAYS", "0").toIntOrNull() ?: 0
