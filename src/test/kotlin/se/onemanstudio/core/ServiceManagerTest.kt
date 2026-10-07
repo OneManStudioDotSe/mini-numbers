@@ -1,5 +1,6 @@
 package se.onemanstudio.core
 
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.slf4j.LoggerFactory
@@ -18,6 +19,11 @@ class ServiceManagerTest {
     @Before
     fun resetState() {
         // Reset singleton ServiceManager state between tests to prevent leakage
+        ServiceManager.shutdown(logger)
+    }
+
+    @After
+    fun releaseServices() {
         ServiceManager.shutdown(logger)
     }
 

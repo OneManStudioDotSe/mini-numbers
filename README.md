@@ -98,3 +98,8 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 ## License
 
 [MIT](LICENSE) — use it however you like.
+
+### Third-party notices
+
+- This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
+- User-agent detection uses the [uap-core](https://github.com/ua-parser/uap-core) regexes via `uap-java` (Apache-2.0).

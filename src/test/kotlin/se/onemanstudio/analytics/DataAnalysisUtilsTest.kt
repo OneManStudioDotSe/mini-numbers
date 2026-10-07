@@ -2,6 +2,7 @@ package se.onemanstudio.analytics
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.After
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import se.onemanstudio.api.models.dashboard.ActivityCell
@@ -29,6 +30,11 @@ class DataAnalysisUtilsTest {
 
     private val logger = LoggerFactory.getLogger("DataAnalysisUtilsTest")
 
+    @After
+    fun releaseServices() {
+        ServiceManager.shutdown(logger)
+    }
+
     private fun createTestConfig(): AppConfig {
         return AppConfig(
             security = SecurityConfig(
@@ -39,7 +45,7 @@ class DataAnalysisUtilsTest {
             ),
             database = DatabaseConfig(
                 type = DatabaseType.SQLITE,
-                path = "./test-${System.currentTimeMillis()}-${Thread.currentThread().id}.db",
+                path = "./test-dbs/data-test-${System.currentTimeMillis()}-${Thread.currentThread().id}.db",
                 host = null,
                 port = null,
                 name = null,

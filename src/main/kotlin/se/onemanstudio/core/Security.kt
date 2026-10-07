@@ -133,6 +133,29 @@ fun getUserRole(username: String): String {
 }
 
 /**
+ * Resolve the role a user has *right now*, so that role changes, deactivation and deletion
+ * take effect on the next request instead of at session/token expiry.
+ *
+ * @return the current role, or `null` when the account no longer exists or is inactive.
+ *         When the users table is empty (`.env`-only installs) or the DB is unavailable,
+ *         the role carried by the session/token is returned unchanged.
+ */
+fun resolveActiveRole(username: String, carriedRole: String): String? {
+    return try {
+        transaction {
+            val row = Users.selectAll().where { Users.username eq username }.singleOrNull()
+            when {
+                row == null -> if (Users.selectAll().count() == 0L) carriedRole else null
+                !row[Users.isActive] -> null
+                else -> row[Users.role]
+            }
+        }
+    } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
+        carriedRole // DB not available yet (setup mode)
+    }
+}
+
+/**
  * Record a failed login attempt and apply lockout if threshold exceeded
  * Threshold: 5 failed attempts = 15 minute lockout
  */
@@ -184,12 +207,13 @@ fun Application.configureSecurity(config: AppConfig) {
     install(Authentication) {
         session<UserSession>("admin-session") {
             validate { session ->
-                // Reject sessions older than 4 hours (inactivity timeout)
+                // Reject sessions older than 4 hours (absolute lifetime, measured from login)
                 val maxSessionAge = 4 * 60 * 60 * 1000L
                 if (System.currentTimeMillis() - session.createdAt > maxSessionAge) {
                     null
                 } else {
-                    session
+                    // Re-read role/active flag so demotion or deletion applies immediately
+                    resolveActiveRole(session.username, session.role)?.let { session.copy(role = it) }
                 }
             }
             challenge {
@@ -215,7 +239,9 @@ fun Application.configureSecurity(config: AppConfig) {
                 }
             )
             validate { credential ->
-                if (credential.payload.subject != null) {
+                val subject = credential.payload.subject
+                val carriedRole = credential.payload.getClaim("role")?.asString() ?: "viewer"
+                if (subject != null && resolveActiveRole(subject, carriedRole) != null) {
                     JWTPrincipal(credential.payload)
                 } else null
             }

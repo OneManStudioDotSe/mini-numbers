@@ -52,8 +52,8 @@ dependencies {
 
     implementation("com.maxmind.geoip2:geoip2:5.0.2")
 
-    // User-Agent parsing
-    implementation("eu.bitwalker:UserAgentUtils:1.21")
+    // User-Agent parsing (uap-core regexes, Apache-2.0)
+    implementation("com.github.ua-parser:uap-java:1.6.1")
 
     // Rate limiting (in-memory cache)
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
@@ -82,9 +82,12 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
 // so tests work without a .env file (matches CI environment)
 tasks.withType<Test> {
     doFirst { file("test-dbs").mkdirs() }
+    maxHeapSize = "1g" // each test app re-scans the classpath for the AsyncAPI plugin
     systemProperty("ADMIN_PASSWORD", "testpassword123")
     systemProperty("SERVER_SALT", "a]4k9Bp!2sLq8Fz#7mXr0Wd6Yh3NcEv5JtGu1PxAoKiRnMlHfCjQwSyTbUeOgZd")
     systemProperty("DB_SQLITE_PATH", "test-dbs/ci-test.db")
+    // Tests talk plain HTTP; outside development mode the session cookie is Secure-only and never sent back
+    systemProperty("KTOR_DEVELOPMENT", "true")
 }
 
 // Minify tracker.js (strip comments and collapse whitespace)

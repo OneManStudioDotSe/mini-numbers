@@ -46,26 +46,31 @@ An attacker can call `MiniNumbers.track("<img src=x onerror=...>")` from any pag
 ## High
 
 ### 4. `ALLOWED_ORIGINS` / admin CORS restriction is dead code
+> **Status 2026-10-06**: fixed. `AdminCorsGuard.check()` runs for every `/admin/*` and `/api/*` call; an `Origin` equal to the request's own host is always accepted so the dashboard keeps working. Covered by `AuthHardeningTest` and a headless-Chrome check with `ALLOWED_ORIGINS=https://www.example.com`.
 `middleware/AdminCorsGuard.kt` implements per-origin allowlist checking for `/admin/*`, but it is **never called anywhere** (verified via full-repo grep — zero call sites). The actual CORS policy (`core/HTTP.kt:69-82`) uses `anyHost()` for every route, including admin. `_docs/SECURITY.md:127-142` explicitly claims unknown origins get rejected with 403 for admin endpoints — this is false. Partially mitigated by `allowCredentials=false` (browsers won't attach the session cookie cross-origin), but it's a real gap for JWT bearer-token requests, and a flatly incorrect documented security control.
 
 **Fix**: wire `AdminCorsGuard.check()` into the `/admin` and `/api` route blocks in `Routing.kt`, or remove the guard and correct the docs to describe what actually happens.
 
 ### 5. No rate limiting on any auth or admin endpoint
+> **Status 2026-10-06**: fixed. Admin/API routes use the configured per-IP bucket; the four credential endpoints use a fixed 20/min per IP, 300/min global bucket checked before any BCrypt work. Test: 21st login attempt from one IP → 429.
 `RateLimiter` is only invoked from `CollectionRouting.kt` (the `/collect` endpoint) — confirmed via grep, zero usage elsewhere. `_docs/SECURITY.md` claims "200 req/min per IP" on `/admin/*`; that's not implemented. The only brute-force defense is a per-*username* lockout (5 fails → 15min), which doesn't throttle volume/IP. Since `verifyCredentials` runs a BCrypt cost-12 comparison on every login attempt for the known default username `admin` (`Security.kt:79/96`), an unauthenticated attacker can flood `/api/login` or `/api/token` and force expensive BCrypt hashing per request with no throttle — a credible CPU-exhaustion DoS vector, separate from brute-forcing.
 
 **Fix**: apply the existing `RateLimiter` (or a stricter dedicated bucket) to all `/api/*` and `/admin/*` endpoints, especially login/token/password-reset.
 
 ### 6. SMTP config for Email Reports is fully undocumented
+> **Status 2026-10-06**: fixed in `_docs/ARCHITECTURE.md` and `docs/configuration.md`.
 Email Reports is a marketed, fully-implemented feature (`EmailService.kt`, `AdminFeatureRouting.kt`, OpenAPI spec), but there is no SMTP configuration section anywhere a self-hoster would look: absent from `.env.example`, absent from `docs/configuration.md`, absent from `CLAUDE.md`'s config table. A new user has no way to discover how to turn this feature on.
 
 **Fix**: add an SMTP section (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_STARTTLS` or whatever the actual variable names are) to `.env.example` and `docs/configuration.md`.
 
 ### 7. Documented PostgreSQL env vars don't match the actual code — will silently misconfigure or fail to start
+> **Status 2026-10-06**: fixed in `_docs/ARCHITECTURE.md` and `docs/configuration.md`.
 `docs/configuration.md` and `CLAUDE.md` document `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`. The actual loader (`config/ConfigLoader.kt`, `loadDatabaseConfig()`) reads `DB_PG_HOST`, `DB_PG_PORT`, `DB_PG_NAME`, `DB_PG_USERNAME`, `DB_PG_PASSWORD`. Following the public docs means every one of these is silently ignored: `DB_PG_PASSWORD` is required, so the app fails to start with a confusing error — but `DB_PG_HOST`/`NAME`/`USERNAME` just silently fall back to defaults (`localhost`/`mini_numbers`/`postgres`), which could mean **silently connecting to the wrong database**. `docker-compose.postgres.yml` and `_docs/DEPLOYMENT.md` already use the correct `DB_PG_*` names — the repo is internally inconsistent. Related: `CLAUDE.md` also states the Postgres default `DB_NAME` is `mininumbers` (no underscore); the code default is `mini_numbers`.
 
 **Fix**: correct `docs/configuration.md` and `CLAUDE.md` to the real `DB_PG_*` variable names and the real default.
 
 ### 8. LGPL-licensed dependency shaded into an MIT-licensed fat JAR
+> **Status 2026-10-06**: fixed. `UserAgentUtils` replaced by `uap-java` 1.6.1 (Apache-2.0). Labels changed to `Chrome 120` / `macOS` / `Desktop`; old rows keep their enum-style labels.
 `eu.bitwalker:UserAgentUtils:1.21` is LGPL-3.0. The project builds a single-artifact fat/shaded JAR (`buildFatJar`) and distributes the whole thing as MIT ("use it however you like"). Static-linking an LGPL dependency into one artifact without the relinking mechanism LGPL requires is a real compliance gap, not just theoretical.
 
 **Fix**: either get explicit sign-off that the fat-jar model is compliant with proper LGPL notice/relinking provisions, or swap to a permissively-licensed UA-parsing library. Also worth noting: this library is unmaintained since ~2019 — a maintenance-risk flag independent of licensing.
@@ -75,6 +80,7 @@ Email Reports is a marketed, fully-implemented feature (`EmailService.kt`, `Admi
 ## Medium
 
 ### 9. Missing MaxMind GeoLite2 attribution
+> **Status 2026-10-06**: attribution added to `README.md` (Third-party notices). Redistribution model (item 10) still open.
 No MaxMind attribution/NOTICE exists anywhere (LICENSE, README, `_docs/DEPLOYMENT.md`) for the bundled `geolite2-city.mmdb`. MaxMind's GeoLite2 EULA requires attribution text ("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com") for redistribution. Currently absent regardless of how the DB is distributed.
 
 **Fix**: add the required attribution notice. Separately (see item below), reconsider whether the raw `.mmdb` should be redistributed via git/Docker image at all versus downloaded at build/first-run time — MaxMind's terms restrict raw redistribution more broadly than just "add a notice."
@@ -85,21 +91,25 @@ No MaxMind attribution/NOTICE exists anywhere (LICENSE, README, `_docs/DEPLOYMEN
 **Fix**: consider downloading the mmdb at build/container-start time (with a documented `GEOIP_LICENSE_KEY`), or via Git LFS, or documenting it as an optional post-install step — rather than committing the raw binary.
 
 ### 11. Role/account changes don't revoke already-issued sessions or tokens
+> **Status 2026-10-06**: fixed. `resolveActiveRole()` re-reads role + active flag per request for sessions and JWTs; `RoleGuard` uses the validated principal. Tests: delete → 401 on next request; demote → 403 on next mutation.
 Session auth reads the role baked into the cookie at login time (`middleware/RoleGuard.kt`), not from the DB per-request. Demoting (`PUT /admin/users/{id}/role`) or deleting (`DELETE /admin/users/{id}`) a user doesn't invalidate their existing session or in-flight JWT/refresh token — a just-demoted or just-deleted user keeps their old access until natural expiry (up to 4h for sessions, 15min for JWT access tokens). `users.isActive` is only checked at login, never mid-session.
 
 **Fix**: either check role/active-status per-request (accepting the DB-lookup cost), or invalidate sessions/tokens on role change and user deletion.
 
 ### 12. Accessibility claims overstated — 4 of 11 modals lack ARIA dialog attributes
+> **Status 2026-10-06**: fixed (all four dialogs now carry `role`, `aria-modal`, `aria-labelledby`).
 `_docs/SECURITY.md`/`CLAUDE.md` claim "Full ARIA dialog attributes... on all primary modals." Verified: `create-project-modal`, `onboarding-modal` (shown to every new user), `logout-modal`, and `delete-project-modal` in `admin.html` lack `role="dialog"`/`aria-modal`. Only 8 of ~70 `.modal` elements have them set.
 
 **Fix**: add `role="dialog"`, `aria-modal="true"`, `aria-labelledby` to the four missing modals, then correct the doc claim (or keep it honest going forward).
 
 ### 13. Docker build uses a different Gradle version than CI/local dev
+> **Status 2026-10-06**: fixed. The build stage is `eclipse-temurin:21-jdk` and runs `./gradlew buildFatJar`.
 `Dockerfile` builds via `FROM gradle:8.14.4-jdk21`, while `gradle/wrapper/gradle-wrapper.properties` pins `9.3.0` (what CI and local `./gradlew` actually use). Works today, but it's a reproducibility/drift risk — a build that passes locally/in CI isn't guaranteed to behave identically in the Docker build stage.
 
 **Fix**: have the Docker build stage `COPY gradlew` and use the wrapper (`./gradlew buildFatJar`) so exactly one Gradle version is used everywhere.
 
 ### 14. No dependency vulnerability scanning in CI
+> **Status 2026-10-06**: Dependabot added for Gradle, GitHub Actions and Docker. OWASP/Trivy scanning still open.
 Confirmed: no Dependabot config, no OWASP Dependency-Check, no Snyk/Trivy step anywhere in `.github/workflows/`. `_docs/SECURITY.md` itself lists this as an open recommendation — still true.
 
 **Fix**: add Dependabot (trivial, GitHub-native) at minimum; consider `./gradlew dependencyCheckAnalyze` in CI as the doc suggests.
@@ -110,6 +120,7 @@ Confirmed: no Dependabot config, no OWASP Dependency-Check, no Snyk/Trivy step a
 **Fix**: add a real contact path (maintainer email or a GitHub Discussions/Issues pointer).
 
 ### 16. Non-constant-time secret comparison in password reset
+> **Status 2026-10-06**: fixed (`MessageDigest.isEqual`).
 `AuthRouting.kt:212`: `if (body.serverSalt != resetConfig.security.serverSalt)` is a plain Kotlin equality check on a high-entropy secret — a byte-by-byte timing side-channel. Low practical exploitability over a network, but a one-line fix.
 
 **Fix**: use `MessageDigest.isEqual()` or another constant-time comparison.
@@ -124,6 +135,7 @@ Confirmed: no Dependabot config, no OWASP Dependency-Check, no Snyk/Trivy step a
 ## Low
 
 ### 18. `.env.example` doesn't warn that `ADMIN_PASSWORD` must be pre-hashed if set manually
+> **Status 2026-10-06**: documented. Note the real behaviour: plain text is hashed into the DB on first start (`ServiceManager`); `$2a$`/`$2b$` are stored as-is; `$2y$` is rejected by jBCrypt 0.4 ("Invalid salt revision").
 If `.env`'s `ADMIN_PASSWORD` isn't already a `$2a$`/`$2b$` bcrypt hash, `Security.kt` silently and permanently fails auth (logged server-side only, not surfaced to the user). `.env.example` just says "Set a strong password" with no mention of the hash requirement — anyone bootstrapping via `.env` directly (skipping the setup wizard) gets locked out with a confusing failure.
 
 **Fix**: document the hash requirement in `.env.example`, or accept plaintext and hash it on first load if not already bcrypt-formatted.
