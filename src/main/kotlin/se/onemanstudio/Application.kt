@@ -127,7 +127,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest(cause.message ?: "Invalid argument"))
         }
-        exception<org.jetbrains.exposed.exceptions.ExposedSQLException> { call, cause ->
+        exception<org.jetbrains.exposed.v1.exceptions.ExposedSQLException> { call, cause ->
             call.application.environment.log.error("Database error: ${cause.message}", cause)
             call.respond(HttpStatusCode.InternalServerError,
                 ApiError.internalError("A database error occurred"))

@@ -1,8 +1,8 @@
 package se.onemanstudio.utils
 
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenue
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueAttribution
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueByEvent
@@ -43,7 +43,7 @@ object RevenueAnalysisUtils {
      * Resolve the traffic source label for a session from its first pageview.
      * Priority: UTM campaign → UTM source → referrer domain → "Direct".
      */
-    private fun resolveSessionSource(rows: List<org.jetbrains.exposed.sql.ResultRow>): String {
+    private fun resolveSessionSource(rows: List<org.jetbrains.exposed.v1.core.ResultRow>): String {
         val first = rows.minByOrNull { it[Events.timestamp] }
         val ref = first?.get(Events.referrer)
         val utmSource = first?.get(Events.utmSource)

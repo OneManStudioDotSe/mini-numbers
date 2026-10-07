@@ -1,7 +1,9 @@
 package se.onemanstudio.db
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.javatime.datetime
 import java.time.LocalDateTime
 
 /**
@@ -9,8 +11,8 @@ import java.time.LocalDateTime
  * Each row represents a recurring report for a project sent to a specific email.
  */
 object EmailReports : Table("email_reports") {
-    val id = uuid("id")
-    val projectId = uuid("project_id").references(Projects.id)
+    val id = javaUUID("id")
+    val projectId = javaUUID("project_id").references(Projects.id)
     val recipientEmail = varchar("recipient_email", 320)
     val schedule = varchar("schedule", 20).default("WEEKLY")   // DAILY, WEEKLY, MONTHLY
     val sendHour = integer("send_hour").default(8)              // 0-23, hour of day to send

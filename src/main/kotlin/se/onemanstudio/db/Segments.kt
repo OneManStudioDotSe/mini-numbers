@@ -1,7 +1,9 @@
 package se.onemanstudio.db
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.javatime.datetime
 import java.time.LocalDateTime
 
 /**
@@ -9,8 +11,8 @@ import java.time.LocalDateTime
  * Segments define reusable filters with AND/OR logic
  */
 object Segments : Table("segments") {
-    val id = uuid("id")
-    val projectId = uuid("project_id").references(Projects.id)
+    val id = javaUUID("id")
+    val projectId = javaUUID("project_id").references(Projects.id)
     val name = varchar("name", 100)
     val description = varchar("description", 255).nullable()
     val filtersJson = text("filters_json") // JSON: [{field, operator, value, logic}]

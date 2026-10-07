@@ -2,8 +2,9 @@ package se.onemanstudio.core
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.db.Projects
 import java.util.UUID
 

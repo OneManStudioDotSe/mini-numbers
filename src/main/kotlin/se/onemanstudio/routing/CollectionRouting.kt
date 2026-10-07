@@ -7,8 +7,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.SerializationException
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.collection.PageViewPayload
 import se.onemanstudio.config.models.PrivacyMode

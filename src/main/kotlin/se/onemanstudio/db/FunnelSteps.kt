@@ -1,10 +1,12 @@
 package se.onemanstudio.db
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
 
 object FunnelSteps : Table("funnel_steps") {
-    val id = uuid("id")
-    val funnelId = uuid("funnel_id").references(Funnels.id)
+    val id = javaUUID("id")
+    val funnelId = javaUUID("funnel_id").references(Funnels.id)
     val stepNumber = integer("step_number")
     val name = varchar("name", 100)
     val stepType = varchar("step_type", 20) // "url" or "event"
