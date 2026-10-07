@@ -7,7 +7,7 @@ this file, not `CLAUDE.md`.
 
 ## Stack
 
-Kotlin 2.3.0 + Ktor 3.4.0 on JDK 21, Exposed ORM (SQLite or PostgreSQL), Caffeine caching, Gradle Kotlin DSL. The frontend is vanilla JS/CSS — no bundler, no `package.json`, no build step.
+Kotlin 2.4.20 + Ktor 3.6.0 on JDK 21 (Gradle 9.8), Exposed ORM 0.56 (SQLite or PostgreSQL), Caffeine caching, Gradle Kotlin DSL. The frontend is vanilla JS/CSS — no bundler, no `package.json`, no build step.
 
 Credential endpoints (`/api/login`, `/api/token`, `/api/token/refresh`, `/api/password-reset`) are
 rate limited by a fixed bucket of 20 requests per IP per minute and 300 per minute in total

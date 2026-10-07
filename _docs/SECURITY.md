@@ -302,10 +302,10 @@ All internal redirects are validated against a hardcoded allowlist:
 ## 15. Dependencies
 
 ### Current stack
-- Ktor 3.4.0, Kotlin 2.3.0, JDK 21
+- Ktor 3.6.0, Kotlin 2.4.20, JDK 21
 - Exposed 0.56.0, HikariCP 5.0.1
 - jBCrypt 0.4, Caffeine 3.1.8
-- GeoIP2 5.0.2, uap-java 1.6.1 (Apache-2.0; replaced the LGPL UserAgentUtils on 2026-10-06)
+- GeoIP2 5.2.0, uap-java 1.6.1 (Apache-2.0; replaced the LGPL UserAgentUtils on 2026-10-06)
 
 > **Audit finding (PASS)**: No known critical CVEs in current dependency versions.
 > **Audit finding (INFO)**: Recommend periodic dependency scanning with `./gradlew dependencyCheckAnalyze` (OWASP Dependency Check plugin).

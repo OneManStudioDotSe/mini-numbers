@@ -14,8 +14,8 @@ A technical overview of how Mini Numbers is built, for developers and contributo
 
 | Layer                  | Technology                                |
 |------------------------|-------------------------------------------|
-| **Language**           | Kotlin 2.3.0                              |
-| **Framework**          | Ktor 3.4.0                                |
+| **Language**           | Kotlin 2.4.20                             |
+| **Framework**          | Ktor 3.6.0                                |
 | **Runtime**            | JVM (JDK 21)                              |
 | **Server**             | Netty (embedded)                          |
 | **Database**           | SQLite or PostgreSQL via Exposed ORM      |

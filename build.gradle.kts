@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.3.0"
-    kotlin("plugin.serialization") version "2.3.0"
-    id("io.ktor.plugin") version "3.4.0"
+    kotlin("jvm") version "2.4.20"
+    kotlin("plugin.serialization") version "2.4.20"
+    id("io.ktor.plugin") version "3.6.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
@@ -17,21 +17,21 @@ kotlin {
 }
 
 dependencies {
-    implementation("org.openfolder:kotlin-asyncapi-ktor:3.1.3")
+    implementation("org.openfolder:kotlin-asyncapi-ktor:3.2.4")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-auth")
-    implementation("ch.qos.logback:logback-classic:1.5.32")
+    implementation("ch.qos.logback:logback-classic:1.6.5")
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.3.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.20")
 
     // Ktor Server
-    implementation("io.ktor:ktor-server-core-jvm:3.4.0")
-    implementation("io.ktor:ktor-server-netty-jvm:3.4.0")
+    implementation("io.ktor:ktor-server-core-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-netty-jvm:3.6.0")
 
     // JSON & Serialization
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:3.4.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.4.0")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:3.6.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.6.0")
 
     // Database (Exposed + Postgres/SQLite)
     implementation("org.jetbrains.exposed:exposed-core:0.56.0")
@@ -39,28 +39,28 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.56.0")
     implementation("org.jetbrains.exposed:exposed-java-time:0.56.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.postgresql:postgresql:42.7.10")
+    implementation("org.postgresql:postgresql:42.7.13")
     implementation("org.xerial:sqlite-jdbc:3.47.2.0")
 
     // Security & Utilities
-    implementation("io.ktor:ktor-server-auth-jvm:3.4.0")
-    implementation("io.ktor:ktor-server-auth-jwt-jvm:3.4.0")
-    implementation("io.ktor:ktor-server-cors-jvm:3.4.0")
-    implementation("io.ktor:ktor-server-default-headers-jvm:3.4.0")
-    implementation("io.ktor:ktor-server-status-pages-jvm:3.4.0")
+    implementation("io.ktor:ktor-server-auth-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-auth-jwt-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-cors-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-default-headers-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-status-pages-jvm:3.6.0")
     implementation("org.mindrot:jbcrypt:0.4")
 
-    implementation("com.maxmind.geoip2:geoip2:5.0.2")
+    implementation("com.maxmind.geoip2:geoip2:5.2.0")
 
     // User-Agent parsing (uap-core regexes, Apache-2.0)
     implementation("com.github.ua-parser:uap-java:1.6.1")
 
     // Rate limiting (in-memory cache)
-    implementation("com.github.ben-manes.caffeine:caffeine:3.2.3")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.3.0")
 
     // Email (SMTP)
-    implementation("jakarta.mail:jakarta.mail-api:2.1.3")
-    implementation("org.eclipse.angus:angus-mail:2.0.3")
+    implementation("jakarta.mail:jakarta.mail-api:2.1.5")
+    implementation("org.eclipse.angus:angus-mail:2.0.5")
 }
 
 // Detekt static analysis configuration
