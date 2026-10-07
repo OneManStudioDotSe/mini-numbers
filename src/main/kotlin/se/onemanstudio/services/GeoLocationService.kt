@@ -125,7 +125,7 @@ object GeoLocationService {
             reader = null
             geoCache.invalidateAll()
             logger.debug("GeoIP database reader closed")
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             logger.error("Error closing GeoIP database reader: ${e.message}")
         }
     }

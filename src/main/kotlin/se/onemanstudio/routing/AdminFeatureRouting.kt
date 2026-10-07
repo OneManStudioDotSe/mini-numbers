@@ -668,6 +668,11 @@ fun Route.adminFeatureRoutes() {
         })
     }
 
+    emailReportAndRevenueRoutes()
+}
+
+/** Email reports, SMTP status and revenue analytics (split out to keep cyclomatic complexity in bounds). */
+private fun Route.emailReportAndRevenueRoutes() {
     // ── Email Reports ────────────────────────────────────────────
 
     get("/projects/{id}/email-reports") {
