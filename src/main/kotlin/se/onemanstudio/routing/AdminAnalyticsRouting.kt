@@ -4,8 +4,9 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.dashboard.ComparisonReport
 import se.onemanstudio.api.models.dashboard.RawEvent

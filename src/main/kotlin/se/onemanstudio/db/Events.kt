@@ -1,7 +1,9 @@
 package se.onemanstudio.db
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.javatime.datetime
 import java.time.LocalDateTime
 
 /**
@@ -29,7 +31,7 @@ import java.time.LocalDateTime
  */
 object Events : Table("events") {
     val id = long("id").autoIncrement()
-    val projectId = uuid("project_id").references(Projects.id)
+    val projectId = javaUUID("project_id").references(Projects.id)
     val visitorHash = varchar("visitor_hash", 64)
     val sessionId = varchar("session_id", 64)
     val eventType = varchar("event_type", 20)

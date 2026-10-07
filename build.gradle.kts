@@ -34,13 +34,13 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.6.0")
 
     // Database (Exposed + Postgres/SQLite)
-    implementation("org.jetbrains.exposed:exposed-core:0.56.0")
-    implementation("org.jetbrains.exposed:exposed-dao:0.56.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.56.0")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.56.0")
+    implementation("org.jetbrains.exposed:exposed-core:1.5.0")
+    implementation("org.jetbrains.exposed:exposed-dao:1.5.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.5.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:1.5.0")
     implementation("com.zaxxer:HikariCP:7.1.0")
     implementation("org.postgresql:postgresql:42.7.13")
-    implementation("org.xerial:sqlite-jdbc:3.47.2.0")
+    implementation("org.xerial:sqlite-jdbc:3.53.4.0")
 
     // Security & Utilities
     implementation("io.ktor:ktor-server-auth-jvm:3.6.0")

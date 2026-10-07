@@ -19,10 +19,9 @@
  */
 package se.onemanstudio.utils
 
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.db.ConversionGoals
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.FunnelSteps

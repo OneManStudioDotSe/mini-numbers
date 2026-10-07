@@ -1,7 +1,9 @@
 package se.onemanstudio.db
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.javatime.datetime
 import java.time.LocalDateTime
 
 /**
@@ -9,7 +11,7 @@ import java.time.LocalDateTime
  * Roles: "admin" (full access) and "viewer" (read-only dashboard access).
  */
 object Users : Table("users") {
-    val id = uuid("id")
+    val id = javaUUID("id")
     val username = varchar("username", 100).uniqueIndex("idx_users_username")
     val passwordHash = varchar("password_hash", 255)
     val role = varchar("role", 20).default("viewer")
