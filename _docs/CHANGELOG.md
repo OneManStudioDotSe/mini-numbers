@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Role changes and deletions take effect immediately**: the user's role and active flag are re-read from the database on every authenticated request (session and JWT). A demoted admin loses write access on their next call; a deleted or deactivated user gets 401.
 - **Dependabot** for Gradle, GitHub Actions and the Docker base images (`.github/dependabot.yml`).
 - 4 integration tests covering the above (`AuthHardeningTest`).
+- 8 integration tests in `PrivacyRbacAndCacheTest`: each privacy mode's stored field set (STANDARD keeps browser/OS/device, STRICT drops city/region/coordinates, PARANOID stores nothing but the page view), viewer role read-only enforcement and API-key masking, the JWT issue → Bearer → refresh → replay-rejection flow, widget key authentication, stats-cache invalidation on collect and isolation between projects, and the 2048-character limit on custom-event properties.
+- **PostgreSQL CI job**: `Build & Test` now also runs the whole suite against a PostgreSQL 16 service container (`test-postgres` job), so the second supported database is exercised on every push for the first time.
 
 ### Changed
 

@@ -148,7 +148,7 @@ mini-numbers/
 │   ├── setup/                            # Setup wizard frontend
 │   ├── tracker/tracker.js / tracker.min.js
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
-└── src/test/kotlin/                      # 300 tests
+└── src/test/kotlin/                      # 308 tests
 ```
 
 ## Database schema
