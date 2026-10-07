@@ -19,6 +19,8 @@ object AdminCorsGuard {
      *
      * Rules:
      * - No Origin header (same-origin request) → allowed
+     * - Origin host:port equals the request's own Host → allowed (the admin panel
+     *   itself; browsers send Origin on same-origin POST/PUT/DELETE)
      * - No allowed origins configured → allowed (development mode)
      * - Origin in allowlist → allowed
      * - Otherwise → 403 Forbidden
@@ -26,6 +28,11 @@ object AdminCorsGuard {
     suspend fun check(call: ApplicationCall, allowedOrigins: List<String>): Boolean {
         val origin = call.request.header(HttpHeaders.Origin)
             ?: return true // No Origin header means same-origin request
+
+        val originUrl = runCatching { Url(origin) }.getOrNull()
+        if (originUrl != null && originUrl.host == call.request.host() && originUrl.port == call.request.port()) {
+            return true
+        }
 
         // If no origins are configured or wildcard is set, allow all (development mode)
         if (allowedOrigins.isEmpty() || allowedOrigins.any { it == "*" }) {

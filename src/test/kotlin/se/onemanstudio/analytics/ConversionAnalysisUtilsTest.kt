@@ -2,6 +2,7 @@ package se.onemanstudio.analytics
 
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.After
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import se.onemanstudio.utils.calculateGoalConversions
@@ -23,6 +24,11 @@ import kotlin.test.*
 class ConversionAnalysisUtilsTest {
 
     private val logger = LoggerFactory.getLogger("ConversionAnalysisUtilsTest")
+
+    @After
+    fun releaseServices() {
+        ServiceManager.shutdown(logger)
+    }
 
     private fun ensureTestDb() {
         val config = AppConfig(

@@ -9,6 +9,10 @@ this file, not `CLAUDE.md`.
 
 Kotlin 2.3.0 + Ktor 3.4.0 on JDK 21, Exposed ORM (SQLite or PostgreSQL), Caffeine caching, Gradle Kotlin DSL. The frontend is vanilla JS/CSS — no bundler, no `package.json`, no build step.
 
+Credential endpoints (`/api/login`, `/api/token`, `/api/token/refresh`, `/api/password-reset`) are
+rate limited by a fixed bucket of 20 requests per IP per minute and 300 per minute in total
+(`Routing.kt`, not configurable). User-agent parsing uses `uap-java` (Apache-2.0).
+
 ## Tools (Figma, Sketch, Chrome, GitHub, MCPs)
 
 **What's actually wired up today:**
@@ -109,10 +113,11 @@ mini-numbers/
 │   │   ├── EmailReports.kt               # Scheduled report configs
 │   │   └── ResetDatabase.kt
 │   ├── middleware/
-│   │   ├── AdminCorsGuard.kt             # Per-origin allowlist for /admin — see Known Gaps
+│   │   ├── AdminCorsGuard.kt             # Origin allowlist for /admin and /api (same-host always allowed)
 │   │   ├── InputValidator.kt
 │   │   ├── QueryCache.kt                 # Caffeine query cache (30s TTL, 500 entries)
-│   │   ├── RateLimiter.kt                # Only wired into /collect — see Known Gaps
+│   │   ├── RateLimiter.kt                # Token buckets per IP / per API key
+│   │   ├── RateLimitGuard.kt             # ApplicationCall.enforceRateLimit() → 429
 │   │   ├── RedirectValidator.kt          # Open-redirect protection
 │   │   ├── RoleGuard.kt                  # admin/viewer role enforcement
 │   │   ├── WidgetCache.kt                # 60s cache for /widget/* responses
@@ -143,7 +148,7 @@ mini-numbers/
 │   ├── setup/                            # Setup wizard frontend
 │   ├── tracker/tracker.js / tracker.min.js
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
-└── src/test/kotlin/                      # 296 tests
+└── src/test/kotlin/                      # 300 tests
 ```
 
 ## Database schema
@@ -262,8 +267,8 @@ All configuration via `.env` file or environment variables.
 | ---------------------------- | ------------------------------------------- | --------------------------------------------------- |
 | `SERVER_PORT`                | `8080`                                      | Server port                                         |
 | `KTOR_DEVELOPMENT`           | `false`                                     | Development mode (relaxes CORS)                     |
-| `RATE_LIMIT_PER_IP`          | `1000`                                      | Max requests per IP per minute                      |
-| `RATE_LIMIT_PER_API_KEY`     | `10000`                                     | Max requests per API key per minute                 |
+| `RATE_LIMIT_PER_IP`          | `1000`                                      | Max requests per IP per minute (`/collect`, `/widget/*`, `/admin/*`, `/api/*`) |
+| `RATE_LIMIT_PER_API_KEY`     | `10000`                                     | Max requests per API key per minute (`/collect`, `/widget/*`); also the global bucket for `/admin/*` |
 | `HASH_ROTATION_HOURS`        | `24`                                        | Hash rotation period (1-8760)                       |
 | `PRIVACY_MODE`               | `STANDARD`                                  | `STANDARD`, `STRICT`, or `PARANOID`                 |
 | `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
@@ -407,14 +412,14 @@ These are real, current gaps between documented/intended behavior and what the c
 tracked here so they don't get silently assumed as "already fixed." See `GOING_LIVE.md` for
 the full pre-launch audit this was extracted from.
 
-- **`AdminCorsGuard` is unwired**: implements per-origin allowlist checking for `/admin/*`
-  but has zero call sites. The actual CORS policy (`core/HTTP.kt`) uses `anyHost()` for
-  every route, so `ALLOWED_ORIGINS` does not currently restrict admin API access.
-- **Rate limiting only covers `/collect`**: `RateLimiter` is not applied to `/api/*` or
-  `/admin/*` — login/token/password-reset endpoints have no request-volume throttling
-  beyond the per-username lockout (5 fails → 15 min).
-- **ARIA dialog attributes are incomplete**: `create-project-modal`, `onboarding-modal`,
-  `logout-modal`, and `delete-project-modal` in `admin.html` lack `role="dialog"` /
-  `aria-modal`. Only a subset of `.modal` elements have them set.
-- **Role/session changes don't revoke live sessions**: demoting or deleting a user doesn't
-  invalidate their existing session cookie or in-flight JWT until natural expiry.
+- **Session lifetime is absolute, not sliding**: the 4-hour limit in `core/Security.kt` is
+  measured from login (`createdAt`), not from the last request.
+- **CSP still allows `'unsafe-inline'`** for scripts and styles in the admin panel.
+- **GeoLite2 `.mmdb` (61 MB) is committed to the repo** and baked into every image and fat
+  JAR. A download-on-start path with a MaxMind licence key is the intended replacement.
+
+Resolved on 2026-10-06 (kept here so the history is traceable): `AdminCorsGuard` is wired
+into `/admin` and `/api` (`Routing.kt`, `guardAdminRequests`); `RateLimiter` covers
+`/admin/*`, `/api/*` and, with a stricter fixed bucket, the credential endpoints
+(`middleware/RateLimitGuard.kt`); all eleven dialogs carry ARIA dialog attributes; role
+and active-flag are re-read per request (`core/Security.kt`, `resolveActiveRole`).

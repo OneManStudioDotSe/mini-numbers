@@ -26,10 +26,13 @@ import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.core.verifyCredentials
 import se.onemanstudio.db.RefreshTokens
+import se.onemanstudio.middleware.RateLimiter
+import se.onemanstudio.middleware.enforceRateLimit
+import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.UUID
 
-fun Route.authRoutes() {
+fun Route.authRoutes(authLimiter: RateLimiter) {
     // Serve login page
     staticResources("/login", "static/login") {
         default("login.html")
@@ -37,6 +40,7 @@ fun Route.authRoutes() {
 
     // Login endpoint
     post("/api/login") {
+        if (!call.enforceRateLimit(authLimiter, "auth")) return@post
         val loginRequest = try {
             call.receive<LoginRequest>()
         } catch (_: io.ktor.server.plugins.ContentTransformationException) {
@@ -80,6 +84,7 @@ fun Route.authRoutes() {
 
     // Get JWT access token + refresh token
     post("/api/token") {
+        if (!call.enforceRateLimit(authLimiter, "auth")) return@post
         val loginRequest = try {
             call.receive<LoginRequest>()
         } catch (_: io.ktor.server.plugins.ContentTransformationException) {
@@ -126,6 +131,7 @@ fun Route.authRoutes() {
 
     // Rotate refresh token
     post("/api/token/refresh") {
+        if (!call.enforceRateLimit(authLimiter, "auth")) return@post
         @Serializable
         data class RefreshRequest(val refreshToken: String)
 
@@ -196,6 +202,7 @@ fun Route.authRoutes() {
 
     // ── Password Reset ────────────────────────────────────────
     post("/api/password-reset") {
+        if (!call.enforceRateLimit(authLimiter, "auth")) return@post
         val body = try {
             call.receive<PasswordResetRequest>()
         } catch (_: io.ktor.server.plugins.ContentTransformationException) {
@@ -209,7 +216,11 @@ fun Route.authRoutes() {
         }
 
         val resetConfig = ConfigLoader.load()
-        if (body.serverSalt != resetConfig.security.serverSalt) {
+        val saltMatches = MessageDigest.isEqual(
+            body.serverSalt.toByteArray(),
+            resetConfig.security.serverSalt.toByteArray()
+        )
+        if (!saltMatches) {
             return@post call.respond(HttpStatusCode.Forbidden,
                 ApiError(error = "Invalid server salt", code = "FORBIDDEN"))
         }

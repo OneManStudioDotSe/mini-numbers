@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Origin allowlist enforced on the admin API**: `ALLOWED_ORIGINS` now actually restricts cross-origin requests to `/admin/*` and `/api/*` (403 for unlisted origins). Requests whose `Origin` matches the dashboard's own host are always allowed, so the admin panel keeps working whatever the allowlist says. `AdminCorsGuard` existed before but had no call sites.
+- **Rate limiting on admin and auth endpoints**: `/admin/*` and `/api/*` share the per-IP bucket configured by `RATE_LIMIT_PER_IP`; the credential endpoints (`/api/login`, `/api/token`, `/api/token/refresh`, `/api/password-reset`) use a stricter fixed bucket of 20 requests per IP per minute and 300 per minute overall, which caps the BCrypt work an unauthenticated client can force.
+- **Role changes and deletions take effect immediately**: the user's role and active flag are re-read from the database on every authenticated request (session and JWT). A demoted admin loses write access on their next call; a deleted or deactivated user gets 401.
+- **Dependabot** for Gradle, GitHub Actions and the Docker base images (`.github/dependabot.yml`).
+- 4 integration tests covering the above (`AuthHardeningTest`).
+
+### Changed
+
+- **User-agent parsing** moved from `eu.bitwalker:UserAgentUtils` (LGPL-3.0, unmaintained since 2018) to `com.github.ua-parser:uap-java` (Apache-2.0). Browser, OS and device labels now use the same vocabulary as the demo data and the dashboard icons (`Chrome 120`, `macOS`, `Desktop` / `Mobile` / `Tablet` / `Bot`) instead of enum constants such as `CHROME 120`, `MAC_OS_X`, `COMPUTER`. Existing rows keep their old labels.
+- **Password reset** compares the server salt in constant time (`MessageDigest.isEqual`).
+- **Docker build** uses the Gradle wrapper instead of a separately pinned Gradle image, so Docker, CI and local builds run the same Gradle version.
+- **Accessibility**: the create-project, onboarding, sign-out and delete-project dialogs now carry `role="dialog"`, `aria-modal` and `aria-labelledby` like the other modals.
+- **`.env.example`** explains the accepted `ADMIN_PASSWORD` formats (plain text is hashed on first start; `$2a$`/`$2b$` hashes are stored as-is; `$2y$` is rejected).
+- **Public docs**: `docs/configuration.md` now lists the real PostgreSQL variables (`DB_PG_HOST`, `DB_PG_PORT`, `DB_PG_NAME`, `DB_PG_USERNAME`, `DB_PG_PASSWORD`) and documents the SMTP variables for email reports.
+
 ### Fixed
+
+- **Integration tests were silently skipping their bodies**: the analytics unit tests reloaded the `ServiceManager` singleton with a throwaway database whose only user was `test`; every integration test that ran afterwards failed to log in as `admin`, hit the five-failure lockout, and returned early through `if (login().status != OK) return@testApplication`. Not a single authenticated request was being exercised. The analytics tests now release the services in `@After`, tests run with `KTOR_DEVELOPMENT=true` so the session cookie is sent over plain HTTP, and the test JVM gets 1 GB of heap (each test app re-scans the classpath for the AsyncAPI plugin).
+- `DataAnalysisUtilsTest` wrote its SQLite files to the repository root instead of `test-dbs/`.
 
 - **Test suite on a clean checkout**: the Gradle `test` task now creates the gitignored `test-dbs/` directory before running. Previously 41 of 296 tests failed on every fresh clone and on every CI run on `main`, because the SQLite test databases had nowhere to be written.
 - **Time-of-day dependent test**: `DataAnalysisUtilsTest."generateContributionCalendar assigns intensity levels correctly"` inserted 40 events starting at "now minus one day", so a run after 23:20 spilled 8 of them past midnight into the next day. Timestamps are now anchored to midday.

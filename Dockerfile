@@ -5,20 +5,20 @@
 # Run:    docker run -p 8080:8080 mini-numbers
 # ==============================================================
 
-# Stage 1: Build the fat JAR
-FROM gradle:8.14.4-jdk21 AS build
+# Stage 1: Build the fat JAR (Gradle wrapper, so CI, local and Docker use the same version)
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 # Copy Gradle configuration first for dependency caching
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY build.gradle.kts settings.gradle.kts gradle.properties gradlew ./
 COPY gradle ./gradle
 
 # Download dependencies (cached unless build files change)
-RUN gradle dependencies --no-daemon || true
+RUN ./gradlew dependencies --no-daemon || true
 
 # Copy source code and build
 COPY src ./src
-RUN gradle buildFatJar --no-daemon
+RUN ./gradlew buildFatJar --no-daemon
 
 # Stage 2: Runtime (minimal Alpine image)
 FROM eclipse-temurin:21-jre-alpine-3.23

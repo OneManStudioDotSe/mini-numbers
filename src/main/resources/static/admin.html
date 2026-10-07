@@ -906,7 +906,7 @@ MiniNumbers.track("donation", {
     </div>
 
     <!-- Enhanced Create Project Modal -->
-    <div id="create-project-modal" class="modal">
+    <div id="create-project-modal" class="modal" role="dialog" aria-labelledby="create-project-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
@@ -1676,11 +1676,11 @@ SMTP_STARTTLS=true</pre>
     </div>
 
     <!-- Onboarding Checklist Modal -->
-    <div id="onboarding-modal" class="modal">
+    <div id="onboarding-modal" class="modal" role="dialog" aria-labelledby="onboarding-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Welcome to Mini Numbers!</h2>
+                <h2 id="onboarding-title">Welcome to Mini Numbers!</h2>
                 <button class="modal-close" id="close-onboarding">&times;</button>
             </div>
             <div class="modal-body">
@@ -1726,14 +1726,14 @@ SMTP_STARTTLS=true</pre>
     </div>
 
     <!-- Logout Confirmation Modal -->
-    <div id="logout-modal" class="modal">
+    <div id="logout-modal" class="modal" role="dialog" aria-labelledby="logout-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon">
                     <i class="ri-logout-box-r-line"></i>
                 </div>
-                <h2 class="logout-dialog__title">Sign out</h2>
+                <h2 class="logout-dialog__title" id="logout-title">Sign out</h2>
                 <p class="logout-dialog__message">Are you sure you want to sign out of your account?</p>
                 <div class="logout-dialog__actions">
                     <button class="btn btn-ghost" id="cancel-logout">Cancel</button>
@@ -1744,14 +1744,14 @@ SMTP_STARTTLS=true</pre>
     </div>
 
     <!-- Delete Project Confirmation Modal -->
-    <div id="delete-project-modal" class="modal">
+    <div id="delete-project-modal" class="modal" role="dialog" aria-labelledby="delete-project-title" aria-modal="true">
         <div class="modal-backdrop" onclick="document.getElementById('delete-project-modal').classList.remove('show')"></div>
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
                 <div class="logout-dialog__icon" style="color: var(--color-danger);">
                     <i class="ri-delete-bin-line"></i>
                 </div>
-                <h2 class="logout-dialog__title">Delete project</h2>
+                <h2 class="logout-dialog__title" id="delete-project-title">Delete project</h2>
                 <p class="logout-dialog__message">Are you sure you want to delete <strong id="delete-project-name"></strong>? This will permanently remove all analytics data, goals, funnels, and segments.</p>
                 <div class="logout-dialog__actions">
                     <button class="btn btn-ghost" onclick="document.getElementById('delete-project-modal').classList.remove('show')">Cancel</button>

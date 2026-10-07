@@ -9,6 +9,7 @@ import io.ktor.server.sessions.*
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
+import se.onemanstudio.core.resolveActiveRole
 
 /**
  * Check if the current user has one of the required roles.
@@ -28,27 +29,26 @@ suspend fun ApplicationCall.requireRole(vararg roles: UserRole): Boolean {
 
 /**
  * Extract the user's role from the current authentication principal.
- * Checks session first, then JWT.
+ * Checks session first, then JWT. For both, the database is authoritative: the role carried
+ * by the cookie or the token claim is only a fallback (see [resolveActiveRole]).
  */
 fun ApplicationCall.getUserRole(): UserRole? {
-    // Try session auth
-    sessions.get<UserSession>()?.let { session ->
-        return try {
-            UserRole.valueOf(session.role.uppercase())
-        } catch (_: IllegalArgumentException) {
-            null
-        }
-    }
+    // Prefer the validated session principal (role re-read on every request in Security.kt)
+    // over the raw cookie, which still carries the role from login time.
+    val session = principal<UserSession>() ?: sessions.get<UserSession>()
+    val jwt = principal<JWTPrincipal>()
 
-    // Try JWT auth
-    principal<JWTPrincipal>()?.let { jwt ->
-        val role = jwt.payload.getClaim("role")?.asString()
-        return try {
-            UserRole.valueOf(role?.uppercase() ?: return null)
-        } catch (_: IllegalArgumentException) {
-            null
+    val roleName = when {
+        session != null -> session.role
+        jwt != null -> jwt.payload.subject?.let { subject ->
+            jwt.payload.getClaim("role")?.asString()?.let { carried -> resolveActiveRole(subject, carried) }
         }
-    }
+        else -> null
+    } ?: return null
 
-    return null
+    return try {
+        UserRole.valueOf(roleName.uppercase())
+    } catch (_: IllegalArgumentException) {
+        null
+    }
 }

@@ -26,7 +26,7 @@ Comprehensive security reference covering all implemented security measures, aud
 2. Enable secure cookie flag for HTTPS deployments
 3. Add OWASP Dependency Check to CI pipeline
 4. Consider Content-Security-Policy headers
-5. Add rate limiting to admin endpoints (currently only on `/collect`)
+5. ~~Add rate limiting to admin endpoints~~ — done 2026-10-06 (`/admin/*`, `/api/*`, and a stricter bucket on credential endpoints)
 
 ---
 
@@ -39,7 +39,8 @@ Mini Numbers supports two authentication methods simultaneously:
 **Session-based auth** (for the browser admin panel):
 - Cookie: `mini_numbers_session`
 - `HttpOnly`, `SameSite=Strict`, `Secure` (in production)
-- 7-day max age with 4-hour inactivity timeout
+- 7-day cookie max age with a 4-hour absolute session lifetime (measured from login)
+- Role and active flag re-read from the database on every request, so demotion, deactivation and deletion apply immediately
 - Session rotation on every login (prevents fixation attacks)
 
 **JWT auth** (for programmatic API access):
@@ -125,9 +126,9 @@ POST /api/password-reset
 - `allowCredentials = false` -- session cookies are never sent cross-origin
 
 **Admin endpoints** (`/admin/*`):
-- Origin validated against `ALLOWED_ORIGINS` configuration
-- Requests with unknown `Origin` header are rejected with 403
-- Same-origin requests (no `Origin` header) are always allowed
+- `Origin` validated against `ALLOWED_ORIGINS` on `/admin/*` and `/api/*` (`AdminCorsGuard`, wired in `Routing.kt`)
+- Requests with an unlisted `Origin` header are rejected with 403
+- Requests with no `Origin` header, or whose `Origin` host:port equals the request's own `Host`, are always allowed (the dashboard itself)
 
 ### Configuration
 
@@ -149,9 +150,10 @@ ALLOWED_ORIGINS=https://analytics.example.com,https://admin.example.com
 |-----------------------|------------------------------------------------|-------------------|
 | `/collect`            | 1000 req/min per IP, 10000 req/min per API key | Token bucket      |
 | `/widget/*`           | Same as /collect                               | Token bucket      |
-| `/admin/*`            | 200 req/min per IP                             | Token bucket      |
+| `/admin/*`, `/api/*`  | `RATE_LIMIT_PER_IP` per IP (default 1000/min), `RATE_LIMIT_PER_API_KEY` globally | Token bucket |
+| `/api/login`, `/api/token`, `/api/token/refresh` | 20 req/min per IP, 300 req/min globally (fixed) | Token bucket |
 | Login                 | 5 failed attempts = 15min lockout              | Counter + lockout |
-| `/api/password-reset` | Inherits admin rate limit                      | Token bucket      |
+| `/api/password-reset` | Same bucket as the other credential endpoints  | Token bucket      |
 
 - Buckets auto-expire after 5 minutes of inactivity
 - Rate limit state stored in-memory (Caffeine cache)
@@ -197,7 +199,7 @@ All database queries use Exposed ORM with parameterized expressions (`eq`, `less
 | `Path`     | `/`                  | Scoped to entire application                |
 | `MaxAge`   | 7 days               | Absolute session lifetime                   |
 
-**Inactivity timeout:** Sessions are invalidated after 4 hours of inactivity, even if the cookie hasn't expired.
+**Session lifetime:** Sessions are invalidated 4 hours after login, even if the cookie hasn't expired. This is an absolute limit, not a sliding inactivity window.
 
 ---
 
@@ -303,7 +305,7 @@ All internal redirects are validated against a hardcoded allowlist:
 - Ktor 3.4.0, Kotlin 2.3.0, JDK 21
 - Exposed 0.56.0, HikariCP 5.0.1
 - jBCrypt 0.4, Caffeine 3.1.8
-- GeoIP2 5.0.1, UserAgentUtils 1.21
+- GeoIP2 5.0.2, uap-java 1.6.1 (Apache-2.0; replaced the LGPL UserAgentUtils on 2026-10-06)
 
 > **Audit finding (PASS)**: No known critical CVEs in current dependency versions.
 > **Audit finding (INFO)**: Recommend periodic dependency scanning with `./gradlew dependencyCheckAnalyze` (OWASP Dependency Check plugin).
@@ -350,7 +352,7 @@ Before deploying to production:
 
 1. Reset password: `POST /api/password-reset` with server salt
 2. All refresh tokens are automatically invalidated
-3. Active sessions expire within 4 hours (inactivity timeout)
+3. Active sessions expire within 4 hours of login; a deactivated or deleted account is rejected on its next request
 
 ### Suspected token theft
 

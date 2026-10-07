@@ -46,7 +46,7 @@ These must be set for the application to start:
 | `DB_TYPE`        | `SQLITE`     | Database engine: `SQLITE` or `POSTGRESQL` |
 | `DB_SQLITE_PATH` | `./stats.db` | Path to the SQLite database file          |
 
-For PostgreSQL, you'll also need to set the standard PostgreSQL connection variables (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`).
+For PostgreSQL, you'll also need to set the `DB_PG_*` connection variables listed in the PostgreSQL section below.
 
 ### Server
 
@@ -87,14 +87,27 @@ For PostgreSQL deployments, set these additional variables:
 
 | Setting             | Default    | Description                          |
 |---------------------|------------|--------------------------------------|
-| `DB_HOST`           | `localhost` | PostgreSQL host                     |
-| `DB_PORT`           | `5432`     | PostgreSQL port                      |
-| `DB_NAME`           | `mini_numbers` | Database name                    |
-| `DB_USER`           | *(required)* | Database user                      |
-| `DB_PASSWORD`       | *(required)* | Database password                  |
-| `DB_PG_MAX_POOL_SIZE` | `10`     | HikariCP connection pool size        |
+| `DB_PG_HOST`        | `localhost` | PostgreSQL host                     |
+| `DB_PG_PORT`        | `5432`     | PostgreSQL port                      |
+| `DB_PG_NAME`        | `mini_numbers` | Database name                    |
+| `DB_PG_USERNAME`    | `postgres` | Database user                        |
+| `DB_PG_PASSWORD`    | *(required)* | Database password                  |
+| `DB_PG_MAX_POOL_SIZE` | `3`      | HikariCP connection pool size        |
 
 **Migrating from SQLite to PostgreSQL:** Schema creation is automatic — Mini Numbers calls `createMissingTablesAndColumns()` on every startup. To migrate existing data, export from SQLite and import into PostgreSQL using standard SQL tools. Always take a database backup before switching engines.
+
+### Email reports (SMTP)
+
+Email Reports stay disabled until both `SMTP_HOST` and `SMTP_FROM` are set.
+
+| Setting         | Default | Description                                   |
+|-----------------|---------|-----------------------------------------------|
+| `SMTP_HOST`     | *(empty)* | SMTP server host                            |
+| `SMTP_PORT`     | `587`   | SMTP server port                              |
+| `SMTP_USERNAME` | *(empty)* | SMTP auth username                          |
+| `SMTP_PASSWORD` | *(empty)* | SMTP auth password                          |
+| `SMTP_FROM`     | *(empty)* | From address shown on the reports           |
+| `SMTP_STARTTLS` | `true`  | Use STARTTLS                                  |
 
 ### Tracker
 
