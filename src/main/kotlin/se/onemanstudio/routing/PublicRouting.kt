@@ -55,14 +55,16 @@ fun Route.publicRoutes(config: AppConfig) {
     
     // Serve minified tracker script directly
     get("/tracker/tracker.min.js") {
+        // Must be served as JavaScript: every response carries X-Content-Type-Options: nosniff,
+        // and browsers refuse to execute a cross-origin script with a non-script MIME type.
         val resource = call.application.environment.classLoader.getResource("tracker/tracker.min.js")
         if (resource != null) {
-            call.respond(resource.readBytes())
+            call.respondBytes(resource.readBytes(), ContentType.Application.JavaScript)
         } else {
             // Fallback to unminified if minified doesn't exist (e.g. dev)
             val devResource = call.application.environment.classLoader.getResource("tracker/tracker.js")
             if (devResource != null) {
-                call.respond(devResource.readBytes())
+                call.respondBytes(devResource.readBytes(), ContentType.Application.JavaScript)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }

@@ -168,6 +168,22 @@ Test-count and version badges reference a GitHub release/CI history that doesn't
 
 ---
 
+## Found by the browser suite on 2026-10-07 (fixed the same day)
+
+### A. The tracker script was unexecutable in every browser
+`GET /tracker/tracker.min.js` responded with raw bytes and no content type. Combined with the `X-Content-Type-Options: nosniff` header on every response, Chrome refused to run it ("MIME type is not executable"). Any site embedding the snippet collected nothing. Fixed: served as `application/javascript`.
+
+### B. Every tracker beacon was rejected
+`navigator.sendBeacon` posts `text/plain`; `/collect` only accepted `application/json` through content negotiation and answered 400 "Invalid request body format". Fixed: the body is decoded as text with unknown keys ignored. Regression test in `PrivacyRbacAndCacheTest`.
+
+### C. The offline queue never queued
+`sendBeacon` returns `true` even while offline, so the "queue on failure" logic never ran and events during an outage were lost. Fixed: queue while `navigator.onLine === false`, drain on `online`. Covered by the Playwright tracker spec.
+
+### D. Dashboard accessibility
+Structural axe violations fixed (select name, list roles, `aria-expanded` on sections). **Open**: 16 colour-contrast failures in the light theme — comparison deltas (`#10b981` 2.53:1, `#ef4444` 3.76:1 on white), muted labels (`#a8a29e` 2.52:1 on white) and `.sidebar-subtitle` (`#827d79` on `#292524`, 3.72:1). Needs a palette decision; the axe rule is disabled in the suite until then.
+
+---
+
 ## Not bugs — verified as accurate/solid (no action needed)
 
 - **SQL injection**: no raw string SQL concatenation anywhere; all queries go through Exposed's typed DSL.

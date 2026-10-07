@@ -93,6 +93,9 @@
         }
         // Merge any extra fields (scrollDepth, targetUrl, properties)
         if (extra) { for (var k in extra) payload[k] = extra[k]; }
+        // sendBeacon returns true even with no network (the browser then drops the request),
+        // so queue explicitly while offline and only fall back on a refused beacon otherwise.
+        if (navigator.onLine === false) { queuePush(payload); return; }
         var sent = navigator.sendBeacon(endpoint + '?key=' + key, JSON.stringify(payload));
         if (!sent) queuePush(payload);
     }

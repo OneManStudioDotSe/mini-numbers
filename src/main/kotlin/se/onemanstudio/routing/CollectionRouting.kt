@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -24,6 +25,13 @@ import se.onemanstudio.middleware.models.RateLimitResult
 import se.onemanstudio.services.GeoLocationService
 import se.onemanstudio.services.UserAgentParser
 import se.onemanstudio.services.WebhookTrigger
+
+/**
+ * The tracker sends events with `navigator.sendBeacon`, which always posts as `text/plain`,
+ * so the body is decoded here regardless of Content-Type instead of through content negotiation.
+ * Unknown keys are ignored so older or newer tracker builds never get their events rejected.
+ */
+private val collectJson = Json { ignoreUnknownKeys = true }
 
 fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
     // Data Collection Endpoint
@@ -52,7 +60,7 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
         }
 
         val payload = try {
-            call.receive<PageViewPayload>()
+            collectJson.decodeFromString<PageViewPayload>(call.receiveText())
         } catch (e: SerializationException) {
             call.application.environment.log.warn("Invalid JSON payload: ${e.message}")
             return@post call.respond(HttpStatusCode.BadRequest,

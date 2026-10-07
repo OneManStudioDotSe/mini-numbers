@@ -16,7 +16,7 @@ Think of it as a simpler, privacy-respecting alternative to Google Analytics tha
 
 - **No cookies** — Your visitors won't see consent banners because of your analytics
 - **No personal data stored** — IP addresses are never saved to disk
-- **Tiny tracker** — The script added to your website is only 1.3KB (smaller than most images)
+- **Tiny tracker** — The script added to your website is only 1.9KB gzipped (smaller than most images)
 - **Self-hosted** — Your data stays on your server, under your control
 - **Open source** — Free to use, modify, and share under the MIT license
 

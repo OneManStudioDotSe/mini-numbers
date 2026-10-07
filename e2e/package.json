@@ -1,0 +1,13 @@
+{
+  "name": "mini-numbers-e2e",
+  "private": true,
+  "description": "Browser tests for the Mini Numbers dashboard and tracker (Playwright). Run from the repo root: ./gradlew buildFatJar && cd e2e && npm ci && npx playwright test",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.63.0"
+  }
+}

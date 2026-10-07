@@ -44,7 +44,7 @@
                 <i class="ri-folder-line"></i>
                 <span>Your projects</span>
             </div>
-            <div id="project-menu" class="project-menu" role="listbox" aria-label="Projects list">
+            <div id="project-menu" class="project-menu" role="list" aria-label="Projects list">
                 Loading projects...
             </div>
         </div>
@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="filter-selector">
-                    <label>Filter by:</label>
+                    <label for="filter-dimension">Filter by:</label>
                     <select id="filter-dimension" class="select">
                         <option value="">All traffic</option>
                         <option value="browser">Browser</option>
@@ -133,7 +133,7 @@
             <!-- ============================================
                  SECTION 1: OVERVIEW
                  ============================================ -->
-            <section class="dashboard-section" data-section="overview" aria-expanded="true">
+            <section class="dashboard-section" data-section="overview" data-expanded="true">
                 <button class="dashboard-section__header" aria-expanded="true" aria-controls="section-overview-content">
                     <div class="dashboard-section__title">
                         <i class="ri-dashboard-line"></i>
@@ -224,7 +224,7 @@
             <!-- ============================================
                  SECTION 2: CONTENT & PAGES
                  ============================================ -->
-            <section class="dashboard-section" data-section="content" aria-expanded="false">
+            <section class="dashboard-section" data-section="content" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-content-content">
                     <div class="dashboard-section__title">
                         <i class="ri-file-text-line"></i>
@@ -313,7 +313,7 @@
             <!-- ============================================
                  SECTION 3: TRAFFIC SOURCES
                  ============================================ -->
-            <section class="dashboard-section" data-section="traffic" aria-expanded="false">
+            <section class="dashboard-section" data-section="traffic" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-traffic-content">
                     <div class="dashboard-section__title">
                         <i class="ri-route-line"></i>
@@ -383,7 +383,7 @@
             <!-- ============================================
                  SECTION 4: AUDIENCE & TECHNOLOGY
                  ============================================ -->
-            <section class="dashboard-section" data-section="audience" aria-expanded="false">
+            <section class="dashboard-section" data-section="audience" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-audience-content">
                     <div class="dashboard-section__title">
                         <i class="ri-group-line"></i>
@@ -516,7 +516,7 @@
             <!-- ============================================
                  SECTION 5: TIME PATTERNS
                  ============================================ -->
-            <section class="dashboard-section" data-section="time-patterns" aria-expanded="false">
+            <section class="dashboard-section" data-section="time-patterns" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-time-content">
                     <div class="dashboard-section__title">
                         <i class="ri-time-line"></i>
@@ -608,7 +608,7 @@
             <!-- ============================================
                  SECTION 6: EVENTS & REVENUE
                  ============================================ -->
-            <section class="dashboard-section" data-section="events" aria-expanded="false">
+            <section class="dashboard-section" data-section="events" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-events-content">
                     <div class="dashboard-section__title">
                         <i class="ri-flashlight-line"></i>
@@ -768,7 +768,7 @@ MiniNumbers.track("donation", {
             <!-- ============================================
                  SECTION 7: REAL-TIME
                  ============================================ -->
-            <section class="dashboard-section" data-section="realtime" aria-expanded="false">
+            <section class="dashboard-section" data-section="realtime" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-realtime-content">
                     <div class="dashboard-section__title">
                         <i class="ri-radar-line"></i>
@@ -808,7 +808,7 @@ MiniNumbers.track("donation", {
             <!-- ============================================
                  SECTION 8: CONVERSIONS
                  ============================================ -->
-            <section class="dashboard-section" data-section="conversions" aria-expanded="false">
+            <section class="dashboard-section" data-section="conversions" data-expanded="false">
                 <button class="dashboard-section__header" aria-expanded="false" aria-controls="section-conversions-content">
                     <div class="dashboard-section__title">
                         <i class="ri-focus-3-line"></i>

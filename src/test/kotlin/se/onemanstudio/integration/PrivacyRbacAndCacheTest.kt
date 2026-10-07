@@ -208,6 +208,30 @@ class PrivacyRbacAndCacheTest {
     }
 
     @Test
+    fun `collect accepts text-plain bodies as sent by navigator sendBeacon and ignores unknown keys`() = testApplication {
+        application { module() }
+        val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)
+        val (projectId, apiKey) = admin.createProject("beacon-${System.nanoTime()}")
+
+        val beacon = admin.post("/collect?key=$apiKey") {
+            header(HttpHeaders.UserAgent, chromeUa)
+            contentType(ContentType.Text.Plain.withCharset(Charsets.UTF_8))
+            setBody(
+                """{"path":"/beacon","referrer":null,"sessionId":"abcdef0123456789abcdef0123456789",""" +
+                    """"type":"pageview","futureField":1}"""
+            )
+        }
+        assertEquals(HttpStatusCode.Accepted, beacon.status, beacon.bodyAsText())
+        assertEquals("/beacon", admin.firstEvent(projectId).str("path"))
+
+        val noType = admin.post("/collect?key=$apiKey") {
+            setBody("""{"path":"/no-type","sessionId":"abcdef0123456789abcdef0123456789","type":"pageview"}""")
+        }
+        assertEquals(HttpStatusCode.Accepted, noType.status, noType.bodyAsText())
+        assertEquals(HttpStatusCode.BadRequest, admin.post("/collect?key=$apiKey") { setBody("not json") }.status)
+    }
+
+    @Test
     fun `collect enforces the 2048 character limit on custom event properties`() = testApplication {
         application { module() }
         val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)

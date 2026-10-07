@@ -117,7 +117,7 @@ UTM data is attached to `pageview` events only. If a visitor lands with UTM para
 
 ## Offline queue
 
-If `sendBeacon()` fails (e.g., the server is temporarily unreachable), the event payload is saved to `localStorage` under the key `mn_queue` (max 20 items). The queue is replayed automatically on the next page load or when the browser comes back online (`online` event). Successfully delivered entries are removed from the queue.
+While the browser reports itself offline (`navigator.onLine === false`), or when `sendBeacon()` refuses a payload, the event is saved to `localStorage` under the key `mn_queue` (max 20 items) instead of being sent. The queue is replayed automatically on the next page load or when the browser comes back online (`online` event). Successfully delivered entries are removed from the queue.
 
 ---
 
