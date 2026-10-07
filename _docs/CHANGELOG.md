@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependencies brought up to date** (minor/patch): Kotlin 2.3.0 → 2.4.20, Ktor 3.4.0 → 3.6.0, Gradle 9.3.0 → 9.8.0, kotlin-asyncapi-ktor 3.1.3 → 3.2.4, logback 1.5.32 → 1.6.5, PostgreSQL driver 42.7.10 → 42.7.13, geoip2 5.0.2 → 5.2.0, Caffeine 3.2.3 → 3.3.0, Jakarta Mail 2.1.3 → 2.1.5, Angus Mail 2.0.3 → 2.0.5. **Held back on purpose**: `sqlite-jdbc` stays at 3.47.2.0 because with 3.53.x the driver's JDBC metadata no longer reports SQLite primary keys the way Exposed 0.56 expects, so `createMissingTablesAndColumns()` emits `ALTER TABLE … ADD PRIMARY KEY`, which SQLite rejects and which makes service initialisation fail on every database, new or existing. It will move together with the Exposed 1.x upgrade. HikariCP, Exposed, jBCrypt are deliberately left for their own changes.
 - **User-agent parsing** moved from `eu.bitwalker:UserAgentUtils` (LGPL-3.0, unmaintained since 2018) to `com.github.ua-parser:uap-java` (Apache-2.0). Browser, OS and device labels now use the same vocabulary as the demo data and the dashboard icons (`Chrome 120`, `macOS`, `Desktop` / `Mobile` / `Tablet` / `Bot`) instead of enum constants such as `CHROME 120`, `MAC_OS_X`, `COMPUTER`. Existing rows keep their old labels.
 - **Password reset** compares the server salt in constant time (`MessageDigest.isEqual`).
 - **Docker build** uses the Gradle wrapper instead of a separately pinned Gradle image, so Docker, CI and local builds run the same Gradle version.

@@ -89,7 +89,7 @@ Full documentation is available at **[onemanstudiodotse.github.io/mini-numbers](
 
 ## Tech Stack
 
-**Backend:** Kotlin 2.3.0 + Ktor 3.4.0 on JDK 21 &bull; **Database:** SQLite or PostgreSQL &bull; **Caching:** Caffeine &bull; **GeoIP:** MaxMind GeoLite2 &bull; **Build:** Gradle
+**Backend:** Kotlin 2.4.20 + Ktor 3.6.0 on JDK 21 &bull; **Database:** SQLite or PostgreSQL &bull; **Caching:** Caffeine &bull; **GeoIP:** MaxMind GeoLite2 &bull; **Build:** Gradle
 
 ## Contributing
 
