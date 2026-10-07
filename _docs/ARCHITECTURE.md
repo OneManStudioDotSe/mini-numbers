@@ -45,6 +45,8 @@ each general check, specific to this stack.
 - [ ] "Run all related tests" means: `./gradlew test` and `./gradlew detekt` pass. The test task
       creates `test-dbs/` (gitignored) itself. Detekt 1.23.x needs a JDK ≤ 21 on the Gradle
       launcher; on a machine whose only JDK is 25 it fails with a bare version-number error.
+- [ ] Browser suite: `./gradlew buildFatJar && cd e2e && npm ci && npx playwright test`
+      (needs Node and Google Chrome; screenshots land in `e2e/screenshots/`).
 - [ ] Manually exercised in a real browser (`./gradlew run` or the `run` skill) — the
       golden path and the relevant edge cases, not just "it compiles."
 - [ ] Light/dark theme check: toggle the theme switcher and re-check the changed UI in both.
@@ -148,7 +150,11 @@ mini-numbers/
 │   ├── setup/                            # Setup wizard frontend
 │   ├── tracker/tracker.js / tracker.min.js
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
-└── src/test/kotlin/                      # 308 tests
+├── src/test/kotlin/                      # 309 JVM tests (unit + Ktor test-host integration)
+└── e2e/                                  # 12 Playwright browser tests (own package.json, not part of Gradle)
+    ├── playwright.config.js              # boots build/libs/mini-numbers-all.jar on a throwaway SQLite DB
+    ├── helpers.js                        # login, project creation, fake tracked site via request interception
+    └── tests/                            # auth, dashboard, tracker, a11y specs
 ```
 
 ## Database schema
@@ -415,6 +421,9 @@ the full pre-launch audit this was extracted from.
 - **Session lifetime is absolute, not sliding**: the 4-hour limit in `core/Security.kt` is
   measured from login (`createdAt`), not from the last request.
 - **CSP still allows `'unsafe-inline'`** for scripts and styles in the admin panel.
+- **Light-theme colour contrast fails WCAG AA on 16 dashboard nodes** (comparison deltas in
+  `#10b981`/`#ef4444`, muted `#a8a29e` text on white, `.sidebar-subtitle` on the dark
+  sidebar). The axe rule is disabled in `e2e/tests/a11y.spec.js` until the palette is changed.
 - **GeoLite2 `.mmdb` (61 MB) is committed to the repo** and baked into every image and fat
   JAR. A download-on-start path with a MaxMind licence key is the intended replacement.
 

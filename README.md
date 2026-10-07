@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/github/v/release/onemanstudiodotse/mini-numbers?label=version&color=blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/tests-296%20passing-brightgreen" alt="Tests">
-  <img src="https://img.shields.io/badge/tracker-1.3KB-orange" alt="Tracker Size">
+  <img src="https://img.shields.io/badge/tracker-1.9KB%20gzipped-orange" alt="Tracker Size">
   <img src="https://img.shields.io/badge/cookies-zero-purple" alt="No Cookies">
 </p>
 
@@ -19,7 +19,7 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 | No cookies         |                  | Yes       | Yes   | **Yes**          |
 | Self-hosted        |                  | Optional  | Yes   | **Yes**          |
 | Privacy modes      |                  |           |       | **3 levels**     |
-| Tracker size       | 45KB+            | ~1KB      | ~2KB  | **1.3KB**        |
+| Tracker size       | 45KB+            | ~1KB      | ~2KB  | **1.9KB gz**     |
 | Conversion goals   | Yes              | Yes       |       | **Yes**          |
 | Funnels            | Yes              | Yes       |       | **Yes**          |
 | User segments      | Yes              |           |       | **Yes**          |
@@ -35,7 +35,7 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 - **Revenue analytics** — Track purchases and AOV with `MiniNumbers.track("purchase", { revenue: 29.99 })`
 - **Webhooks** — HMAC-signed delivery on goal conversions and traffic spikes
 - **Email reports** — Scheduled daily/weekly/monthly analytics emails via SMTP
-- **Tiny footprint** — 1.3KB tracking script, SQLite or PostgreSQL, runs anywhere
+- **Tiny footprint** — 1.9KB (gzipped) tracking script, SQLite or PostgreSQL, runs anywhere
 - **Multi-project** — Manage multiple websites from a single instance
 - **No cookies** — GDPR-friendly by default, no consent banners required
 - **Dark mode** — Full light/dark theme support with accessible UI

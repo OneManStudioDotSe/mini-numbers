@@ -259,6 +259,7 @@ const Dashboard = {
           (project) => `
         <div
           class="project-menu__item"
+          role="listitem"
           data-id="${project.id}"
           onclick="Dashboard.selectProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')"
         >
@@ -2957,19 +2958,21 @@ const Dashboard = {
 
       // Apply saved state (override HTML default)
       if (savedState[sectionName] !== undefined) {
-        section.setAttribute('aria-expanded', savedState[sectionName] ? 'true' : 'false');
+        section.setAttribute('data-expanded', savedState[sectionName] ? 'true' : 'false');
       }
+      header.setAttribute('aria-expanded', section.getAttribute('data-expanded') === 'true' ? 'true' : 'false');
 
       // Set initial max-height for expanded sections
       const content = section.querySelector('.dashboard-section__content');
-      if (content && section.getAttribute('aria-expanded') === 'true') {
+      if (content && section.getAttribute('data-expanded') === 'true') {
         content.style.maxHeight = 'none';
       }
 
       header.addEventListener('click', () => {
-        const isExpanded = section.getAttribute('aria-expanded') === 'true';
+        const isExpanded = section.getAttribute('data-expanded') === 'true';
         const newState = !isExpanded;
-        section.setAttribute('aria-expanded', newState.toString());
+        section.setAttribute('data-expanded', newState.toString());
+        header.setAttribute('aria-expanded', newState.toString());
 
         if (content) {
           if (newState) {
