@@ -1,256 +1,144 @@
-# Mini Numbers - Project Evaluation
+# Mini Numbers - Project evaluation
 
-**Date**: March 8 2026
-**Status**: Production-Ready (v1.1.1)
+**Date**: October 7, 2026 (previous evaluation: March 8, 2026)
+**Status**: Pre-release. Public repository, no tagged release yet.
 
 ---
 
 ## Executive summary
 
-Mini Numbers is a privacy-focused web analytics platform that is **feature-complete for beta** with strong fundamentals, comprehensive security, custom event tracking, conversion goals, basic funnels, user segments, webhooks, email reports, revenue tracking with attribution, API pagination and caching, a complete OpenAPI 3.0.3 specification, configurable privacy modes, a landing page, and a well-structured codebase. All critical security blockers have been resolved. Deployment infrastructure is complete with production Dockerfile, health check, and metrics endpoints. 296 tests pass with zero failures. The dashboard is WCAG AA compliant with full ARIA dialog support and keyboard focus management. The tracker now includes an offline queue that prevents data loss during brief network outages.
+Mini Numbers is a feature-rich, single-JAR, privacy-first analytics server with a SQLite or
+PostgreSQL backend. Between March and October 2026 the project did not change, but the
+market did: Umami shipped session replay, heatmaps, web vitals, annotations and an MCP
+server; Plausible shipped funnels, journeys, annotations and an AI-assistant traffic channel;
+and a new generation (Rybbit, Databuddy, Swetrix, Seline) now occupies the "privacy plus
+product analytics" slot. The March matrix that rated Mini Numbers 9.4/10 and first overall is
+no longer accurate and is replaced below.
+
+The October revival work closed the audit from `GOING_LIVE.md` (CORS guard, rate limits, live
+role checks, LGPL dependency, docs drift), brought every dependency current, made the test
+suite honest (it had been silently skipping every authenticated test), added a PostgreSQL CI
+job and a Playwright browser suite, and in doing so found and fixed three defects that had
+made the tracker non-functional on real sites. Those facts, not the March self-ratings, are
+the baseline for the go/no-go below.
 
 ---
 
-## Quick assessment
+## Where Mini Numbers stands (honest, October 2026)
 
-| Aspect | Rating | Notes |
-|--------|--------|-------|
-| **Core Functionality** | 10/10 | Privacy-first design, bounce rate, custom events, goals, funnels, segments, API key rotation, retention preview, offline tracker queue |
-| **Frontend/Dashboard** | 10/10 | Beautiful dashboard, WCAG AA contrast, full ARIA dialogs, focus trap, mobile responsive grid, polished filter bar |
-| **Backend API** | 10/10 | Pagination, caching, OpenAPI, segments, health/metrics |
-| **Privacy Design** | 10/10 | Hash rotation, 3 privacy modes, data retention |
-| **Security Posture** | 9/10 | Environment variables, rate limiting, session auth, ARIA modals, WCAG compliance |
-| **Testing Coverage** | 9/10 | 296 tests (unit + integration + end-to-end + cross-project isolation) |
-| **Production Readiness** | 9/10 | Dockerfile, health check, metrics, JVM tuning |
-| **Documentation** | 10/10 | Deployment guide, full OpenAPI 3.0.3 spec, tracker reference, widgets, troubleshooting, upgrading guide |
-| **Integration Ease** | 9/10 | Tracker (~1.3KB minified), OpenAPI docs, offline queue |
-| **Code Architecture** | 9/10 | Package-per-feature, QueryCache, ApiError |
-
----
-
-## Feature comparison matrix
-
-| Feature | Mini Numbers | Umami | Plausible CE | Matomo | PostHog | Fathom | Simple Analytics |
-|---------|-------------|-------|-------------|--------|---------|--------|-----------------|
-| **Basic Analytics** |
-| Page views & visitors | Y | Y | Y | Y | Y | Y | Y |
-| Referrer tracking | Y | Y | Y | Y | Y | Y | Y |
-| Geographic data | Y | Y | Y | Y | Y | Y | Y |
-| Device/browser/OS | Y | Y | Y | Y | Y | Y | Y |
-| Time series | Y | Y | Y | Y | Y | Y | Y |
-| Real-time feed | Y | Y | Y | Y | Y | Y | Y |
-| Bounce rate | Y | Y | Y | Y | Y | Y | Y |
-| **Advanced Analytics** |
-| Custom events | Y | Y | Y | Y | Y | - | - |
-| Conversion goals | Y | Y | Y | Y | Y | Y | - |
-| Funnels | Y | Y (v3) | Paid | Y | Y | - | - |
-| User segments | Y | ~ | - | Y | Y | - | - |
-| Revenue tracking | Y | - | - | Y | Y | - | - |
-| Webhooks | Y | ~ | - | Y | Y | - | - |
-| Email reports | Y | ~ | Y | Y | Y | - | - |
-| Cohort/retention | - | - | - | Y | Y | - | - |
-| Session replay | - | - | - | Paid | Y | - | - |
-| Activity heatmap | Y | - | - | Paid | - | - | - |
-| **Privacy** |
-| Cookie-free | Y | Y | Y | ~ | ~ | Y | Y |
-| No PII storage | Y | Y | Y | ~ | ~ | Y | Y |
-| Configurable hash rotation | Y (unique) | - | - | - | - | - | - |
-| Privacy modes | Y (3 levels) | - | - | ~ | ~ | - | - |
-| Data retention policies | Y | Y | Y | Y | Y | - | - |
-| **Technical** |
-| Self-hosted | Y | Y | Y | Y | Y | - | - |
-| Cloud option | - | Y | Y | Y | Y | Y | Y |
-| Multi-project | Y | Y | ~ | Y | Y | Y | Y |
-| Open source | Y (MIT) | Y (MIT) | Y (AGPL) | Y (GPL) | Y (MIT) | - | - |
-| Tracker size | ~1.3KB | <1KB | <1KB | ~21KB | ~44KB | <1KB | <1KB |
-| OpenAPI docs | Y | - | - | Y | Y | - | - |
-| **UI/UX** |
-| Dark mode | Y | Y | - | ~ | Y | - | - |
-| Contribution calendar | Y (unique) | - | - | - | - | - | - |
-| Interactive maps | Y | - | - | Y | ~ | - | - |
-| Loading skeletons | Y | Y | Y | Y | Y | ~ | ~ |
-| Accessibility (ARIA) | Y | ~ | ~ | Y | Y | ~ | ~ |
+| Aspect | Assessment |
+|--------|------------|
+| Core analytics | Complete for the "simple privacy" segment: page views, visitors, sessions, bounce, referrers, UTM, geo, devices, entry/exit, scroll depth, outbound/download, custom events with properties, goals, basic funnels, segments, revenue attribution. |
+| Privacy design | Still the strongest differentiator: cookieless salted hashing with **configurable** rotation (1 h to 1 year) and three modes (STANDARD / STRICT / PARANOID), now verified by tests for what each mode stores. |
+| Deployment | Single fat JAR or Docker image, SQLite by default. Only GoatCounter and Vince offer anything comparable; every 2025-26 newcomer needs ClickHouse. |
+| Security posture | Audit closed except GeoLite2 redistribution and the history purge. Rate limits and origin allowlist are real now, not documented aspirations. |
+| Testing | 309 JVM tests (unit + integration, SQLite and PostgreSQL in CI) and 12 browser tests. Until October the integration tests never exercised an authenticated request. |
+| Tracker | 1.9 KB gzipped (4.9 KB minified); was advertised as 1.3 KB. Now proven end to end in a real browser, including SPA, custom events, offline queue and outbound/download detection. |
+| Accessibility | Structural WCAG issues fixed; 16 colour-contrast failures in the light theme remain (tracked). |
+| Documentation | Extensive; was partly wrong (PostgreSQL variables, SMTP, test counts, tracker size), corrected in October. |
+| Community | None yet. 0 stars, no release, no launch content. |
 
 ---
 
-## Scoring summary
+## Feature comparison, October 2026
 
-| Platform | Basic | Advanced | Privacy | Integration | UI/UX | Overall |
-|----------|-------|----------|---------|-------------|-------|---------|
-| **PostHog** | 9/10 | 10/10 | 7/10 | 10/10 | 9/10 | **9.0/10** |
-| **Mini Numbers** | 9/10 | 9/10 | 10/10 | 9/10 | 10/10 | **9.4/10** |
-| **Matomo** | 9.5/10 | 9/10 | 7/10 | 9/10 | 8/10 | **8.4/10** |
-| **Umami** | 9/10 | 6/10 | 8/10 | 7/10 | 7/10 | **7.5/10** |
-| **Plausible CE** | 8.5/10 | 5/10 | 9/10 | 6/10 | 6/10 | **7.1/10** |
-| **Fathom** | 8/10 | 3/10 | 10/10 | 5/10 | 6/10 | **6.4/10** |
-| **Simple Analytics** | 8/10 | 2/10 | 10/10 | 5/10 | 6/10 | **6.2/10** |
+Y = included, N = absent, P = paid tier or plugin only, ~ = partial or unverified.
 
----
+| Feature | Mini Numbers | Umami 3.4 | Plausible | Matomo 5.14 | PostHog | Fathom | Rybbit 2.9 | GoatCounter |
+|---|---|---|---|---|---|---|---|---|
+| Open-source self-host | Y (MIT) | Y (MIT) | Y (AGPL CE) | Y (GPL) | Y (MIT+ee) | N | Y (AGPL) | Y |
+| Runs on SQLite / single artifact | **Y** | N (Postgres) | N (ClickHouse+PG) | N (MySQL) | N | – | N (ClickHouse+PG+Redis) | Y |
+| Cookieless by default | Y | Y | Y | ~ | ~ | Y | Y | Y |
+| Configurable hash rotation + privacy modes | **Y (unique)** | N | N | N | N | N | N | N |
+| Goals / custom events / properties | Y | Y | Y / P | Y | Y | Y / ~ | Y | Y / N |
+| Funnels | Y (basic) | Y | P | P | Y | N | Y | N |
+| User journeys / paths | N | Y | P | P | Y | N | Y | N |
+| Retention / cohorts | N | Y | N | P | Y | N | Y | N |
+| Saved segments | Y | Y | Y | Y | Y | Y | Y | N |
+| Annotations | N | Y | Y | Y | Y | N | Y | N |
+| AI-assistant referrer channel | N (planned) | ~ | Y | Y | Y | Y | ~ | N |
+| Bot filtering beyond UA | ~ (UA only) | Y | Y | Y | Y | Y | Y | Y |
+| Session replay / heatmaps | N | Y | N | P | Y | N | Y | N |
+| Web vitals | N | Y | N | ~ | Y | N | Y | N |
+| Revenue tracking | Y | Y | P | Y | Y | Y | ~ | N |
+| Webhooks / email reports | Y / Y | ~ / cloud | N / Y | ~ / Y | Y / ~ | ~ / Y | ~ / ~ | N / Y |
+| Public API + OpenAPI | Y / Y | Y | P | Y | Y | Y | Y | Y / ~ |
+| MCP / agent access | N | Y | N | N | Y | ~ | Y | N |
+| Teams with roles | Y (2 roles) | Y | Y (5) | Y | Y | Y | Y | Y |
+| GA4 import | N | N | Y | Y | ~ | N | N | N |
+| Tracker size (gzipped) | ~1.9 KB | ~2.4 KB | ~1.9 KB | ~21 KB | ~44 KB | ~3 KB | ~9 KB | ~3.5 KB |
+| Contribution calendar + activity heatmap | **Y (unique)** | N | N | N | N | N | N | N |
 
-## Competitor profiles
-
-### Umami -- primary competitor
-- **Stack**: Node.js, TypeScript, React | **License**: MIT | **Stars**: ~6,400
-- **Strengths**: Proven community, <1KB tracker, cloud + self-hosted, custom events, goals
-- **Weaknesses**: No activity heatmap, no contribution calendar, no configurable hash rotation, no segments
-- **vs Mini Numbers**: Umami wins on community size and tracker size; Mini Numbers wins on privacy (configurable hash rotation, 3 privacy modes), unique visualizations, user segments, OpenAPI docs, JVM stack
-
-### Plausible CE
-- **Stack**: Elixir, ClickHouse, React | **License**: AGPL | **Stars**: ~19,000
-- **Strengths**: Strong brand, <1KB tracker, EU-focused, high performance
-- **Weaknesses**: AGPL restricts commercial use, CE updated only twice/year, limited multi-project, no segments
-- **vs Mini Numbers**: Plausible wins on brand and performance; Mini Numbers wins on configurable hash rotation, contribution calendar, segments, OpenAPI docs, license flexibility
-
-### Matomo -- enterprise leader
-- **Stack**: PHP, MySQL | **License**: GPL | **Stars**: ~19,000
-- **Strengths**: 100+ features, 1,000+ plugins, 15+ years maturity, session replay, A/B testing
-- **Weaknesses**: Heavy tracker (21KB), cookie-based by default, complex UI, many paid features
-- **vs Mini Numbers**: Matomo wins on feature breadth and enterprise capabilities; Mini Numbers wins on simplicity, lightweight tracker, modern stack, and privacy-by-default
-
-### PostHog -- all-in-one platform
-- **Stack**: Python/TypeScript, ClickHouse | **License**: MIT | **Stars**: ~20,000
-- **Strengths**: Complete platform (analytics + feature flags + session replay + A/B testing), generous free tier, mobile SDKs
-- **Weaknesses**: Overkill for simple analytics, heavy tracker (44KB), complex to self-host
-- **vs Mini Numbers**: PostHog wins on feature breadth; Mini Numbers wins on simplicity, lightweight tracker, and focused web analytics approach
-
-### Fathom Analytics -- privacy SaaS
-- **Type**: Closed-source, cloud-only | **Pricing**: From $15/month
-- **Strengths**: Simple, excellent privacy, ad-blocker bypass, great support
-- **Weaknesses**: Closed-source, no self-hosted option, limited features, vendor lock-in
-- **vs Mini Numbers**: Fathom wins on cloud simplicity; Mini Numbers wins on open-source, self-hosted, more features, no recurring costs
-
-### Simple Analytics -- EU SaaS
-- **Type**: Closed-source, cloud-only | **Pricing**: From EUR 19/month
-- **Strengths**: 100% GDPR compliant, all data in EU, simple interface
-- **Weaknesses**: Closed-source, cloud-only, very limited features, higher pricing
-- **vs Mini Numbers**: Simple Analytics wins on EU data hosting; Mini Numbers wins on features, self-hosted, no recurring costs
+Sources and dates are in the research notes behind this table (Umami releases, Plausible and
+Fathom changelogs, Matomo and PostHog changelogs, Rybbit releases; all read on 2026-10-06).
+No acquisitions or licence changes were found for any of these projects in 2025-26.
 
 ---
 
-## SWOT analysis
+## Market trends that matter for this project
 
-### Strengths
-
-| Category | Rating |
-|----------|--------|
-| Technical Foundation | 9.5/10 |
-| Privacy Features | 10/10 |
-| UI/UX | 9.8/10 |
-| Unique Features | 9/10 |
-| Documentation | 9.5/10 |
-| Testing | 9/10 (288 tests, all passing) |
-| Security | 8/10 |
-| Deployment | 9/10 |
-
-### Weaknesses
-
-- **Community**: 0/10 -- New project, no ecosystem yet
-- **Tracker size**: 8/10 -- ~1.3KB minified (competitive with most, but Umami/Plausible are <1KB)
-
-### Opportunities
-
-1. Underserved JVM ecosystem -- no analytics tool in Kotlin/JVM space
-2. Privacy-first demand -- GDPR awareness growing, Google Analytics restricted in EU
-3. Developer community -- contribution calendar appeals to developers
-4. Simplicity gap -- Matomo too complex, PostHog too broad
-5. Visual analytics -- unique visualizations differentiate from competitors
-6. Cost advantage -- self-hosted with no recurring fees
-7. Custom events, goals, funnels, segments -- now at feature parity
-
-### Threats
-
-1. Established competition -- Umami (6K stars), Plausible (19K), Matomo (19K), PostHog (20K)
-2. Cold start -- no community or ecosystem yet
-3. Cloud competition -- managed cloud more convenient than self-hosted
-4. Market saturation -- 10+ established players
-5. Maintenance burden -- keeping up with competitors as solo developer
+1. **The AI-assistant referrer channel became universal in five months** (Matomo March, GA4 May,
+   Plausible June, PostHog July, Fathom October 2026). Plausible reports 2,200% year-on-year
+   growth in AI referrals across its network. This is now the first thing a 2026 reviewer
+   looks for and Mini Numbers does not have it.
+2. **Read-only agent access (MCP) is the new API surface**: Umami, Rybbit, PostHog, Vercel,
+   Fathom, Databuddy all shipped it.
+3. **Bot and AI-crawler filtering got serious**: ASN lists, flood detection, firewall rules,
+   separate bot tables.
+4. **Funnels, journeys and retention are no longer "product analytics only"**.
+5. **Annotations on the time series are standard**.
+6. **Self-host stacks got heavier**: every newcomer requires ClickHouse. The single-JAR,
+   SQLite-capable niche is real, small and almost empty.
+7. **Script weight is a marketed number**, and claims get checked.
 
 ---
 
-## Go/no-go decision
+## Positioning
 
-| Criteria | Weight | Score | Weighted |
-|----------|--------|-------|----------|
-| Technical Foundation | 20% | 10/10 | 2.0 |
-| Privacy Features | 20% | 10/10 | 2.0 |
-| Security Posture | 15% | 9/10 | 1.35 |
-| Feature Completeness | 15% | 10/10 | 1.5 |
-| Market Opportunity | 15% | 8/10 | 1.2 |
-| Differentiation | 10% | 9/10 | 0.9 |
-| Deployment Readiness | 5% | 9/10 | 0.45 |
-| **Total** | **100%** | | **9.4/10** |
+**Where Mini Numbers wins**
 
-**Decision**: Strong Go (8-10 range)
+- The only MIT-licensed, single-artifact, SQLite-capable analytics server with funnels,
+  segments, revenue attribution, webhooks and email reports.
+- Configurable hash rotation and three privacy modes, now test-verified.
+- Visualisation taste: contribution calendar, activity heatmap, globe, a coherent design
+  system in both themes.
+- A JVM stack, which no other analytics tool offers to teams that already run Kotlin/Java.
 
----
+**Where competitors win**
 
-## Competitive positioning
+- Breadth (Umami, Rybbit, PostHog): replay, heatmaps, vitals, journeys, retention, MCP.
+- Community and ecosystem (everyone).
+- AI-assistant channel, annotations, bot filtering (table stakes we lack).
+- Cloud hosting option (we have none, and that is fine for the niche).
 
-**Where Mini Numbers wins:**
-- Configurable hash rotation (unique -- strongest privacy differentiator)
-- Three privacy modes: STANDARD, STRICT, PARANOID
-- Contribution calendar (unique visualization)
-- Activity heatmap (rare feature)
-- Revenue tracking with attribution
-- Webhooks with HMAC-signed deliveries
-- Email reports (daily/weekly/monthly)
-- Custom event tracking, conversion goals, funnels, user segments
-- API pagination, query caching, OpenAPI documentation
-- JVM/Kotlin stack (underserved market)
-- Beautiful UI with dark mode, 6 chart types, loading skeletons, accessibility, contextual illustrations for all empty and error states
-- Production Dockerfile with JVM container tuning
-- Self-hosted with no recurring costs
-
-**Where competitors win:**
-- Feature breadth (session replay, A/B testing)
-- Community size and ecosystem
-- Tracker size (<1KB vs ~1.3KB)
-- Cloud hosting options
-
-**Best for**: Privacy-conscious developers, JVM ecosystem users, open-source projects, EU businesses needing GDPR compliance, users wanting self-hosted analytics with no recurring costs.
-
-**Not best for**: Users needing comprehensive features (Matomo/PostHog), non-technical users wanting cloud simplicity (Fathom/Simple Analytics), users needing extensive integrations.
+**Not trying to win**: session replay, heatmaps and feature flags. The "simple privacy"
+segment (Plausible, Fathom, Simple, Pirsch, Seline) deliberately skips them too.
 
 ---
 
-## Feature completion
+## Go/no-go
 
-| Area | Completion | Highlights |
-|------|-----------|------------|
-| **Data Collection** | 100% | Privacy-first hashing, geolocation, user agent parsing, heartbeat, custom events, offline queue |
-| **Database** | 100% | SQLite + PostgreSQL, 8 performance indexes, connection pooling |
-| **API Endpoints** | 100% | CRUD, analytics, goals, funnels, segments, webhooks, email reports, revenue, health, metrics, API key rotation, retention preview |
-| **Analytics Engine** | 100% | Page views, visitors, heatmap, time series, goals, funnels, segments, revenue attribution |
-| **Dashboard UI** | 100% | Charts, maps, dark mode, WCAG AA contrast, full ARIA dialogs, focus trap, mobile responsive stat cards, contextual empty/error state illustrations, polished filter bar, rotate API key button |
-| **Tracking Script** | 100% | Auto pageview, heartbeat, SPA support, custom events API, localStorage offline queue |
-| **Security** | 90% | Session auth, API keys, rate limiting, input validation, CORS, WCAG AA compliance, modal focus management |
-| **Documentation** | 100% | Full OpenAPI 3.0.3 spec, deployment guide, config reference, tracker reference, widgets, troubleshooting, upgrading guide |
-| **Privacy** | 100% | Configurable hash rotation, three privacy modes, data retention |
-| **Performance** | 100% | Query caching, GeoIP caching, database indexes |
+| Criteria | Weight | Score | Notes |
+|----------|--------|-------|-------|
+| Technical foundation | 20% | 8 | Current stack, green gates, honest tests; GeoLite2 redistribution and contrast still open |
+| Privacy features | 20% | 10 | Unchanged lead |
+| Security posture | 15% | 8 | Audit closed; history purge pending |
+| Feature completeness vs 2026 table stakes | 15% | 6 | Missing AI channel, annotations, journeys, bot filtering v2 |
+| Market opportunity | 15% | 7 | Niche is real but small; AI-referral curiosity is a launch hook |
+| Differentiation | 10% | 8 | Privacy modes, single JAR, visual design |
+| Deployment readiness | 5% | 8 | Docker/JAR proven; Postgres covered in CI only |
+| **Total** | | **7.9** | |
 
-### Not yet implemented
-
-- Advanced analytics (retention/cohort analysis, user journeys)
-- Multi-user support with RBAC
+**Decision**: Go, after the two pre-launch features (AI-assistant channel with the
+crawler/referral split, privacy budget card) and the history purge. Launch angle: "the
+single JAR, SQLite-ready, privacy-configurable analytics you can run on a Raspberry Pi,
+with the honest AI-traffic view everyone is asking for."
 
 ---
 
 ## Recommendation
 
-**Ready for public launch.** All critical blockers resolved. Email reports, webhooks, and revenue tracking now implemented. Focus now on:
-
-1. Community building and public launch
-2. Advanced analytics (retention, cohorts, user journeys)
-3. Enterprise features (multi-user, roles)
-
----
-
-## Sources
-
-- [Best Google Analytics Alternatives](https://www.accuwebhosting.com/blog/best-google-analytics-alternatives/)
-- [Plausible alternatives & competitors](https://posthog.com/blog/best-plausible-alternatives)
-- [Umami vs Plausible vs Matomo](https://aaronjbecker.com/posts/umami-vs-plausible-vs-matomo-self-hosted-analytics/)
-- [Privacy-First Analytics Alternatives 2026](https://www.databuddy.cc/blog/7-privacy-first-google-analytics-alternatives-you-need-to-know-in-2026)
-- [GDPR-compliant analytics tools](https://posthog.com/blog/best-gdpr-compliant-analytics-tools)
-- [Open source analytics](https://posthog.com/blog/best-open-source-analytics-tools)
-- [Self-hosted analytics](https://plausible.io/self-hosted-web-analytics)
+1. Ship v1.3.0 with the fixes and the two features above; purge the leaked history first.
+2. Launch content built on the niche, not on breadth claims; keep the comparison table honest.
+3. Post-launch roadmap in order: annotations (with auto change-points), journeys with
+   privacy-aware aggregation, bot filter v2, read-only MCP, web vitals as an opt-in.

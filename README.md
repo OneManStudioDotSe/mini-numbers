@@ -14,18 +14,20 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 
 ## Why Mini Numbers?
 
-|                    | Google Analytics | Plausible | Umami | **Mini Numbers** |
-|--------------------|------------------|-----------|-------|------------------|
-| No cookies         |                  | Yes       | Yes   | **Yes**          |
-| Self-hosted        |                  | Optional  | Yes   | **Yes**          |
-| Privacy modes      |                  |           |       | **3 levels**     |
-| Tracker size       | 45KB+            | ~1KB      | ~2KB  | **1.9KB gz**     |
-| Conversion goals   | Yes              | Yes       |       | **Yes**          |
-| Funnels            | Yes              | Yes       |       | **Yes**          |
-| User segments      | Yes              |           |       | **Yes**          |
-| Revenue tracking   | Yes              | Yes       |       | **Yes**          |
-| Webhooks           |                  |           |       | **Yes**          |
-| Free & open source |                  | Paid/CE   | Yes   | **Yes**          |
+Honest comparison as of October 2026 (full matrix and sources in `_docs/EVALUATION.md`):
+
+|                              | Google Analytics | Plausible CE | Umami | Rybbit | **Mini Numbers** |
+|------------------------------|------------------|--------------|-------|--------|------------------|
+| No cookies                   |                  | Yes          | Yes   | Yes    | **Yes**          |
+| Self-hosted                  |                  | Yes          | Yes   | Yes    | **Yes**          |
+| Runs on SQLite, single JAR   |                  |              |       |        | **Yes**          |
+| Privacy modes + hash rotation|                  |              |       |        | **3 levels, 1h–1y** |
+| Tracker size (gzipped)       | 45KB+            | ~1.9KB       | ~2.4KB| ~9KB   | **1.9KB**        |
+| Goals, funnels, segments     | Yes              | Paid         | Yes   | Yes    | **Yes**          |
+| Revenue tracking             | Yes              | Paid         | Yes   | ~      | **Yes**          |
+| Webhooks + email reports     |                  | Email        | Cloud | ~      | **Both**         |
+| Session replay / heatmaps    |                  |              | Yes   | Yes    | No (by design)   |
+| Licence                      |                  | AGPL         | MIT   | AGPL   | **MIT**          |
 
 ## Key Features
 
