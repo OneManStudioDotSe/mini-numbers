@@ -106,6 +106,10 @@
                     <i class="ri-calendar-line"></i>
                     <span id="date-range-display">Loading...</span>
                 </div>
+                <button type="button" class="privacy-chip" id="privacy-chip" aria-haspopup="dialog" aria-controls="privacy-modal" title="What this instance stores about visitors">
+                    <i class="ri-shield-check-line" aria-hidden="true"></i>
+                    <span id="privacy-chip-text">Privacy</span>
+                </button>
 
                 <div class="filter-selector">
                     <label for="filter-dimension">Filter by:</label>
@@ -187,7 +191,7 @@
                     </div>
 
                     <!-- Extended Metrics -->
-                    <div class="grid grid-cols-2 mt-lg" role="region" aria-label="Extended metrics">
+                    <div class="grid grid-cols-3 mt-lg" role="region" aria-label="Extended metrics">
                         <div class="card stat-card" role="status" aria-label="Average session duration">
                             <div class="stat-card__header">
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-timer-line"></i></div>
@@ -204,6 +208,16 @@
                             </div>
                             <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
                             <div class="stat-card__comparison" id="conversion-rate-comparison">Loading...</div>
+                        </div>
+
+                        <div class="card stat-card" role="status" aria-label="AI assistant referrals">
+                            <div class="stat-card__header">
+                                <div class="stat-card__icon" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+                                <small>AI assistant referrals</small>
+                            </div>
+                            <div class="stat-card__value" id="ai-referrals"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__detail" id="ai-referrals-detail"></div>
+                            <div class="stat-card__comparison" id="ai-referrals-comparison">Loading...</div>
                         </div>
                     </div>
 
@@ -1726,6 +1740,33 @@ SMTP_STARTTLS=true</pre>
     </div>
 
     <!-- Logout Confirmation Modal -->
+    <!-- Privacy posture modal -->
+    <div id="privacy-modal" class="modal" role="dialog" aria-labelledby="privacy-modal-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--compact">
+            <div class="modal-header">
+                <h2 id="privacy-modal-title">What this instance stores</h2>
+                <button class="modal-close" id="close-privacy-modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body privacy-posture">
+                <p class="privacy-posture__intro" id="privacy-intro"></p>
+                <div class="privacy-posture__group">
+                    <h3><i class="ri-database-2-line" aria-hidden="true"></i> Stored per page view</h3>
+                    <ul id="privacy-stored"></ul>
+                </div>
+                <div class="privacy-posture__group">
+                    <h3><i class="ri-forbid-line" aria-hidden="true"></i> Never stored</h3>
+                    <ul id="privacy-never"></ul>
+                </div>
+                <div class="privacy-posture__group">
+                    <h3><i class="ri-history-line" aria-hidden="true"></i> Forgotten after</h3>
+                    <ul id="privacy-forgotten"></ul>
+                </div>
+                <p class="privacy-posture__footer">Change these with <code>PRIVACY_MODE</code>, <code>HASH_ROTATION_HOURS</code> and <code>DATA_RETENTION_DAYS</code> in the server configuration.</p>
+            </div>
+        </div>
+    </div>
+
     <div id="logout-modal" class="modal" role="dialog" aria-labelledby="logout-title" aria-modal="true">
         <div class="modal-backdrop"></div>
         <div class="modal-content modal-content--compact">

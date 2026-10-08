@@ -25,6 +25,8 @@ Privacy isn't a checkbox; it's our architecture. Mini Numbers offers three disti
 
 ---
 
+- **Privacy posture at a glance** — a chip next to the date range reads, for example, "Standard · visitors forgotten after 1 day"; opening it lists in plain words what this instance stores per page view, what it never stores, and when it forgets, matching the configured privacy mode, hash rotation and retention.
+
 ## 📊 Analytics Dashboard
 
 A premium, unified dashboard that gives you a complete view of your site's health.
@@ -38,6 +40,8 @@ A premium, unified dashboard that gives you a complete view of your site's healt
 - **Interactive Globe**: A 3D-style visualization of where your traffic is coming from.
 
 ---
+
+- **AI assistant referrals** — an Overview card counting visits referred by ChatGPT, Claude, Perplexity, Gemini, Copilot and other assistants, with their share of all referred traffic, the top assistants, and the change versus the previous period. Classified from the referrer, so it also covers data collected before the feature existed.
 
 ## 🎯 Conversion & Growth
 

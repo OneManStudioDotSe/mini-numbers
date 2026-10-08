@@ -120,7 +120,8 @@ fun generateDemoData(projectId: UUID, count: Int, timeScope: Int = 30): Int {
     val referrers = listOf(
         null, "https://google.com/search", "https://twitter.com",
         "https://facebook.com", "https://github.com", "https://reddit.com",
-        "https://linkedin.com", "https://news.ycombinator.com"
+        "https://linkedin.com", "https://news.ycombinator.com",
+        "https://chatgpt.com/", "https://www.perplexity.ai/", "https://claude.ai/"
     )
 
     val customEventNames = listOf(

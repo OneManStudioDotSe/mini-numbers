@@ -36,5 +36,10 @@ data class ProjectReport(
     // Region/state geography
     val regions: List<StatEntry> = emptyList(),
     // Overall conversion rate
-    val conversionRate: Double = 0.0
+    val conversionRate: Double = 0.0,
+
+    // AI-assistant referrals (page views whose referrer host is a known assistant)
+    val aiReferrals: List<StatEntry> = emptyList(),
+    val aiReferralVisits: Long = 0,
+    val referredVisits: Long = 0 // page views with any external referrer, for the share
 )

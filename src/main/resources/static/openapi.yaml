@@ -194,6 +194,27 @@ paths:
                   role: { type: string, enum: [admin, viewer] }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /admin/privacy:
+    get:
+      summary: Privacy posture of the running configuration
+      description: Mode, visitor-hash rotation window and data retention, for the dashboard's privacy chip.
+      tags: [Authentication]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Privacy configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  privacyMode: { type: string, enum: [STANDARD, STRICT, PARANOID] }
+                  hashRotationHours: { type: integer }
+                  dataRetentionDays: { type: integer, description: 0 means keep forever }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /admin/users:
     get:
       summary: List all users
