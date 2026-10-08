@@ -50,6 +50,8 @@ New to Mini Numbers? Start here:
 
 ## Going deeper
 
+- **[How it compares](comparison.html)** — feature-by-feature against Umami, Plausible, Matomo, PostHog, Fathom, Rybbit and GoatCounter, plus the full feature list and the 1.3.0 notes
+
 - **[Configuration](configuration)** — All the settings you can customize
 - **[Privacy](privacy)** — How visitor privacy is protected
 - **[Deployment](deployment)** — Run in production with Docker, cloud platforms, or bare metal

@@ -158,6 +158,7 @@ Everything between the March docs and a releasable tree. See `_docs/CHANGELOG.md
 
 - [x] Screenshots (README and docs)
 - [x] GitHub issue templates
+- [x] Standalone feature comparison page (`docs/comparison.html`), linked from the README and the docs index
 - [ ] Rotate the credentials that were committed in `stats.db`, then purge `stats.db` and the GeoLite2 file from history (force-push, owner approval)
 - [ ] Decide GeoLite2 distribution (download-on-start with a licence key, recommended) and add the attribution to the image
 - [ ] Light-theme colour contrast (16 nodes; palette decision)
@@ -168,6 +169,8 @@ Everything between the March docs and a releasable tree. See `_docs/CHANGELOG.md
 - [ ] Monitor and respond to feedback
 
 ---
+
+Open items with their blockers are listed in `_docs/TODO.md`.
 
 ## Phase 8: Post-launch features
 

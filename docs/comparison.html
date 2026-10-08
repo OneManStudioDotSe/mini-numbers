@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Feature-by-feature comparison of Mini Numbers 1.3.0 against Umami, Plausible, Matomo, PostHog, Fathom, Rybbit and GoatCounter, the full feature list, and the 1.3.0 release notes. October 2026.">
+<title>Mini Numbers vs the field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Standalone copy of the comparison page; the same tokens as the dashboard's design system. */
+  html { color-scheme: light; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<style>
+  /* Layout: a short brief, a sticky-first-column matrix with chips to shape it, then two honest lists. */
+  :root {
+    --bg: #faf7f2;          /* warm stone ground, echoes the product */
+    --surface: #ffffff;
+    --surface-2: #f3ede4;
+    --fg: #1f1a16;
+    --fg-2: #5e544b;
+    --fg-3: #8a7e73;
+    --line: #e4dbcf;
+    --accent: #c2610a;      /* burnt amber, the product's primary */
+    --accent-soft: #fbe8d2;
+    --yes: #1f7a4d;  --yes-soft: #d8f0e3;
+    --paid: #8a5a00; --paid-soft: #fbeccb;
+    --part: #6b5e9c; --part-soft: #e7e2f6;
+    --no: #9a4a3b;   --no-soft: #f7dcd6;
+    --font-display: "Manrope", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1917; --surface: #262220; --surface-2: #2f2a27; --fg: #f1ebe3; --fg-2: #c7bdb1; --fg-3: #988d82;
+      --line: #3b3531; --accent: #f0a04b; --accent-soft: #3d2a14;
+      --yes: #6fd39b; --yes-soft: #1b3a2a; --paid: #f2c66b; --paid-soft: #3d3014; --part: #b9adf0; --part-soft: #2d2842; --no: #f09a8b; --no-soft: #3f2420;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1917; --surface: #262220; --surface-2: #2f2a27; --fg: #f1ebe3; --fg-2: #c7bdb1; --fg-3: #988d82;
+    --line: #3b3531; --accent: #f0a04b; --accent-soft: #3d2a14;
+    --yes: #6fd39b; --yes-soft: #1b3a2a; --paid: #f2c66b; --paid-soft: #3d3014; --part: #b9adf0; --part-soft: #2d2842; --no: #f09a8b; --no-soft: #3f2420;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-display); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; }
+
+  header { display: grid; gap: 10px; margin-bottom: 26px; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0; font-weight: 800; letter-spacing: -.01em; text-wrap: balance; }
+  .lede { max-width: 68ch; color: var(--fg-2); margin: 0; }
+  .meta { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 22px 0 28px; }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .fact b { display: block; font-size: 22px; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .fact span { color: var(--fg-2); font-size: 13px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin-bottom: 12px; }
+  .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .group-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-3); margin-right: 2px; }
+  .chip { border: 1px solid var(--line); background: var(--surface); color: var(--fg-2); border-radius: 999px; padding: 4px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--fg); }
+  .chip:focus-visible, .toggle input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); cursor: pointer; }
+  .toggle input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--fg-2); margin: 6px 0 14px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  .matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 760px; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; font-size: 13px; }
+  thead th { position: sticky; top: 0; background: var(--surface); z-index: 2; font-weight: 700; }
+  thead th .sub { display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 400; color: var(--fg-3); }
+  th.feature, td.feature { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 220px; max-width: 300px; font-weight: 600; }
+  thead th.feature { z-index: 3; }
+  th.mn, td.mn { background: var(--accent-soft); }
+  thead th.mn { color: var(--fg); }
+  tr.section td { background: var(--surface-2); text-align: left; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); padding: 7px 10px; position: sticky; left: 0; }
+  tr.section td { position: static; }
+  td .note { display: block; font-size: 11px; color: var(--fg-3); font-weight: 400; margin-top: 2px; }
+  .pill { display: inline-block; min-width: 30px; padding: 2px 8px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+  .v-Y { background: var(--yes-soft); color: var(--yes); }
+  .v-P { background: var(--paid-soft); color: var(--paid); }
+  .v-T { background: var(--part-soft); color: var(--part); }
+  .v-N { background: var(--no-soft); color: var(--no); }
+  .v-D { background: transparent; color: var(--fg-3); }
+  td.text { font-family: var(--font-mono); font-size: 12px; color: var(--fg-2); white-space: nowrap; }
+  tr.diff td.feature::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 7px; vertical-align: 2px; }
+  .empty { padding: 24px; text-align: center; color: var(--fg-3); }
+
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 28px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+  .panel h2 { margin: 0 0 10px; font-size: 17px; }
+  .panel ul { margin: 0; padding-left: 18px; color: var(--fg-2); }
+  .panel li { margin: 6px 0; }
+  .panel li b { color: var(--fg); }
+  .trend { border-left: 3px solid var(--accent); padding-left: 12px; }
+  .tabs { display: flex; gap: 6px; margin: 18px 0 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .tab { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--fg-2); cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+  .feature-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+  .feature-card h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .feature-card h3 .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 2px 6px; border-radius: 4px; }
+  .feature-card ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; }
+  .feature-card li { margin: 5px 0; }
+  .feature-card li b { color: var(--fg); }
+  .release { display: grid; gap: 14px; max-width: 78ch; }
+  .release h3 { margin: 10px 0 4px; font-size: 15px; }
+  .release ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; }
+  .release li { margin: 5px 0; }
+  .release li b { color: var(--fg); }
+  .sources { margin-top: 26px; font-size: 13px; color: var(--fg-3); max-width: 80ch; }
+  .sources a { color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) { .chip { transition: background .15s, border-color .15s; } }
+  @media (max-width: 560px) { .wrap { padding-inline: 16px; } th.feature, td.feature { min-width: 170px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Competitive comparison · October 2026</div>
+    <h1>Mini Numbers vs the field</h1>
+    <p class="lede">Privacy-first web analytics, compared feature by feature against the seven tools a self-hoster or a small team would shortlist today. Facts were checked against each vendor's releases and changelogs on 6 October 2026, with Mini Numbers at version 1.3.0.</p>
+    <div class="meta">Y included · P paid tier or plugin · ~ partial or unverified · N absent · – not applicable</div>
+  </header>
+
+  <section class="facts" aria-label="Headline facts">
+    <div class="fact"><b>1.9 KB</b><span>Mini Numbers tracker, gzipped. Plausible ~1.9, Umami ~2.4, Rybbit ~9.</span></div>
+    <div class="fact"><b>1 JAR</b><span>Runs on SQLite with no other service. Every 2025–26 newcomer needs ClickHouse.</span></div>
+    <div class="fact"><b>3 modes</b><span>Privacy modes plus a 1 h to 1 y hash rotation. No competitor offers either.</span></div>
+    <div class="fact"><b>5 gaps</b><span>Table-stakes features still missing: journeys, retention, annotations, MCP, bot filter v2.</span></div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-compare" aria-selected="true" aria-controls="panel-compare" type="button">Comparison</button>
+    <button class="tab" role="tab" id="tab-features" aria-selected="false" aria-controls="panel-features" type="button">Mini Numbers features</button>
+    <button class="tab" role="tab" id="tab-release" aria-selected="false" aria-controls="panel-release" type="button">What changed in 1.3.0</button>
+  </div>
+
+  <section id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
+  <div class="controls" role="group" aria-label="Shape the comparison">
+    <div class="group" id="segments">
+      <span class="group-label">Show</span>
+      <button class="chip" type="button" data-seg="all" aria-pressed="true">All eight</button>
+      <button class="chip" type="button" data-seg="oss" aria-pressed="false">Open source only</button>
+      <button class="chip" type="button" data-seg="simple" aria-pressed="false">Simple privacy segment</button>
+      <button class="chip" type="button" data-seg="product" aria-pressed="false">Product-analytics segment</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="diff-only"> <span>Only rows where Mini Numbers differs from the majority</span></label>
+  </div>
+  <div class="legend" aria-hidden="true">
+    <span><i style="background:var(--yes)"></i>Included</span>
+    <span><i style="background:var(--paid)"></i>Paid tier or plugin</span>
+    <span><i style="background:var(--part)"></i>Partial or unverified</span>
+    <span><i style="background:var(--no)"></i>Absent</span>
+    <span><i style="background:var(--accent)"></i>Row marker: Mini Numbers differs</span>
+  </div>
+
+  <div class="matrix-wrap">
+    <table id="matrix" aria-describedby="matrix-caption">
+      <caption id="matrix-caption" class="sr-only" style="position:absolute;left:-9999px">Feature comparison matrix</caption>
+      <thead><tr id="head-row"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h2>Where Mini Numbers wins</h2>
+      <ul>
+        <li><b>Deployment weight.</b> One MIT-licensed JAR on SQLite, with funnels, segments, revenue attribution, webhooks and email reports included. Only GoatCounter and Vince come close, and both stop at page views.</li>
+        <li><b>Privacy you can configure.</b> Cookieless salted hashing with a rotation window from one hour to a year, and three modes whose stored fields are verified by tests.</li>
+        <li><b>Visualisation taste.</b> Contribution calendar, activity heatmap, globe, one design system in both themes.</li>
+        <li><b>The JVM.</b> The only analytics server a Kotlin or Java team can run inside the stack they already operate.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Where the field wins</h2>
+      <ul>
+        <li><b>Breadth.</b> Umami, Rybbit and PostHog ship replay, heatmaps, web vitals, journeys, retention and agent access.</li>
+        <li><b>Table stakes added in 2026.</b> User journeys, annotations, retention and bot filtering beyond the User-Agent are now expected and still missing here.</li>
+        <li><b>Community.</b> Umami at ~39k stars, Plausible ~29k, Rybbit ~13k. Mini Numbers has no release yet.</li>
+        <li><b>Cloud.</b> Every competitor except GoatCounter offers hosting. Mini Numbers is self-host only, by design.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="panel trend">
+      <h2>What changed in the market, 2025–26</h2>
+      <ul>
+        <li>The AI-assistant referrer channel went from nowhere to everywhere in five months: Matomo in March, GA4 in May, Plausible in June, PostHog in July, Fathom in October 2026. Mini Numbers added it in 1.3.0.</li>
+        <li>Read-only agent access through MCP became the new API surface (Umami, Rybbit, PostHog, Vercel, Fathom, Databuddy).</li>
+        <li>Self-host stacks got heavier. Rybbit, Databuddy and Swetrix all require ClickHouse plus PostgreSQL and Redis.</li>
+        <li>Fathom raised prices twice; Vercel cut web-analytics pricing by up to 80%; newcomers undercut at $6 to $13 a month.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Not in the race, by choice</h2>
+      <ul>
+        <li><b>Session replay and heatmaps.</b> The simple-privacy segment (Plausible, Fathom, Simple, Pirsch, Seline) skips them too; they sit badly with a no-identifier promise.</li>
+        <li><b>Feature flags and A/B testing.</b> Product-analytics territory (PostHog, Swetrix).</li>
+        <li><b>Hosted plan.</b> The pitch is "run it anywhere, even a Raspberry Pi", not a subscription.</li>
+      </ul>
+    </div>
+  </div>
+
+  </section>
+
+  <section id="panel-features" role="tabpanel" aria-labelledby="tab-features" hidden>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>Privacy by design</h3>
+        <ul>
+          <li><b>Three modes.</b> Standard keeps country, city, browser, OS and device. Strict keeps country only. Paranoid keeps nothing but the page path and a rotating hash.</li>
+          <li><b>No cookies, no persistent identifier.</b> The visitor hash is salted and rotates every 24 hours by default, configurable from one hour to one year.</li>
+          <li><b>No PII.</b> The IP address is used in memory for the hash and discarded; the raw User-Agent is never stored.</li>
+          <li><b>Privacy posture chip</b> <span class="tag">1.3.0</span> in the dashboard says in plain words what is stored, what never is, and when it is forgotten.</li>
+          <li><b>Retention policy</b> deletes events older than N days automatically, with a preview of the impact first.</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>Dashboard</h3>
+        <ul>
+          <li><b>Overview</b> with page views, unique visitors, sessions, bounce rate, session duration, conversion rate and <b>AI assistant referrals</b> <span class="tag">1.3.0</span>, each against the previous period.</li>
+          <li><b>Time patterns:</b> hourly and daily activity heatmap, 365-day contribution calendar, busiest day, peak hour and top month.</li>
+          <li><b>Content:</b> top, entry and exit pages, scroll depth, outbound links and file downloads.</li>
+          <li><b>Audience:</b> countries with city drill-down and an interactive globe; browsers, operating systems and devices.</li>
+          <li><b>Traffic sources:</b> referrers and UTM source, medium and campaign breakdowns.</li>
+          <li><b>Real time:</b> live feed and active-visitor counter. <b>Raw events</b> viewer with filters and pagination. Light and dark themes.</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>Conversion and growth</h3>
+        <ul>
+          <li><b>Goals</b> on URL arrivals or custom events, with conversion rates.</li>
+          <li><b>Funnels</b> with drop-off at each step.</li>
+          <li><b>Segments</b> built with a visual AND/OR filter builder and analysed in isolation.</li>
+          <li><b>Revenue</b> attached to any custom event: totals, transactions, average order value, revenue per visitor, breakdown by event, attribution by referrer and campaign.</li>
+          <li><b>Custom events with properties</b> through <code>MiniNumbers.track(name, props)</code>.</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>Tracker</h3>
+        <ul>
+          <li><b>1.9 KB gzipped</b>, no cookies, no build step: one script tag.</li>
+          <li>Automatic page views, SPA navigation through the History API, heartbeats that pause in hidden tabs, scroll depth, outbound links and downloads.</li>
+          <li><b>Offline queue</b> that holds events while the browser is offline and drains them on reconnect.</li>
+          <li>Works with <code>sendBeacon</code> as browsers send it; verified end to end in a real browser since 1.3.0.</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>Integration</h3>
+        <ul>
+          <li><b>Webhooks</b> with HMAC-SHA256 signatures, three retries with backoff, a delivery log and test sends, for goal conversions and traffic spikes.</li>
+          <li><b>Email reports</b> daily, weekly or monthly over SMTP, with selectable sections and custom header and footer.</li>
+          <li><b>REST API</b> with session or JWT auth and a full OpenAPI 3 spec; <b>embeddable widgets</b> for realtime, page views, top pages and a sparkline, authenticated by a public key.</li>
+          <li><b>Roles:</b> admin and viewer, with API keys masked for viewers and role changes effective on the next request.</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>Running it</h3>
+        <ul>
+          <li><b>One fat JAR</b> or a small Docker image; SQLite by default, PostgreSQL when you want it.</li>
+          <li><b>Setup wizard</b> that configures the server without a restart; demo data in one click.</li>
+          <li>Health and metrics endpoints, API key rotation, rate limits on collection, admin and auth, origin allowlist for the admin API.</li>
+          <li>Kotlin and Ktor on JDK 21; MIT licence.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-release" role="tabpanel" aria-labelledby="tab-release" hidden>
+    <div class="release">
+      <p class="lede">Version 1.3.0 is the October 2026 revival: the first release where every gate is green and the tracker is proven in a real browser. The numbers it shows will be lower than before, and they are the correct ones.</p>
+      <h3>Fixed</h3>
+      <ul>
+        <li><b>The tracker could not run in any browser.</b> The script was served without a content type and the server's nosniff header made browsers refuse it. Sites embedding the snippet collected nothing.</li>
+        <li><b>Every beacon was rejected.</b> <code>sendBeacon</code> posts as text/plain, which the collect endpoint did not accept. It decodes the body directly now, whatever the content type.</li>
+        <li><b>The offline queue never engaged</b> because <code>sendBeacon</code> reports success even without a network. The tracker now queues while offline and drains on reconnect.</li>
+        <li><b>Page views were every event.</b> Heartbeats, custom, scroll, outbound and download events were counted as page views across the dashboard. View metrics count page views only; sessions and bounce still use every event.</li>
+        <li><b>Tests were not testing.</b> The integration suite had been silently skipping every authenticated request. It runs for real now, on SQLite and PostgreSQL, with a browser suite beside it.</li>
+        <li>Origin allowlist and rate limits on the admin and auth endpoints are enforced; role changes and deletions apply on the next request; dialogs carry correct ARIA; the version is reported consistently.</li>
+      </ul>
+      <h3>Added</h3>
+      <ul>
+        <li><b>AI assistant referrals card</b>: visits referred by ChatGPT, Claude, Perplexity, Gemini, Copilot and eight more, with share of referred traffic and period comparison. Computed from stored referrers, so history is covered.</li>
+        <li><b>Privacy posture chip</b> and dialog explaining what the instance stores, never stores, and when it forgets.</li>
+        <li>PostgreSQL CI job, Playwright browser suite, Dependabot, issue templates, README screenshots.</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+        <li>Kotlin 2.4, Ktor 3.6, Gradle 9.8, Exposed 1.5, HikariCP 7; the LGPL User-Agent library replaced by an Apache-licensed one; jBCrypt replaced by password4j, which also accepts htpasswd hashes.</li>
+        <li>Browser, OS and device labels read <i>Chrome 120</i>, <i>macOS</i>, <i>Desktop</i>; the tracker size claim is the measured 1.9 KB gzipped.</li>
+      </ul>
+      <h3>Still open before launch</h3>
+      <ul>
+        <li>Rotate and purge the credentials that were committed in a development database; decide how GeoLite2 is distributed; fix 16 light-theme contrast failures; enable Discussions; tag the release.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="sources">Sources: Umami GitHub releases (3.4.0, Sep 2026) and pricing; Plausible changelog and pricing; Matomo changelog 5.8 to 5.14 and pricing; PostHog changelog; Fathom changelog and 2026 price-change FAQ; Rybbit GitHub releases (2.9.0, Sep 2026); GoatCounter releases (2.7.0). Star counts are approximate snapshots from 6 October 2026. The full table with notes lives in the repository at <code>_docs/EVALUATION.md</code>.</p>
+</div>
+
+<script>
+(function () {
+  // Columns: key, name, sub, segment tags
+  const cols = [
+    { key: 'mn',  name: 'Mini Numbers', sub: '1.3.0 · MIT · Kotlin', tags: ['oss','simple'] },
+    { key: 'um',  name: 'Umami',        sub: '3.4 · MIT · Postgres', tags: ['oss','product'] },
+    { key: 'pl',  name: 'Plausible',    sub: 'CE · AGPL · ClickHouse', tags: ['oss','simple'] },
+    { key: 'ma',  name: 'Matomo',       sub: '5.14 · GPL · MySQL', tags: ['oss','product'] },
+    { key: 'ph',  name: 'PostHog',      sub: 'MIT + ee · ClickHouse', tags: ['oss','product'] },
+    { key: 'fa',  name: 'Fathom',       sub: 'SaaS · closed', tags: ['simple'] },
+    { key: 'ry',  name: 'Rybbit',       sub: '2.9 · AGPL · ClickHouse', tags: ['oss','product'] },
+    { key: 'gc',  name: 'GoatCounter',  sub: '2.7 · SQLite or PG', tags: ['oss','simple'] },
+  ];
+  // Rows: section headers (s) and feature rows with per-column values. Values: Y P T(~) N D(–), optional note.
+  const rows = [
+    { s: 'Run it' },
+    { f: 'Open-source self-host', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'Y' } },
+    { f: 'Single artifact on SQLite', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'D', ry:'N', gc:'Y' }, note: { mn:'fat JAR or Docker', um:'Postgres', pl:'ClickHouse + PG', ph:'hobby only', ry:'+ Redis' } },
+    { f: 'Cloud / hosted option', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' } },
+    { f: 'Tracker size (gzipped)', text: { mn:'1.9 KB', um:'2.4 KB', pl:'1.9 KB', ma:'21 KB', ph:'44 KB', fa:'3 KB', ry:'9 KB', gc:'3.5 KB' } },
+    { s: 'Privacy' },
+    { f: 'Cookieless by default', v: { mn:'Y', um:'Y', pl:'Y', ma:'T', ph:'T', fa:'Y', ry:'Y', gc:'Y' }, note: { ma:'configurable', ph:'cookieless mode' } },
+    { f: 'Configurable hash rotation (1 h – 1 y)', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'unique' } },
+    { f: 'Privacy modes (what is stored)', v: { mn:'Y', um:'N', pl:'N', ma:'T', ph:'T', fa:'N', ry:'N', gc:'N' }, note: { mn:'Standard · Strict · Paranoid' } },
+    { f: 'Data retention policy', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'Y' } },
+    { f: 'Privacy posture shown in the dashboard', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'chip + dialog, 1.3.0' } },
+    { s: 'Core analytics' },
+    { f: 'Goals and custom events with properties', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'T', ry:'Y', gc:'T' }, note: { pl:'props on Business', gc:'events, no props' } },
+    { f: 'UTM campaigns, entry/exit, scroll depth', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T' } },
+    { f: 'Saved segments', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N' } },
+    { f: 'Funnels', v: { mn:'Y', um:'Y', pl:'P', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' }, note: { mn:'basic' } },
+    { f: 'User journeys / paths', v: { mn:'N', um:'Y', pl:'P', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
+    { f: 'Retention / cohorts', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
+    { f: 'Annotations on the time series', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
+    { f: 'AI-assistant referrer channel', v: { mn:'Y', um:'T', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N' }, note: { mn:'13 assistants, 1.3.0', pl:'retroactive' } },
+    { f: 'Bot filtering beyond User-Agent', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' }, note: { ry:'ASN + flood', fa:'firewall lists' } },
+    { f: 'Revenue tracking and attribution', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N' } },
+    { s: 'Beyond web analytics' },
+    { f: 'Session replay', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' }, note: { mn:'by design' } },
+    { f: 'Heatmaps', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'N', gc:'N' }, note: { mn:'activity heatmap by time, not clicks' } },
+    { f: 'Web vitals', v: { mn:'N', um:'Y', pl:'N', ma:'T', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
+    { f: 'Contribution calendar + activity heatmap', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'unique' } },
+    { s: 'Integration' },
+    { f: 'Public API with OpenAPI spec', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T' } },
+    { f: 'MCP / agent access', v: { mn:'N', um:'Y', pl:'N', ma:'N', ph:'Y', fa:'T', ry:'Y', gc:'N' }, note: { fa:'Luna assistant' } },
+    { f: 'Webhooks', v: { mn:'Y', um:'T', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'T', gc:'N' }, note: { mn:'HMAC-signed' } },
+    { f: 'Email reports', v: { mn:'Y', um:'P', pl:'Y', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'Y' }, note: { um:'cloud only' } },
+    { f: 'Embeddable widgets', v: { mn:'Y', um:'T', pl:'T', ma:'Y', ph:'T', fa:'T', ry:'T', gc:'Y' } },
+    { f: 'Teams with roles', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' }, note: { mn:'admin / viewer', pl:'5 roles' } },
+    { f: 'SSO', v: { mn:'N', um:'P', pl:'P', ma:'P', ph:'P', fa:'N', ry:'T', gc:'N' }, note: { mn:'enterprise-only everywhere' } },
+    { f: 'GA4 import', v: { mn:'N', um:'N', pl:'Y', ma:'Y', ph:'T', fa:'N', ry:'N', gc:'N' } },
+  ];
+
+  const label = { Y: 'Y', P: 'P', T: '~', N: 'N', D: '–' };
+  const title = { Y: 'Included', P: 'Paid tier or plugin', T: 'Partial or unverified', N: 'Absent', D: 'Not applicable' };
+  const head = document.getElementById('head-row');
+  const body = document.getElementById('body');
+  let seg = 'all';
+  let diffOnly = false;
+  try { seg = localStorage.getItem('mn-cmp-seg') || 'all'; diffOnly = localStorage.getItem('mn-cmp-diff') === '1'; } catch (e) {}
+
+  function visibleCols() {
+    return cols.filter(c => c.key === 'mn' || seg === 'all' || c.tags.includes(seg));
+  }
+  function differs(row, vc) {
+    if (row.text) return false;
+    const others = vc.filter(c => c.key !== 'mn').map(c => row.v[c.key]).filter(x => x && x !== 'D');
+    if (!others.length) return false;
+    const mine = row.v.mn;
+    const same = others.filter(x => x === mine).length;
+    return same < others.length / 2;
+  }
+  function render() {
+    const vc = visibleCols();
+    head.innerHTML = '<th class="feature" scope="col">Feature</th>' + vc.map(c =>
+      `<th scope="col" class="${c.key === 'mn' ? 'mn' : ''}">${c.name}<span class="sub">${c.sub}</span></th>`).join('');
+    let html = '';
+    let shown = 0;
+    let pendingSection = null;
+    for (const row of rows) {
+      if (row.s) { pendingSection = row.s; continue; }
+      const isDiff = differs(row, vc);
+      if (diffOnly && !isDiff) continue;
+      if (pendingSection) { html += `<tr class="section"><td colspan="${vc.length + 1}">${pendingSection}</td></tr>`; pendingSection = null; }
+      html += `<tr class="${isDiff ? 'diff' : ''}"><td class="feature">${row.f}</td>` + vc.map(c => {
+        const mn = c.key === 'mn' ? ' mn' : '';
+        if (row.text) return `<td class="text${mn}">${row.text[c.key] || '–'}</td>`;
+        const v = row.v[c.key] || 'D';
+        const note = row.note && row.note[c.key] ? `<span class="note">${row.note[c.key]}</span>` : '';
+        return `<td class="${mn.trim()}"><span class="pill v-${v}" title="${title[v]}">${label[v]}</span>${note}</td>`;
+      }).join('') + '</tr>';
+      shown++;
+    }
+    body.innerHTML = shown ? html : `<tr><td class="empty" colspan="${vc.length + 1}">No rows differ for this selection.</td></tr>`;
+  }
+  document.querySelectorAll('#segments .chip').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.seg === seg));
+    btn.addEventListener('click', () => {
+      seg = btn.dataset.seg;
+      document.querySelectorAll('#segments .chip').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      try { localStorage.setItem('mn-cmp-seg', seg); } catch (e) {}
+      render();
+    });
+  });
+  const diffBox = document.getElementById('diff-only');
+  diffBox.checked = diffOnly;
+  diffBox.addEventListener('change', () => { diffOnly = diffBox.checked; try { localStorage.setItem('mn-cmp-diff', diffOnly ? '1' : '0'); } catch (e) {} render(); });
+  render();
+
+  // Tabs: comparison / features / release notes. A bare #features or #release anchor deep-links.
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+  function showTab(id) {
+    tabs.forEach(t => {
+      const on = t.id === 'tab-' + id;
+      t.setAttribute('aria-selected', String(on));
+      document.getElementById('panel-' + t.id.slice(4)).hidden = !on;
+    });
+  }
+  tabs.forEach(t => t.addEventListener('click', () => { showTab(t.id.slice(4)); try { history.replaceState(null, '', '#' + t.id.slice(4)); } catch (e) {} }));
+  const initial = (location.hash || '').replace('#', '');
+  if (['compare', 'features', 'release'].includes(initial)) showTab(initial);
+})();
+</script>
+</body>
+</html>
