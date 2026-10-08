@@ -22,7 +22,7 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
 
 ## Why Mini Numbers?
 
-Honest comparison as of October 2026 (full matrix and sources in `_docs/EVALUATION.md`):
+Honest comparison as of October 2026 (interactive version: [docs/comparison.html](docs/comparison.html); full matrix and sources in `_docs/EVALUATION.md`):
 
 |                              | Google Analytics | Plausible CE | Umami | Rybbit | **Mini Numbers** |
 |------------------------------|------------------|--------------|-------|--------|------------------|

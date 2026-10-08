@@ -62,12 +62,15 @@ Built for those who want control and flexibility.
 - **Automated Email Reports**: Schedule daily, weekly, or monthly analytics summaries delivered to your inbox.
 - **Raw Events Viewer**: A high-performance, paginated browser for inspecting every anonymized event in detail. The Path and Location columns are wider than usual to reduce truncation; filter dropdowns sit side-by-side for convenience.
 - **One-Click Demo Data**: Instantly populate your dashboard with realistic sample data to test your setup. The button is automatically hidden once a demo project already exists.
+- **How it compares**: a [feature-by-feature comparison](comparison.html) against Umami, Plausible, Matomo, PostHog, Fathom, Rybbit and GoatCounter, kept honest and dated.
 
 ---
 
 ## ⚡ Technical Excellence
 
-- **Ultra-lightweight Tracker**: The `tracker.js` script is under 2KB, ensuring zero impact on your site's performance.
+- **Ultra-lightweight Tracker**: The `tracker.js` script is 1.9KB gzipped, ensuring zero impact on your site's performance.
+- **Verified end to end**: 320 server tests (SQLite and PostgreSQL) and a Playwright browser suite that runs the real tracker on a cross-site page, so page views, SPA navigation, custom events, heartbeats, the offline queue and outbound/download detection are proven in Chrome on every build.
+- **Honest numbers**: page views count page views only; heartbeats, custom, scroll, outbound and download events never inflate them.
 - **Single-Binary Deployment**: Self-host anywhere with a single Fat JAR or a minimal Docker image.
 - **Multi-Database Support**: Use SQLite for simplicity or PostgreSQL for scale.
 - **Zero-Restart Config**: Update your server settings via the UI without dropping a single visitor event.
