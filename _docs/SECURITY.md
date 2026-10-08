@@ -304,7 +304,7 @@ All internal redirects are validated against a hardcoded allowlist:
 ### Current stack
 - Ktor 3.6.0, Kotlin 2.4.20, JDK 21
 - Exposed 1.5.0, HikariCP 7.1.0
-- jBCrypt 0.4, Caffeine 3.1.8
+- password4j 1.8.4 (BCrypt, Apache-2.0), Caffeine 3.3.0
 - GeoIP2 5.2.0, uap-java 1.6.1 (Apache-2.0; replaced the LGPL UserAgentUtils on 2026-10-06)
 
 > **Audit finding (PASS)**: No known critical CVEs in current dependency versions.

@@ -189,13 +189,14 @@ fun Route.adminProjectRoutes() {
 
         val stats = QueryCache.getOrCompute("$pid:stats") {
             transaction {
-                val totalViews = Events.selectAll().where { Events.projectId eq pid }.count()
+                val totalViews = Events.selectAll()
+                    .where { (Events.projectId eq pid) and (Events.eventType eq "pageview") }.count()
                 val uniqueVisitors = Events.select(Events.visitorHash)
                     .where { Events.projectId eq pid }
                     .withDistinct()
                     .count()
                 val topPages = Events.select(Events.path, Events.path.count())
-                    .where { Events.projectId eq pid }
+                    .where { (Events.projectId eq pid) and (Events.eventType eq "pageview") }
                     .groupBy(Events.path)
                     .orderBy(Events.path.count(), SortOrder.DESC)
                     .limit(5)

@@ -16,8 +16,8 @@ object Segments : Table("segments") {
     val name = varchar("name", 100)
     val description = varchar("description", 255).nullable()
     val filtersJson = text("filters_json") // JSON: [{field, operator, value, logic}]
-    val createdAt = datetime("created_at").default(LocalDateTime.now())
-    val updatedAt = datetime("updated_at").default(LocalDateTime.now())
+    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
+    val updatedAt = datetime("updated_at").clientDefault { LocalDateTime.now() }
 
     override val primaryKey = PrimaryKey(id)
 

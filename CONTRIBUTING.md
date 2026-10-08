@@ -51,7 +51,7 @@ src/main/resources/
 ├── static/             # Admin dashboard (HTML, CSS, JS)
 └── setup/              # Setup wizard frontend
 
-src/test/kotlin/        # Test suite (288 tests)
+src/test/kotlin/        # JVM test suite (315 tests); browser tests in e2e/
 ```
 
 ---

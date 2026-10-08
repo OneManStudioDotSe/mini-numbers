@@ -264,6 +264,33 @@ class PrivacyRbacAndCacheTest {
     }
 
     @Test
+    fun `page view counts exclude heartbeats, custom and scroll events everywhere`() = testApplication {
+        application { module() }
+        val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)
+        val (projectId, apiKey) = admin.createProject("views-${System.nanoTime()}")
+        val s = "abcdef0123456789abcdef0123456789"
+        for (body in listOf(
+            """{"path":"/home","sessionId":"$s","type":"pageview"}""",
+            """{"path":"/home","sessionId":"$s","type":"heartbeat"}""",
+            """{"path":"/home","sessionId":"$s","type":"heartbeat"}""",
+            """{"path":"/home","sessionId":"$s","type":"custom","eventName":"signup"}""",
+            """{"path":"/home","sessionId":"$s","type":"scroll","scrollDepth":50}""",
+        )) assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, body).status, body)
+
+        val stats = Json.parseToJsonElement(admin.get("/admin/projects/$projectId/stats").bodyAsText()).jsonObject
+        assertEquals(1L, stats["totalViews"]!!.jsonPrimitive.long, "stats endpoint")
+        assertEquals(1L, stats["topPages"]!!.jsonArray.first().jsonObject["count"]!!.jsonPrimitive.long)
+
+        val comparisonBody = admin.get("/admin/projects/$projectId/report/comparison?filter=7d").bodyAsText()
+        val comparison = Json.parseToJsonElement(comparisonBody).jsonObject
+        val report = comparison["current"]!!.jsonObject
+        assertEquals(1L, report["totalViews"]!!.jsonPrimitive.long, "report")
+        assertEquals(1L, report["topPages"]!!.jsonArray.first().jsonObject["value"]!!.jsonPrimitive.long)
+        assertEquals(1L, report["totalSessions"]!!.jsonPrimitive.long, "sessions still count every event")
+        assertEquals(1L, comparison["timeSeries"]!!.jsonArray.sumOf { it.jsonObject["views"]!!.jsonPrimitive.long }, "time series")
+    }
+
+    @Test
     fun `collect enforces the 2048 character limit on custom event properties`() = testApplication {
         application { module() }
         val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)

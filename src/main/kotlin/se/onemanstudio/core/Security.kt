@@ -13,7 +13,6 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.api.models.ApiError
-import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.models.LoginAttempt
 import se.onemanstudio.core.models.UserSession
@@ -76,7 +75,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
         // DB-backed user found
         val storedHash = dbUser[Users.passwordHash]
         passwordMatches = try {
-            BCrypt.checkpw(password, storedHash)
+            Passwords.verify(password, storedHash)
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Password verification error: ${e.message}")
             false
@@ -91,9 +90,8 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
 
         logger.debug("Attempting fallback authentication for admin via .env config")
         passwordMatches = try {
-            if (config.security.adminPassword.startsWith("$2a$") ||
-                config.security.adminPassword.startsWith("$2b$")) {
-                BCrypt.checkpw(password, config.security.adminPassword)
+            if (Passwords.isBcryptHash(config.security.adminPassword)) {
+                Passwords.verify(password, config.security.adminPassword)
             } else {
                 logger.error("Admin password in config is not BCrypt-hashed.")
                 false

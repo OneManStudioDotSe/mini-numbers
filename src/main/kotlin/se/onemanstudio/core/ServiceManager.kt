@@ -93,14 +93,10 @@ object ServiceManager {
                 if (Users.selectAll().count() == 0L) {
                     // If the config password is already BCrypt-hashed, store it directly;
                     // otherwise hash it first (handles plain-text passwords in test/dev environments)
-                    val hashedPassword = if (config.security.adminPassword.startsWith("\$2a\$") ||
-                        config.security.adminPassword.startsWith("\$2b\$")) {
+                    val hashedPassword = if (Passwords.isBcryptHash(config.security.adminPassword)) {
                         config.security.adminPassword
                     } else {
-                        org.mindrot.jbcrypt.BCrypt.hashpw(
-                            config.security.adminPassword,
-                            org.mindrot.jbcrypt.BCrypt.gensalt(12)
-                        )
+                        Passwords.hash(config.security.adminPassword)
                     }
                     Users.insert {
                         it[id] = UUID.randomUUID()

@@ -96,6 +96,7 @@ mini-numbers/
 │   │                                      # SecurityConfig, ServerConfig, TrackerConfig
 │   ├── core/
 │   │   ├── AppInfo.kt                    # VERSION constant (bump with build.gradle.kts)
+│   │   ├── Passwords.kt                  # BCrypt hash/verify (password4j); accepts $2a$/$2b$/$2y$
 │   │   ├── AnalyticsSecurity.kt          # Visitor hashing (configurable rotation)
 │   │   ├── HTTP.kt                       # CORS & content negotiation
 │   │   ├── JwtService.kt                 # Access/refresh token issuance & verification

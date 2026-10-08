@@ -88,7 +88,10 @@ fun generateTimeSeries(
 
     return transaction {
         val events = Events.selectAll()
-            .where { (Events.projectId eq id) and (Events.timestamp greaterEq start) and (Events.timestamp lessEq end) }
+            .where {
+                (Events.projectId eq id) and (Events.timestamp greaterEq start) and (Events.timestamp lessEq end) and
+                    (Events.eventType eq "pageview")
+            }
             .toList()
 
         // Group by time bucket
@@ -169,7 +172,10 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             (Events.projectId eq id) and (Events.timestamp greaterEq start) and (Events.timestamp lessEq end)
         }
 
-        val totalViews = baseQuery.count()
+        // View-based metrics count page views only: heartbeats, custom, scroll, outbound and
+        // download events are not visits. Session metrics below still use every event.
+        val pageViews = baseQuery.copy().andWhere { Events.eventType eq "pageview" }
+        val totalViews = pageViews.count()
 
         val uniqueVisitors = baseQuery.copy()
             .adjustSelect { this.select(Events.visitorHash) }
@@ -178,7 +184,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
 
         fun getBreakdown(col: Column<*>): List<StatEntry> {
             val countCol = col.count()
-            return baseQuery.copy()
+            return pageViews.copy()
                 .adjustSelect { this.select(col, countCol) }
                 .groupBy(col)
                 .orderBy(countCol, SortOrder.DESC)
@@ -296,7 +302,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
 
         // Regions/states — include country for context
         val regionCountCol = Events.region.count()
-        val regions = baseQuery.copy()
+        val regions = pageViews.copy()
             .adjustSelect { this.select(Events.country, Events.region, regionCountCol) }
             .groupBy(Events.country, Events.region)
             .orderBy(regionCountCol, SortOrder.DESC)
@@ -325,7 +331,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             referredVisits = referredVisits,
             countries = getBreakdown(Events.country),
             customEvents = customEvents,
-            lastVisits = baseQuery.copy()
+            lastVisits = pageViews.copy()
                 .orderBy(Events.timestamp, SortOrder.DESC)
                 .limit(10)
                 .map {
@@ -361,7 +367,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
 fun generateActivityHeatmap(projectId: UUID, cutoff: LocalDateTime): List<ActivityCell> {
     return transaction {
         val events = Events.selectAll()
-            .where { (Events.projectId eq projectId) and (Events.timestamp greaterEq cutoff) }
+            .where { (Events.projectId eq projectId) and (Events.timestamp greaterEq cutoff) and (Events.eventType eq "pageview") }
             .toList()
 
         // Group by day of week and hour
@@ -426,7 +432,7 @@ fun generateContributionCalendar(projectId: UUID): ContributionCalendar {
         val startDate = endDate.minusDays(365)
 
         val events = Events.selectAll()
-            .where { (Events.projectId eq projectId) and (Events.timestamp greaterEq startDate) }
+            .where { (Events.projectId eq projectId) and (Events.timestamp greaterEq startDate) and (Events.eventType eq "pageview") }
             .toList()
 
         // Group by date

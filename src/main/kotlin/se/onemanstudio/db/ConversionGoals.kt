@@ -13,7 +13,7 @@ object ConversionGoals : Table("conversion_goals") {
     val goalType = varchar("goal_type", 20) // "url" or "event"
     val matchValue = varchar("match_value", 512)
     val isActive = bool("is_active").default(true)
-    val createdAt = datetime("created_at").default(LocalDateTime.now())
+    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
 
     override val primaryKey = PrimaryKey(id)
 

@@ -17,7 +17,7 @@ No schema migration and no configuration change is required. What you will notic
 - **Traffic appears.** 1.2.x served the tracker script with a content type browsers refuse to execute, and rejected the beacons it would have sent. Sites that showed nothing will start recording page views as soon as the new tracker loads (it is served by the server, so no snippet change is needed).
 - **Browser, OS and device labels change** for new events: `Chrome 120`, `macOS`, `Desktop` instead of `CHROME 120`, `MAC_OS_X`, `COMPUTER`. Old rows keep their old labels, so both spellings can appear in breakdowns until old data ages out.
 - **A new "AI assistant referrals" card and a privacy chip** appear in the dashboard; both are computed from data you already have.
-- If you set `ADMIN_PASSWORD` by hand, note that plain text is hashed on first start and `$2a$`/`$2b$` hashes are accepted; `$2y$` hashes (Apache htpasswd) are not.
+- If you set `ADMIN_PASSWORD` by hand: plain text is hashed on first start, and `$2a$`, `$2b$` and `$2y$` (Apache htpasswd) hashes are all accepted.
 
 ## Before you upgrade
 

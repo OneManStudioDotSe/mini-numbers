@@ -238,10 +238,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
                 ApiError.unauthorized("Current password is incorrect"))
         }
 
-        val hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(
-            body.newPassword,
-            org.mindrot.jbcrypt.BCrypt.gensalt(12)
-        )
+        val hashedPassword = se.onemanstudio.core.Passwords.hash(body.newPassword)
 
         // Update password in the Users table for the admin user
         transaction {

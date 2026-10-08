@@ -48,7 +48,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cors-jvm:3.6.0")
     implementation("io.ktor:ktor-server-default-headers-jvm:3.6.0")
     implementation("io.ktor:ktor-server-status-pages-jvm:3.6.0")
-    implementation("org.mindrot:jbcrypt:0.4")
+    implementation("com.password4j:password4j:1.8.4")
 
     implementation("com.maxmind.geoip2:geoip2:5.2.0")
 
