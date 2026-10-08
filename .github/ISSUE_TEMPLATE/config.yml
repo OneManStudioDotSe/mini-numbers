@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/OneManStudioDotSe/mini-numbers/discussions
+    about: Setup help, "how do I", and discussion before a feature request
+  - name: Security vulnerability
+    url: https://github.com/OneManStudioDotSe/mini-numbers/security/advisories/new
+    about: Report privately through a GitHub security advisory, not in a public issue

@@ -95,6 +95,7 @@ mini-numbers/
 │   │                                      # GeoIPConfig, PrivacyConfig, RateLimitConfig,
 │   │                                      # SecurityConfig, ServerConfig, TrackerConfig
 │   ├── core/
+│   │   ├── AppInfo.kt                    # VERSION constant (bump with build.gradle.kts)
 │   │   ├── AnalyticsSecurity.kt          # Visitor hashing (configurable rotation)
 │   │   ├── HTTP.kt                       # CORS & content negotiation
 │   │   ├── JwtService.kt                 # Access/refresh token issuance & verification
@@ -155,7 +156,7 @@ mini-numbers/
 └── e2e/                                  # 12 Playwright browser tests (own package.json, not part of Gradle)
     ├── playwright.config.js              # boots build/libs/mini-numbers-all.jar on a throwaway SQLite DB
     ├── helpers.js                        # login, project creation, fake tracked site via request interception
-    └── tests/                            # auth, dashboard, tracker, a11y specs
+    └── tests/                            # auth, dashboard, tracker, a11y specs; screenshots.spec.js regenerates docs/screenshots on demand
 ```
 
 ## Database schema

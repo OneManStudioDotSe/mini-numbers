@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.3.0] - 2026-10-08
+
 ### Added
 
 - **AI assistant referrals card**: the Overview now has a stat card counting page views referred by AI assistants (ChatGPT, Claude, Perplexity, Gemini, Copilot, Grok, Meta AI, Mistral, DeepSeek, You.com, Poe, Phind, Duck.ai), with the share of all referred visits, the top assistants, and the usual previous-period comparison. Classification happens at report time from the stored referrer host (`utils/AiTrafficUtils.kt`), so nothing new is stored and historical data is covered. Report JSON gains `aiReferrals`, `aiReferralVisits` and `referredVisits`. The demo generator now includes assistant referrers. Only referrals are covered: AI crawlers never execute the tracker, so a crawler view would be empty by construction.
@@ -30,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Docker build** uses the Gradle wrapper instead of a separately pinned Gradle image, so Docker, CI and local builds run the same Gradle version.
 - **Accessibility**: the create-project, onboarding, sign-out and delete-project dialogs now carry `role="dialog"`, `aria-modal` and `aria-labelledby` like the other modals.
 - **`.env.example`** explains the accepted `ADMIN_PASSWORD` formats (plain text is hashed on first start; `$2a$`/`$2b$` hashes are stored as-is; `$2y$` is rejected).
+- **Version reported consistently**: `/health` and the API docs said `1.0.0` while the build said `1.0.0-beta`; both now read a single `AppInfo.VERSION` (1.3.0). README, landing page and docs carry the real test counts and new screenshots generated from a demo project (`e2e/tests/screenshots.spec.js`). GitHub issue templates and a private reporting path for the Code of Conduct added.
 - **Tracker size claim corrected**: README, docs and landing page said 1.3 KB; the script is 4.9 KB minified and 1.9 KB gzipped, so they now say 1.9 KB (gzipped). The build's "minifier" only strips comments and whitespace.
 - **Public docs**: `docs/configuration.md` now lists the real PostgreSQL variables (`DB_PG_HOST`, `DB_PG_PORT`, `DB_PG_NAME`, `DB_PG_USERNAME`, `DB_PG_PASSWORD`) and documents the SMTP variables for email reports.
 

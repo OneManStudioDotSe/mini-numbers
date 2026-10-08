@@ -1,7 +1,7 @@
 <p>
   <img src="https://img.shields.io/github/v/release/onemanstudiodotse/mini-numbers?label=version&color=blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/tests-296%20passing-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-315%20JVM%20%2B%2012%20browser-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/tracker-1.9KB%20gzipped-orange" alt="Tracker Size">
   <img src="https://img.shields.io/badge/cookies-zero-purple" alt="No Cookies">
 </p>
@@ -11,6 +11,14 @@
 **Privacy-first, self-hosted web analytics.** Track your website traffic without compromising visitor privacy — no cookies, no personal data stored, no consent banners needed.
 
 A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
+
+<p align="center">
+  <img src="docs/screenshots/overview-light.png" alt="Mini Numbers dashboard, light theme: overview cards, AI assistant referrals and the privacy posture chip" width="800">
+</p>
+<p align="center">
+  <img src="docs/screenshots/overview-dark.png" alt="The same dashboard in the dark theme" width="390">
+  <img src="docs/screenshots/privacy-posture-dark.png" alt="The privacy posture dialog listing what the instance stores, never stores, and when it forgets" width="390">
+</p>
 
 ## Why Mini Numbers?
 

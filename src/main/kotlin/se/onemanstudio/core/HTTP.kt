@@ -56,7 +56,7 @@ fun Application.configureHTTP(config: AppConfig) {
         extension = AsyncApiExtension.builder {
             info {
                 title("Mini Numbers Analytics API")
-                version("1.0.0")
+                version(AppInfo.VERSION)
             }
         }
     }
