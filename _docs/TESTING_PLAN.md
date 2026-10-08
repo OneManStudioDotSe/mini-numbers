@@ -1,5 +1,13 @@
 # Mini Numbers - Testing plan
 
+> **October 2026**: much of this list is automated now. `./gradlew test` (320 JVM tests, SQLite locally
+> and PostgreSQL in CI) covers the API, privacy modes, RBAC, JWT, caching and collection rules;
+> `cd e2e && npx playwright test` (13 browser tests) covers login/sign-out, project creation, the demo
+> dashboard with the Raw events and privacy dialogs in both themes, the phone-width sidebar, the real
+> tracker on a cross-site page (page views, SPA, custom events, heartbeats, offline queue, outbound and
+> downloads) and axe WCAG 2 A/AA scans. The checklist below remains for what still needs a human:
+> visual judgement, other browsers, email rendering, and the items marked *(manual)*.
+
 ## Browser matrix
 
 | Browser          | Windows | macOS | Linux | iOS | Android |
