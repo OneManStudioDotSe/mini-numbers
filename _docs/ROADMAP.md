@@ -1,6 +1,6 @@
 # Mini Numbers - Roadmap & Status
 
-**Last Updated**: March 8, 2026 (v1.2.0)
+**Last Updated**: October 8, 2026 (v1.3.0, pre-release)
 
 ---
 
@@ -141,25 +141,44 @@
 
 ---
 
+## Phase 6.5: Revival (October 2026) -- COMPLETE
+
+Everything between the March docs and a releasable tree. See `_docs/CHANGELOG.md` 1.3.0 and `GOING_LIVE.md`.
+
+- [x] Audit closed: origin allowlist wired, rate limits on admin and auth, live role checks, constant-time compare, LGPL dependency replaced, docs drift fixed
+- [x] Test suite made honest (it had been skipping every authenticated test), PostgreSQL CI job, Playwright browser suite (13 tests)
+- [x] Three tracker defects found by the browser suite and fixed (MIME type, beacon rejection, offline queue)
+- [x] Page-view counting corrected (heartbeats and custom events were counted as views)
+- [x] Dependencies current: Kotlin 2.4, Ktor 3.6, Gradle 9.8, Exposed 1.5, HikariCP 7, password4j
+- [x] Competitor evaluation rewritten for October 2026
+- [x] AI assistant referrals card and privacy posture chip
+- [x] Release prep: version 1.3.0, screenshots, issue templates, Code of Conduct contact
+
 ## Phase 7: Launch
 
-- [ ] Screenshots and demo GIFs
-- [ ] GitHub repository setup (public, issue templates, discussions)
-- [ ] Launch content (blog post, Show HN, Reddit, Product Hunt)
-- [ ] GitHub release v1.0.0
-- [ ] Announce on Hacker News, Reddit, Product Hunt, Dev.to
+- [x] Screenshots (README and docs)
+- [x] GitHub issue templates
+- [ ] Rotate the credentials that were committed in `stats.db`, then purge `stats.db` and the GeoLite2 file from history (force-push, owner approval)
+- [ ] Decide GeoLite2 distribution (download-on-start with a licence key, recommended) and add the attribution to the image
+- [ ] Light-theme colour contrast (16 nodes; palette decision)
+- [ ] Enable GitHub Discussions
+- [ ] Push, watch the first CI run with the PostgreSQL and browser jobs, fix what it surfaces
+- [ ] Tag `v1.3.0` → GHCR image via Docker Publish
+- [ ] Launch content built on the niche: single JAR, SQLite, configurable privacy, honest AI-traffic view (Show HN, Reddit r/selfhosted, Dev.to)
 - [ ] Monitor and respond to feedback
-- [ ] Comparison and tutorial content
-- [ ] Community building (Discord or GitHub Discussions)
 
 ---
 
 ## Phase 8: Post-launch features
 
-### High priority
+### High priority (table stakes in the 2026 market, in this order)
 
+- [ ] Annotations on the time series, with auto-detected change points to confirm (needs one small table)
+- [ ] User journeys as a privacy-aware river (aggregates to sections in PARANOID mode)
+- [ ] Bot filter v2: datacenter ASN exclusion and flood detection, with a "filtered" count instead of silent drops
+- [ ] Read-only MCP server over the existing API
+- [ ] Web vitals as a tracker opt-in (three nullable columns)
 - [ ] Retention and cohort analysis
-- [ ] User journey visualization
 - [ ] Plugin system
 - [ ] Integrations (Slack, Discord, Zapier)
 - [ ] Enterprise -- multi-user support with RBAC, SSO, white-labeling
