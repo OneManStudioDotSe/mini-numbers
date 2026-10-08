@@ -75,7 +75,7 @@ jobs:
         run: ./gradlew buildFatJar
 
       - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: mini-numbers-jar
           path: build/libs/*-all.jar
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload browser test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: |
