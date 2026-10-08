@@ -111,7 +111,7 @@ fun Application.configureSetupRouting() {
                 buildJsonObject {
                     put("status", status)
                     put("state", state.toString())
-                    put("version", "1.0.0")
+                    put("version", se.onemanstudio.core.AppInfo.VERSION)
                     put("servicesReady", servicesReady)
                     put("setupNeeded", setupNeeded)
                     if (state == ServiceManager.State.ERROR) {
