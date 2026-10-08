@@ -6,7 +6,7 @@
 # ==============================================================
 
 # Stage 1: Build the fat JAR (Gradle wrapper, so CI, local and Docker use the same version)
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 
 # Copy Gradle configuration first for dependency caching
@@ -21,7 +21,7 @@ COPY src ./src
 RUN ./gradlew buildFatJar --no-daemon
 
 # Stage 2: Runtime (minimal Alpine image)
-FROM eclipse-temurin:21-jre-alpine-3.23
+FROM eclipse-temurin:24-jre-alpine-3.22
 WORKDIR /app
 
 # Install wget for health checks
