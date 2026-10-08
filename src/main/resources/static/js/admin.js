@@ -74,6 +74,9 @@ const Dashboard = {
     // Set up mobile menu
     this.setupMobileMenu();
 
+    // Privacy posture chip + modal
+    this.setupPrivacyPosture();
+
     // Set up sign out
     this.setupSignOut();
 
@@ -150,6 +153,56 @@ const Dashboard = {
     slider.innerHTML = isDark
       ? '<i class="ri-moon-line"></i>'
       : '<i class="ri-sun-line"></i>';
+  },
+
+  /**
+   * Privacy posture: a chip in the filter bar that says, in plain words, what this
+   * instance stores and for how long, with a modal for the details. Read-only.
+   */
+  async setupPrivacyPosture() {
+    const chip = document.getElementById('privacy-chip');
+    const modal = document.getElementById('privacy-modal');
+    if (!chip || !modal) return;
+
+    let posture;
+    try {
+      const res = await fetch('/admin/privacy');
+      if (!res.ok) return;
+      posture = await res.json();
+    } catch (e) {
+      return;
+    }
+
+    const mode = String(posture.privacyMode || 'STANDARD').toUpperCase();
+    const hours = Number(posture.hashRotationHours) || 24;
+    const retentionDays = Number(posture.dataRetentionDays) || 0;
+    const window = hours % 24 === 0 ? `${hours / 24} day${hours === 24 ? '' : 's'}` : `${hours} hour${hours === 1 ? '' : 's'}`;
+
+    const stored = ['Page path and referrer', 'UTM campaign parameters', 'Custom events and their properties', 'Scroll depth, outbound links, downloads'];
+    if (mode === 'STANDARD') stored.push('Country, region and city', 'Browser, operating system and device type');
+    if (mode === 'STRICT') stored.push('Country only', 'Browser, operating system and device type');
+    const never = ['IP address (used in memory for the visitor hash, then discarded)', 'Cookies or any persistent identifier', 'Names, emails or form contents', 'The raw User-Agent string'];
+    if (mode === 'PARANOID') never.push('Any location data', 'Browser, operating system or device type');
+    const forgotten = [
+      `Visitor identity: the hash rotates every ${window}, so a returning visitor cannot be recognised beyond that`,
+      retentionDays > 0 ? `All events: deleted automatically after ${retentionDays} days` : 'Events: kept until you delete them (no retention limit configured)',
+    ];
+
+    document.getElementById('privacy-chip-text').textContent = `${mode.charAt(0)}${mode.slice(1).toLowerCase()} · visitors forgotten after ${window}`;
+    document.getElementById('privacy-intro').textContent =
+      `This instance runs in ${mode} mode. Nothing here can identify a person, and a visitor is only recognisable for ${window}.`;
+    const fill = (id, items) => { document.getElementById(id).innerHTML = items.map(i => `<li>${Utils.escapeHtml(i)}</li>`).join(''); };
+    fill('privacy-stored', stored);
+    fill('privacy-never', never);
+    fill('privacy-forgotten', forgotten);
+
+    const close = () => modal.classList.remove('show');
+    chip.addEventListener('click', () => {
+      modal.classList.add('show');
+      Utils.focusTrap.openModal(modal, close);
+    });
+    document.getElementById('close-privacy-modal')?.addEventListener('click', close);
+    modal.querySelector('.modal-backdrop')?.addEventListener('click', close);
   },
 
   /**
@@ -860,6 +913,18 @@ const Dashboard = {
       const convVal = data.conversionRate != null ? Math.round(data.conversionRate * 10) : 0;
       animateCountUp(convRateEl, convVal, 800, v => (v / 10).toFixed(1) + '%');
     }
+
+    // AI assistant referrals: count, share of referred visits, top assistants
+    const aiEl = document.getElementById('ai-referrals');
+    if (aiEl) animateCountUp(aiEl, data.aiReferralVisits || 0, 800, v => Utils.format.number(v));
+    const aiDetailEl = document.getElementById('ai-referrals-detail');
+    if (aiDetailEl) {
+      const share = data.referredVisits ? (100 * (data.aiReferralVisits || 0) / data.referredVisits) : 0;
+      const top = (data.aiReferrals || []).slice(0, 3).map(a => Utils.escapeHtml(a.label)).join(', ');
+      aiDetailEl.textContent = data.aiReferralVisits
+        ? `${share.toFixed(1)}% of referred visits · ${top}`
+        : 'No visits from ChatGPT, Claude, Perplexity or similar yet';
+    }
   },
 
   /**
@@ -959,6 +1024,15 @@ const Dashboard = {
       const { text, className } = Utils.format.percentageChange(durationChange);
       durationCompEl.innerHTML = `${text} <span class="comparison-period-label">vs previous period</span>`;
       durationCompEl.className = `stat-card__comparison ${className}`;
+    }
+
+    // AI referrals comparison
+    const aiCompEl = document.getElementById('ai-referrals-comparison');
+    if (aiCompEl && current.aiReferralVisits != null && previous.aiReferralVisits != null) {
+      const aiChange = this.calculatePercentChange(current.aiReferralVisits, previous.aiReferralVisits);
+      const { text, className } = Utils.format.percentageChange(aiChange);
+      aiCompEl.innerHTML = `${text} <span class="comparison-period-label">vs previous period</span>`;
+      aiCompEl.className = `stat-card__comparison ${className}`;
     }
 
     // Conversion rate comparison
@@ -2606,7 +2680,7 @@ const Dashboard = {
    */
   showDashboardLoading() {
     // Stat cards
-    const statCards = ['total-views', 'unique-visitors', 'total-sessions', 'bounce-rate', 'avg-session-duration', 'overall-conversion-rate'];
+    const statCards = ['total-views', 'unique-visitors', 'total-sessions', 'bounce-rate', 'avg-session-duration', 'overall-conversion-rate', 'ai-referrals'];
     statCards.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = '<span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span>';

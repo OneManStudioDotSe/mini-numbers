@@ -186,6 +186,22 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
                 .map { StatEntry(it[col]?.toString() ?: "Unknown", it[countCol]) }
         }
 
+        // AI-assistant referrals: page views only, grouped by referrer and folded per assistant
+        val referrerCountCol = Events.referrer.count()
+        val referrerCounts = Events.select(Events.referrer, referrerCountCol).where {
+            (Events.projectId eq id) and
+            (Events.timestamp greaterEq start) and
+            (Events.timestamp lessEq end) and
+            (Events.eventType eq "pageview") and
+            Events.referrer.isNotNull()
+        }.groupBy(Events.referrer).map { it[Events.referrer] to it[referrerCountCol] }
+        val referredVisits = referrerCounts.sumOf { it.second }
+        val aiReferrals = referrerCounts
+            .mapNotNull { (referrer, count) -> AiTraffic.assistantFor(referrer)?.let { it to count } }
+            .groupBy({ it.first }, { it.second })
+            .map { (assistant, counts) -> StatEntry(assistant, counts.sum()) }
+            .sortedByDescending { it.value }
+
         val activityHeatmap = generateActivityHeatmap(id, start)
         val peakTimeAnalysis = analyzePeakTimes(activityHeatmap)
         val bounceRate = calculateBounceRate(id, start, end)
@@ -304,6 +320,9 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
             oss = getBreakdown(Events.os),
             devices = getBreakdown(Events.device),
             referrers = getBreakdown(Events.referrer),
+            aiReferrals = aiReferrals,
+            aiReferralVisits = aiReferrals.sumOf { it.value },
+            referredVisits = referredVisits,
             countries = getBreakdown(Events.country),
             customEvents = customEvents,
             lastVisits = baseQuery.copy()

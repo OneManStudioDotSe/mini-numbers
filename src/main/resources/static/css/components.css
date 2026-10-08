@@ -88,6 +88,52 @@
   color: var(--color-danger);
 }
 
+.stat-card__detail {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+  min-height: 1.2em;
+}
+
+/* Privacy posture chip in the filter bar + its modal */
+.privacy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 4px 10px;
+  margin-left: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--transition-base), color var(--transition-base);
+}
+
+.privacy-chip:hover,
+.privacy-chip:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.privacy-chip i { color: var(--color-primary); }
+
+.privacy-posture__intro { margin-bottom: var(--spacing-md); color: var(--color-text-secondary); }
+.privacy-posture__group { margin-bottom: var(--spacing-md); }
+.privacy-posture__group h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+.privacy-posture__group ul { margin: 0; padding-left: 1.4em; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+.privacy-posture__group li { margin: 2px 0; }
+.privacy-posture__footer { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--spacing-md); }
+
 .comparison-period-label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);

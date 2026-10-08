@@ -27,6 +27,25 @@ test.describe('dashboard', () => {
     await expect(page.locator('#view-raw-events-btn')).toBeVisible();
     await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });
 
+    // AI assistant referrals card (demo data includes assistant referrers)
+    await expect(page.locator('#ai-referrals')).toHaveText(/^[0-9,]+$/, { timeout: 15_000 });
+    await expect(page.locator('#ai-referrals-detail')).toContainText(/% of referred visits|No visits from/);
+
+    // Privacy posture chip opens an accessible dialog with the three lists
+    const chip = page.locator('#privacy-chip');
+    await expect(chip).toContainText(/Standard · visitors forgotten after 1 day/);
+    await chip.click();
+    const privacyModal = page.locator('#privacy-modal');
+    await expect(privacyModal).toHaveClass(/show/);
+    await expect(privacyModal).toHaveAttribute('role', 'dialog');
+    await expect(page.locator('#privacy-stored li')).toHaveCount(6);
+    await expect(page.locator('#privacy-never li').first()).toContainText('IP address');
+    await expect(page.locator('#privacy-forgotten')).toContainText('rotates every 1 day');
+    await page.screenshot({ path: 'screenshots/privacy-modal.png' });
+    await page.keyboard.press('Escape');
+    await expect(privacyModal).not.toHaveClass(/show/);
+    await expect(chip).toBeFocused();
+
     for (const theme of ['light', 'dark']) {
       const current = await page.evaluate(() => document.documentElement.getAttribute('data-theme') || 'light');
       if (current !== theme) await page.click('#theme-toggle');

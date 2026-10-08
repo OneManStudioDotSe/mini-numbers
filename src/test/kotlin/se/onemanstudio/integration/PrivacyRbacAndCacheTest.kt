@@ -232,6 +232,38 @@ class PrivacyRbacAndCacheTest {
     }
 
     @Test
+    fun `report counts AI-assistant referrals per assistant and as a share of referred visits`() = testApplication {
+        application { module() }
+        val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)
+        val (projectId, apiKey) = admin.createProject("ai-${System.nanoTime()}")
+        fun pv(session: String, referrer: String?) =
+            """{"path":"/post","sessionId":"$session","type":"pageview","referrer":${referrer?.let { "\"$it\"" } ?: "null"}}"""
+        assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, pv("s1", "https://chatgpt.com/c/abc")).status)
+        assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, pv("s2", "https://www.perplexity.ai/search")).status)
+        assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, pv("s3", "https://chatgpt.com/")).status)
+        assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, pv("s4", "https://news.ycombinator.com/")).status)
+        assertEquals(HttpStatusCode.Accepted, admin.collect(apiKey, pv("s5", null)).status)
+
+        val report = Json.parseToJsonElement(admin.get("/admin/projects/$projectId/report?filter=7d").bodyAsText()).jsonObject
+        assertEquals(3L, report["aiReferralVisits"]!!.jsonPrimitive.long)
+        assertEquals(4L, report["referredVisits"]!!.jsonPrimitive.long)
+        val byAssistant = report["aiReferrals"]!!.jsonArray.map { it.jsonObject }
+            .associate { it["label"]!!.jsonPrimitive.content to it["value"]!!.jsonPrimitive.long }
+        assertEquals(mapOf("ChatGPT" to 2L, "Perplexity" to 1L), byAssistant)
+    }
+
+    @Test
+    fun `privacy endpoint reports the running mode, rotation window and retention`() = testApplication {
+        application { module() }
+        val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)
+        val body = Json.parseToJsonElement(admin.get("/admin/privacy").bodyAsText()).jsonObject
+        assertEquals("STANDARD", body["privacyMode"]!!.jsonPrimitive.content)
+        assertEquals(24, body["hashRotationHours"]!!.jsonPrimitive.int)
+        assertEquals(0, body["dataRetentionDays"]!!.jsonPrimitive.int)
+        assertEquals(HttpStatusCode.Unauthorized, client.get("/admin/privacy").status)
+    }
+
+    @Test
     fun `collect enforces the 2048 character limit on custom event properties`() = testApplication {
         application { module() }
         val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)

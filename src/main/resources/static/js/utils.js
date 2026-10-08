@@ -670,6 +670,7 @@ const Utils = {
       if (n.includes('instagram')) return 'ri-instagram-line';
       if (n.includes('tiktok')) return 'ri-tiktok-line';
       if (n.includes('pinterest')) return 'ri-pinterest-line';
+      if (/chatgpt|openai|claude\.ai|perplexity|gemini\.google|copilot\.microsoft|grok\.com|deepseek/.test(n)) return 'ri-robot-2-line';
       if (n === 'direct' || n === 'none') return 'ri-home-4-line';
       return 'ri-external-link-line';
     },

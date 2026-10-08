@@ -142,6 +142,7 @@ mini-numbers/
 │   │   └── WebhookTrigger.kt             # Fires webhook events from collection path
 │   ├── setup/                            # Setup wizard backend + models
 │   └── utils/
+│       ├── AiTrafficUtils.kt    # Referrer host → AI assistant classification
 │       ├── ConversionAnalysisUtils.kt    # Goal & funnel calculations
 │       ├── DataAnalysisUtils.kt          # Core analytics calculations
 │       └── RevenueAnalysisUtils.kt       # Revenue totals, breakdown, attribution
@@ -150,7 +151,7 @@ mini-numbers/
 │   ├── setup/                            # Setup wizard frontend
 │   ├── tracker/tracker.js / tracker.min.js
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
-├── src/test/kotlin/                      # 309 JVM tests (unit + Ktor test-host integration)
+├── src/test/kotlin/                      # 315 JVM tests (unit + Ktor test-host integration)
 └── e2e/                                  # 12 Playwright browser tests (own package.json, not part of Gradle)
     ├── playwright.config.js              # boots build/libs/mini-numbers-all.jar on a throwaway SQLite DB
     ├── helpers.js                        # login, project creation, fake tracked site via request interception
@@ -318,6 +319,7 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 - `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair
 - `POST /api/password-reset` — Invalidates all sessions for the user
 - `GET /admin/me` — Current authenticated user info
+- `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip
 - `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `DELETE /admin/users/{userId}` — admin only
 
 ### Projects
@@ -405,6 +407,21 @@ MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" });
 totals, per-event breakdown, and per-traffic-source attribution (UTM campaign → UTM source
 → referrer domain → "Direct", from the session's first pageview). `revenue.js` renders this
 in the admin UI.
+
+### AI assistant referrals
+
+`utils/AiTrafficUtils.kt` maps a referrer URL's host (subdomains included, `www.` stripped) to an
+assistant name from a fixed list. `generateReport` groups page-view referrers once, folds them per
+assistant into `ProjectReport.aiReferrals` / `aiReferralVisits`, and reports `referredVisits` (page
+views with any referrer) so the dashboard can show the share. Nothing is stored at collect time; the
+list lives in code and is extended by editing it. Rendered as the fifth Overview stat card.
+
+### Privacy posture chip
+
+`admin.js` `setupPrivacyPosture()` fetches `/admin/privacy` and renders the chip and the
+`#privacy-modal` dialog (stored / never stored / forgotten after). The wording is derived from the
+mode in the dashboard, not from the server, so it must be kept in step with `CollectionRouting`'s
+privacy-mode handling when that changes.
 
 ### Onboarding checklist
 

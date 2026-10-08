@@ -277,5 +277,15 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
                 "role" to role
             ))
         }
+
+        // Privacy posture: what the running configuration stores and for how long
+        get("/admin/privacy") {
+            val privacy = ConfigLoader.load().privacy
+            call.respond(buildJsonObject {
+                put("privacyMode", privacy.privacyMode.name)
+                put("hashRotationHours", privacy.hashRotationHours)
+                put("dataRetentionDays", privacy.dataRetentionDays)
+            })
+        }
     }
 }
