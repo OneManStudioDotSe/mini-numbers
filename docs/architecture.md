@@ -57,7 +57,7 @@ mini-numbers/
 │   ├── setup/                      # Premium Setup Wizard (HTML5 Canvas)
 │   ├── tracker/                    # tracker.js and minified versions
 │   └── geo/                        # Bundled GeoIP database
-└── src/test/kotlin/se/onemanstudio/ # Comprehensive test suite (288 tests)
+└── src/test/kotlin/se/onemanstudio/ # 315 JVM tests; browser tests live in e2e/
 ```
 
 ---
@@ -130,7 +130,7 @@ The query cache is project-aware and automatically clears when new events arrive
 
 ## Testing & Quality
 
-288 tests verify the project across all layers (Unit, Integration, and E2E).
+315 JVM tests (unit and integration, run against SQLite and PostgreSQL in CI) and 12 Playwright browser tests verify the project end to end.
 
 | Command                   | What it does                                  |
 |---------------------------|-----------------------------------------------|

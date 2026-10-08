@@ -10,7 +10,7 @@ object Funnels : Table("funnels") {
     val id = javaUUID("id")
     val projectId = javaUUID("project_id").references(Projects.id)
     val name = varchar("name", 100)
-    val createdAt = datetime("created_at").default(LocalDateTime.now())
+    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
 
     override val primaryKey = PrimaryKey(id)
 

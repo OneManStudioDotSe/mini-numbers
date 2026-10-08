@@ -135,7 +135,7 @@ Confirmed: no Dependabot config, no OWASP Dependency-Check, no Snyk/Trivy step a
 ## Low
 
 ### 18. `.env.example` doesn't warn that `ADMIN_PASSWORD` must be pre-hashed if set manually
-> **Status 2026-10-06**: documented. Note the real behaviour: plain text is hashed into the DB on first start (`ServiceManager`); `$2a$`/`$2b$` are stored as-is; `$2y$` is rejected by jBCrypt 0.4 ("Invalid salt revision").
+> **Status 2026-10-08**: resolved. Plain text is hashed into the DB on first start; `$2a$`, `$2b$` and `$2y$` hashes are all accepted since the move to password4j.
 If `.env`'s `ADMIN_PASSWORD` isn't already a `$2a$`/`$2b$` bcrypt hash, `Security.kt` silently and permanently fails auth (logged server-side only, not surfaced to the user). `.env.example` just says "Set a strong password" with no mention of the hash requirement — anyone bootstrapping via `.env` directly (skipping the setup wizard) gets locked out with a confusing failure.
 
 **Fix**: document the hash requirement in `.env.example`, or accept plaintext and hash it on first load if not already bcrypt-formatted.
@@ -156,6 +156,7 @@ It lists a single flat `Routing.kt`; the real routing code is split across `Rout
 **Fix**: correct the doc wording, or implement a true sliding window if that was the intent.
 
 ### 22. jBCrypt is an unmaintained fork
+> **Status 2026-10-08**: fixed. Replaced by password4j 1.8.4 (Apache-2.0) behind `core/Passwords.kt`; existing `$2a$` hashes verify unchanged (unit-tested against a jBCrypt-generated hash).
 `org.mindrot:jbcrypt:0.4` hasn't had a meaningful release since ~2013. Works fine, no known CVE, but worth flagging for a project pitching itself as production-ready and depending on it for password hashing specifically.
 
 **Fix**: no urgency; consider migrating to an actively maintained BCrypt implementation (e.g. `com.password4j`) opportunistically.

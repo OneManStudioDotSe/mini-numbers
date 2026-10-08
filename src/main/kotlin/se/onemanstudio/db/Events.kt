@@ -41,7 +41,7 @@ object Events : Table("events") {
     val country = varchar("country", 100).nullable()
     val city = varchar("city", 100).nullable()
     val duration = integer("duration").default(0) // Seconds spent
-    val timestamp = datetime("timestamp").default(LocalDateTime.now())
+    val timestamp = datetime("timestamp").clientDefault { LocalDateTime.now() }
     val browser = varchar("browser", 50).nullable()
     val os = varchar("os", 50).nullable()
     val device = varchar("device", 50).nullable()

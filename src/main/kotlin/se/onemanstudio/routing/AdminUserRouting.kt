@@ -72,10 +72,7 @@ fun Route.adminUserRoutes() {
         }
 
         val userId = UUID.randomUUID()
-        val hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(
-            request.password,
-            org.mindrot.jbcrypt.BCrypt.gensalt(12)
-        )
+        val hashedPassword = se.onemanstudio.core.Passwords.hash(request.password)
 
         transaction {
             Users.insert {

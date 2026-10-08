@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.mindrot.jbcrypt.BCrypt
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
 import se.onemanstudio.configureRouting
@@ -268,7 +267,7 @@ private fun buildEnvContent(config: SetupConfigDTO): String {
     lines.add("ADMIN_USERNAME=${config.adminUsername}")
 
     // Hash password with BCrypt before storing (rounds=12 for good security/performance balance)
-    val hashedPassword = BCrypt.hashpw(config.adminPassword, BCrypt.gensalt(12))
+    val hashedPassword = se.onemanstudio.core.Passwords.hash(config.adminPassword)
     lines.add("# Password is stored as BCrypt hash for security")
     lines.add("ADMIN_PASSWORD=${hashedPassword}")
 
