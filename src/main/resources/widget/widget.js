@@ -1,4 +1,4 @@
-/** Mini Numbers Analytics Widget — https://github.com/user/mini-numbers */
+/** Mini Numbers Analytics Widget — https://github.com/OneManStudioDotSe/mini-numbers */
 (function() {
     var s = document.currentScript;
     if (!s) return;

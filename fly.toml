@@ -20,6 +20,8 @@ primary_region = "iad"
   SERVER_PORT = "8080"
   DB_TYPE = "SQLITE"
   DB_SQLITE_PATH = "/app/data/stats.db"
+  # Fly's edge proxy adds the visitor IP to X-Forwarded-For
+  TRUST_PROXY = "true"
 
 [http_service]
   internal_port = 8080

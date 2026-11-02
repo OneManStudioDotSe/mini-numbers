@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.Test
 import se.onemanstudio.module
+import se.onemanstudio.setup.configureSetupRouting
 import kotlin.test.*
 
 /**
@@ -276,6 +277,20 @@ class SetupWizardTest {
         // Should serve HTML
         val body = response.bodyAsText()
         assertTrue(body.contains("html") || body.contains("HTML") || body.contains("<!DOCTYPE"))
+    }
+
+    // Before setup, only the setup routes are installed; the wizard must still get its shared CSS/JS/images.
+    @Test
+    fun `setup mode serves every local asset the wizard links to`() = testApplication {
+        application { configureSetupRouting() }
+
+        val html = client.get("/setup").bodyAsText()
+        val assets = Regex("""(?:href|src)="(/[^"]+)"""").findAll(html).map { it.groupValues[1] }.toList()
+
+        assertTrue(assets.any { it.startsWith("/css/") }, "wizard should link the shared stylesheets")
+        for (path in assets) {
+            assertEquals(HttpStatusCode.OK, client.get(path).status, "GET $path")
+        }
     }
 
     @Test

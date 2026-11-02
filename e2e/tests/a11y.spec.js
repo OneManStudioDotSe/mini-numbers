@@ -6,7 +6,7 @@ const { loginViaUi, loginViaApi, createProject } = require('../helpers');
 async function seriousViolations(page) {
   // color-contrast is excluded for now: 16 light-theme nodes fail it (comparison deltas in
   // #10b981 / #ef4444 and muted #a8a29e text on white, the sidebar subtitle on dark). Changing
-  // those is a palette decision tracked in GOING_LIVE.md; re-enable the rule once it is made.
+  // those is a palette decision tracked in _docs/ROADMAP.md; re-enable the rule once it is made.
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).disableRules(['color-contrast']).analyze();
   if (process.env.A11Y_VERBOSE) {
     for (const v of results.violations) for (const n of v.nodes) console.log(`${v.impact} ${v.id} | ${n.target.join(' ')} | ${(n.failureSummary || '').split('\n').slice(1, 2).join('')}`);

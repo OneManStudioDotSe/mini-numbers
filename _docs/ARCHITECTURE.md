@@ -61,7 +61,7 @@ each general check, specific to this stack.
 ```
 mini-numbers/
 ├── src/main/kotlin/se/onemanstudio/
-│   ├── Application.kt                    # Main entry point (unified mode)
+│   ├── Application.kt                    # main(): passes PORT/SERVER_PORT to Netty; module(): unified mode
 │   ├── Routing.kt                        # Route tree assembly (mounts routing/*)
 │   ├── WidgetRouting.kt                  # Embeddable widget endpoints
 │   ├── api/models/
@@ -106,7 +106,7 @@ mini-numbers/
 │   │   └── models/                       # LoginAttempt, UserRole, UserSession
 │   ├── db/
 │   │   ├── DatabaseFactory.kt            # Database initialization, table creation
-│   │   ├── Events.kt                     # Events table (9 indexes)
+│   │   ├── Events.kt                     # Events table (11 indexes)
 │   │   ├── Projects.kt
 │   │   ├── Users.kt                      # RBAC user accounts
 │   │   ├── RefreshTokens.kt              # JWT refresh token store
@@ -134,7 +134,7 @@ mini-numbers/
 │   │   ├── AdminUserRouting.kt           # user CRUD, role management
 │   │   ├── AuthRouting.kt                # login, logout, JWT issuance, password reset
 │   │   ├── CollectionRouting.kt          # POST /collect
-│   │   ├── PublicRouting.kt              # health, metrics, tracker config/script
+│   │   ├── PublicRouting.kt              # /metrics, /tracker/config, tracker.min.js, /tracker static
 │   │   └── RoutingUtils.kt               # shared helpers (period parsing, UUID parsing)
 │   ├── services/
 │   │   ├── EmailService.kt               # SMTP sending (Jakarta Mail)
@@ -142,7 +142,8 @@ mini-numbers/
 │   │   ├── UserAgentParser.kt            # Browser/OS/device detection
 │   │   ├── WebhookService.kt             # HMAC signing + delivery
 │   │   └── WebhookTrigger.kt             # Fires webhook events from collection path
-│   ├── setup/                            # Setup wizard backend + models
+│   ├── setup/                            # Setup wizard backend + models; SetupRouting.kt is
+│   │                                     # always installed and also serves the shared /css, /js, /assets
 │   └── utils/
 │       ├── AiTrafficUtils.kt    # Referrer host → AI assistant classification
 │       ├── ConversionAnalysisUtils.kt    # Goal & funnel calculations
@@ -153,8 +154,13 @@ mini-numbers/
 │   ├── setup/                            # Setup wizard frontend
 │   ├── tracker/tracker.js / tracker.min.js
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
-├── src/test/kotlin/                      # 315 JVM tests (unit + Ktor test-host integration)
-└── e2e/                                  # 12 Playwright browser tests (own package.json, not part of Gradle)
+├── src/test/kotlin/                      # JVM tests (unit + Ktor test-host integration)
+├── deploy/mini-numbers.service           # systemd unit for JAR installs (127.0.0.1:8080 behind Caddy/nginx)
+├── Dockerfile                            # runtime WORKDIR is the /app/data volume: .env + stats.db persist; PORT=8080
+├── docker-compose.yml / .postgres.yml    # pulls ghcr.io/onemanstudiodotse/mini-numbers:latest + Caddy (HTTPS from DOMAIN)
+├── .github/workflows/                    # build.yml (tests, e2e, Docker persistence check), docker-publish.yml
+│                                         # (GHCR; `latest` on v* tags), release.yml (JAR on GitHub Release), docs.yml
+└── e2e/                                  # Playwright browser tests (own package.json, not part of Gradle)
     ├── playwright.config.js              # boots build/libs/mini-numbers-all.jar on a throwaway SQLite DB
     ├── helpers.js                        # login, project creation, fake tracked site via request interception
     └── tests/                            # auth, dashboard, tracker, a11y specs; screenshots.spec.js regenerates docs/screenshots on demand
@@ -172,9 +178,9 @@ id: UUID (PK), name: String(100), domain: String(255), apiKey: String(64, unique
 
 ```kotlin
 id: Long (auto-increment), projectId: UUID (FK), visitorHash: String(64), sessionId: String(64)
-eventType: String(20) - "pageview" | "heartbeat" | "custom"
+eventType: String(20) - "pageview" | "heartbeat" | "custom" | "scroll" | "outbound" | "download"
 eventName: String?(100), path: String(512), referrer: String?(512)
-country: String?(100), city: String?(100)
+country: String?(100), region: String?(100), city: String?(100), latitude/longitude: Double? (STANDARD only)
 browser: String?(50), os: String?(50), device: String?(50)
 utmSource/utmMedium/utmCampaign/utmTerm/utmContent: String?
 scrollDepth: Int?, targetUrl: String?(512), properties: String? (JSON, custom event payload)
@@ -182,8 +188,12 @@ duration: Int (seconds), timestamp: DateTime
 
 Indexes: idx_events_timestamp, idx_events_project_timestamp, idx_events_project_session,
          idx_events_project_eventname, idx_events_project_visitor, idx_events_project_path,
-         idx_events_project_type_ts, idx_events_project_country, idx_events_project_browser
+         idx_events_project_type_ts, idx_events_project_country, idx_events_project_browser,
+         idx_events_project_utm, idx_events_project_region
 ```
+
+What each privacy mode stores is decided in `routing/CollectionRouting.kt` (PARANOID: no geo and no
+browser/OS/device; STRICT: country only; STANDARD: everything above) — `docs/privacy.md` mirrors it.
 
 ### Users
 
@@ -251,7 +261,7 @@ All configuration via `.env` file or environment variables.
 | `ADMIN_PASSWORD`  | —       | Admin panel password (required)                          |
 | `SERVER_SALT`     | —       | Server salt for visitor hashing, min 32 chars (required) |
 | `ADMIN_USERNAME`  | `admin` | Admin panel username                                     |
-| `ALLOWED_ORIGINS` | —       | Comma-separated CORS allowlist (`*` allows all)          |
+| `ALLOWED_ORIGINS` | —       | Origin allowlist for `/admin/*` and `/api/*` only (`AdminCorsGuard`; empty or `*` = any; same host always allowed). CORS itself is `anyHost()` so the tracker and widgets work everywhere |
 
 ### Database
 
@@ -274,15 +284,17 @@ All configuration via `.env` file or environment variables.
 
 | Variable                     | Default                                     | Description                                         |
 | ---------------------------- | ------------------------------------------- | --------------------------------------------------- |
-| `SERVER_PORT`                | `8080`                                      | Server port                                         |
-| `KTOR_DEVELOPMENT`           | `false`                                     | Development mode (relaxes CORS)                     |
+| `PORT`                       | —                                           | Listen port; wins over `SERVER_PORT` (PaaS-injected; the Docker image sets 8080). Resolved in `main()` via `ConfigLoader.bindPort()` and passed as `-P:ktor.deployment.port` |
+| `SERVER_PORT`                | `8080`                                      | Listen port when `PORT` is unset (written by the setup wizard; read from `.env` too) |
+| `TRUST_PROXY`                | `false`                                     | `true` installs `XForwardedHeaders` (last X-Forwarded-For entry) so `request.origin.remoteHost` is the visitor IP behind a proxy (`core/HTTP.kt` `configureProxyHeaders`) |
+| `KTOR_DEVELOPMENT`           | `false`                                     | Session cookie not `Secure` (sign-in over plain HTTP) and no HSTS; nothing else |
 | `RATE_LIMIT_PER_IP`          | `1000`                                      | Max requests per IP per minute (`/collect`, `/widget/*`, `/admin/*`, `/api/*`) |
 | `RATE_LIMIT_PER_API_KEY`     | `10000`                                     | Max requests per API key per minute (`/collect`, `/widget/*`); also the global bucket for `/admin/*` |
 | `HASH_ROTATION_HOURS`        | `24`                                        | Hash rotation period (1-8760)                       |
 | `PRIVACY_MODE`               | `STANDARD`                                  | `STANDARD`, `STRICT`, or `PARANOID`                 |
 | `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
-| `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Default heartbeat interval in seconds               |
-| `TRACKER_SPA_ENABLED`        | `true`                                      | Enable SPA tracking by default                      |
+| `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
+| `TRACKER_SPA_ENABLED`        | `true`                                      | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path                                 |
 
 ### Email reports (SMTP)
@@ -304,12 +316,12 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 ### Public
 
 - `GET /` — Intelligent redirect based on application state
-- `GET /health` — Health check (uptime, version, state)
-- `GET /metrics` — Application metrics (event counts, cache stats, privacy config)
+- `GET /health` — `status`, `state`, `version`, `servicesReady`, `setupNeeded` (in `setup/SetupRouting.kt`, so it answers in every state; always HTTP 200)
+- `GET /metrics` — Prometheus text: uptime, GeoIP cache hit rate and size
 - `GET /favicon.ico`
-- `GET /tracker/config` — Tracker configuration (heartbeat interval, SPA enabled)
+- `GET /tracker/config` — heartbeat interval and SPA flag from `TRACKER_*` (not read by the tracker today)
 - `GET /tracker/tracker.min.js` — Minified tracker script
-- `POST /collect` — Data collection endpoint (rate limited, privacy mode aware)
+- `POST /collect` — Data collection (rate limited, privacy-mode aware, 202). The tracker posts to `<its script origin>/collect` unless `data-api-endpoint` is set
 
 ### Setup wizard
 
@@ -431,23 +443,26 @@ A first-run checklist modal (`#onboarding-modal` in `admin.html`) walks a new ad
 initial setup steps (e.g. create a project, install the tracker). Driven client-side by
 `admin.js`.
 
+## Security model
+
+- **Passwords**: BCrypt `$2a$`, cost 12 (`core/Passwords.kt`, password4j); `$2b$`/`$2y$` hashes also accepted.
+- **Brute force**: 5 failed logins lock that username for 15 minutes (`core/Security.kt`).
+- **Sessions**: cookie `mini_numbers_session`, HttpOnly, `SameSite=Strict`, `Secure` unless `KTOR_DEVELOPMENT`;
+  valid 4 hours from login; role and active flag re-read on every request.
+- **API tokens**: JWT access tokens (15 min) plus refresh tokens stored hashed and revoked on use
+  (`core/JwtService.kt`, `routing/AuthRouting.kt`).
+- **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin.
+- **Limits**: per-IP and per-key buckets on `/collect`, `/widget/*`, `/admin/*`, `/api/*`; a stricter fixed
+  bucket (20/IP/min, 300/min overall) on the credential endpoints (`middleware/RateLimitGuard.kt`).
+- **Headers** (`core/HTTP.kt`): CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, HSTS outside
+  development mode. CORS is `anyHost()` without credentials; `/admin` and `/api` additionally check
+  `ALLOWED_ORIGINS` (`middleware/AdminCorsGuard.kt`).
+- **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); all SQL goes
+  through Exposed.
+- **Visitor IP**: used in memory for the hash, GeoIP and rate limiting only; never written anywhere.
+
+How to report a vulnerability: [SECURITY.md](../SECURITY.md).
+
 ## Known implementation gaps
 
-These are real, current gaps between documented/intended behavior and what the code does —
-tracked here so they don't get silently assumed as "already fixed." See `GOING_LIVE.md` for
-the full pre-launch audit this was extracted from.
-
-- **Session lifetime is absolute, not sliding**: the 4-hour limit in `core/Security.kt` is
-  measured from login (`createdAt`), not from the last request.
-- **CSP still allows `'unsafe-inline'`** for scripts and styles in the admin panel.
-- **Light-theme colour contrast fails WCAG AA on 16 dashboard nodes** (comparison deltas in
-  `#10b981`/`#ef4444`, muted `#a8a29e` text on white, `.sidebar-subtitle` on the dark
-  sidebar). The axe rule is disabled in `e2e/tests/a11y.spec.js` until the palette is changed.
-- **GeoLite2 `.mmdb` (61 MB) is committed to the repo** and baked into every image and fat
-  JAR. A download-on-start path with a MaxMind licence key is the intended replacement.
-
-Resolved on 2026-10-06 (kept here so the history is traceable): `AdminCorsGuard` is wired
-into `/admin` and `/api` (`Routing.kt`, `guardAdminRequests`); `RateLimiter` covers
-`/admin/*`, `/api/*` and, with a stricter fixed bucket, the credential endpoints
-(`middleware/RateLimitGuard.kt`); all eleven dialogs carry ARIA dialog attributes; role
-and active-flag are re-read per request (`core/Security.kt`, `resolveActiveRole`).
+Tracked in one place: the *Known gaps* section of [ROADMAP.md](ROADMAP.md).

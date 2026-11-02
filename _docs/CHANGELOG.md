@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **One-file install with automatic HTTPS**: `docker-compose.yml` now pulls the published image and runs Caddy in front of it. Point a domain at the server, put `DOMAIN=…` in `.env`, run `docker compose up -d`, and the certificate is obtained and renewed for you. The PostgreSQL compose file works the same way.
+- **`TRUST_PROXY` setting**: behind a reverse proxy (Caddy, nginx, Railway, Render, Fly.io, server panels) set `TRUST_PROXY=true` and visitor IPs are read from `X-Forwarded-For`. The compose files, `fly.toml` and `render.yaml` set it.
+- **Downloadable JAR**: tagging a version publishes `mini-numbers.jar` on the GitHub Release (`release.yml`), and the Docker image gets a `latest` tag on version tags.
+- **systemd unit** in `deploy/mini-numbers.service` for running the JAR without Docker.
+- **Install guide rewritten** in plain language (`docs/deployment.md`), with one path each for a VPS with Docker, server panels (Coolify, Dokploy, CapRover, Easypanel), Railway/Render/Fly.io, cPanel hosting, and plain Java. `_docs/DEPLOYMENT.md` now points to it instead of repeating it.
+
+### Changed
+
+- **Documentation rewritten and cut down.** The public docs are now eight short pages in plain language (install, getting started, dashboard, configuration, privacy, developers, troubleshooting, plus the comparison), checked line by line against the code. Wrong claims were removed or corrected: what Paranoid and Standard mode store, the session ID, `KTOR_DEVELOPMENT` and `ALLOWED_ORIGINS`, widget parameters and responses, Slack/Discord, "zero-restart config", SQLite WAL and test counts. Duplicated or historical files (`GOING_LIVE.md`, `GEMINI.md`, `_docs/TODO.md`, `EVALUATION.md`, `PRIVACY.md`, `DASHBOARD_GUIDE.md`, `SECURITY.md`, `DEPLOYMENT.md`, and six old docs pages) are gone; their open items live in `_docs/ROADMAP.md`, which now also ranks feature ideas. A short root `SECURITY.md` explains how to report vulnerabilities.
+- **Comparison page refreshed** (`docs/comparison.html`, checked 2 Nov 2026): adds Liwan, Medama and Counterscale, shows Plausible as its self-hosted CE with cloud-only features marked, and lists what each tool needs to self-host and when it last released.
+- The setup wizard's help text for Paranoid mode and development mode now says what they actually do; `.env.example` no longer enables development mode.
+- Browser tests take `E2E_PORT` when port 8080 is busy, and include the dashboard's tracking snippet exactly as shown.
+
+### Fixed
+
+- **The tracking snippet recorded nothing when Mini Numbers runs on a different domain from the website** (the usual setup). Without `data-api-endpoint`, the tracker sent events to the website's own address instead of the Mini Numbers server. It now defaults to the server it was loaded from; snippets already on websites pick this up automatically, because the script is served by Mini Numbers.
+- **Visitor counts behind a proxy**: every visitor used to get the proxy's IP address, so unique visitors collapsed to one, countries were missing and the per-IP rate limit acted as a global one. Fixed with `TRUST_PROXY=true` (see above).
+- **Docker installs forgot their setup**: the wizard saved its settings in `/app/.env`, outside the data volume, so after an upgrade or restart on Fly/Render/Railway the wizard came back with a new salt. The container now runs from `/app/data`, so settings and database live in the same volume.
+- **`PORT` and `SERVER_PORT` were ignored**: the server always listened on 8080. It now listens on `PORT` (set by hosting platforms), then `SERVER_PORT`, then 8080, and the startup log shows the real address.
+- **Silent login loop over plain HTTP**: signing in on an `http://` address other than `localhost` succeeded but the browser dropped the secure-only cookie and sent you back to the login page. The page now explains that the site needs HTTPS.
+- **The JVM now receives `docker stop`**, so shutdown runs cleanly; the image no longer stores the JAR twice.
+- **Setup wizard rendered without styling on a fresh install**: the shared `/css`, `/js` and `/assets` files were only served once setup was complete, so the wizard's stylesheets, theme script and logo returned 404 before it. They are now served in every state. Covered by a test that requests every local asset the wizard links to with only the setup routes installed.
+
 ---
 
 ## [1.3.0] - 2026-10-08

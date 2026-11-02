@@ -1,16 +1,14 @@
 <p>
+  <img src="https://github.com/OneManStudioDotSe/mini-numbers/actions/workflows/build.yml/badge.svg" alt="Build">
   <img src="https://img.shields.io/github/v/release/onemanstudiodotse/mini-numbers?label=version&color=blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/tests-315%20JVM%20%2B%2012%20browser-brightgreen" alt="Tests">
-  <img src="https://img.shields.io/badge/tracker-1.9KB%20gzipped-orange" alt="Tracker Size">
   <img src="https://img.shields.io/badge/cookies-zero-purple" alt="No Cookies">
 </p>
 
 # Mini Numbers
 
-**Privacy-first, self-hosted web analytics.** Track your website traffic without compromising visitor privacy — no cookies, no personal data stored, no consent banners needed.
-
-A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
+**Website analytics you run yourself.** See which pages people read, where they come from and what they do —
+without cookies, without storing IP addresses, and without handing data to anyone.
 
 <p align="center">
   <img src="docs/screenshots/overview-light.png" alt="Mini Numbers dashboard, light theme: overview cards, AI assistant referrals and the privacy posture chip" width="800">
@@ -20,96 +18,49 @@ A lightweight open-source alternative to Google Analytics, Plausible, and Umami.
   <img src="docs/screenshots/privacy-posture-dark.png" alt="The privacy posture dialog listing what the instance stores, never stores, and when it forgets" width="390">
 </p>
 
-## Why Mini Numbers?
+## Why Mini Numbers
 
-Honest comparison as of October 2026 (interactive version: [docs/comparison.html](docs/comparison.html); full matrix and sources in `_docs/EVALUATION.md`):
+- **One program, nothing else to run.** A single JAR or Docker image with SQLite built in — no ClickHouse,
+  Redis or separate database server.
+- **Privacy you can tune.** Three privacy modes and an adjustable "forget visitors after" window (1 hour to
+  1 year). The dashboard shows exactly what your server stores.
+- **Everything included.** Goals, funnels, segments, revenue attribution, AI-assistant referrals, webhooks,
+  email reports, widgets and a REST API — no paid tier, no feature held back from self-hosters.
+- **Small tracker.** About 2 KB gzipped, no cookies, works with single-page apps.
+- **MIT licensed.**
 
-|                              | Google Analytics | Plausible CE | Umami | Rybbit | **Mini Numbers** |
-|------------------------------|------------------|--------------|-------|--------|------------------|
-| No cookies                   |                  | Yes          | Yes   | Yes    | **Yes**          |
-| Self-hosted                  |                  | Yes          | Yes   | Yes    | **Yes**          |
-| Runs on SQLite, single JAR   |                  |              |       |        | **Yes**          |
-| Privacy modes + hash rotation|                  |              |       |        | **3 levels, 1h–1y** |
-| Tracker size (gzipped)       | 45KB+            | ~1.9KB       | ~2.4KB| ~9KB   | **1.9KB**        |
-| Goals, funnels, segments     | Yes              | Paid         | Yes   | Yes    | **Yes**          |
-| Revenue tracking             | Yes              | Paid         | Yes   | ~      | **Yes**          |
-| Webhooks + email reports     |                  | Email        | Cloud | ~      | **Both**         |
-| Session replay / heatmaps    |                  |              | Yes   | Yes    | No (by design)   |
-| Licence                      |                  | AGPL         | MIT   | AGPL   | **MIT**          |
+How it stacks up against Plausible, Umami, Matomo, Liwan and others: **[comparison](docs/comparison.html)**.
 
-## Key Features
+## Quick start
 
-- **Real-time dashboard** — Live visitor feed, time series charts, activity heatmaps
-- **Privacy by design** — Three modes (Standard, Strict, Paranoid) with configurable hash rotation
-- **Conversion tracking** — Goals, multi-step funnels, and user segments with visual filter builder
-- **Revenue analytics** — Track purchases and AOV with `MiniNumbers.track("purchase", { revenue: 29.99 })`
-- **Webhooks** — HMAC-signed delivery on goal conversions and traffic spikes
-- **Email reports** — Scheduled daily/weekly/monthly analytics emails via SMTP
-- **Tiny footprint** — 1.9KB (gzipped) tracking script, SQLite or PostgreSQL, runs anywhere
-- **Multi-project** — Manage multiple websites from a single instance
-- **No cookies** — GDPR-friendly by default, no consent banners required
-- **Dark mode** — Full light/dark theme support with accessible UI
-
-## Quick Start
-
-**Up and running in under a minute:**
-
-### 1. Run the server
+On a VPS with Docker and a domain pointed at it (HTTPS is set up for you):
 
 ```bash
-# With Docker (recommended)
+mkdir mini-numbers && cd mini-numbers
+curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
+echo "DOMAIN=stats.example.com" > .env
 docker compose up -d
-
-# Or run directly
-./gradlew run
 ```
 
-### 2. Complete the setup wizard
-
-Open your browser and visit your server URL. The setup wizard walks you through security, database, and server configuration — no config files to edit manually.
-
-### 3. Add the tracker to your website
-
-```html
-<script async src="https://your-domain.com/tracker/tracker.js" data-project-key="YOUR_API_KEY"></script>
-```
-
-### 4. Track custom events (optional)
-
-```javascript
-MiniNumbers.track("signup");
-MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" });
-```
-
-That's it. Visit your dashboard to see analytics flowing in.
+Open `https://stats.example.com`, complete the setup wizard, create a project and paste the snippet it shows
+into your website. Server panels, Railway/Render/Fly.io, plain Java and cPanel: see the
+**[Install guide](docs/deployment.md)**.
 
 ## Documentation
 
-Full documentation is available at **[onemanstudiodotse.github.io/mini-numbers](https://onemanstudiodotse.github.io/mini-numbers/)**.
-
-| Guide | Description |
-|-------|-------------|
-| [Getting Started](https://onemanstudiodotse.github.io/mini-numbers/getting-started) | Installation, setup wizard, first project |
-| [Configuration](https://onemanstudiodotse.github.io/mini-numbers/configuration) | All settings and environment variables |
-| [Features](https://onemanstudiodotse.github.io/mini-numbers/features) | Full feature overview with examples |
-| [Dashboard Guide](https://onemanstudiodotse.github.io/mini-numbers/dashboard-guide) | How to use the analytics dashboard |
-| [Privacy](https://onemanstudiodotse.github.io/mini-numbers/privacy) | How your visitors' privacy is protected |
-| [Deployment](https://onemanstudiodotse.github.io/mini-numbers/deployment) | Docker, cloud platforms, reverse proxies |
-| [Architecture](https://onemanstudiodotse.github.io/mini-numbers/architecture) | Technical details for developers |
-
-## Tech Stack
-
-**Backend:** Kotlin 2.4.20 + Ktor 3.6.0 on JDK 21 &bull; **Database:** SQLite or PostgreSQL &bull; **Caching:** Caffeine &bull; **GeoIP:** MaxMind GeoLite2 &bull; **Build:** Gradle
+**[onemanstudiodotse.github.io/mini-numbers](https://onemanstudiodotse.github.io/mini-numbers/)** —
+install, getting started, the dashboard, configuration, privacy, and developer reference (tracker, widgets,
+API, webhooks).
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Kotlin + Ktor on JDK 21, vanilla JS for the dashboard. See [CONTRIBUTING.md](CONTRIBUTING.md); the technical
+reference is [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) and plans are in [_docs/ROADMAP.md](_docs/ROADMAP.md).
+Security issues: see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) — use it however you like.
-
-### Third-party notices
+[MIT](LICENSE).
 
 - This product includes GeoLite2 data created by MaxMind, available from [https://www.maxmind.com](https://www.maxmind.com).
 - User-agent detection uses the [uap-core](https://github.com/ua-parser/uap-core) regexes via `uap-java` (Apache-2.0).

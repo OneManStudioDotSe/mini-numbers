@@ -111,3 +111,20 @@ jobs:
           curl --fail --retry 3 --retry-delay 5 http://localhost:18080/health || exit 1
           docker stop mn-test
           docker rm mn-test
+
+      - name: Test that setup survives recreating the container
+        run: |
+          docker volume create mn-data
+          docker run -d --name mn-persist -p 18081:8080 -v mn-data:/app/data mini-numbers:ci-test
+          sleep 20
+          curl --fail --retry 3 --retry-delay 5 -H 'Content-Type: application/json' \
+            -d "{\"adminUsername\":\"admin\",\"adminPassword\":\"ci-persist-password\",\"serverSalt\":\"$(openssl rand -hex 64)\",\"privacyMode\":\"STANDARD\",\"allowedOrigins\":\"\",\"database\":{\"type\":\"sqlite\",\"sqlitePath\":\"./stats.db\"},\"server\":{\"port\":9999,\"isDevelopment\":false},\"geoip\":{\"databasePath\":\"./geo.mmdb\"},\"rateLimit\":{\"perIp\":1000,\"perApiKey\":10000}}" \
+            http://localhost:18081/setup/api/save
+          docker rm -f mn-persist
+          docker run -d --name mn-persist -p 18081:8080 -v mn-data:/app/data mini-numbers:ci-test
+          sleep 20
+          # Still configured, and still on 8080 even though the wizard saved SERVER_PORT=9999
+          curl --fail --retry 3 --retry-delay 5 http://localhost:18081/health | tee health.json
+          grep -q '"setupNeeded":false' health.json
+          docker rm -f mn-persist
+          docker volume rm mn-data

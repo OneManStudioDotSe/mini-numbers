@@ -1,21 +1,23 @@
-# Mini Numbers - Docker Compose (PostgreSQL)
-# Production-ready setup with PostgreSQL database
+# Mini Numbers - Docker Compose (PostgreSQL, automatic HTTPS)
 #
-# Usage:
-#   1. Copy .env.example to .env and fill in values
-#   2. Set DB_PG_PASSWORD in .env (or export it)
-#   3. docker compose -f docker-compose.postgres.yml up -d
+# Same as docker-compose.yml, but stores data in PostgreSQL instead of SQLite.
 #
-# Or pass password inline:
-#   DB_PG_PASSWORD=mysecretpassword docker compose -f docker-compose.postgres.yml up -d
+# 1. Point a domain (for example stats.example.com) at this server's IP address.
+# 2. Create .env with:
+#      DOMAIN=stats.example.com
+#      DB_PG_PASSWORD=<a long random password>
+# 3. docker compose -f docker-compose.postgres.yml up -d
+# 4. Open https://stats.example.com and complete the setup wizard.
+#
+# Caddy gets and renews the HTTPS certificate by itself; ports 80 and 443 must be free.
+# Upgrade: docker compose -f docker-compose.postgres.yml pull && docker compose -f docker-compose.postgres.yml up -d
+# Build from source instead: in a clone of the repo, replace the image line with `build: .`
 
 services:
   mini-numbers:
-    build: .
+    image: ghcr.io/onemanstudiodotse/mini-numbers:latest
     container_name: mini-numbers
     restart: unless-stopped
-    ports:
-      - "${SERVER_PORT:-8080}:8080"
     volumes:
       - analytics-data:/app/data
     env_file:
@@ -27,7 +29,9 @@ services:
       - DB_PG_PORT=5432
       - DB_PG_NAME=mini_numbers
       - DB_PG_USERNAME=analytics
-      - DB_PG_PASSWORD=${DB_PG_PASSWORD:?Set DB_PG_PASSWORD environment variable}
+      - DB_PG_PASSWORD=${DB_PG_PASSWORD:?Set DB_PG_PASSWORD in .env}
+      # Only Caddy can reach this container, so the visitor IP it forwards can be trusted
+      - TRUST_PROXY=true
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,7 +51,7 @@ services:
     environment:
       POSTGRES_DB: mini_numbers
       POSTGRES_USER: analytics
-      POSTGRES_PASSWORD: ${DB_PG_PASSWORD:?Set DB_PG_PASSWORD environment variable}
+      POSTGRES_PASSWORD: ${DB_PG_PASSWORD:?Set DB_PG_PASSWORD in .env}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U analytics -d mini_numbers"]
       interval: 10s
@@ -55,6 +59,21 @@ services:
       retries: 5
       start_period: 10s
 
+  caddy:
+    image: caddy:2
+    container_name: mini-numbers-caddy
+    restart: unless-stopped
+    command: caddy reverse-proxy --from ${DOMAIN:?Set DOMAIN in .env, for example DOMAIN=stats.example.com} --to mini-numbers:8080
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy-data:/data
+    depends_on:
+      - mini-numbers
+
 volumes:
   analytics-data:
   postgres-data:
+  caddy-data:

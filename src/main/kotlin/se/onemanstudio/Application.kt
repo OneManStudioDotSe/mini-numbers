@@ -14,15 +14,16 @@ import se.onemanstudio.config.models.*
 import se.onemanstudio.config.models.ServerConfig as AppServerConfig
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.core.configureHTTP
+import se.onemanstudio.core.configureProxyHeaders
 import se.onemanstudio.core.configureSecurity
 import se.onemanstudio.setup.configureSetupRouting
 
 /**
- * Application entry point. Launches the embedded Netty server using
- * the port and host defined in `application.yaml`.
+ * Application entry point. Launches the embedded Netty server on the port from `PORT` or
+ * `SERVER_PORT` (see [ConfigLoader.bindPort]); arguments passed on the command line still win.
  */
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    io.ktor.server.netty.EngineMain.main(arrayOf("-P:ktor.deployment.port=${ConfigLoader.bindPort()}") + args)
 }
 
 /**
@@ -66,9 +67,10 @@ fun Application.module() {
 
     // Check initial setup status and load config if available
     val setupNeeded = ConfigLoader.isSetupNeeded()
+    val baseUrl = "http://localhost:" + (environment.config.propertyOrNull("ktor.deployment.port")?.getString() ?: "8080")
     val config: AppConfig? = if (setupNeeded) {
         logger.info("Setup required: Configuration is missing or incomplete")
-        logger.info("Visit http://localhost:8080/setup to complete setup")
+        logger.info("Visit $baseUrl/setup to complete setup")
         null
     } else {
         logger.info("Configuration found - attempting service initialization...")
@@ -103,6 +105,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
+    configureProxyHeaders(ConfigLoader.trustProxy())
 
     // Global error handler — catch unhandled exceptions and return proper JSON errors.
     // Order matters: most specific exception types first.
@@ -173,9 +176,9 @@ fun Application.module() {
     logger.info("=" .repeat(70))
     logger.info("APPLICATION READY")
     if (!setupNeeded && ServiceManager.isReady()) {
-        logger.info("Admin panel: http://localhost:8080/admin-panel")
+        logger.info("Admin panel: $baseUrl/admin-panel")
     } else {
-        logger.info("Setup wizard: http://localhost:8080/setup")
+        logger.info("Setup wizard: $baseUrl/setup")
     }
     logger.info("=" .repeat(70))
 }

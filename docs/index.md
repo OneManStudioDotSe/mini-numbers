@@ -4,62 +4,41 @@ layout: home
 nav_order: 1
 ---
 
-# Mini Numbers Documentation
+# Mini Numbers
 
-**Mini Numbers** is a privacy-first, self-hosted web analytics platform. It gives you the website traffic insights you need — without compromising your visitors' privacy.
+Website analytics you run yourself. See which pages people read, where they come from and what they do —
+without cookies, without storing IP addresses, and without sending anything to anyone else.
 
-Think of it as a simpler, privacy-respecting alternative to Google Analytics that you run on your own server.
-
----
-
-## What makes it different?
-
-- **No cookies** — Your visitors won't see consent banners because of your analytics
-- **No personal data stored** — IP addresses are never saved to disk
-- **Tiny tracker** — The script added to your website is only 1.9KB gzipped (smaller than most images)
-- **Self-hosted** — Your data stays on your server, under your control
-- **Open source** — Free to use, modify, and share under the MIT license
+It's one program with its own database, so it runs on a small server next to nothing else.
 
 ---
 
-## What can you track?
+## What you get
 
-- **Page views** — See which pages get the most traffic
-- **Visitors** — Count unique visitors without identifying them
-- **Referrers** — Know where your traffic comes from
-- **UTM campaigns** — Source/medium/campaign attribution for paid and email traffic
-- **Geography** — See which countries and cities your visitors are in
-- **Devices** — Desktop vs. mobile vs. tablet breakdown
-- **Scroll depth** — How far visitors read on each page (25%, 50%, 75%, 100%)
-- **Outbound links** — Clicks to external websites
-- **File downloads** — PDF, ZIP, and other file download events
-- **Custom events** — Track button clicks, signups, purchases, or any action
-- **Revenue** — Attach monetary value to events to calculate AOV and RPV
-- **Conversion goals** — Measure how many visitors complete specific actions
-- **Funnels** — See where visitors drop off in multi-step processes
+- **The numbers that matter**: page views, unique visitors, sessions, bounce rate, time on site, compared
+  with the previous period.
+- **Where visitors come from**: referrers, UTM campaigns, visits from AI assistants (ChatGPT, Claude,
+  Perplexity and others), countries and cities.
+- **What they do**: top, entry and exit pages, scroll depth, outbound links, file downloads, and your own
+  custom events (`MiniNumbers.track("signup")`).
+- **Conversions and revenue**: goals, funnels, visitor segments, revenue per source and campaign.
+- **Live view**: visitors in the last five minutes, a globe, an hourly heatmap and a year-long activity calendar.
+- **Sharing your data**: CSV export, a REST API, signed webhooks, scheduled email reports, and widgets you can
+  embed on your own pages.
+- **Privacy you choose**: three privacy modes and an adjustable "forget visitors after" window.
 
 ---
 
-## Getting started
+## Start here
 
-New to Mini Numbers? Start here:
-
-1. **[Getting Started](getting-started)** — Install and set up your first project in minutes
-2. **[Dashboard Guide](dashboard-guide)** — Learn how to use the analytics dashboard
-3. **[Features](features)** — Explore everything Mini Numbers can do
-
-## Going deeper
-
-- **[How it compares](comparison.html)** — feature-by-feature against Umami, Plausible, Matomo, PostHog, Fathom, Rybbit and GoatCounter, plus the full feature list and the 1.3.0 notes
-
-- **[Configuration](configuration)** — All the settings you can customize
-- **[Privacy](privacy)** — How visitor privacy is protected
-- **[Deployment](deployment)** — Run in production with Docker, cloud platforms, or bare metal
-- **[Architecture](architecture)** — Technical details for developers and contributors
+1. **[Install](deployment)** — pick your kind of server; about five minutes.
+2. **[Getting started](getting-started)** — the setup wizard, your first project, the tracking snippet.
+3. **[Using the dashboard](dashboard)** — what every section shows.
 
 ## Reference
 
-- **[Tracker Reference](tracker-reference)** — Complete `tracker.js` API: all attributes and the public JavaScript API
-- **[Embeddable Widgets](widgets)** — Add live analytics widgets to your own pages
-- **[Troubleshooting](troubleshooting)** — Common issues and how to fix them
-- **[Upgrading](upgrading)** — How to upgrade Mini Numbers between versions
+- **[Configuration](configuration)** — every setting.
+- **[Privacy](privacy)** — exactly what is stored in each privacy mode.
+- **[For developers](developers)** — tracker options, custom events, widgets, REST API.
+- **[Troubleshooting](troubleshooting)** — common problems and fixes.
+- **[How it compares](comparison.html)** — Mini Numbers next to Plausible, Umami, Matomo, Liwan and others.

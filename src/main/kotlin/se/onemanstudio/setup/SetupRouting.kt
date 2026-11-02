@@ -52,6 +52,12 @@ fun Application.configureSetupRouting() {
             default("wizard.html")
         }
 
+        // Shared CSS, JS and images. Registered here because these routes are installed in every
+        // state - the wizard needs them before setup, and every other page after it.
+        staticResources("/assets", "assets")
+        staticResources("/css", "static/css")
+        staticResources("/js", "static/js")
+
         // API: Check setup status with servicesReady flag
         get("/setup/api/status") {
             try {

@@ -1,150 +1,74 @@
 ---
-title: Getting Started
+title: Getting started
 layout: default
-nav_order: 2
+nav_order: 3
 ---
 
-# Getting Started
+# Getting started
 
-This guide walks you through installing Mini Numbers, completing the setup wizard, creating your first project, and adding the tracking script to your website.
+From a running server to your first visitor in four steps.
 
 ---
 
-## Step 1: Install Mini Numbers
+## 1. Install
 
-Choose the installation method that works best for you.
-
-### Option A: Docker (recommended)
-
-Docker is the easiest way to get started. If you don't have Docker installed, [get it here](https://docs.docker.com/get-docker/).
+Follow the [Install guide](deployment) for your kind of server. To look around on your own computer first:
 
 ```bash
-# Download the docker-compose file
-curl -O https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-
-# Start the server
-docker compose up -d
+docker run --rm -p 8080:8080 -v mini-numbers-data:/app/data ghcr.io/onemanstudiodotse/mini-numbers:latest
 ```
 
-The server will be running at `http://localhost:8080`.
-
-### Option B: Pre-built Docker image
-
-```bash
-docker run -d -p 8080:8080 --name mini-numbers ghcr.io/onemanstudiodotse/mini-numbers:latest
-```
-
-### Option C: Build from source
-
-You'll need [Java 21](https://adoptium.net/) (or newer) installed.
-
-```bash
-# Clone the repository
-git clone https://github.com/OneManStudioDotSe/mini-numbers.git
-cd mini-numbers
-
-# Run the server
-./gradlew run
-```
-
-### Option D: Build a standalone JAR
-
-```bash
-# Build the JAR file
-./gradlew buildFatJar
-
-# Run it
-java -jar build/libs/mini-numbers-all.jar
-```
+and open `http://localhost:8080`.
 
 ---
 
-## Step 2: Complete the setup wizard
+## 2. Run the setup wizard
 
-Once the server is running, open your browser and go to `http://localhost:8080`. You'll be greeted by the setup wizard.
+The first time you open Mini Numbers, a six-step wizard appears:
 
-The wizard walks you through five simple steps:
+1. **Secure your dashboard** — admin username, password, and a *server salt* (a secret used to make visitor
+   identifiers anonymous; it's generated for you).
+2. **Choose storage** — SQLite (one file, no setup, right for most sites) or PostgreSQL.
+3. **Privacy approach** — Standard, Strict or Paranoid. See [Privacy](privacy) for exactly what each stores.
+4. **Server settings** — port, allowed origins for the admin API (leave empty unless other sites call your
+   API), and development mode (only for testing without HTTPS).
+5. **Fine-tuning** — request limits per visitor and per website.
+6. **Review** — check everything and launch. Mini Numbers starts straight away and shows the login page.
 
-### 1. Security
+The wizard saves your choices in a `.env` file. Hash rotation, data retention and email settings aren't in the
+wizard; add them to `.env` later if you need them (see [Configuration](configuration)).
 
-- **Admin username** — The username you'll use to log in (default: `admin`)
-- **Admin password** — Choose a strong password
-- **Server salt** — Click "Generate" to create one automatically. This is used internally to protect visitor privacy
-
-### 2. Database
-
-- **SQLite** — The simplest option. Data is stored in a single file. Great for small to medium sites
-- **PostgreSQL** — Better for high-traffic sites or when you want a dedicated database server
-
-For most users, SQLite is the right choice.
-
-### 3. Server
-
-- **Port** — The port the server listens on (default: `8080`)
-- **Allowed origins** — The domains of websites you want to track (e.g., `https://example.com`). Leave empty for development
-- **Development mode** — Turn this on if you're testing locally (it relaxes security rules)
-
-### 4. Privacy
-
-- **Privacy mode** — Choose your privacy level:
-  - **Standard** — Full analytics with country and city data
-  - **Strict** — Country-level location only (no cities)
-  - **Paranoid** — No location or device data at all
-- **Hash rotation** — How often visitor identifiers are rotated (default: 24 hours)
-- **Data retention** — Automatically delete old data after a set number of days (0 = keep forever)
-
-### 5. Review and save
-
-Review your settings and click **Save**. The application configures itself without needing a restart — you'll be taken straight to the login page.
+{: .tip }
+**Quick Setup** on the first step fills everything in with test-friendly defaults. Use it to try Mini Numbers,
+not for a real site.
 
 ---
 
-## Step 3: Log in and create a project
+## 3. Create a project
 
-1. Log in with the admin credentials you just set up
-2. Click **"New project"** in the sidebar
-3. Enter your website's **name** and **domain** (e.g., `My Blog` and `blog.example.com`)
-4. Click **Create** — you'll get a unique **API key** for this project
-
-Keep this API key handy — you'll need it in the next step.
-
----
-
-## Step 4: Add the tracking script to your website
-
-Add this single line of code to your website, just before the closing `</head>` tag:
+Sign in, click **New project**, and enter your website's name and domain. Mini Numbers shows the tracking
+snippet for that project, for example:
 
 ```html
-<script async src="https://your-analytics-server.com/tracker/tracker.js" data-project-key="YOUR_API_KEY"></script>
+<script async src="https://stats.example.com/tracker/tracker.min.js"
+  data-project-key="YOUR_PROJECT_KEY"></script>
 ```
 
-Replace:
-- `your-analytics-server.com` with your Mini Numbers server URL
-- `YOUR_API_KEY` with the API key from Step 3
+Paste it into every page of your website, just before `</head>`. Open your site, then the dashboard: your
+visit shows up within seconds under **Real-Time**.
 
-That's it! Visit your website, then check your Mini Numbers dashboard — you should see your visit appear within seconds.
+No real site yet? **Demo project** in the sidebar creates a project filled with realistic sample data.
 
 ---
 
-## Step 5: Track custom events (optional)
+## 4. Track what matters (optional)
 
-Want to track specific actions like button clicks or form submissions? Use the JavaScript API:
+Count actions such as sign-ups or purchases from your site's JavaScript:
 
 ```javascript
-// Track a signup
 MiniNumbers.track("signup");
-
-// Track a purchase
-MiniNumbers.track("purchase");
+MiniNumbers.track("purchase", { revenue: 29.99, currency: "EUR" });
 ```
 
-You can use any event name you like. Events appear in the **Custom Events** section of your dashboard.
-
----
-
-## What's next?
-
-- **[Dashboard Guide](dashboard-guide)** — Learn what all the charts and numbers mean
-- **[Features](features)** — See everything Mini Numbers can do
-- **[Configuration](configuration)** — Fine-tune your setup
-- **[Deployment](deployment)** — Ready for production? See the deployment guide
+They appear under **Events & Revenue**. Turn them into **conversion goals** or **funnels** from the
+**Conversions** section. All tracker options are in [For developers](developers).

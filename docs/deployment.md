@@ -1,299 +1,224 @@
 ---
-title: Deployment
+title: Install
 layout: default
-nav_order: 7
+nav_order: 2
 ---
 
-# Deployment
+# Install Mini Numbers
 
-This guide covers running Mini Numbers in production — from Docker containers to cloud platforms and reverse proxy setups.
+Mini Numbers is a single program that runs on your own server. Pick the kind of server you have; each
+path takes about five minutes. When it starts, open it in your browser and a short setup wizard does the rest.
+
+| You have… | Use |
+|-----------|-----|
+| A VPS (Hetzner, DigitalOcean, Hostinger VPS, OVHcloud, Linode, Vultr…) | [Option 1: Docker on a VPS](#option-1-docker-on-a-vps-recommended) |
+| A VPS with a panel (Coolify, Dokploy, CapRover, Easypanel) | [Option 2: Server panel](#option-2-a-server-panel-on-your-vps) |
+| An account on Railway, Render or Fly.io | [Option 3: Hosting platforms](#option-3-hosting-platforms) |
+| Shared web hosting with cPanel | [Option 4: cPanel](#option-4-cpanel-hosting) |
+| A server where you prefer not to use Docker | [Option 5: Java + systemd](#option-5-without-docker-java--systemd) |
+| Just your own computer, to try it | [Try it locally](#try-it-on-your-own-computer) |
+
+**What it needs:** 1 CPU, 1 GB of RAM (512 MB works for small sites), and a (sub)domain such as
+`stats.example.com` so it can use HTTPS. Your website itself can stay wherever it is today — only the
+analytics server runs here.
 
 ---
 
-## Requirements
+## Option 1: Docker on a VPS (recommended)
 
-| Resource    | Minimum                              |
-|-------------|--------------------------------------|
-| **CPU**     | 1 core                               |
-| **RAM**     | 512 MB                               |
-| **Disk**    | 100 MB (plus database storage)       |
-| **Runtime** | Java 21+ (included in Docker images) |
+Works on any Ubuntu or Debian server. HTTPS is set up automatically.
+
+1. **Point your domain at the server.** In your DNS settings, add an `A` record for `stats` (or any name)
+   with your server's IP address.
+2. **Install Docker** (skip if it's already installed):
+   ```bash
+   curl -fsSL https://get.docker.com | sh
+   ```
+3. **Download and start Mini Numbers** (replace the domain with yours):
+   ```bash
+   mkdir mini-numbers && cd mini-numbers
+   curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
+   echo "DOMAIN=stats.example.com" > .env
+   docker compose up -d
+   ```
+4. **Open `https://stats.example.com`** and complete the setup wizard.
+
+If the page doesn't load, check that ports 80 and 443 are open in your provider's firewall
+(Hetzner, DigitalOcean and others have one in their control panel).
+
+{: .tip }
+Prefer PostgreSQL over SQLite? Download `docker-compose.postgres.yml` instead, add a line
+`DB_PG_PASSWORD=<a long random password>` to `.env`, and start it with
+`docker compose -f docker-compose.postgres.yml up -d`. SQLite is fine for most sites.
 
 ---
 
-## Docker deployment
+## Option 2: A server panel on your VPS
 
-### Using Docker Compose (recommended)
+In Coolify, Dokploy, CapRover, Easypanel or a similar panel, create a new app from a **Docker image**:
 
-#### With SQLite (simplest)
+| Setting | Value |
+|---------|-------|
+| Image | `ghcr.io/onemanstudiodotse/mini-numbers:latest` |
+| Port | `8080` |
+| Persistent storage (volume) | mount at `/app/data` |
+| Environment variable | `TRUST_PROXY=true` |
 
+Add your domain in the panel (it takes care of HTTPS), deploy, then open the domain to run the setup wizard.
+
+---
+
+## Option 3: Hosting platforms
+
+All three need a persistent volume at `/app/data` — that's where your settings and data live.
+
+**Railway**
+1. New project → **Deploy a Docker image** → `ghcr.io/onemanstudiodotse/mini-numbers:latest`.
+2. Add a **Volume** mounted at `/app/data`.
+3. Add the variable `TRUST_PROXY=true`, then generate a domain under **Networking**.
+
+**Render** (needs a paid plan, because free services can't keep files)
+1. Fork the repository on GitHub.
+2. In Render: **New → Blueprint** → pick your fork. It reads `render.yaml` and creates the service and its disk.
+
+**Fly.io**
 ```bash
-curl -O https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-docker compose up -d
+git clone https://github.com/OneManStudioDotSe/mini-numbers.git && cd mini-numbers
+fly launch --copy-config --no-deploy        # choose a unique app name when asked
+fly volumes create analytics_data --size 1
+fly deploy
 ```
+Fly stops the app when nobody visits; scheduled email reports and data clean-up only run while it's awake.
+Set `min_machines_running = 1` in `fly.toml` if you use them.
 
-#### With PostgreSQL
+After deploying, open the address the platform gives you and complete the setup wizard.
 
+---
+
+## Option 4: cPanel hosting
+
+**Shared cPanel hosting can't run Mini Numbers.** It needs a program that keeps running all the time
+(Java), and shared hosting only runs PHP websites (and sometimes Node.js or Python apps).
+
+What you can do instead:
+
+- **Keep your website on cPanel** and run Mini Numbers on a small VPS (from about €4/month) using
+  [Option 1](#option-1-docker-on-a-vps-recommended). Point a subdomain like `stats.yoursite.com` at the VPS
+  and add the tracking script to your cPanel website as usual.
+- **cPanel on your own VPS or dedicated server (root access):** cPanel's web server already uses ports 80
+  and 443, so don't use the compose file. Run the container on a local port and add a reverse proxy for
+  your subdomain in WHM — see [Behind your own web server](#behind-your-own-web-server).
+
+---
+
+## Option 5: Without Docker (Java + systemd)
+
+For Ubuntu 22.04 or newer (on Debian 12, install Java 21 from [adoptium.net](https://adoptium.net) first).
+
+1. **Install Java and Caddy** (Caddy handles HTTPS):
+   ```bash
+   sudo apt update && sudo apt install -y openjdk-21-jre-headless caddy
+   ```
+2. **Install Mini Numbers as a service:**
+   ```bash
+   sudo useradd --system --home /opt/mini-numbers --shell /usr/sbin/nologin mini-numbers
+   sudo mkdir -p /opt/mini-numbers
+   sudo curl -fL -o /opt/mini-numbers/mini-numbers.jar \
+     https://github.com/OneManStudioDotSe/mini-numbers/releases/latest/download/mini-numbers.jar
+   sudo chown -R mini-numbers:mini-numbers /opt/mini-numbers
+   sudo curl -fsSL -o /etc/systemd/system/mini-numbers.service \
+     https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/deploy/mini-numbers.service
+   sudo systemctl daemon-reload && sudo systemctl enable --now mini-numbers
+   ```
+3. **Connect your domain.** Replace the contents of `/etc/caddy/Caddyfile` with:
+   ```
+   stats.example.com {
+       reverse_proxy 127.0.0.1:8080
+   }
+   ```
+   then run `sudo systemctl reload caddy` and open `https://stats.example.com`.
+
+Your settings (`.env`) and database (`stats.db`) are stored in `/opt/mini-numbers`.
+
+---
+
+## Try it on your own computer
+
+With Docker:
 ```bash
-curl -O https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.postgres.yml
-docker compose -f docker-compose.postgres.yml up -d
+docker run --rm -p 8080:8080 -v mini-numbers-data:/app/data ghcr.io/onemanstudiodotse/mini-numbers:latest
 ```
+Or with Java 21: download `mini-numbers.jar` from the
+[latest release](https://github.com/OneManStudioDotSe/mini-numbers/releases/latest) and run
+`java -jar mini-numbers.jar`.
 
-### Using Docker directly
+Then open [http://localhost:8080](http://localhost:8080).
+
+{: .note }
+Signing in only works over HTTPS or on `localhost`, because the login cookie is secure-only. If you open the
+server by its IP address over plain HTTP, the login page tells you so — set up a domain with HTTPS
+(Options 1–5 all do), or turn on *development mode* in the setup wizard for testing.
+
+---
+
+## Behind your own web server
+
+Already running nginx, Apache, Traefik or a panel's proxy? Run Mini Numbers on a local port only:
 
 ```bash
-docker run -d \
-  -p 8080:8080 \
-  -v mini-numbers-data:/app/data \
-  --name mini-numbers \
+docker run -d --name mini-numbers --restart unless-stopped \
+  -p 127.0.0.1:8080:8080 -v mini-numbers-data:/app/data -e TRUST_PROXY=true \
   ghcr.io/onemanstudiodotse/mini-numbers:latest
 ```
 
-### Building from source
-
-```bash
-git clone https://github.com/OneManStudioDotSe/mini-numbers.git
-cd mini-numbers
-docker build -t mini-numbers .
-docker run -d -p 8080:8080 mini-numbers
-```
-
----
-
-## Cloud platforms
-
-### Railway
-
-1. Fork the [Mini Numbers repository](https://github.com/OneManStudioDotSe/mini-numbers)
-2. Create a new project on [Railway](https://railway.app)
-3. Connect your forked repository
-4. Railway detects the Dockerfile automatically
-5. Add a persistent volume mounted at `/app/data` (for SQLite)
-6. Deploy — the setup wizard will guide you through the rest
-
-### Render
-
-1. Create a new **Web Service** on [Render](https://render.com)
-2. Connect your repository
-3. Set the build command: `./gradlew buildFatJar`
-4. Set the start command: `java -jar build/libs/mini-numbers-all.jar`
-5. Add a persistent disk mounted at `/app/data`
-6. Set the environment to **Java 21**
-
-### Fly.io
-
-1. Install the [Fly CLI](https://fly.io/docs/getting-started/installing-flyctl/)
-2. Run `fly launch` in the project directory
-3. Create a volume: `fly volumes create data --size 1`
-4. Deploy: `fly deploy`
-
----
-
-## Reverse proxy setup
-
-In production, you'll typically run Mini Numbers behind a reverse proxy that handles SSL/HTTPS.
-
-### Nginx
+and forward your (sub)domain to `http://127.0.0.1:8080`. For nginx:
 
 ```nginx
-server {
-    listen 80;
-    server_name analytics.example.com;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name analytics.example.com;
-
-    ssl_certificate /etc/letsencrypt/live/analytics.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/analytics.example.com/privkey.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
 
-### Caddy
-
-```
-analytics.example.com {
-    reverse_proxy localhost:8080
-}
-```
-
-Caddy handles SSL certificates automatically — no extra configuration needed.
+`TRUST_PROXY=true` makes Mini Numbers read the visitor's real IP address from the `X-Forwarded-For`
+header your proxy adds. Without it every visitor looks like your proxy: one "unique visitor", no countries.
+Only turn it on when a proxy sits in front — otherwise visitors could fake their address.
 
 ---
 
-## SSL/HTTPS
+## After installing
 
-### With Let's Encrypt (free)
+**Upgrading** — make a backup (below), then:
 
-```bash
-# Install Certbot
-sudo apt install certbot python3-certbot-nginx
+- Docker Compose: `docker compose pull && docker compose up -d`
+- Java: download the new `mini-numbers.jar` over the old one, then `sudo systemctl restart mini-numbers`
 
-# Get a certificate
-sudo certbot --nginx -d analytics.example.com
+Database changes are applied automatically when the new version starts, and the tracking script is served by
+your server, so websites get the new version without any change. What's new in each version is in the
+[changelog](https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/CHANGELOG.md). To go back,
+restore your backup and run the previous version (for Docker, pin it, e.g. `mini-numbers:1.3`).
 
-# Auto-renewal is set up automatically
-```
+{: .warning }
+Upgrading a Docker install made before version 1.4? Those kept the wizard's `.env` outside the data volume, so
+the wizard would appear again. Before upgrading, run `docker cp mini-numbers:/app/.env ./old.env`; afterwards,
+`docker cp ./old.env mini-numbers:/app/data/.env && docker compose restart mini-numbers`.
 
-### With Caddy
+**Backups** — your settings and data are two files: `.env` and `stats.db`.
 
-Caddy obtains and renews SSL certificates automatically. Just use the Caddy configuration above — no extra steps.
+- Docker Compose (run inside the `mini-numbers` folder):
+  ```bash
+  docker compose stop mini-numbers
+  docker run --rm -v mini-numbers_analytics-data:/data -v "$PWD":/backup alpine \
+    tar czf /backup/mini-numbers-backup.tgz -C /data .
+  docker compose start mini-numbers
+  ```
+- Java: `sudo systemctl stop mini-numbers && sudo tar czf ~/mini-numbers-backup.tgz -C /opt/mini-numbers .env stats.db && sudo systemctl start mini-numbers`
+- PostgreSQL: `docker compose -f docker-compose.postgres.yml exec postgres pg_dump -U analytics mini_numbers > backup.sql`
 
----
+**Health check** — `GET /health` returns `{"status":"healthy","state":"READY",…}` once setup is complete,
+for uptime monitors and load balancers.
 
-## Running as a system service
-
-To run Mini Numbers as a background service on Linux:
-
-### Create the service file
-
-```bash
-sudo nano /etc/systemd/system/mini-numbers.service
-```
-
-```ini
-[Unit]
-Description=Mini Numbers Analytics
-After=network.target
-
-[Service]
-Type=simple
-User=mini-numbers
-WorkingDirectory=/opt/mini-numbers
-ExecStart=/usr/bin/java -jar mini-numbers-all.jar
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Enable and start
-
-```bash
-sudo systemctl enable mini-numbers
-sudo systemctl start mini-numbers
-```
-
-### Check status
-
-```bash
-sudo systemctl status mini-numbers
-```
-
----
-
-## Backups
-
-### SQLite
-
-The SQLite database is a single file. Back it up by copying it:
-
-```bash
-# Stop the server first (or use SQLite's backup API)
-cp /app/data/stats.db /backups/stats-$(date +%Y%m%d).db
-```
-
-### PostgreSQL
-
-```bash
-pg_dump -U postgres mini_numbers > /backups/mini-numbers-$(date +%Y%m%d).sql
-```
-
-### Automated backups with cron
-
-```bash
-# Edit crontab
-crontab -e
-
-# Add daily backup at 2 AM
-0 2 * * * cp /app/data/stats.db /backups/stats-$(date +\%Y\%m\%d).db
-```
-
----
-
-## Upgrading
-
-### Docker
-
-```bash
-# Pull the latest image
-docker compose pull
-
-# Restart with the new version
-docker compose up -d
-```
-
-### JAR deployment
-
-```bash
-# Download or build the new JAR
-./gradlew buildFatJar
-
-# Stop the current server
-sudo systemctl stop mini-numbers
-
-# Replace the JAR file
-cp build/libs/mini-numbers-all.jar /opt/mini-numbers/
-
-# Start the server
-sudo systemctl start mini-numbers
-```
-
-Database migrations run automatically on startup — no manual steps needed.
-
----
-
-## Health check
-
-Mini Numbers provides a health endpoint at `/health` that returns:
-
-```json
-{
-  "status": "healthy",
-  "uptime": 86400,
-  "version": "1.0.0"
-}
-```
-
-Use this for Docker health checks, load balancer probes, or uptime monitoring.
-
----
-
-## Troubleshooting
-
-### The server won't start
-
-- Check that port 8080 (or your configured port) is not in use
-- Verify Java 21+ is installed: `java -version`
-- Check the logs for error messages
-
-### GeoIP is not working
-
-- The GeoIP database is bundled with the application. If you see location data missing, check that the database file exists at the configured path
-- In Docker, the database is included in the image
-
-### CORS errors in the browser
-
-- Make sure `ALLOWED_ORIGINS` includes your website's domain (with `https://`)
-- For local development, set `KTOR_DEVELOPMENT=true`
-
-### Too many rate limit errors
-
-- Increase `RATE_LIMIT_PER_IP` or `RATE_LIMIT_PER_API_KEY` in your configuration
-- Default limits are generous for most sites
-
-### Need to re-run the setup wizard
-
-- Delete the `.env` file and restart the application
-- The setup wizard will appear again
+**Settings** — every option is listed in [Configuration](configuration). Something not working? See
+[Troubleshooting](troubleshooting).

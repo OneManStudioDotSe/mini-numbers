@@ -120,4 +120,20 @@ class ConfigLoaderTest {
         val exception = ConfigurationException("Test error message")
         assertEquals("Test error message", exception.message)
     }
+
+    @Test
+    fun `resolvePort prefers PORT, then SERVER_PORT, then 8080`() {
+        assertEquals(9000, ConfigLoader.resolvePort(mapOf("PORT" to "9000", "SERVER_PORT" to "8090")::get))
+        assertEquals(8090, ConfigLoader.resolvePort(mapOf("SERVER_PORT" to "8090")::get))
+        assertEquals(8090, ConfigLoader.resolvePort(mapOf("PORT" to " ", "SERVER_PORT" to "8090")::get))
+        assertEquals(8080, ConfigLoader.resolvePort(emptyMap<String, String>()::get))
+    }
+
+    @Test
+    fun `resolvePort rejects values that are not a port number`() {
+        for (bad in listOf("abc", "0", "70000")) {
+            val error = assertFailsWith<ConfigurationException> { ConfigLoader.resolvePort(mapOf("PORT" to bad)::get) }
+            assertTrue(error.message!!.contains("Invalid PORT"))
+        }
+    }
 }

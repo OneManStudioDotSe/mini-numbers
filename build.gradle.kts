@@ -9,7 +9,7 @@ group = "se.onemanstudio"
 version = "1.3.0"
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
+    mainClass = "se.onemanstudio.ApplicationKt"
 }
 
 kotlin {
@@ -47,6 +47,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt-jvm:3.6.0")
     implementation("io.ktor:ktor-server-cors-jvm:3.6.0")
     implementation("io.ktor:ktor-server-default-headers-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-forwarded-header-jvm:3.6.0")
     implementation("io.ktor:ktor-server-status-pages-jvm:3.6.0")
     implementation("com.password4j:password4j:1.8.4")
 

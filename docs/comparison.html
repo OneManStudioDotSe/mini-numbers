@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Feature-by-feature comparison of Mini Numbers 1.3.0 against Umami, Plausible, Matomo, PostHog, Fathom, Rybbit and GoatCounter, the full feature list, and the 1.3.0 release notes. October 2026.">
+<meta name="description" content="Feature-by-feature comparison of Mini Numbers against Umami, Plausible CE, Matomo, PostHog, Fathom, Rybbit, GoatCounter, Liwan, Medama and Counterscale. Checked 2 November 2026.">
 <title>Mini Numbers vs the field</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -105,22 +105,6 @@
   .panel li { margin: 6px 0; }
   .panel li b { color: var(--fg); }
   .trend { border-left: 3px solid var(--accent); padding-left: 12px; }
-  .tabs { display: flex; gap: 6px; margin: 18px 0 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .tab { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--fg-2); cursor: pointer; }
-  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
-  .feature-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-width: 0; }
-  .feature-card h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .feature-card h3 .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 2px 6px; border-radius: 4px; }
-  .feature-card ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; }
-  .feature-card li { margin: 5px 0; }
-  .feature-card li b { color: var(--fg); }
-  .release { display: grid; gap: 14px; max-width: 78ch; }
-  .release h3 { margin: 10px 0 4px; font-size: 15px; }
-  .release ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; }
-  .release li { margin: 5px 0; }
-  .release li b { color: var(--fg); }
   .sources { margin-top: 26px; font-size: 13px; color: var(--fg-3); max-width: 80ch; }
   .sources a { color: var(--accent); }
   @media (prefers-reduced-motion: no-preference) { .chip { transition: background .15s, border-color .15s; } }
@@ -130,30 +114,25 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Competitive comparison · October 2026</div>
+    <div class="eyebrow">Competitive comparison · November 2026</div>
     <h1>Mini Numbers vs the field</h1>
-    <p class="lede">Privacy-first web analytics, compared feature by feature against the seven tools a self-hoster or a small team would shortlist today. Facts were checked against each vendor's releases and changelogs on 6 October 2026, with Mini Numbers at version 1.3.0.</p>
+    <p class="lede">Privacy-first web analytics compared with the ten tools a self-hoster or small team would shortlist. Every value was checked against the vendor's releases, docs or pricing on 2 November 2026. Plausible is shown as its free self-hosted Community Edition; features only its cloud has are marked.</p>
     <div class="meta">Y included · P paid tier or plugin · ~ partial or unverified · N absent · – not applicable</div>
   </header>
 
   <section class="facts" aria-label="Headline facts">
-    <div class="fact"><b>1.9 KB</b><span>Mini Numbers tracker, gzipped. Plausible ~1.9, Umami ~2.4, Rybbit ~9.</span></div>
-    <div class="fact"><b>1 JAR</b><span>Runs on SQLite with no other service. Every 2025–26 newcomer needs ClickHouse.</span></div>
-    <div class="fact"><b>3 modes</b><span>Privacy modes plus a 1 h to 1 y hash rotation. No competitor offers either.</span></div>
-    <div class="fact"><b>5 gaps</b><span>Table-stakes features still missing: journeys, retention, annotations, MCP, bot filter v2.</span></div>
+    <div class="fact"><b>~2 KB</b><span>Mini Numbers tracker, gzipped. Medama &lt;1, Plausible ~1.9, Umami ~2.4, Rybbit ~9, PostHog ~44.</span></div>
+    <div class="fact"><b>1 program</b><span>SQLite built in, no other service. Only GoatCounter, Liwan and Medama are as light — none has funnels, revenue or webhooks.</span></div>
+    <div class="fact"><b>3 modes</b><span>Privacy modes plus a 1 h to 1 y "forget visitors" window. No competitor offers either.</span></div>
+    <div class="fact"><b>4 gaps</b><span>Now expected and still missing: annotations, MCP access, smarter bot filtering, journeys.</span></div>
   </section>
 
-  <div class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" id="tab-compare" aria-selected="true" aria-controls="panel-compare" type="button">Comparison</button>
-    <button class="tab" role="tab" id="tab-features" aria-selected="false" aria-controls="panel-features" type="button">Mini Numbers features</button>
-    <button class="tab" role="tab" id="tab-release" aria-selected="false" aria-controls="panel-release" type="button">What changed in 1.3.0</button>
-  </div>
-
-  <section id="panel-compare" role="tabpanel" aria-labelledby="tab-compare">
+  <section id="panel-compare">
   <div class="controls" role="group" aria-label="Shape the comparison">
     <div class="group" id="segments">
       <span class="group-label">Show</span>
-      <button class="chip" type="button" data-seg="all" aria-pressed="true">All eight</button>
+      <button class="chip" type="button" data-seg="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-seg="light" aria-pressed="false">Lightweight self-hosted</button>
       <button class="chip" type="button" data-seg="oss" aria-pressed="false">Open source only</button>
       <button class="chip" type="button" data-seg="simple" aria-pressed="false">Simple privacy segment</button>
       <button class="chip" type="button" data-seg="product" aria-pressed="false">Product-analytics segment</button>
@@ -180,19 +159,19 @@
     <div class="panel">
       <h2>Where Mini Numbers wins</h2>
       <ul>
-        <li><b>Deployment weight.</b> One MIT-licensed JAR on SQLite, with funnels, segments, revenue attribution, webhooks and email reports included. Only GoatCounter and Vince come close, and both stop at page views.</li>
-        <li><b>Privacy you can configure.</b> Cookieless salted hashing with a rotation window from one hour to a year, and three modes whose stored fields are verified by tests.</li>
-        <li><b>Visualisation taste.</b> Contribution calendar, activity heatmap, globe, one design system in both themes.</li>
-        <li><b>The JVM.</b> The only analytics server a Kotlin or Java team can run inside the stack they already operate.</li>
+        <li><b>Light and complete.</b> One MIT-licensed program on SQLite with funnels, segments, revenue attribution, signed webhooks, email reports and widgets. The other light tools (GoatCounter, Liwan, Medama) stop at page views and events.</li>
+        <li><b>Nothing held back.</b> Plausible CE lacks funnels, revenue, journeys, annotations and the AI channel its cloud has; Rybbit's web vitals are cloud-only; Pirsch self-hosting is enterprise-only. Mini Numbers has one edition.</li>
+        <li><b>Privacy you can configure.</b> A forget-visitors window from one hour to a year and three modes whose stored fields are checked by tests — and the dashboard tells you which is active.</li>
+        <li><b>No heavy stack.</b> Plausible needs ClickHouse and 2 GB, Rybbit and Swetrix ClickHouse plus Redis, OpenPanel 4 GB, PostHog 16 GB.</li>
       </ul>
     </div>
     <div class="panel">
       <h2>Where the field wins</h2>
       <ul>
-        <li><b>Breadth.</b> Umami, Rybbit and PostHog ship replay, heatmaps, web vitals, journeys, retention and agent access.</li>
-        <li><b>Table stakes added in 2026.</b> User journeys, annotations, retention and bot filtering beyond the User-Agent are now expected and still missing here.</li>
-        <li><b>Community.</b> Umami at ~39k stars, Plausible ~29k, Rybbit ~13k. Mini Numbers has no release yet.</li>
-        <li><b>Cloud.</b> Every competitor except GoatCounter offers hosting. Mini Numbers is self-host only, by design.</li>
+        <li><b>Table stakes from 2025–26.</b> Annotations, MCP access for AI assistants, bot filtering beyond the user agent and journeys are now common; Mini Numbers has none yet.</li>
+        <li><b>Breadth.</b> Umami 3.x added replay, heatmaps, web vitals and 2FA; Rybbit, OpenPanel and PostHog go further into product analytics.</li>
+        <li><b>Community and releases.</b> Umami ~40k stars, Plausible ~30k, Rybbit ~13k. Mini Numbers has no tagged release yet.</li>
+        <li><b>Hosted plans and free SSO.</b> Most competitors sell hosting; Liwan includes OIDC single sign-on for free.</li>
       </ul>
     </div>
   </div>
@@ -201,171 +180,93 @@
     <div class="panel trend">
       <h2>What changed in the market, 2025–26</h2>
       <ul>
-        <li>The AI-assistant referrer channel went from nowhere to everywhere in five months: Matomo in March, GA4 in May, Plausible in June, PostHog in July, Fathom in October 2026. Mini Numbers added it in 1.3.0.</li>
-        <li>Read-only agent access through MCP became the new API surface (Umami, Rybbit, PostHog, Vercel, Fathom, Databuddy).</li>
-        <li>Self-host stacks got heavier. Rybbit, Databuddy and Swetrix all require ClickHouse plus PostgreSQL and Redis.</li>
-        <li>Fathom raised prices twice; Vercel cut web-analytics pricing by up to 80%; newcomers undercut at $6 to $13 a month.</li>
+        <li>An <b>AI-assistant referrer channel</b> became standard: Matomo 5.5 (Oct 2025), Plausible cloud (Jun 2026), Fathom (Oct 2026). The next step is separating AI crawlers and agents from people (Rybbit 2.9, Matomo, PostHog).</li>
+        <li><b>MCP servers</b> let AI assistants query analytics: Umami, Rybbit, OpenPanel, PostHog, Seline. Plausible and Fathom only have community-built ones.</li>
+        <li><b>Self-host stacks got heavier</b> while a quiet lightweight tier improved: Liwan 1.8 (Oct 2026) added events, teams and API keys; Medama runs in 256 MB.</li>
+        <li><b>Projects went quiet:</b> Vince has had no release since Sep 2025, Shynet ships security fixes only, Ackee only maintenance — their users are looking for a new home.</li>
       </ul>
     </div>
     <div class="panel">
       <h2>Not in the race, by choice</h2>
       <ul>
-        <li><b>Session replay and heatmaps.</b> The simple-privacy segment (Plausible, Fathom, Simple, Pirsch, Seline) skips them too; they sit badly with a no-identifier promise.</li>
-        <li><b>Feature flags and A/B testing.</b> Product-analytics territory (PostHog, Swetrix).</li>
-        <li><b>Hosted plan.</b> The pitch is "run it anywhere, even a Raspberry Pi", not a subscription.</li>
+        <li><b>Session replay, click heatmaps, error tracking.</b> They need far more data about each visitor than a privacy-first promise allows.</li>
+        <li><b>Feature flags and A/B testing.</b> Product-analytics territory (PostHog, Swetrix, Pirsch).</li>
+        <li><b>A hosted plan.</b> The pitch is "run it anywhere, even a small VPS", not a subscription.</li>
       </ul>
     </div>
   </div>
 
   </section>
 
-  <section id="panel-features" role="tabpanel" aria-labelledby="tab-features" hidden>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>Privacy by design</h3>
-        <ul>
-          <li><b>Three modes.</b> Standard keeps country, city, browser, OS and device. Strict keeps country only. Paranoid keeps nothing but the page path and a rotating hash.</li>
-          <li><b>No cookies, no persistent identifier.</b> The visitor hash is salted and rotates every 24 hours by default, configurable from one hour to one year.</li>
-          <li><b>No PII.</b> The IP address is used in memory for the hash and discarded; the raw User-Agent is never stored.</li>
-          <li><b>Privacy posture chip</b> <span class="tag">1.3.0</span> in the dashboard says in plain words what is stored, what never is, and when it is forgotten.</li>
-          <li><b>Retention policy</b> deletes events older than N days automatically, with a preview of the impact first.</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <h3>Dashboard</h3>
-        <ul>
-          <li><b>Overview</b> with page views, unique visitors, sessions, bounce rate, session duration, conversion rate and <b>AI assistant referrals</b> <span class="tag">1.3.0</span>, each against the previous period.</li>
-          <li><b>Time patterns:</b> hourly and daily activity heatmap, 365-day contribution calendar, busiest day, peak hour and top month.</li>
-          <li><b>Content:</b> top, entry and exit pages, scroll depth, outbound links and file downloads.</li>
-          <li><b>Audience:</b> countries with city drill-down and an interactive globe; browsers, operating systems and devices.</li>
-          <li><b>Traffic sources:</b> referrers and UTM source, medium and campaign breakdowns.</li>
-          <li><b>Real time:</b> live feed and active-visitor counter. <b>Raw events</b> viewer with filters and pagination. Light and dark themes.</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <h3>Conversion and growth</h3>
-        <ul>
-          <li><b>Goals</b> on URL arrivals or custom events, with conversion rates.</li>
-          <li><b>Funnels</b> with drop-off at each step.</li>
-          <li><b>Segments</b> built with a visual AND/OR filter builder and analysed in isolation.</li>
-          <li><b>Revenue</b> attached to any custom event: totals, transactions, average order value, revenue per visitor, breakdown by event, attribution by referrer and campaign.</li>
-          <li><b>Custom events with properties</b> through <code>MiniNumbers.track(name, props)</code>.</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <h3>Tracker</h3>
-        <ul>
-          <li><b>1.9 KB gzipped</b>, no cookies, no build step: one script tag.</li>
-          <li>Automatic page views, SPA navigation through the History API, heartbeats that pause in hidden tabs, scroll depth, outbound links and downloads.</li>
-          <li><b>Offline queue</b> that holds events while the browser is offline and drains them on reconnect.</li>
-          <li>Works with <code>sendBeacon</code> as browsers send it; verified end to end in a real browser since 1.3.0.</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <h3>Integration</h3>
-        <ul>
-          <li><b>Webhooks</b> with HMAC-SHA256 signatures, three retries with backoff, a delivery log and test sends, for goal conversions and traffic spikes.</li>
-          <li><b>Email reports</b> daily, weekly or monthly over SMTP, with selectable sections and custom header and footer.</li>
-          <li><b>REST API</b> with session or JWT auth and a full OpenAPI 3 spec; <b>embeddable widgets</b> for realtime, page views, top pages and a sparkline, authenticated by a public key.</li>
-          <li><b>Roles:</b> admin and viewer, with API keys masked for viewers and role changes effective on the next request.</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <h3>Running it</h3>
-        <ul>
-          <li><b>One fat JAR</b> or a small Docker image; SQLite by default, PostgreSQL when you want it.</li>
-          <li><b>Setup wizard</b> that configures the server without a restart; demo data in one click.</li>
-          <li>Health and metrics endpoints, API key rotation, rate limits on collection, admin and auth, origin allowlist for the admin API.</li>
-          <li>Kotlin and Ktor on JDK 21; MIT licence.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="panel-release" role="tabpanel" aria-labelledby="tab-release" hidden>
-    <div class="release">
-      <p class="lede">Version 1.3.0 is the October 2026 revival: the first release where every gate is green and the tracker is proven in a real browser. The numbers it shows will be lower than before, and they are the correct ones.</p>
-      <h3>Fixed</h3>
-      <ul>
-        <li><b>The tracker could not run in any browser.</b> The script was served without a content type and the server's nosniff header made browsers refuse it. Sites embedding the snippet collected nothing.</li>
-        <li><b>Every beacon was rejected.</b> <code>sendBeacon</code> posts as text/plain, which the collect endpoint did not accept. It decodes the body directly now, whatever the content type.</li>
-        <li><b>The offline queue never engaged</b> because <code>sendBeacon</code> reports success even without a network. The tracker now queues while offline and drains on reconnect.</li>
-        <li><b>Page views were every event.</b> Heartbeats, custom, scroll, outbound and download events were counted as page views across the dashboard. View metrics count page views only; sessions and bounce still use every event.</li>
-        <li><b>Tests were not testing.</b> The integration suite had been silently skipping every authenticated request. It runs for real now, on SQLite and PostgreSQL, with a browser suite beside it.</li>
-        <li>Origin allowlist and rate limits on the admin and auth endpoints are enforced; role changes and deletions apply on the next request; dialogs carry correct ARIA; the version is reported consistently.</li>
-      </ul>
-      <h3>Added</h3>
-      <ul>
-        <li><b>AI assistant referrals card</b>: visits referred by ChatGPT, Claude, Perplexity, Gemini, Copilot and eight more, with share of referred traffic and period comparison. Computed from stored referrers, so history is covered.</li>
-        <li><b>Privacy posture chip</b> and dialog explaining what the instance stores, never stores, and when it forgets.</li>
-        <li>PostgreSQL CI job, Playwright browser suite, Dependabot, issue templates, README screenshots.</li>
-      </ul>
-      <h3>Changed</h3>
-      <ul>
-        <li>Kotlin 2.4, Ktor 3.6, Gradle 9.8, Exposed 1.5, HikariCP 7; the LGPL User-Agent library replaced by an Apache-licensed one; jBCrypt replaced by password4j, which also accepts htpasswd hashes.</li>
-        <li>Browser, OS and device labels read <i>Chrome 120</i>, <i>macOS</i>, <i>Desktop</i>; the tracker size claim is the measured 1.9 KB gzipped.</li>
-      </ul>
-      <h3>Still open before launch</h3>
-      <ul>
-        <li>Rotate and purge the credentials that were committed in a development database; decide how GeoLite2 is distributed; fix 16 light-theme contrast failures; enable Discussions; tag the release.</li>
-      </ul>
-    </div>
-  </section>
-
-  <p class="sources">Sources: Umami GitHub releases (3.4.0, Sep 2026) and pricing; Plausible changelog and pricing; Matomo changelog 5.8 to 5.14 and pricing; PostHog changelog; Fathom changelog and 2026 price-change FAQ; Rybbit GitHub releases (2.9.0, Sep 2026); GoatCounter releases (2.7.0). Star counts are approximate snapshots from 6 October 2026. The full table with notes lives in the repository at <code>_docs/EVALUATION.md</code>.</p>
+  <p class="sources">Sources (checked 2 November 2026): GitHub releases and READMEs of
+    <a href="https://github.com/umami-software/umami">Umami</a>,
+    <a href="https://github.com/plausible/analytics">Plausible</a> (and its <a href="https://plausible.io/changelog">changelog</a> and <a href="https://plausible.io/#pricing">pricing</a>),
+    <a href="https://matomo.org/changelog/">Matomo</a>,
+    <a href="https://posthog.com/docs/web-analytics">PostHog</a>,
+    <a href="https://usefathom.com/changelog">Fathom</a>,
+    <a href="https://github.com/rybbit-io/rybbit">Rybbit</a>,
+    <a href="https://github.com/arp242/goatcounter">GoatCounter</a>,
+    <a href="https://liwan.dev/">Liwan</a>,
+    <a href="https://github.com/medama-io/medama">Medama</a> and
+    <a href="https://counterscale.dev/">Counterscale</a>.
+    Tracker sizes for Plausible, Umami, Matomo, PostHog, Fathom and Rybbit are from October 2026 and were not re-measured; "~" marks anything that could not be confirmed. Corrections welcome as an issue.</p>
 </div>
 
 <script>
 (function () {
   // Columns: key, name, sub, segment tags
   const cols = [
-    { key: 'mn',  name: 'Mini Numbers', sub: '1.3.0 · MIT · Kotlin', tags: ['oss','simple'] },
+    { key: 'mn',  name: 'Mini Numbers', sub: 'MIT · Kotlin · SQLite', tags: ['oss','simple','light'] },
     { key: 'um',  name: 'Umami',        sub: '3.4 · MIT · Postgres', tags: ['oss','product'] },
-    { key: 'pl',  name: 'Plausible',    sub: 'CE · AGPL · ClickHouse', tags: ['oss','simple'] },
+    { key: 'pl',  name: 'Plausible CE', sub: '3.2 · AGPL · ClickHouse', tags: ['oss','simple'] },
     { key: 'ma',  name: 'Matomo',       sub: '5.14 · GPL · MySQL', tags: ['oss','product'] },
     { key: 'ph',  name: 'PostHog',      sub: 'MIT + ee · ClickHouse', tags: ['oss','product'] },
     { key: 'fa',  name: 'Fathom',       sub: 'SaaS · closed', tags: ['simple'] },
     { key: 'ry',  name: 'Rybbit',       sub: '2.9 · AGPL · ClickHouse', tags: ['oss','product'] },
-    { key: 'gc',  name: 'GoatCounter',  sub: '2.7 · SQLite or PG', tags: ['oss','simple'] },
+    { key: 'gc',  name: 'GoatCounter',  sub: '2.7 · EUPL · SQLite/PG', tags: ['oss','simple','light'] },
+    { key: 'li',  name: 'Liwan',        sub: '1.8 · Apache · DuckDB', tags: ['oss','simple','light'] },
+    { key: 'me',  name: 'Medama',       sub: '0.6 · Apache · DuckDB', tags: ['oss','simple','light'] },
+    { key: 'cs',  name: 'Counterscale', sub: '3.4 · MIT · Cloudflare', tags: ['oss','simple','light'] },
   ];
   // Rows: section headers (s) and feature rows with per-column values. Values: Y P T(~) N D(–), optional note.
   const rows = [
     { s: 'Run it' },
-    { f: 'Open-source self-host', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'Y' } },
-    { f: 'Single artifact on SQLite', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'D', ry:'N', gc:'Y' }, note: { mn:'fat JAR or Docker', um:'Postgres', pl:'ClickHouse + PG', ph:'hobby only', ry:'+ Redis' } },
-    { f: 'Cloud / hosted option', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' } },
-    { f: 'Tracker size (gzipped)', text: { mn:'1.9 KB', um:'2.4 KB', pl:'1.9 KB', ma:'21 KB', ph:'44 KB', fa:'3 KB', ry:'9 KB', gc:'3.5 KB' } },
+    { f: 'Open-source self-host', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'Y', li:'Y', me:'Y', cs:'Y' } },
+    { f: 'Single program, no separate database', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'D', ry:'N', gc:'Y', li:'Y', me:'Y', cs:'T' }, note: { mn:'JAR or Docker', cs:'serverless on Cloudflare' } },
+    { f: 'What self-hosting needs', text: { mn:'JAR · ~512 MB', um:'Node + Postgres', pl:'ClickHouse + PG · 2 GB', ma:'PHP + MySQL', ph:'16 GB, 6 services', fa:'–', ry:'CH + PG + Redis · 2 GB', gc:'one binary', li:'one binary', me:'one binary · 256 MB', cs:'Workers account' } },
+    { f: 'Hosted option', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y', li:'N', me:'N', cs:'N' } },
+    { f: 'Latest release', text: { mn:'not yet tagged', um:'Oct 2026', pl:'Jan 2026 (features)', ma:'Oct 2026', ph:'continuous', fa:'SaaS', ry:'Sep 2026', gc:'Dec 2025', li:'Oct 2026', me:'Jan 2026', cs:'Dec 2025' } },
+    { f: 'Tracker size (gzipped)', text: { mn:'~2 KB', um:'2.4 KB', pl:'1.9 KB', ma:'21 KB', ph:'44 KB', fa:'3 KB', ry:'9 KB', gc:'3.5 KB', li:'?', me:'<1 KB', cs:'?' } },
     { s: 'Privacy' },
-    { f: 'Cookieless by default', v: { mn:'Y', um:'Y', pl:'Y', ma:'T', ph:'T', fa:'Y', ry:'Y', gc:'Y' }, note: { ma:'configurable', ph:'cookieless mode' } },
-    { f: 'Configurable hash rotation (1 h – 1 y)', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'unique' } },
-    { f: 'Privacy modes (what is stored)', v: { mn:'Y', um:'N', pl:'N', ma:'T', ph:'T', fa:'N', ry:'N', gc:'N' }, note: { mn:'Standard · Strict · Paranoid' } },
-    { f: 'Data retention policy', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'Y' } },
-    { f: 'Privacy posture shown in the dashboard', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'chip + dialog, 1.3.0' } },
+    { f: 'Cookieless by default', v: { mn:'Y', um:'Y', pl:'Y', ma:'T', ph:'T', fa:'Y', ry:'Y', gc:'Y', li:'Y', me:'Y', cs:'Y' }, note: { ma:'configurable', ph:'cookieless mode' } },
+    { f: 'Adjustable "forget visitors" window', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'1 h – 1 y' } },
+    { f: 'Privacy modes (what is stored)', v: { mn:'Y', um:'N', pl:'N', ma:'T', ph:'T', fa:'N', ry:'N', gc:'N', li:'T', me:'N', cs:'N' }, note: { mn:'Standard · Strict · Paranoid' } },
+    { f: 'Privacy posture shown in the dashboard', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N', li:'N', me:'N', cs:'N' } },
     { s: 'Core analytics' },
-    { f: 'Goals and custom events with properties', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'T', ry:'Y', gc:'T' }, note: { pl:'props on Business', gc:'events, no props' } },
-    { f: 'UTM campaigns, entry/exit, scroll depth', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T' } },
-    { f: 'Saved segments', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N' } },
-    { f: 'Funnels', v: { mn:'Y', um:'Y', pl:'P', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' }, note: { mn:'basic' } },
-    { f: 'User journeys / paths', v: { mn:'N', um:'Y', pl:'P', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
-    { f: 'Retention / cohorts', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
-    { f: 'Annotations on the time series', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
-    { f: 'AI-assistant referrer channel', v: { mn:'Y', um:'T', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N' }, note: { mn:'13 assistants, 1.3.0', pl:'retroactive' } },
-    { f: 'Bot filtering beyond User-Agent', v: { mn:'N', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' }, note: { ry:'ASN + flood', fa:'firewall lists' } },
-    { f: 'Revenue tracking and attribution', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N' } },
+    { f: 'Custom events with properties', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'T', ry:'Y', gc:'T', li:'Y', me:'Y', cs:'N' }, note: { gc:'no properties', li:'1.8' } },
+    { f: 'Goals', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
+    { f: 'Funnels', v: { mn:'Y', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud Business only' } },
+    { f: 'Saved segments', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
+    { f: 'Revenue tracking and attribution', v: { mn:'Y', um:'Y', pl:'N', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud Business only' } },
+    { f: 'AI-assistant referrer channel', v: { mn:'Y', um:'T', pl:'N', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud only (Jun 2026)', ma:'5.5, Oct 2025', ry:'crawlers vs agents' } },
+    { f: 'User journeys / paths', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud only' } },
+    { f: 'Retention / cohorts', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
+    { f: 'Annotations on the chart', v: { mn:'N', um:'Y', pl:'N', ma:'Y', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud only (Jul 2026)' } },
+    { f: 'Bot filtering beyond the user agent', v: { mn:'N', um:'Y', pl:'T', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y', li:'T', me:'Y', cs:'T' }, note: { pl:'data-centre list is cloud-only', me:'IP + spam lists', ry:'ASN + flood' } },
     { s: 'Beyond web analytics' },
-    { f: 'Session replay', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N' }, note: { mn:'by design' } },
-    { f: 'Heatmaps', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'N', gc:'N' }, note: { mn:'activity heatmap by time, not clicks' } },
-    { f: 'Web vitals', v: { mn:'N', um:'Y', pl:'N', ma:'T', ph:'Y', fa:'N', ry:'Y', gc:'N' } },
-    { f: 'Contribution calendar + activity heatmap', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N' }, note: { mn:'unique' } },
+    { f: 'Session replay', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'P', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'by design' } },
+    { f: 'Click heatmaps', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'N', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'by design' } },
+    { f: 'Web vitals', v: { mn:'N', um:'Y', pl:'N', ma:'T', ph:'Y', fa:'N', ry:'P', gc:'N', li:'N', me:'N', cs:'N' }, note: { ry:'cloud, paid' } },
+    { f: 'Activity calendar + hour-of-day heatmap', v: { mn:'Y', um:'N', pl:'N', ma:'N', ph:'N', fa:'N', ry:'N', gc:'N', li:'N', me:'N', cs:'N' } },
     { s: 'Integration' },
-    { f: 'Public API with OpenAPI spec', v: { mn:'Y', um:'Y', pl:'P', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T' } },
-    { f: 'MCP / agent access', v: { mn:'N', um:'Y', pl:'N', ma:'N', ph:'Y', fa:'T', ry:'Y', gc:'N' }, note: { fa:'Luna assistant' } },
-    { f: 'Webhooks', v: { mn:'Y', um:'T', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'T', gc:'N' }, note: { mn:'HMAC-signed' } },
-    { f: 'Email reports', v: { mn:'Y', um:'P', pl:'Y', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'Y' }, note: { um:'cloud only' } },
-    { f: 'Embeddable widgets', v: { mn:'Y', um:'T', pl:'T', ma:'Y', ph:'T', fa:'T', ry:'T', gc:'Y' } },
-    { f: 'Teams with roles', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y' }, note: { mn:'admin / viewer', pl:'5 roles' } },
-    { f: 'SSO', v: { mn:'N', um:'P', pl:'P', ma:'P', ph:'P', fa:'N', ry:'T', gc:'N' }, note: { mn:'enterprise-only everywhere' } },
-    { f: 'GA4 import', v: { mn:'N', um:'N', pl:'Y', ma:'Y', ph:'T', fa:'N', ry:'N', gc:'N' } },
+    { f: 'Public API', v: { mn:'Y', um:'Y', pl:'T', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T', li:'Y', me:'T', cs:'N' }, note: { mn:'OpenAPI spec' } },
+    { f: 'MCP / AI-assistant access', v: { mn:'N', um:'Y', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'community servers', fa:'Luna assistant' } },
+    { f: 'Webhooks', v: { mn:'Y', um:'T', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'HMAC-signed' } },
+    { f: 'Email reports', v: { mn:'Y', um:'P', pl:'Y', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' }, note: { um:'cloud Pro' } },
+    { f: 'Embeddable widgets', v: { mn:'Y', um:'T', pl:'T', ma:'Y', ph:'T', fa:'T', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' } },
+    { f: 'Teams with roles', v: { mn:'T', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y', li:'Y', me:'N', cs:'N' }, note: { mn:'admin / viewer, via API' } },
+    { f: 'Single sign-on', v: { mn:'N', um:'P', pl:'N', ma:'P', ph:'P', fa:'N', ry:'P', gc:'N', li:'Y', me:'N', cs:'N' }, note: { li:'OIDC, free', pl:'cloud Enterprise' } },
+    { f: 'Import from GA4 or other tools', v: { mn:'N', um:'N', pl:'Y', ma:'Y', ph:'T', fa:'N', ry:'Y', gc:'T', li:'N', me:'N', cs:'N' }, note: { ry:'from Umami, Simple Analytics' } },
   ];
 
   const label = { Y: 'Y', P: 'P', T: '~', N: 'N', D: '–' };
@@ -424,18 +325,6 @@
   diffBox.addEventListener('change', () => { diffOnly = diffBox.checked; try { localStorage.setItem('mn-cmp-diff', diffOnly ? '1' : '0'); } catch (e) {} render(); });
   render();
 
-  // Tabs: comparison / features / release notes. A bare #features or #release anchor deep-links.
-  const tabs = Array.from(document.querySelectorAll('.tab'));
-  function showTab(id) {
-    tabs.forEach(t => {
-      const on = t.id === 'tab-' + id;
-      t.setAttribute('aria-selected', String(on));
-      document.getElementById('panel-' + t.id.slice(4)).hidden = !on;
-    });
-  }
-  tabs.forEach(t => t.addEventListener('click', () => { showTab(t.id.slice(4)); try { history.replaceState(null, '', '#' + t.id.slice(4)); } catch (e) {} }));
-  const initial = (location.hash || '').replace('#', '');
-  if (['compare', 'features', 'release'].includes(initial)) showTab(initial);
 })();
 </script>
 </body>

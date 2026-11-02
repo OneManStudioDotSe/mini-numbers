@@ -1,178 +1,101 @@
 ---
 title: Configuration
 layout: default
-nav_order: 3
+nav_order: 5
 ---
 
 # Configuration
 
-Mini Numbers is configured through environment variables or a `.env` file. The setup wizard creates this file for you, but you can edit it manually at any time.
+Mini Numbers reads its settings from environment variables and from a `.env` file in the folder it runs from
+(in Docker: the `/app/data` volume). The setup wizard writes that file for you. An environment variable always
+wins over the same line in `.env`.
+
+**To change a setting:** edit `.env` (or the variable in your hosting panel) and restart Mini Numbers.
+
+Changing `SERVER_SALT` makes every visitor look new from then on — keep it secret and keep it the same.
 
 ---
 
-## Where is the configuration stored?
+## Required
 
-When you complete the setup wizard, it creates a `.env` file in the application directory. This file contains all your settings as environment variables.
+| Setting | What it is |
+|---------|------------|
+| `ADMIN_PASSWORD` | Password for the first admin. Plain text is fine; it's stored hashed. |
+| `SERVER_SALT` | Secret used to make visitor identifiers anonymous. At least 32 characters (`openssl rand -hex 64`). |
 
-You can also set these variables directly in your environment (useful for Docker and cloud deployments).
+## Account and access
 
----
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `ADMIN_USERNAME` | `admin` | Username of the first admin |
+| `ALLOWED_ORIGINS` | *(empty = any)* | Websites allowed to call the **admin API** from a browser, comma-separated (`https://app.example.com`). The dashboard itself and the tracker always work, whatever is set here |
+| `KTOR_DEVELOPMENT` | `false` | `true` lets you sign in over plain HTTP and turns off HSTS. Only for testing on your own computer or network |
 
-## Required settings
+## Server
 
-These must be set for the application to start:
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `PORT` | — | Port to listen on. Hosting platforms set it; the Docker image sets `8080`. Wins over `SERVER_PORT` |
+| `SERVER_PORT` | `8080` | Port to listen on when `PORT` isn't set (the wizard saves this one) |
+| `TRUST_PROXY` | `false` | `true` when a reverse proxy or hosting platform sits in front, so the visitor's real IP is read from `X-Forwarded-For`. Leave it off when visitors connect directly, or they could fake their IP |
+| `RATE_LIMIT_PER_IP` | `1000` | Requests per minute from one IP address |
+| `RATE_LIMIT_PER_API_KEY` | `10000` | Requests per minute for one website (project key) |
 
-| Setting          | Description                                                                                            |
-|------------------|--------------------------------------------------------------------------------------------------------|
-| `ADMIN_PASSWORD` | Your admin panel password                                                                              |
-| `SERVER_SALT`    | A secret key used for visitor privacy (minimum 32 characters). The setup wizard generates this for you |
+Requests over a limit get HTTP 429 and the event is dropped.
 
----
+## Privacy
 
-## All settings
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `PRIVACY_MODE` | `STANDARD` | `STANDARD`, `STRICT` or `PARANOID` — what is stored, see [Privacy](privacy) |
+| `HASH_ROTATION_HOURS` | `24` | After how many hours a returning visitor counts as new (1–8760) |
+| `DATA_RETENTION_DAYS` | `0` | Delete events older than this many days; `0` keeps everything. Checked every 6 hours |
 
-### Security
+## Database
 
-| Setting          | Default      | Description                                                                                                                         |
-|------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `ADMIN_USERNAME` | `admin`      | Username for the admin panel                                                                                                        |
-| `ADMIN_PASSWORD` | *(required)* | Password for the admin panel                                                                                                        |
-| `SERVER_SALT`    | *(required)* | Secret key for visitor hashing. Must be at least 32 characters. Keep this secret — if you change it, all visitor history will reset |
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `DB_TYPE` | `SQLITE` | `SQLITE` or `POSTGRESQL` |
+| `DB_SQLITE_PATH` | `./stats.db` | Database file (SQLite) |
+| `DB_PG_HOST` | `localhost` | PostgreSQL host |
+| `DB_PG_PORT` | `5432` | PostgreSQL port |
+| `DB_PG_NAME` | `mini_numbers` | Database name |
+| `DB_PG_USERNAME` | `postgres` | Database user |
+| `DB_PG_PASSWORD` | *(required for PostgreSQL)* | Database password |
+| `DB_PG_MAX_POOL_SIZE` | `3` | Connections kept open |
 
-### Database
+Tables are created and updated automatically at start-up.
 
-| Setting          | Default      | Description                               |
-|------------------|--------------|-------------------------------------------|
-| `DB_TYPE`        | `SQLITE`     | Database engine: `SQLITE` or `POSTGRESQL` |
-| `DB_SQLITE_PATH` | `./stats.db` | Path to the SQLite database file          |
+## Email reports
 
-For PostgreSQL, you'll also need to set the `DB_PG_*` connection variables listed in the PostgreSQL section below.
+Email reports stay switched off until `SMTP_HOST` and `SMTP_FROM` are set.
 
-### Server
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `SMTP_HOST` | — | Mail server |
+| `SMTP_PORT` | `587` | Mail server port |
+| `SMTP_USERNAME` | — | Login for the mail server |
+| `SMTP_PASSWORD` | — | Password for the mail server |
+| `SMTP_FROM` | — | Sender address on the reports |
+| `SMTP_STARTTLS` | `true` | Encrypt the connection with STARTTLS |
 
-| Setting            | Default   | Description                                                                                                                     |
-|--------------------|-----------|---------------------------------------------------------------------------------------------------------------------------------|
-| `SERVER_PORT`      | `8080`    | Port the server listens on                                                                                                      |
-| `ALLOWED_ORIGINS`  | *(empty)* | Comma-separated list of allowed website domains (e.g., `https://example.com,https://blog.example.com`). Required for production |
-| `KTOR_DEVELOPMENT` | `false`   | Set to `true` for local development (relaxes CORS restrictions)                                                                 |
+## Location lookup
 
-### Privacy
-
-| Setting               | Default    | Description                                                                          |
-|-----------------------|------------|--------------------------------------------------------------------------------------|
-| `PRIVACY_MODE`        | `STANDARD` | Privacy level (see below)                                                            |
-| `HASH_ROTATION_HOURS` | `24`       | How often visitor identifiers rotate, in hours. Range: 1–8760 (1 hour to 1 year)     |
-| `DATA_RETENTION_DAYS` | `0`        | Automatically delete data older than this many days. Set to `0` to keep data forever |
-
-#### Privacy modes explained
-
-| Mode         | Location data  | Browser/device info | Best for                                               |
-|--------------|----------------|---------------------|--------------------------------------------------------|
-| **Standard** | Country + city | Yes                 | Most websites — full insights while respecting privacy |
-| **Strict**   | Country only   | Yes                 | Sites in privacy-sensitive regions                     |
-| **Paranoid** | None           | None                | Maximum privacy — only page views and custom events    |
-
-### Rate limiting
-
-| Setting                  | Default | Description                                |
-|--------------------------|---------|--------------------------------------------|
-| `RATE_LIMIT_PER_IP`      | `1000`  | Maximum requests per IP address per minute |
-| `RATE_LIMIT_PER_API_KEY` | `10000` | Maximum requests per API key per minute    |
-
-When a rate limit is exceeded, the `/collect` endpoint returns **HTTP 429 Too Many Requests**. The tracker script does not retry on 429 — the event is silently dropped to protect your server. Monitor rate limit hits via the `/metrics` endpoint (`rate_limited_requests` counter).
-
-### PostgreSQL
-
-For PostgreSQL deployments, set these additional variables:
-
-| Setting             | Default    | Description                          |
-|---------------------|------------|--------------------------------------|
-| `DB_PG_HOST`        | `localhost` | PostgreSQL host                     |
-| `DB_PG_PORT`        | `5432`     | PostgreSQL port                      |
-| `DB_PG_NAME`        | `mini_numbers` | Database name                    |
-| `DB_PG_USERNAME`    | `postgres` | Database user                        |
-| `DB_PG_PASSWORD`    | *(required)* | Database password                  |
-| `DB_PG_MAX_POOL_SIZE` | `3`      | HikariCP connection pool size        |
-
-**Migrating from SQLite to PostgreSQL:** Schema creation is automatic — Mini Numbers calls `createMissingTablesAndColumns()` on every startup. To migrate existing data, export from SQLite and import into PostgreSQL using standard SQL tools. Always take a database backup before switching engines.
-
-### Email reports (SMTP)
-
-Email Reports stay disabled until both `SMTP_HOST` and `SMTP_FROM` are set.
-
-| Setting         | Default | Description                                   |
-|-----------------|---------|-----------------------------------------------|
-| `SMTP_HOST`     | *(empty)* | SMTP server host                            |
-| `SMTP_PORT`     | `587`   | SMTP server port                              |
-| `SMTP_USERNAME` | *(empty)* | SMTP auth username                          |
-| `SMTP_PASSWORD` | *(empty)* | SMTP auth password                          |
-| `SMTP_FROM`     | *(empty)* | From address shown on the reports           |
-| `SMTP_STARTTLS` | `true`  | Use STARTTLS                                  |
-
-### Tracker
-
-| Setting                      | Default | Description                                                                                        |
-|------------------------------|---------|----------------------------------------------------------------------------------------------------|
-| `TRACKER_HEARTBEAT_INTERVAL` | `30`    | How often (in seconds) the tracker sends a "still here" signal. Used to measure time spent on page |
-| `TRACKER_SPA_ENABLED`        | `true`  | Enable automatic tracking of page changes in single-page applications (React, Vue, etc.)           |
-
-### GeoIP
-
-| Setting               | Default                                     | Description                                                                    |
-|-----------------------|---------------------------------------------|--------------------------------------------------------------------------------|
-| `GEOIP_DATABASE_PATH` | `src/main/resources/geo/geolite2-city.mmdb` | Path to the MaxMind GeoIP database. A database is bundled with the application |
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| `GEOIP_DATABASE_PATH` | bundled file | Path to a MaxMind GeoLite2 City database. A copy is built in; set this only to use a newer one |
 
 ---
 
-## Tracker script attributes
-
-When adding the tracking script to your website, you can customize its behavior with HTML attributes:
-
-```html
-<script
-  async
-  src="https://your-domain.com/tracker/tracker.js"
-  data-project-key="YOUR_API_KEY"
-  data-heartbeat-interval="30000"
-  data-disable-spa="false">
-</script>
-```
-
-| Attribute                 | Default         | Description                                                                 |
-|---------------------------|-----------------|-----------------------------------------------------------------------------|
-| `data-project-key`        | *(required)*    | Your project's API key                                                      |
-| `data-api-endpoint`       | Script's origin | Custom API endpoint URL (if your analytics server is on a different domain) |
-| `data-heartbeat-interval` | `30000`         | Heartbeat interval in milliseconds                                          |
-| `data-disable-spa`        | `false`         | Set to `"true"` to turn off automatic single-page app tracking              |
-
----
-
-## Example `.env` file
+## Example `.env`
 
 ```bash
-# Required
-ADMIN_PASSWORD=your-strong-password-here
-SERVER_SALT=your-random-32-character-string-here-abc123
-
-# Database
-DB_TYPE=SQLITE
-DB_SQLITE_PATH=./stats.db
-
-# Server
-SERVER_PORT=8080
-ALLOWED_ORIGINS=https://example.com,https://blog.example.com
-
-# Privacy
+ADMIN_PASSWORD=a-long-password
+SERVER_SALT=paste-the-output-of-openssl-rand-hex-64-here
 PRIVACY_MODE=STANDARD
 HASH_ROTATION_HOURS=24
 DATA_RETENTION_DAYS=365
 ```
 
----
-
-## Changing settings
-
-1. **Edit the `.env` file** (or update your environment variables)
-2. **Restart the application** for changes to take effect
-
-Most settings can be changed at any time. However, changing the `SERVER_SALT` will reset all visitor identifiers, so historical visitor data won't connect to new visits.
+Everything else can stay on its default. Tracker options (heartbeat interval, single-page-app tracking) are set
+on the tracking snippet, see [For developers](developers).

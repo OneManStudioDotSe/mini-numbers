@@ -14,6 +14,8 @@ import java.io.File
 object ConfigLoader {
 
     private const val ENV_FILE_PATH = ".env"
+    private const val DEFAULT_PORT = 8080
+    private const val MAX_PORT = 65535
 
     /**
      * Check if setup wizard is needed
@@ -91,6 +93,42 @@ object ConfigLoader {
             email = loadEmailConfig()
         )
     }
+
+    /**
+     * The port the server listens on, read before the server starts (also from the .env file,
+     * so a port chosen in the setup wizard applies after a restart).
+     */
+    fun bindPort(): Int {
+        try {
+            loadDotEnvFile()
+        } catch (_: java.io.IOException) {
+            // Unreadable .env: fall back to environment variables, as isSetupNeeded() does
+        }
+        return resolvePort(::getEnvOrNull)
+    }
+
+    /**
+     * `PORT` (injected by Railway, Render and similar platforms) wins over `SERVER_PORT`; default 8080.
+     */
+    internal fun resolvePort(lookup: (String) -> String?): Int {
+        val (name, value) = listOf("PORT", "SERVER_PORT")
+            .firstNotNullOfOrNull { key -> lookup(key)?.takeIf { it.isNotBlank() }?.let { key to it } }
+            ?: return DEFAULT_PORT
+        val port = value.trim().toIntOrNull()
+        if (port == null || port !in 1..MAX_PORT) {
+            throw ConfigurationException(
+                "Invalid $name: $value\n" +
+                "Must be a port number between 1 and $MAX_PORT"
+            )
+        }
+        return port
+    }
+
+    /**
+     * True when `TRUST_PROXY=true`: the app sits behind a reverse proxy (Caddy, nginx, a hosting
+     * platform) and should take the visitor's IP from the X-Forwarded-For header.
+     */
+    fun trustProxy(): Boolean = getEnvOrNull("TRUST_PROXY")?.trim()?.lowercase() == "true"
 
     /**
      * Load .env file and set system properties
@@ -240,22 +278,7 @@ object ConfigLoader {
      * Load server configuration
      */
     private fun loadServerConfig(): ServerConfig {
-        val portStr = getEnvOrDefault("SERVER_PORT", "8080")
-        val port = try {
-            portStr.toInt()
-        } catch (e: NumberFormatException) {
-            throw ConfigurationException(
-                "Invalid SERVER_PORT: $portStr\n" +
-                "Must be a valid port number (1-65535)"
-            )
-        }
-
-        if (port < 1 || port > 65535) {
-            throw ConfigurationException(
-                "Invalid SERVER_PORT: $port\n" +
-                "Must be between 1 and 65535"
-            )
-        }
+        val port = resolvePort(::getEnvOrNull)
 
         val isDevelopment = getEnvOrDefault("KTOR_DEVELOPMENT", "false")
             .lowercase() == "true"

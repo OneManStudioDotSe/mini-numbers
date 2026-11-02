@@ -13,8 +13,9 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
-      - key: SERVER_PORT
-        value: "8080"
+      # Render sets PORT itself and the app listens on it
+      - key: TRUST_PROXY
+        value: "true"
       - key: DB_TYPE
         value: SQLITE
       - key: DB_SQLITE_PATH

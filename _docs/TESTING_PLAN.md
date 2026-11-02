@@ -1,10 +1,9 @@
 # Mini Numbers - Testing plan
 
-> **October 2026**: much of this list is automated now. `./gradlew test` (320 JVM tests, SQLite locally
-> and PostgreSQL in CI) covers the API, privacy modes, RBAC, JWT, caching and collection rules;
-> `cd e2e && npx playwright test` (13 browser tests) covers login/sign-out, project creation, the demo
+> Much of this list is automated. `./gradlew test` (JVM tests, SQLite locally and PostgreSQL in CI) covers the API, privacy modes, RBAC, JWT, caching and collection rules;
+> `cd e2e && npx playwright test` (browser tests) covers login/sign-out, project creation, the demo
 > dashboard with the Raw events and privacy dialogs in both themes, the phone-width sidebar, the real
-> tracker on a cross-site page (page views, SPA, custom events, heartbeats, offline queue, outbound and
+> tracker on a cross-site page (the dashboard's snippet as-is, page views, SPA, custom events, heartbeats, offline queue, outbound and
 > downloads) and axe WCAG 2 A/AA scans. The checklist below remains for what still needs a human:
 > visual judgement, other browsers, email rendering, and the items marked *(manual)*.
 
@@ -85,7 +84,7 @@
 
 ### Data export
 
-- [ ] CSV export works for each chart type
+- [ ] Settings → Export report downloads one CSV with the ticked sections; Raw events exports its own CSV
 - [ ] Full report export includes all sections
 - [ ] Raw events export with pagination
 - [ ] Exported CSV files are valid and parseable
@@ -154,7 +153,7 @@
 - [ ] Skip-to-content link works
 - [ ] ARIA labels present on all form controls
 - [ ] Screen reader can navigate dashboard sections
-- [ ] Color contrast meets WCAG AA (4.5:1 for text)
+- [ ] Color contrast meets WCAG AA (4.5:1 for text) — light theme currently fails on 16 elements, see ROADMAP
 - [ ] Focus indicators are visible
 
 ## Performance checks
