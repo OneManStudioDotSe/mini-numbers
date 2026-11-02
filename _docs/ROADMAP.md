@@ -34,6 +34,15 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 
 ## Known gaps
 
+The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Its C and H items come first:
+
+- **The session cookie is unsigned**, so anyone who knows a username can forge an admin session (C1).
+- **"Create project" shows a tracking key the server never stored** (C2).
+- **After the setup wizard the cookie stays non-Secure and API tokens are rejected until a restart** (C3).
+- **~100 test checks exit early instead of failing** when login or project creation breaks (H1).
+- **The referrer can carry quotes and `Utils.escapeHtml` does not escape them**, so a visitor can inject attributes into the referrers card (H2).
+- **Six dashboard element ids referenced by the JS do not exist**; the regions chart never renders (H4).
+- **The revenue section of the CSV report is always empty** (H5).
 - **Unescaped admin-entered text** in the dashboard: `webhooks.js` (webhook URL), `email-reports.js` (recipient
   address), `segments.js` (filter values). Only admins can enter them today, but they should go through
   `Utils.escapeHtml()` — and must before M4b, where demo visitors can create segments.
