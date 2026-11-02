@@ -41,10 +41,9 @@ class RevenueAnalysisUtilsTest {
     fun `revenue endpoint returns stats with zero revenue for empty project`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Revenue Test 1", "revenue-test1.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Revenue Test 1", "revenue-test1.com"), "projectId")
 
         val response = authClient.get("/admin/projects/$projectId/revenue?filter=7d")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -60,10 +59,9 @@ class RevenueAnalysisUtilsTest {
     fun `revenue breakdown returns empty list for project without revenue events`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Revenue Test 2", "revenue-test2.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Revenue Test 2", "revenue-test2.com"), "projectId")
 
         val response = authClient.get("/admin/projects/$projectId/revenue/breakdown?filter=7d")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -76,10 +74,9 @@ class RevenueAnalysisUtilsTest {
     fun `revenue attribution returns empty list for project without revenue events`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Revenue Test 3", "revenue-test3.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Revenue Test 3", "revenue-test3.com"), "projectId")
 
         val response = authClient.get("/admin/projects/$projectId/revenue/attribution?filter=7d")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -92,7 +89,7 @@ class RevenueAnalysisUtilsTest {
     fun `revenue endpoint with invalid project ID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/revenue")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -102,7 +99,7 @@ class RevenueAnalysisUtilsTest {
     fun `revenue breakdown with invalid project ID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/revenue/breakdown")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -112,7 +109,7 @@ class RevenueAnalysisUtilsTest {
     fun `revenue attribution with invalid project ID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/revenue/attribution")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -122,17 +119,16 @@ class RevenueAnalysisUtilsTest {
     fun `revenue with demo data returns non-empty stats`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Revenue Test 4", "revenue-test4.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Revenue Test 4", "revenue-test4.com"), "projectId")
 
         // Generate demo data (which now includes revenue events)
         val demoResponse = authClient.post("/admin/projects/$projectId/demo-data") {
             contentType(ContentType.Application.Json)
             setBody("""{"count":200,"timeScope":7}""")
         }
-        if (demoResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, demoResponse.status, "demo data")
 
         val response = authClient.get("/admin/projects/$projectId/revenue?filter=7d")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -147,10 +143,9 @@ class RevenueAnalysisUtilsTest {
     fun `revenue endpoint supports different filters`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Revenue Test 5", "revenue-test5.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Revenue Test 5", "revenue-test5.com"), "projectId")
 
         for (filter in listOf("24h", "7d", "30d", "365d")) {
             val response = authClient.get("/admin/projects/$projectId/revenue?filter=$filter")

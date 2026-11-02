@@ -45,10 +45,9 @@ class EmailReportEndpointTest {
     fun `create email report with invalid email returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 1", "email-test1.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 1", "email-test1.com"), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/email-reports") {
             contentType(ContentType.Application.Json)
@@ -63,10 +62,9 @@ class EmailReportEndpointTest {
     fun `create email report with blank email returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 2", "email-test2.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 2", "email-test2.com"), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/email-reports") {
             contentType(ContentType.Application.Json)
@@ -80,10 +78,9 @@ class EmailReportEndpointTest {
     fun `create email report with invalid schedule returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 3", "email-test3.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 3", "email-test3.com"), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/email-reports") {
             contentType(ContentType.Application.Json)
@@ -98,10 +95,9 @@ class EmailReportEndpointTest {
     fun `delete nonexistent email report returns 404`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 4", "email-test4.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 4", "email-test4.com"), "projectId")
 
         val response = authClient.delete("/admin/projects/$projectId/email-reports/00000000-0000-0000-0000-000000000000")
 
@@ -112,7 +108,7 @@ class EmailReportEndpointTest {
     fun `email report endpoint with invalid project ID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/email-reports")
 
@@ -123,7 +119,7 @@ class EmailReportEndpointTest {
     fun `smtp status endpoint returns response`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/smtp/status")
 
@@ -136,10 +132,9 @@ class EmailReportEndpointTest {
     fun `create and list email reports`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 5", "email-test5.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 5", "email-test5.com"), "projectId")
 
         // Create a report
         val createResponse = authClient.post("/admin/projects/$projectId/email-reports") {
@@ -160,10 +155,9 @@ class EmailReportEndpointTest {
     fun `update nonexistent email report returns 404`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = authClient.createTestProject("Email Test 6", "email-test6.com")
-            ?: return@testApplication
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 6", "email-test6.com"), "projectId")
 
         val response = authClient.put("/admin/projects/$projectId/email-reports/00000000-0000-0000-0000-000000000000") {
             contentType(ContentType.Application.Json)

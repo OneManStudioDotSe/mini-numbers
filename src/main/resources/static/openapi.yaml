@@ -366,7 +366,16 @@ paths:
                 name: { type: string }
                 domain: { type: string }
       responses:
-        '201': { description: Created }
+        '201':
+          description: Created; the body carries the new project's id and API key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  apiKey: { type: string }
+                  success: { type: boolean }
         '400': { description: Invalid input }
 
   /admin/projects/{id}:

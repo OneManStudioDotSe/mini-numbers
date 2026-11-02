@@ -89,15 +89,20 @@ fun Route.adminProjectRoutes() {
             .removePrefix("www.")
             .trimEnd('/')
 
+        val projectId = UUID.randomUUID()
         transaction {
             Projects.insert {
-                it[id] = UUID.randomUUID()
+                it[id] = projectId
                 it[name] = newName
                 it[domain] = normalizedDomain
                 it[apiKey] = resolvedApiKey
             }
         }
-        call.respond(HttpStatusCode.Created)
+        call.respond(HttpStatusCode.Created, buildJsonObject {
+            put("id", projectId.toString())
+            put("apiKey", resolvedApiKey)
+            put("success", true)
+        })
     }
 
     // Update a project

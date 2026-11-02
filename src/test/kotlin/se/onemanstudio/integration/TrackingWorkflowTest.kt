@@ -56,10 +56,7 @@ class TrackingWorkflowTest {
 
         // Step 1: Login
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) {
-            // Skip test if services aren't initialized (setup needed)
-            return@testApplication
-        }
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         // Step 2: Create project
         val createResponse = authClient.post("/admin/projects") {
@@ -105,7 +102,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         // Create project
         authClient.post("/admin/projects") {
@@ -114,7 +111,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val apiKey = extractApiKey(projectsBody) ?: return@testApplication
+        val apiKey = assertNotNull(extractApiKey(projectsBody), "apiKey")
 
         // Send 3 pageviews from same session
         repeat(3) { i ->
@@ -139,7 +136,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
@@ -147,7 +144,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val apiKey = extractApiKey(projectsBody) ?: return@testApplication
+        val apiKey = assertNotNull(extractApiKey(projectsBody), "apiKey")
 
         // Send pageview followed by heartbeat
         client.post("/collect") {
@@ -170,7 +167,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
@@ -178,7 +175,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val apiKey = extractApiKey(projectsBody) ?: return@testApplication
+        val apiKey = assertNotNull(extractApiKey(projectsBody), "apiKey")
 
         val response = client.post("/collect") {
             header("X-Project-Key", apiKey)
@@ -216,7 +213,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
@@ -224,7 +221,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val projectId = extractProjectId(projectsBody) ?: return@testApplication
+        val projectId = assertNotNull(extractProjectId(projectsBody), "projectId")
 
         val demoResponse = authClient.post("/admin/projects/$projectId/demo-data") {
             contentType(ContentType.Application.Json)
@@ -242,7 +239,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
@@ -250,7 +247,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val projectId = extractProjectId(projectsBody) ?: return@testApplication
+        val projectId = assertNotNull(extractProjectId(projectsBody), "projectId")
 
         // Request events with pagination params
         val eventsResponse = authClient.get("/admin/projects/$projectId/events?page=0&limit=10")
@@ -268,7 +265,7 @@ class TrackingWorkflowTest {
         val authClient = createAuthClient()
 
         val loginResponse = authClient.login()
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         // Create project
         authClient.post("/admin/projects") {
@@ -277,7 +274,7 @@ class TrackingWorkflowTest {
         }
 
         val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val projectId = extractProjectId(projectsBody) ?: return@testApplication
+        val projectId = assertNotNull(extractProjectId(projectsBody), "projectId")
 
         // Delete it
         val deleteResponse = authClient.delete("/admin/projects/$projectId")
