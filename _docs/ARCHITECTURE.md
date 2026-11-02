@@ -338,7 +338,7 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 
 ### Projects
 
-- `GET /admin/projects` (paginated), `POST /admin/projects`, `POST /admin/projects/{id}` (update),
+- `GET /admin/projects` (paginated), `POST /admin/projects` (201 with `{id, apiKey}`), `POST /admin/projects/{id}` (update),
   `DELETE /admin/projects/{id}` (cascades events/goals/funnels/segments/webhooks/email-reports)
 - `POST /admin/projects/{id}/rotate-api-key`
 - `POST /admin/projects/{id}/demo-data`

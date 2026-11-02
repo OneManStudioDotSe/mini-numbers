@@ -50,9 +50,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create and list goals`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         // Create a URL goal
         val createResponse = authClient.post("/admin/projects/$projectId/goals") {
@@ -73,9 +73,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create event-type goal`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val createResponse = authClient.post("/admin/projects/$projectId/goals") {
             contentType(ContentType.Application.Json)
@@ -89,9 +89,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create goal with blank name fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/goals") {
             contentType(ContentType.Application.Json)
@@ -104,9 +104,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create goal with invalid type fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/goals") {
             contentType(ContentType.Application.Json)
@@ -119,16 +119,16 @@ class GoalsFunnelsSegmentsTest {
     fun `delete goal returns 204`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         // Create a goal
         val createBody = authClient.post("/admin/projects/$projectId/goals") {
             contentType(ContentType.Application.Json)
             setBody("""{"name":"Delete Me","goalType":"url","matchValue":"/test"}""")
         }.bodyAsText()
-        val goalId = extractFieldValue(createBody, "id") ?: return@testApplication
+        val goalId = assertNotNull(extractFieldValue(createBody, "id"), "goalId")
 
         // Delete it
         val deleteResponse = authClient.delete("/admin/projects/$projectId/goals/$goalId")
@@ -139,9 +139,9 @@ class GoalsFunnelsSegmentsTest {
     fun `goal stats endpoint returns data`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.get("/admin/projects/$projectId/goals/stats?filter=7d")
         assertEquals(HttpStatusCode.OK, response.status)
@@ -153,9 +153,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create and list funnels`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         // Create funnel with steps
         val createResponse = authClient.post("/admin/projects/$projectId/funnels") {
@@ -184,9 +184,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create funnel with less than 2 steps fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/funnels") {
             contentType(ContentType.Application.Json)
@@ -206,9 +206,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create funnel with blank name fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/funnels") {
             contentType(ContentType.Application.Json)
@@ -229,9 +229,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create funnel with invalid step type fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/funnels") {
             contentType(ContentType.Application.Json)
@@ -252,9 +252,9 @@ class GoalsFunnelsSegmentsTest {
     fun `delete funnel returns 204`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val createBody = authClient.post("/admin/projects/$projectId/funnels") {
             contentType(ContentType.Application.Json)
@@ -268,7 +268,7 @@ class GoalsFunnelsSegmentsTest {
                 }
             """.trimIndent())
         }.bodyAsText()
-        val funnelId = extractFieldValue(createBody, "id") ?: return@testApplication
+        val funnelId = assertNotNull(extractFieldValue(createBody, "id"), "funnelId")
 
         val deleteResponse = authClient.delete("/admin/projects/$projectId/funnels/$funnelId")
         assertEquals(HttpStatusCode.NoContent, deleteResponse.status)
@@ -280,9 +280,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create and list segments`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val createResponse = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -307,9 +307,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create segment with blank name fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -327,9 +327,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create segment with no filters fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -342,9 +342,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create segment with invalid filter field fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -362,9 +362,9 @@ class GoalsFunnelsSegmentsTest {
     fun `create segment with invalid operator fails`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -382,9 +382,9 @@ class GoalsFunnelsSegmentsTest {
     fun `delete segment returns 204`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         val createBody = authClient.post("/admin/projects/$projectId/segments") {
             contentType(ContentType.Application.Json)
@@ -395,7 +395,7 @@ class GoalsFunnelsSegmentsTest {
                 }
             """.trimIndent())
         }.bodyAsText()
-        val segmentId = extractFieldValue(createBody, "id") ?: return@testApplication
+        val segmentId = assertNotNull(extractFieldValue(createBody, "id"), "segmentId")
 
         val deleteResponse = authClient.delete("/admin/projects/$projectId/segments/$segmentId")
         assertEquals(HttpStatusCode.NoContent, deleteResponse.status)
@@ -405,9 +405,9 @@ class GoalsFunnelsSegmentsTest {
     fun `segment analysis returns data`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val projectId = setupProject(authClient) ?: return@testApplication
+        val projectId = assertNotNull(setupProject(authClient), "projectId")
 
         // Create a segment
         val createBody = authClient.post("/admin/projects/$projectId/segments") {
@@ -419,7 +419,7 @@ class GoalsFunnelsSegmentsTest {
                 }
             """.trimIndent())
         }.bodyAsText()
-        val segmentId = extractFieldValue(createBody, "id") ?: return@testApplication
+        val segmentId = assertNotNull(extractFieldValue(createBody, "id"), "segmentId")
 
         val analysisResponse = authClient.get("/admin/projects/$projectId/segments/$segmentId/analysis?filter=7d")
         assertEquals(HttpStatusCode.OK, analysisResponse.status)
@@ -434,7 +434,7 @@ class GoalsFunnelsSegmentsTest {
     fun `goals endpoint with invalid UUID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/goals")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -444,7 +444,7 @@ class GoalsFunnelsSegmentsTest {
     fun `funnels endpoint with invalid UUID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/funnels")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -454,7 +454,7 @@ class GoalsFunnelsSegmentsTest {
     fun `segments endpoint with invalid UUID returns 400`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
-        if (authClient.login().status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/segments")
         assertEquals(HttpStatusCode.BadRequest, response.status)

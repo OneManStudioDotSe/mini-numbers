@@ -38,7 +38,7 @@ class WebhookEndpointTest {
         val authClient = createAuthClient()
         val loginResponse = authClient.login()
 
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         // First create a project to get a valid project ID
         val createProjectResponse = authClient.post("/admin/projects") {
@@ -46,10 +46,9 @@ class WebhookEndpointTest {
             setBody("""{"name":"Webhook Test","domain":"webhook-test.com"}""")
         }
 
-        if (createProjectResponse.status != HttpStatusCode.Created) return@testApplication
+        assertEquals(HttpStatusCode.Created, createProjectResponse.status, "create project")
         val projectBody = createProjectResponse.bodyAsText()
-        val projectId = Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1)
-            ?: return@testApplication
+        val projectId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/webhooks") {
             contentType(ContentType.Application.Json)
@@ -66,17 +65,16 @@ class WebhookEndpointTest {
         val authClient = createAuthClient()
         val loginResponse = authClient.login()
 
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         val createProjectResponse = authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
             setBody("""{"name":"Webhook Test 2","domain":"webhook-test2.com"}""")
         }
 
-        if (createProjectResponse.status != HttpStatusCode.Created) return@testApplication
+        assertEquals(HttpStatusCode.Created, createProjectResponse.status, "create project")
         val projectBody = createProjectResponse.bodyAsText()
-        val projectId = Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1)
-            ?: return@testApplication
+        val projectId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1), "projectId")
 
         val response = authClient.post("/admin/projects/$projectId/webhooks") {
             contentType(ContentType.Application.Json)
@@ -92,17 +90,16 @@ class WebhookEndpointTest {
         val authClient = createAuthClient()
         val loginResponse = authClient.login()
 
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         val createProjectResponse = authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
             setBody("""{"name":"Webhook Test 3","domain":"webhook-test3.com"}""")
         }
 
-        if (createProjectResponse.status != HttpStatusCode.Created) return@testApplication
+        assertEquals(HttpStatusCode.Created, createProjectResponse.status, "create project")
         val projectBody = createProjectResponse.bodyAsText()
-        val projectId = Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1)
-            ?: return@testApplication
+        val projectId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1), "projectId")
 
         val response = authClient.delete("/admin/projects/$projectId/webhooks/00000000-0000-0000-0000-000000000000")
 
@@ -115,7 +112,7 @@ class WebhookEndpointTest {
         val authClient = createAuthClient()
         val loginResponse = authClient.login()
 
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         val response = authClient.get("/admin/projects/not-a-uuid/webhooks")
 
@@ -128,17 +125,16 @@ class WebhookEndpointTest {
         val authClient = createAuthClient()
         val loginResponse = authClient.login()
 
-        if (loginResponse.status != HttpStatusCode.OK) return@testApplication
+        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
 
         val createProjectResponse = authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
             setBody("""{"name":"Webhook Test 4","domain":"webhook-test4.com"}""")
         }
 
-        if (createProjectResponse.status != HttpStatusCode.Created) return@testApplication
+        assertEquals(HttpStatusCode.Created, createProjectResponse.status, "create project")
         val projectBody = createProjectResponse.bodyAsText()
-        val projectId = Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1)
-            ?: return@testApplication
+        val projectId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(projectBody)?.groupValues?.get(1), "projectId")
 
         val response = authClient.get("/admin/projects/$projectId/webhooks/00000000-0000-0000-0000-000000000000/deliveries")
 
