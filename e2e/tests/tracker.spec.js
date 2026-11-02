@@ -20,6 +20,14 @@ test.describe('tracker.js on a tracked site', () => {
     expect(pv.sessionId).toMatch(/^[0-9a-f]{32}$/);
   });
 
+  test('the snippet exactly as the dashboard shows it sends events to the Mini Numbers server', async ({ page, request }) => {
+    // The site (tracked.test) and Mini Numbers live on different origins, as on any real install
+    await serveTrackedSite(page, project.apiKey, '', { snippetAsShown: true });
+    await page.goto('http://tracked.test/welcome');
+    const events = await waitForEvents(request, project.id, e => e.some(x => x.eventType === 'pageview'));
+    expect(events.find(x => x.eventType === 'pageview')?.path).toBe('/welcome');
+  });
+
   test('tracks SPA navigations through the History API and custom events with properties', async ({ page, request }) => {
     await serveTrackedSite(page, project.apiKey);
     await page.goto('http://tracked.test/');

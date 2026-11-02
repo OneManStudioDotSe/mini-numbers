@@ -1,0 +1,37 @@
+name: Release
+
+# On a version tag (v1.4.0, ...): run the checks, build the JAR and publish it as a GitHub Release,
+# so the install guide can link to .../releases/latest/download/mini-numbers.jar
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Test, check and build the JAR
+        run: |
+          ./gradlew test detekt buildFatJar
+          cp build/libs/mini-numbers-all.jar mini-numbers.jar
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" mini-numbers.jar --title "$GITHUB_REF_NAME" --generate-notes

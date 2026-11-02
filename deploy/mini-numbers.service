@@ -1,0 +1,35 @@
+# Mini Numbers - systemd service for running the JAR directly (no Docker)
+#
+# Install (as root):
+#   useradd --system --home /opt/mini-numbers --shell /usr/sbin/nologin mini-numbers
+#   mkdir -p /opt/mini-numbers
+#   curl -fL -o /opt/mini-numbers/mini-numbers.jar \
+#     https://github.com/OneManStudioDotSe/mini-numbers/releases/latest/download/mini-numbers.jar
+#   chown -R mini-numbers:mini-numbers /opt/mini-numbers
+#   cp mini-numbers.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now mini-numbers
+#
+# It listens on 127.0.0.1:8080 only, for a reverse proxy (Caddy or nginx) on the same server
+# that handles HTTPS. The setup wizard's .env and the SQLite database live in /opt/mini-numbers.
+
+[Unit]
+Description=Mini Numbers analytics
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=mini-numbers
+Group=mini-numbers
+WorkingDirectory=/opt/mini-numbers
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=75.0 -jar /opt/mini-numbers/mini-numbers.jar -P:ktor.deployment.host=127.0.0.1
+Environment=PORT=8080
+# The proxy on this server adds the visitor's IP to X-Forwarded-For
+Environment=TRUST_PROXY=true
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

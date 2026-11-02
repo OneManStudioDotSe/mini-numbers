@@ -6,7 +6,23 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import se.onemanstudio.config.models.AppConfig
+
+/**
+ * Behind a reverse proxy every request arrives from the proxy's address, so all visitors would share
+ * one IP (one visitor hash, one rate-limit bucket, no GeoIP). With [trustProxy] the visitor's IP is
+ * taken from X-Forwarded-For instead. Only the last entry is used: it is the one the nearest proxy
+ * added, while earlier entries can be set by the visitor. Off by default, because without a proxy in
+ * front anyone could send the header and pick their own IP.
+ */
+fun Application.configureProxyHeaders(trustProxy: Boolean) {
+    if (trustProxy) {
+        install(XForwardedHeaders) {
+            useLastProxy()
+        }
+    }
+}
 
 /**
  * Configure HTTP plugins including AsyncAPI and CORS

@@ -1,8 +1,9 @@
-/** Mini Numbers Analytics Tracker — https://github.com/user/mini-numbers */
+/** Mini Numbers Analytics Tracker — https://github.com/OneManStudioDotSe/mini-numbers */
 (function() {
     var s = document.currentScript;
     var key = s.getAttribute('data-project-key');
-    var endpoint = s.getAttribute('data-api-endpoint') || window.location.origin + '/collect';
+    // Default to the Mini Numbers server this script was loaded from, not the website's own origin
+    var endpoint = s.getAttribute('data-api-endpoint') || new URL(s.src).origin + '/collect';
     if (!key) return;
 
     // Configurable options via data attributes

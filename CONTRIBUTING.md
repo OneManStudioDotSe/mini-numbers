@@ -1,155 +1,48 @@
 # Contributing to Mini Numbers
 
-Thank you for your interest in contributing to Mini Numbers! This guide will help you get started.
+Thanks for helping. Mini Numbers is Kotlin + Ktor on JDK 21 with a vanilla-JS dashboard (no build step).
 
-## Development setup
-
-### Prerequisites
-
-- **JDK 21** (Temurin, Corretto, or similar)
-- **Gradle** (included via wrapper)
-- **Git**
-
-### Getting started
+## Set up
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/mini-numbers.git
+git clone https://github.com/OneManStudioDotSe/mini-numbers.git
 cd mini-numbers
-
-# Run the application
-./gradlew run
-
-# Visit https://analytics.example.com to complete the setup wizard (http://localhost:8080 for local dev)
+./gradlew run            # http://localhost:8080 → setup wizard (set PORT=8090 to use another port)
 ```
 
-### Running tests
+## Check your change
 
 ```bash
-./gradlew test          # Run all tests
-./gradlew detekt        # Run static analysis
-./gradlew buildFatJar   # Build executable JAR
+./gradlew test detekt    # JVM tests + static analysis (detekt must report zero issues)
+./gradlew buildFatJar    # build/libs/mini-numbers-all.jar
+cd e2e && npm ci && npx playwright test   # browser tests against the JAR (needs Chrome)
 ```
 
----
+UI changes: check light and dark themes. The browser tests start the JAR on port 8080; if that port is busy,
+run them with `E2E_PORT=8096 npx playwright test`. `tests/screenshots.spec.js` rewrites the README screenshots;
+skip it unless you mean to update them.
 
-## Project structure
+## Where things are
 
-See [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md) for a full technical architecture reference. Key directories:
+The technical reference — layout, database schema, settings, endpoints, and the definition of done — is
+[_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md). Plans and open gaps are in [_docs/ROADMAP.md](_docs/ROADMAP.md).
 
-```
-src/main/kotlin/se/onemanstudio/
-├── api/models/         # API request/response models
-├── config/             # Configuration system
-├── core/               # Core domain logic (security, services)
-├── db/                 # Database layer (Exposed ORM)
-├── middleware/          # Input validation, rate limiting
-├── services/           # External integrations (GeoIP, UA parsing)
-└── setup/              # Setup wizard
+## Style
 
-src/main/resources/
-├── static/             # Admin dashboard (HTML, CSS, JS)
-└── setup/              # Setup wizard frontend
+- **Kotlin**: [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html), enforced by
+  detekt; `kotlinx.serialization` for JSON; `object` for singletons such as `ServiceManager` and `ConfigLoader`.
+- **Frontend**: vanilla JS in namespaced objects (`Dashboard`, `ChartManager`, `Utils`…); colours, spacing and
+  fonts only through the CSS variables in `variables.css`; escape anything user-entered with
+  `Utils.escapeHtml()`.
+- **Tests**: descriptive names (`` `init with valid salt succeeds` ``), Ktor's `testApplication` for HTTP
+  routes; test databases go to `test-dbs/` (gitignored).
 
-src/test/kotlin/        # JVM test suite (315 tests); browser tests in e2e/
-```
+## Pull requests
 
----
+Branch from `main`, add tests for new behaviour, run the checks above, and open a PR with a title under 70
+characters that says *why*, plus screenshots for UI changes. Reviews look at correctness, security, privacy
+(nothing new stored about visitors without a good reason) and simplicity.
 
-## Code style
+Bugs and feature ideas: use the issue templates. Security problems: see [SECURITY.md](SECURITY.md).
 
-### Kotlin
-
-- Follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- Static analysis enforced via [Detekt](https://detekt.dev/) (`./gradlew detekt`)
-- Use `@Volatile` and `@Synchronized` for thread-safe singletons
-- Prefer `object` declarations for singletons (e.g., `ServiceManager`, `ConfigLoader`)
-- Use `kotlinx.serialization` for JSON models
-
-### Frontend (Vanilla JavaScript)
-
-- No frameworks - vanilla JS with namespaced objects
-- Follow existing patterns: `Dashboard`, `ChartManager`, `Utils`, `SegmentsManager`
-- Use CSS custom properties from `variables.css` for all colors, spacing, fonts
-- BEM-like class naming: `.component__element--modifier`
-- Escape user-generated content with `Utils.escapeHtml()`
-
----
-
-## Testing
-
-### Test organization
-
-Tests are organized by package mirroring the source structure:
-
-| Directory      | What it tests                        |
-|----------------|--------------------------------------|
-| `core/`        | Security, hashing, service lifecycle |
-| `middleware/`  | Input validation, sanitization       |
-| `services/`    | User agent parsing                   |
-| `analytics/`   | Analytics calculations               |
-| `integration/` | HTTP endpoints, end-to-end flows     |
-
-### Writing tests
-
-- Use descriptive test names: `` `init with valid salt succeeds` ``
-- Use Ktor's `testApplication` for integration tests
-- Keep tests isolated and deterministic
-- Test databases are written to `test-dbs/` (gitignored)
-
----
-
-## Pull request process
-
-1. **Fork** the repository and create a feature branch from `main`
-2. **Write clear commit messages** - focus on the "why", not the "what"
-3. **Add tests** for new functionality
-4. **Run the full test suite** before submitting: `./gradlew test detekt`
-5. **Open a PR** with:
-   - A clear title (under 70 characters)
-   - A description explaining what changed and why
-   - Any relevant screenshots for UI changes
-
-### PR checklist
-
-- [ ] Tests pass (`./gradlew test`)
-- [ ] Detekt passes (`./gradlew detekt`)
-- [ ] No new security vulnerabilities introduced
-- [ ] UI changes tested in both light and dark themes
-- [ ] Documentation updated if applicable
-
----
-
-## Reporting issues
-
-### Bug reports
-
-Please include:
-- Steps to reproduce
-- Expected vs. actual behavior
-- Environment details (OS, JDK version, browser)
-- Relevant log output
-
-### Feature requests
-
-Please include:
-- Description of the feature
-- Use case / motivation
-- Any relevant examples from other tools
-
----
-
-## Code review
-
-Reviewers look for:
-- **Correctness** - Does the code do what it claims?
-- **Security** - Any new attack vectors? Input validation?
-- **Privacy** - Does it maintain the privacy-first design?
-- **Performance** - Any unnecessary database queries or DOM operations?
-- **Simplicity** - Is the solution the simplest one that works?
-
----
-
-## License
-
-By contributing to Mini Numbers, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing you agree that your work is licensed under the [MIT License](LICENSE).

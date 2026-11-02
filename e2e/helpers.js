@@ -3,6 +3,9 @@ const { expect } = require('@playwright/test');
 
 const ADMIN = { username: 'admin', password: 'E2e-password-123' };
 
+/** Where the Mini Numbers server under test runs (started by playwright.config.js). */
+const SERVER = `http://localhost:${process.env.E2E_PORT || '8080'}`;
+
 /** Log in through the real login page and wait for the dashboard. */
 async function loginViaUi(page) {
   await page.goto('/login');
@@ -42,11 +45,15 @@ async function rawEvents(request, projectId) {
  * sendBeacon, sessionStorage, History API). See playwright.config.js for why Chrome's
  * local-network-access check is disabled for these runs.
  */
-async function serveTrackedSite(page, apiKey, extraHtml = '') {
+async function serveTrackedSite(page, apiKey, extraHtml = '', { snippetAsShown = false } = {}) {
+  // snippetAsShown: the exact one-line snippet the dashboard hands out, with no extra attributes
+  const script = snippetAsShown
+    ? `<script async src="${SERVER}/tracker/tracker.min.js" data-project-key="${apiKey}"></script>`
+    : `<script defer src="${SERVER}/tracker/tracker.min.js"
+      data-project-key="${apiKey}" data-api-endpoint="${SERVER}/collect"
+      data-heartbeat-interval="2000"></script>`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Tracked site</title>
-    <script defer src="http://localhost:8080/tracker/tracker.min.js"
-      data-project-key="${apiKey}" data-api-endpoint="http://localhost:8080/collect"
-      data-heartbeat-interval="2000"></script></head>
+    ${script}</head>
     <body><h1>Tracked</h1>${extraHtml}<div style="height:3000px"></div></body></html>`;
   page.on('console', m => { if (m.type() === 'error' && !/ERR_INTERNET_DISCONNECTED/.test(m.text())) console.log(`[tracked page console] ${m.text()}`); });
   page.on('requestfailed', r => {

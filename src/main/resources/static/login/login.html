@@ -184,7 +184,19 @@
                     body: JSON.stringify({ username, password }),
                 });
                 const data = await response.json();
-                if (response.ok) { window.location.href = '/admin-panel'; } 
+                // The session cookie is HTTPS-only outside development mode; over plain HTTP the browser
+                // drops it and the dashboard would silently send the user back here. Check before leaving.
+                const sessionKept = response.ok && (await fetch('/admin/me')).ok;
+                if (sessionKept) { window.location.href = '/admin-panel'; }
+                else if (response.ok) {
+                    showError(location.protocol === 'http:'
+                        ? 'Your password was right, but browsers only keep the sign-in on secure (HTTPS) sites. Open this address with https:// instead.'
+                        : 'Your password was right, but the browser did not keep the sign-in. Check that cookies are allowed for this site.');
+                    usernameInput.classList.remove('invalid');
+                    passwordInput.classList.remove('invalid');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Sign in';
+                }
                 else {
                     showError(data.error || 'Invalid credentials');
                     loginBtn.disabled = false;
