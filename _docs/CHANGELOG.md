@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The "Create project" dialog showed a tracking key that did not exist.** Since March the dialog generated its own key while the server generated another and kept that one, so the snippet a new user copied never collected anything and "Go to dashboard" did nothing. The dialog now shows the key the server stored, the misleading "pre-generated key" field on step 1 is gone, and the browser test loads a page with the exact snippet shown and checks that the page view arrives.
 - **`POST /admin/projects` now returns the new project's `id` and `apiKey`** instead of an empty 201. Fifteen integration tests (webhooks, email reports, revenue) had been reading the id from that body, getting nothing, and returning early as if they had passed.
 - **Tests no longer exit early.** 97 checks of the form `if (login failed) return` across five test files are now assertions, so a broken login or project creation fails the build instead of hiding.
 - **The tracking snippet recorded nothing when Mini Numbers runs on a different domain from the website** (the usual setup). Without `data-api-endpoint`, the tracker sent events to the website's own address instead of the Mini Numbers server. It now defaults to the server it was loaded from; snippets already on websites pick this up automatically, because the script is served by Mini Numbers.

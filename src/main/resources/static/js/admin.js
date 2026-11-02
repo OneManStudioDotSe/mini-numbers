@@ -385,20 +385,6 @@ const Dashboard = {
   },
 
   /**
-   * Generate a UUID-style API key (32-char hex, matching server format)
-   */
-  generateApiKey() {
-    const hex = '0123456789abcdef';
-    let key = '';
-    const array = new Uint8Array(16);
-    crypto.getRandomValues(array);
-    array.forEach(b => {
-      key += hex[b >> 4] + hex[b & 0x0f];
-    });
-    return key;
-  },
-
-  /**
    * Normalize and validate a domain string
    * @param {string} input - Raw domain input
    * @returns {{ domain: string, valid: boolean, error: string }}
@@ -457,13 +443,8 @@ const Dashboard = {
     document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
     document.querySelectorAll('.input--error').forEach(el => el.classList.remove('input--error'));
 
-    // Pre-generate API key
-    const preGeneratedKey = this.generateApiKey();
-    const apiKeyEl = document.getElementById('generated-api-key');
-    if (apiKeyEl) apiKeyEl.textContent = preGeneratedKey;
-
     this._createProjectStep = 1;
-    this._createProjectKey = preGeneratedKey;
+    this._createProjectKey = null;
     this._createProjectId = null;
 
     modal.classList.add('show');
@@ -517,13 +498,8 @@ const Dashboard = {
     }
 
     // Copy handlers
-    document.getElementById('copy-api-key')?.addEventListener('click', () => {
-      navigator.clipboard.writeText(preGeneratedKey);
-      Utils.toast.success('API key copied!');
-    });
-
     document.getElementById('copy-api-key-final')?.addEventListener('click', () => {
-      navigator.clipboard.writeText(preGeneratedKey);
+      navigator.clipboard.writeText(this._createProjectKey);
       Utils.toast.success('API key copied!');
     });
 
@@ -581,20 +557,17 @@ const Dashboard = {
       confirmBtn.textContent = 'Creating...';
 
       try {
-        await Utils.api.post('/admin/projects', {
+        // The server generates the key; the dialog shows what it stored
+        const created = await Utils.api.post('/admin/projects', {
           name,
           domain: domainResult.domain,
-          apiKey: this._createProjectKey,
         });
+        this._createProjectKey = created.apiKey;
+        this._createProjectId = created.id;
 
         // Refresh projects sidebar immediately
         Utils.cache.clear('/admin/projects');
         await this.loadProjects();
-
-        // Find the new project ID
-        const projects = await Utils.api.fetch('/admin/projects');
-        const newProject = projects?.find(p => p.apiKey === this._createProjectKey);
-        this._createProjectId = newProject?.id || null;
 
         // Transition to step 2
         this._createProjectStep = 2;
