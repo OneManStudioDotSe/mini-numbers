@@ -1,10 +1,13 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { loginViaUi, loginViaApi, createProject } = require('../helpers');
+const { loginViaUi, loginViaApi, createProject, serveTrackedSite, waitForEvents } = require('../helpers');
 
 test.describe('dashboard', () => {
-  test('creates a project through the UI and shows the tracking snippet', async ({ page }) => {
+  test('creates a project through the UI; the snippet it shows really collects', async ({ page }) => {
+    // On an empty database the onboarding dialog opens first and would cover the button
+    await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await loginViaUi(page);
+    const request = page.request; // same cookie jar as the logged-in page
     await page.click('#new-project-btn');
     await expect(page.locator('#create-project-modal')).toHaveClass(/show/);
     const name = `UI project ${Date.now()}`;
@@ -13,7 +16,24 @@ test.describe('dashboard', () => {
     await page.click('#confirm-create-project');
     await expect(page.locator('#create-step-2')).toBeVisible();
     await expect(page.locator('#tracking-snippet-code')).toContainText('tracker.min.js');
-    await expect(page.locator('#generated-api-key-final')).toHaveText(/^[0-9a-f]{32}$/);
+    const shownKey = (await page.locator('#generated-api-key-final').innerText()).trim();
+    expect(shownKey).toMatch(/^[0-9a-f]{32}$/);
+
+    // The key in the dialog must be the one the server stored (audit item C2)
+    const projects = await (await request.get('/admin/projects')).json();
+    const project = projects.find(p => p.name === name);
+    expect(project.apiKey, 'dialog key equals stored key').toBe(shownKey);
+
+    // "Go to dashboard" selects the new project
+    await page.click('#confirm-create-project');
+    await expect(page.locator('#create-project-modal')).not.toHaveClass(/show/);
+    await expect.poll(() => page.evaluate(() => Dashboard.state.currentProjectId)).toBe(project.id);
+
+    // A page carrying the shown snippet records a pageview
+    await serveTrackedSite(page, shownKey, '', { snippetAsShown: true });
+    await page.goto('http://tracked.test/welcome');
+    const events = await waitForEvents(request, project.id, e => e.some(x => x.eventType === 'pageview'));
+    expect(events.some(x => x.eventType === 'pageview' && x.path === '/welcome')).toBe(true);
   });
 
   test('renders demo data, opens Raw events as an accessible dialog, and works in both themes', async ({ page, request }, testInfo) => {
