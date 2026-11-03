@@ -4,7 +4,7 @@ info:
   description: |
     Privacy-first, minimalist web analytics API. No cookies, no PII storage.
     All admin endpoints require session authentication via /api/login.
-  version: 1.3.0
+  version: 1.5.0
   license:
     name: MIT
 
