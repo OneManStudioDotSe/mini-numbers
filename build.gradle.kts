@@ -1,12 +1,12 @@
 plugins {
-    kotlin("jvm") version "2.4.20"
-    kotlin("plugin.serialization") version "2.4.20"
+    kotlin("jvm") version "2.4.21"
+    kotlin("plugin.serialization") version "2.4.21"
     id("io.ktor.plugin") version "3.6.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "se.onemanstudio"
-version = "1.3.0"
+version = "1.5.0"
 
 application {
     mainClass = "se.onemanstudio.ApplicationKt"
@@ -23,7 +23,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.6.5")
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.20")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.21")
 
     // Ktor Server
     implementation("io.ktor:ktor-server-core-jvm:3.6.0")
@@ -34,12 +34,12 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.6.0")
 
     // Database (Exposed + Postgres/SQLite)
-    implementation("org.jetbrains.exposed:exposed-core:1.5.0")
-    implementation("org.jetbrains.exposed:exposed-dao:1.5.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:1.5.0")
-    implementation("org.jetbrains.exposed:exposed-java-time:1.5.0")
+    implementation("org.jetbrains.exposed:exposed-core:1.5.1")
+    implementation("org.jetbrains.exposed:exposed-dao:1.5.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.5.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:1.5.1")
     implementation("com.zaxxer:HikariCP:7.1.0")
-    implementation("org.postgresql:postgresql:42.7.13")
+    implementation("org.postgresql:postgresql:42.7.14")
     implementation("org.xerial:sqlite-jdbc:3.53.4.0")
 
     // Security & Utilities

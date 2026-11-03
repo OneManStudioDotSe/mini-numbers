@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-03
+
+The first tagged release (1.3.0 was published as source only), and the result of the November audit of
+the working base: three critical, five high and six medium findings fixed, with the suite grown to
+355 JVM and 17 browser tests.
+
+**Upgrading**
+
+- Everyone is signed out once: the session cookie is now signed, and sessions end on logout everywhere.
+- SQLite now runs in WAL mode, so `stats.db-wal` and `stats.db-shm` appear next to the database. Back up with the
+  service stopped or with `sqlite3 stats.db ".backup copy.db"`.
+- Email reports created before this version have timezone UTC, so an existing "send at 8" report now goes out at
+  08:00 UTC. Recreate it from the dialog to use your own zone.
+- The users table gains a `sessions_valid_from` column, added automatically on first start.
+
+### Security
+
+- **Exposed 1.5.0 → 1.5.1**: fixes CVE-2026-108474 (SQL injection through string arguments).
+- **PostgreSQL driver 42.7.13 → 42.7.14**: fixes CVE-2026-107314 (`requireAuth` silently not enforced) and a second advisory in the same release.
+- Kotlin 2.4.20 → 2.4.21 (compiler, serialization plugin, test library).
+
 ### Added
 
 - **Webhooks can be paused and resumed** from the webhooks dialog (`PUT /admin/projects/{id}/webhooks/{webhookId}` with `{"isActive": false}`); a paused webhook receives nothing until resumed. The flag existed but nothing could set it.
