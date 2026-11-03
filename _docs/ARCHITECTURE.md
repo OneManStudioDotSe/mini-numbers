@@ -336,8 +336,8 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 - `POST /api/login` / `POST /api/logout` — Session-based auth
 - `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair
 - `POST /api/password-reset` — Invalidates all sessions for the user
-- `GET /admin/me` — Current authenticated user info
-- `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip
+- `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
+- `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip (also at `/api/privacy`)
 - `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `DELETE /admin/users/{userId}` — admin only
 
 ### Projects

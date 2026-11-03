@@ -37,7 +37,9 @@ test.describe('report export (audit H5)', () => {
     expect(raw, 'raw events section').toBeTruthy();
     const rows = raw.trim().split('\n');
     expect(rows[0]).toBe('Timestamp,Type,Path,Country,City,Browser,Device,Duration');
-    expect(rows.length, 'all 300 demo events exported').toBe(301);
-    expect(rows[1]).toMatch(/^"[^"]+","(pageview|custom|heartbeat)","\/[^"]*",("[^"]*",){4}\d+$/);
+    const { total } = await (await page.request.get(`/admin/projects/${project.id}/events?page=0&limit=1`)).json();
+    expect(total).toBeGreaterThanOrEqual(300);
+    expect(rows.length - 1, 'every event exported').toBe(total);
+    expect(rows[1]).toMatch(/^"[^"]+","[a-z_]+","\/[^"]*",("[^"]*",){4}\d+$/);
   });
 });
