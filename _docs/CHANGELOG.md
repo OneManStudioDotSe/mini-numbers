@@ -23,9 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The setup wizard's help text for Paranoid mode and development mode now says what they actually do; `.env.example` no longer enables development mode.
 - Browser tests take `E2E_PORT` when port 8080 is busy, and include the dashboard's tracking snippet exactly as shown.
 - `server.log` is no longer tracked in the repository and `*.log` files are ignored.
+- **SQLite runs in WAL mode with a five-second busy timeout**, so dashboard reads no longer block incoming events and a brief lock waits instead of failing with "database is locked". Two companion files (`stats.db-wal`, `stats.db-shm`) now sit next to the database; the install guide's backup section says how to copy them safely.
 
 ### Fixed
 
+- **`/health` answered 200 even when services had failed to start, and never touched the database.** It now returns 503 `unhealthy` in that case or when a database probe fails, 200 `healthy` with `"database":"ok"` once everything runs, and 200 `ok` while the setup wizard is still needed. The documented response matches what is sent.
 - **Signing out only cleared the cookie in that browser**: a copy of the cookie kept working until its 4-hour limit, and a password reset claimed to have ended all sessions while cookies and access tokens stayed valid. The users table now records a per-user cut-off (`sessions_valid_from`, added automatically on upgrade) that logout and password reset set; every cookie issued before it is rejected, so signing out ends the session on every device. The reset also revokes only that account's refresh tokens instead of everyone's, and says what it did.
 - **The 4-hour session lifetime never applied.** The cookie did not store its creation time (the serializer omits properties left at their default), so every request read it as "just created" and a session lasted the cookie's full 7 days. The creation time is now always written; a cookie older than 4 hours is rejected.
 - **A refresh token presented twice now revokes its whole family.** Rotation marked the used token but left its successor valid, so a stolen copy only produced a 401 while the thief's chain stayed alive.

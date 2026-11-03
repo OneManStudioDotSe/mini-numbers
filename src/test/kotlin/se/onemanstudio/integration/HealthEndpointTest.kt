@@ -40,6 +40,16 @@ class HealthEndpointTest {
     }
 
     @Test
+    fun `GET health probes the database once services are ready`() = testApplication {
+        application { module() }
+        val response = client.get("/health")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        assertTrue(body.contains("\"status\":\"healthy\""), body)
+        assertTrue(body.contains("\"database\":\"ok\""), body)
+    }
+
+    @Test
     fun `GET health returns JSON content type`() = testApplication {
         application { module() }
 

@@ -18,21 +18,26 @@ paths:
   /health:
     get:
       summary: Health check
+      description: 200 "healthy" with a database probe once services run, 200 "ok" while the setup wizard is still needed, 503 "unhealthy" when services failed to start or the database cannot be reached.
       tags: [System]
       responses:
         '200':
-          description: Service healthy
+          description: Running (or waiting for the setup wizard)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status: { type: string, example: healthy }
+                  status: { type: string, enum: [healthy, ok, unhealthy] }
                   state: { type: string, example: READY }
-                  uptime_seconds: { type: integer }
                   version: { type: string }
+                  uptimeSeconds: { type: integer }
+                  servicesReady: { type: boolean }
+                  setupNeeded: { type: boolean }
+                  database: { type: string, enum: [ok, unreachable], description: Present once services are ready }
+                  message: { type: string, description: Present in the ERROR state }
         '503':
-          description: Service unavailable
+          description: Services failed to start or the database is unreachable (same body, status "unhealthy")
 
   /metrics:
     get:

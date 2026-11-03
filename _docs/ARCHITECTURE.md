@@ -277,9 +277,11 @@ All configuration via `.env` file or environment variables.
 | `DB_PG_PASSWORD`      | —              | PostgreSQL password (required when `DB_TYPE=POSTGRESQL`) |
 | `DB_PG_MAX_POOL_SIZE` | `3`            | HikariCP maximum pool size (PostgreSQL only)             |
 
-SQLite connections run with `PRAGMA foreign_keys = ON` (`db/DatabaseFactory.kt`), so the `REFERENCES` clauses
-in the schema are enforced on both databases; `DELETE /admin/projects/{id}` removes the project's rows from every
-table, children first.
+SQLite connections run with `PRAGMA foreign_keys = ON`, `journal_mode = WAL` and `busy_timeout = 5000`
+(`db/DatabaseFactory.kt`): the `REFERENCES` clauses are enforced on both databases, readers do not block the writer,
+and a short wait replaces an immediate "database is locked" error. WAL keeps `stats.db-wal` and `stats.db-shm`
+next to the file; back up with the service stopped or with `sqlite3 stats.db ".backup copy.db"`.
+`DELETE /admin/projects/{id}` removes the project's rows from every table, children first.
 
 > These are the actual variable names read by `ConfigLoader.loadDatabaseConfig()`.
 > Earlier docs referenced `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` (no `_PG_`
@@ -321,7 +323,7 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 ### Public
 
 - `GET /` — Intelligent redirect based on application state
-- `GET /health` — `status`, `state`, `version`, `servicesReady`, `setupNeeded` (in `setup/SetupRouting.kt`, so it answers in every state; always HTTP 200)
+- `GET /health` — 200 `healthy` with a database probe, 200 `ok` while the wizard is needed, 503 `unhealthy` when services failed or the database is unreachable (no auth)
 - `GET /metrics` — Prometheus text: uptime, GeoIP cache hit rate and size
 - `GET /favicon.ico`
 - `GET /tracker/config` — heartbeat interval and SPA flag from `TRACKER_*` (not read by the tracker today)
