@@ -153,12 +153,12 @@ paths:
                   refreshToken: { type: string }
                   tokenType: { type: string }
                   expiresIn: { type: integer }
-        '401': { description: Invalid or expired refresh token }
+        '401': { description: Invalid, expired or replayed refresh token. A replay revokes the whole token family. }
 
   /api/password-reset:
     post:
       summary: Reset admin password
-      description: Reset the admin password using the server salt as proof of server ownership. Invalidates all active sessions and refresh tokens.
+      description: Reset the admin password using the server salt as proof of server ownership. Signs that account out everywhere (cookie sessions and refresh tokens); other users are not affected.
       tags: [Authentication]
       requestBody:
         required: true
@@ -363,6 +363,7 @@ paths:
   /api/logout:
     post:
       summary: Admin logout
+      description: Clears the cookie and signs the user out on every device; cookies issued before this moment are rejected.
       tags: [Authentication]
       responses:
         '200': { description: Logged out }
