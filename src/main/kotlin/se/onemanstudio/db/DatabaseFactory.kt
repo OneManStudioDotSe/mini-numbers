@@ -48,8 +48,11 @@ object DatabaseFactory {
                     url = "jdbc:sqlite:${config.path}",
                     driver = "org.sqlite.JDBC",
                     setupConnection = { connection ->
-                        // SQLite ignores the REFERENCES clauses unless each connection asks for them
-                        connection.createStatement().use { it.execute("PRAGMA foreign_keys = ON") }
+                        connection.createStatement().use {
+                            it.execute("PRAGMA foreign_keys = ON")   // REFERENCES are ignored unless each connection asks
+                            it.execute("PRAGMA journal_mode = WAL")  // readers no longer block the writer (sticks to the file)
+                            it.execute("PRAGMA busy_timeout = 5000") // wait for a lock instead of failing at once
+                        }
                     }
                 )
             }
@@ -73,6 +76,13 @@ object DatabaseFactory {
      *
      * @param config Database configuration (not used but kept for consistency)
      */
+    /** A cheap round trip to the database; false when it cannot be reached. */
+    fun probe(): Boolean = try {
+        transaction { exec("SELECT 1") { it.next() } == true }
+    } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
+        false
+    }
+
     fun reset() {
         transaction {
             // Children first: foreign keys are enforced on both databases

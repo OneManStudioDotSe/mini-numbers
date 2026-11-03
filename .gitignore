@@ -37,6 +37,8 @@ out/
 
 ### Application data ###
 *.db
+*.db-wal
+*.db-shm
 test-dbs/
 .env
 .env.backup

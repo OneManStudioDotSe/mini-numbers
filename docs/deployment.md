@@ -205,7 +205,9 @@ Upgrading a Docker install made before version 1.4? Those kept the wizard's `.en
 the wizard would appear again. Before upgrading, run `docker cp mini-numbers:/app/.env ./old.env`; afterwards,
 `docker cp ./old.env mini-numbers:/app/data/.env && docker compose restart mini-numbers`.
 
-**Backups** — your settings and data are two files: `.env` and `stats.db`.
+**Backups** — your settings and data are two files: `.env` and `stats.db`. SQLite keeps recent writes in
+`stats.db-wal` until it checkpoints, so copy the files with the service stopped (as below) or take a consistent copy
+while running with `sqlite3 stats.db ".backup mini-numbers-backup.db"`.
 
 - Docker Compose (run inside the `mini-numbers` folder):
   ```bash

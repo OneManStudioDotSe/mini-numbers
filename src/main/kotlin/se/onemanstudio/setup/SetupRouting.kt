@@ -14,8 +14,10 @@ import se.onemanstudio.configureRouting
 import se.onemanstudio.setup.models.*
 import se.onemanstudio.configureWidgetRouting
 import se.onemanstudio.middleware.RateLimiter
+import se.onemanstudio.core.AppInfo
 import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.core.configureHTTP
+import se.onemanstudio.db.DatabaseFactory
 import se.onemanstudio.middleware.RedirectValidator
 import java.io.File
 import java.security.SecureRandom
@@ -101,24 +103,20 @@ fun Application.configureSetupRouting() {
         // Health check endpoint for Docker/platform deployments
         // Always accessible, never behind auth
         get("/health") {
-            val servicesReady = ServiceManager.isReady()
-            val setupNeeded = ConfigLoader.isSetupNeeded()
             val state = ServiceManager.getState()
-
-            val status = when (state) {
-                ServiceManager.State.ERROR -> "unhealthy"
-                ServiceManager.State.READY -> "healthy"
-                else -> "ok"
-            }
+            val databaseOk = if (state == ServiceManager.State.READY) DatabaseFactory.probe() else null
+            val (code, status) = healthStatus(state, databaseOk)
 
             call.respond(
-                HttpStatusCode.OK,
+                code,
                 buildJsonObject {
                     put("status", status)
                     put("state", state.toString())
-                    put("version", se.onemanstudio.core.AppInfo.VERSION)
-                    put("servicesReady", servicesReady)
-                    put("setupNeeded", setupNeeded)
+                    put("version", AppInfo.VERSION)
+                    put("uptimeSeconds", ServiceManager.getUptimeSeconds())
+                    put("servicesReady", ServiceManager.isReady())
+                    put("setupNeeded", ConfigLoader.isSetupNeeded())
+                    databaseOk?.let { put("database", if (it) "ok" else "unreachable") }
                     if (state == ServiceManager.State.ERROR) {
                         put("message", ServiceManager.getLastError()?.message ?: "Service initialization failed")
                     }
@@ -371,4 +369,15 @@ private fun writeEnvFileAtomic(content: String) {
     } catch (_: SecurityException) {
         // Permission setting might fail on some systems, but file is still created
     }
+}
+
+/**
+ * What `/health` answers: 503 when services failed to start or the database cannot be reached,
+ * 200 "ok" while the setup wizard is still needed, 200 "healthy" once everything runs.
+ */
+internal fun healthStatus(state: ServiceManager.State, databaseOk: Boolean?): Pair<HttpStatusCode, String> = when {
+    state == ServiceManager.State.ERROR -> HttpStatusCode.ServiceUnavailable to "unhealthy"
+    databaseOk == false -> HttpStatusCode.ServiceUnavailable to "unhealthy"
+    state == ServiceManager.State.READY -> HttpStatusCode.OK to "healthy"
+    else -> HttpStatusCode.OK to "ok"
 }

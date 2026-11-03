@@ -32,7 +32,7 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: `rm -f "${DB}" && mkdir -p "${path.dirname(DB)}" && java -jar "${JAR}"`,
+    command: `rm -f "${DB}" "${DB}-wal" "${DB}-shm" && mkdir -p "${path.dirname(DB)}" && java -jar "${JAR}"`,
     url: `http://localhost:${PORT}/health`,
     timeout: 90_000,
     reuseExistingServer: false,

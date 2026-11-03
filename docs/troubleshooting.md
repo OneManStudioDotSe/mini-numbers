@@ -42,7 +42,8 @@ kept between upgrades. Installs made with Docker files from before version 1.4 k
 
 ## "Database is locked" (SQLite)
 
-Only one copy of Mini Numbers may use a SQLite file at a time. Running several instances? Use PostgreSQL.
+Mini Numbers opens SQLite in WAL mode and waits up to five seconds for a lock, so this only appears when another
+process holds the file. Only one copy of Mini Numbers may use a SQLite file at a time. Running several instances? Use PostgreSQL.
 
 ## Permission errors in Docker
 

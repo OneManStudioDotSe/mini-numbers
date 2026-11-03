@@ -329,13 +329,15 @@ class TrackingWorkflowTest {
     }
 
     @Test
-    fun `SQLite enforces foreign keys`() = testApplication {
+    fun `SQLite runs with foreign keys, WAL and a busy timeout`() = testApplication {
         application { module() }
         assertEquals(HttpStatusCode.OK, createAuthClient().get("/health").status) // boots the app
         transaction {
             if (TransactionManager.current().db.vendor != "sqlite") return@transaction
-            val enabled = exec("PRAGMA foreign_keys") { rs -> rs.next(); rs.getInt(1) }
-            assertEquals(1, enabled, "PRAGMA foreign_keys")
+            fun pragma(name: String): String? = exec("PRAGMA $name") { rs -> rs.next(); rs.getString(1) }
+            assertEquals("1", pragma("foreign_keys"))
+            assertEquals("wal", pragma("journal_mode"))
+            assertEquals("5000", pragma("busy_timeout"))
         }
     }
 }
