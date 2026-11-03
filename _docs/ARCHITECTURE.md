@@ -338,7 +338,9 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 - `POST /api/password-reset` — Invalidates all sessions for the user
 - `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
 - `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip (also at `/api/privacy`)
-- `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `DELETE /admin/users/{userId}` — admin only
+- `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `PUT /admin/users/{userId}/active`,
+  `DELETE /admin/users/{userId}` — admin only. Deactivating or deleting a user revokes their refresh tokens; an admin
+  cannot demote, deactivate or delete their own account (409), which is what keeps at least one active admin.
 
 ### Projects
 

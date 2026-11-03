@@ -62,9 +62,7 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
     // Try database-backed authentication first (RBAC-aware)
     val dbUser = try {
         transaction {
-            Users.selectAll().where {
-                (Users.username eq username) and (Users.isActive eq true)
-            }.singleOrNull()
+            Users.selectAll().where { Users.username eq username }.singleOrNull()
         }
     } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
         null // DB not available yet (setup mode)
@@ -72,7 +70,12 @@ fun verifyCredentials(username: String, password: String, config: AppConfig, log
 
     val passwordMatches: Boolean
     if (dbUser != null) {
-        // DB-backed user found
+        // DB-backed user found; a deactivated account must not fall through to the .env fallback
+        if (!dbUser[Users.isActive]) {
+            recordFailedAttempt(username, attempt, logger)
+            logger.warn("Failed authentication - deactivated user: $username")
+            return false
+        }
         val storedHash = dbUser[Users.passwordHash]
         passwordMatches = try {
             Passwords.verify(password, storedHash)

@@ -6,8 +6,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Test
 import io.ktor.server.sessions.*
+import se.onemanstudio.db.RefreshTokens
+import se.onemanstudio.db.Users
 import se.onemanstudio.core.JwtService
 import se.onemanstudio.core.SessionSigner
 import se.onemanstudio.core.models.UserSession
@@ -166,6 +171,94 @@ class AuthHardeningTest {
         assertEquals(HttpStatusCode.OK, demote.status)
         assertEquals("viewer", role(viaToken = false), "session cookie still says admin, the answer must not")
         assertEquals("viewer", role(viaToken = true), "token claim still says admin, the answer must not")
+    }
+
+    private suspend fun HttpClient.setActive(userId: String, active: Boolean): HttpStatusCode =
+        put("/admin/users/$userId/active") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"isActive":$active}""")
+        }.status
+
+    private suspend fun HttpClient.seededAdminId(): String =
+        Regex("\"id\":\"([^\"]+)\",\"username\":\"admin\"").find(get("/admin/users").bodyAsText())!!.groupValues[1]
+
+    private fun refreshTokensFor(username: String): Long =
+        transaction { RefreshTokens.selectAll().where { RefreshTokens.username eq username }.count() }
+
+    @Test
+    fun `deactivating a user ends their session, revokes their tokens and blocks login until reactivated`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "viewer-off-${System.nanoTime()}"
+        val userId = admin.createUser(username, "viewerpass123", "viewer")
+
+        val viewer = createAuthClient()
+        assertEquals(HttpStatusCode.OK, viewer.login(username, "viewerpass123").status)
+        assertEquals(HttpStatusCode.OK, viewer.post("/api/token") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"username":"$username","password":"viewerpass123"}""")
+        }.status)
+        assertEquals(1L, refreshTokensFor(username))
+        assertEquals(HttpStatusCode.OK, viewer.get("/admin/projects").status)
+
+        assertEquals(HttpStatusCode.OK, admin.setActive(userId, false))
+        assertEquals(HttpStatusCode.Unauthorized, viewer.get("/admin/projects").status, "live session ends")
+        assertEquals(HttpStatusCode.Unauthorized, viewer.login(username, "viewerpass123").status, "login refused")
+        assertEquals(0L, refreshTokensFor(username), "refresh tokens revoked")
+
+        assertEquals(HttpStatusCode.OK, admin.setActive(userId, true))
+        assertEquals(HttpStatusCode.OK, viewer.login(username, "viewerpass123").status, "login works again")
+    }
+
+    @Test
+    fun `a deactivated env admin cannot sign in through the config password fallback`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val seedId = admin.seededAdminId()
+        val secondName = "admin-b-${System.nanoTime()}"
+        admin.createUser(secondName, "secondadmin123", "admin")
+        val second = createAuthClient()
+        assertEquals(HttpStatusCode.OK, second.login(secondName, "secondadmin123").status)
+        try {
+            assertEquals(HttpStatusCode.OK, second.setActive(seedId, false))
+            assertEquals(HttpStatusCode.Unauthorized, createAuthClient().login("admin", "testpassword123").status,
+                "the .env password must not reopen a deactivated account")
+        } finally {
+            transaction { Users.update({ Users.username eq "admin" }) { it[isActive] = true } }
+        }
+    }
+
+    @Test
+    fun `an admin cannot demote, deactivate or delete their own account`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val seedId = admin.seededAdminId()
+        assertEquals(HttpStatusCode.Conflict, admin.put("/admin/users/$seedId/role") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"role":"viewer"}""")
+        }.status)
+        assertEquals(HttpStatusCode.Conflict, admin.setActive(seedId, false))
+        assertEquals(HttpStatusCode.Conflict, admin.delete("/admin/users/$seedId").status)
+        assertEquals(HttpStatusCode.OK, admin.get("/admin/projects").status, "still an active admin")
+    }
+
+    @Test
+    fun `deleting a user removes their refresh tokens`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "viewer-gone-${System.nanoTime()}"
+        val userId = admin.createUser(username, "viewerpass123", "viewer")
+        assertEquals(HttpStatusCode.OK, client.post("/api/token") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"username":"$username","password":"viewerpass123"}""")
+        }.status)
+        assertEquals(1L, refreshTokensFor(username))
+        assertEquals(HttpStatusCode.NoContent, admin.delete("/admin/users/$userId").status)
+        assertEquals(0L, refreshTokensFor(username))
     }
 
     private fun forgedCookieFor(username: String, role: String = "admin"): String =
