@@ -1,6 +1,5 @@
 package se.onemanstudio.core
 
-import com.auth0.jwt.JWT
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
@@ -17,6 +16,7 @@ import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.models.LoginAttempt
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.db.Users
+import java.security.MessageDigest
 import java.time.Duration
 
 
@@ -184,12 +184,11 @@ fun recordFailedAttempt(identifier: String, attempt: LoginAttempt, logger: org.s
  * ## JWT (`"api-jwt"`)
  * Used for programmatic API access (e.g. CI/CD integrations, mobile apps).
  * Tokens are signed with HMAC-SHA256 using the server salt as the secret.
- * During setup mode a dummy verifier is installed so Ktor can start
- * without a valid secret; real validation kicks in once services are ready.
+ * The verifier is looked up per request, so tokens issued right after the
+ * setup wizard validate without a restart (before `JwtService.init` every
+ * token is rejected).
  *
- * @param config Application configuration (used for cookie `Secure` flag
- *               and as fallback JWT secret in case JwtService is not yet
- *               initialised).
+ * @param config Application configuration (used for cookie `Secure` flag).
  */
 fun Application.configureSecurity(config: AppConfig) {
     install(Sessions) {
@@ -199,6 +198,8 @@ fun Application.configureSecurity(config: AppConfig) {
             cookie.httpOnly = true
             cookie.secure = !config.server.isDevelopment // Secure in production (requires HTTPS)
             cookie.extensions["SameSite"] = "Strict"    // Prevent CSRF
+            transform(SessionSigner)                    // Reject forged or edited cookies
+            SessionSigner.cookieConfig = cookie         // so the Secure flag can follow the wizard
         }
     }
 
@@ -228,14 +229,7 @@ fun Application.configureSecurity(config: AppConfig) {
         // JWT authentication for programmatic API access
         jwt("api-jwt") {
             realm = "Mini Numbers API"
-            verifier(
-                try {
-                    JwtService.getVerifier()
-                } catch (_: UninitializedPropertyAccessException) {
-                    // JWT not yet initialized (setup mode) — create a dummy verifier
-                    JWT.require(com.auth0.jwt.algorithms.Algorithm.HMAC256("not-initialized")).build()
-                }
-            )
+            verifier { JwtService.getVerifier() } // null until initialised → challenge
             validate { credential ->
                 val subject = credential.payload.subject
                 val carriedRole = credential.payload.getClaim("role")?.asString() ?: "viewer"
@@ -249,4 +243,31 @@ fun Application.configureSecurity(config: AppConfig) {
             }
         }
     }
+}
+
+/**
+ * Signs the session cookie with HMAC-SHA256 so a forged or edited cookie is rejected.
+ *
+ * The key is derived from `SERVER_SALT` (its own domain, separate from JWT and visitor
+ * hashing). The Sessions plugin is installed once at boot, possibly before the setup
+ * wizard has produced a salt, so the key and the cookie's `Secure` flag are bound from
+ * `ServiceManager.initialize` rather than captured at install time. Until then every
+ * cookie reads as "no session".
+ */
+object SessionSigner : SessionTransportTransformer {
+    @Volatile private var delegate: SessionTransportTransformer? = null
+
+    /** The live cookie settings; Ktor reads `secure` from this object on every send. */
+    @Volatile var cookieConfig: CookieConfiguration? = null
+
+    fun init(serverSalt: String, secureCookie: Boolean) {
+        val key = MessageDigest.getInstance("SHA-256").digest("session-signing-key:$serverSalt".toByteArray())
+        delegate = SessionTransportTransformerMessageAuthentication(key, "HmacSHA256")
+        cookieConfig?.secure = secureCookie
+    }
+
+    override fun transformRead(transportValue: String): String? = delegate?.transformRead(transportValue)
+
+    override fun transformWrite(transportValue: String): String =
+        checkNotNull(delegate) { "SessionSigner is not initialised" }.transformWrite(transportValue)
 }
