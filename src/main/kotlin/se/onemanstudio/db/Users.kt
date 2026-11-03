@@ -17,6 +17,8 @@ object Users : Table("users") {
     val role = varchar("role", 20).default("viewer")
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
     val isActive = bool("is_active").default(true)
+    /** Epoch millis; cookie sessions created before this are rejected (set on logout and password change). */
+    val sessionsValidFrom = long("sessions_valid_from").nullable()
 
     override val primaryKey = PrimaryKey(id)
 }

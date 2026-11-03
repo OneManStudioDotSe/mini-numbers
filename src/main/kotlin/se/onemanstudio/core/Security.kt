@@ -157,6 +157,28 @@ fun resolveActiveRole(username: String, carriedRole: String): String? {
 }
 
 /**
+ * True when the user signed out or changed their password after this session was created
+ * (`users.sessions_valid_from`), which rejects every cookie of theirs issued before that moment.
+ */
+fun sessionIsCutOff(username: String, createdAtMillis: Long): Boolean {
+    return try {
+        transaction {
+            val validFrom = Users.selectAll().where { Users.username eq username }.singleOrNull()?.get(Users.sessionsValidFrom)
+            validFrom != null && createdAtMillis < validFrom
+        }
+    } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
+        false // DB not available yet (setup mode)
+    }
+}
+
+/** Reject every cookie session of this user created before now (logout, password change). */
+fun cutOffSessions(username: String) {
+    transaction {
+        Users.update({ Users.username eq username }) { it[sessionsValidFrom] = System.currentTimeMillis() }
+    }
+}
+
+/**
  * Record a failed login attempt and apply lockout if threshold exceeded
  * Threshold: 5 failed attempts = 15 minute lockout
  */
@@ -181,8 +203,9 @@ fun recordFailedAttempt(identifier: String, attempt: LoginAttempt, logger: org.s
  * - `HttpOnly` (not accessible from JavaScript — prevents XSS theft).
  * - `Secure` in production (requires HTTPS).
  * - `SameSite=Strict` (prevents CSRF by refusing cross-origin requests).
- * - Valid for 7 days, but a 4-hour inactivity timeout is enforced
- *   server-side inside the `validate` block.
+ * - Valid for 7 days, but a 4-hour absolute lifetime is enforced
+ *   server-side inside the `validate` block, which also rejects cookies issued
+ *   before the user's last logout or password change (`users.sessions_valid_from`).
  *
  * ## JWT (`"api-jwt"`)
  * Used for programmatic API access (e.g. CI/CD integrations, mobile apps).
@@ -210,8 +233,11 @@ fun Application.configureSecurity(config: AppConfig) {
         session<UserSession>("admin-session") {
             validate { session ->
                 // Reject sessions older than 4 hours (absolute lifetime, measured from login)
+                // and sessions from before the user's last logout or password change
                 val maxSessionAge = 4 * 60 * 60 * 1000L
-                if (System.currentTimeMillis() - session.createdAt > maxSessionAge) {
+                if (System.currentTimeMillis() - session.createdAt > maxSessionAge ||
+                    sessionIsCutOff(session.username, session.createdAt)
+                ) {
                     null
                 } else {
                     // Re-read role/active flag so demotion or deletion applies immediately

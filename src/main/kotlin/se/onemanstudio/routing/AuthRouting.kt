@@ -22,12 +22,14 @@ import se.onemanstudio.api.models.admin.PasswordResetRequest
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.JwtService
+import se.onemanstudio.core.cutOffSessions
 import se.onemanstudio.core.getUserRole
 import se.onemanstudio.core.resolveActiveRole
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.core.verifyCredentials
 import se.onemanstudio.db.RefreshTokens
+import se.onemanstudio.db.Users
 import se.onemanstudio.middleware.RateLimiter
 import se.onemanstudio.middleware.enforceRateLimit
 import java.security.MessageDigest
@@ -62,7 +64,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
             // Session rotation: clear any existing session before setting a new one
             call.sessions.clear<UserSession>()
             val role = getUserRole(loginRequest.username)
-            call.sessions.set(UserSession(username = loginRequest.username, role = role))
+            call.sessions.set(UserSession(username = loginRequest.username, role = role, createdAt = System.currentTimeMillis()))
             call.respond(HttpStatusCode.OK, buildJsonObject {
                 put("success", true)
                 put("message", "Login successful")
@@ -73,8 +75,9 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         }
     }
 
-    // Logout endpoint
+    // Logout: ends the user's cookie sessions on every device, not just this one
     post("/api/logout") {
+        call.sessions.get<UserSession>()?.let { cutOffSessions(it.username) }
         call.sessions.clear<UserSession>()
         call.respond(HttpStatusCode.OK, buildJsonObject {
             put("success", true)
@@ -148,15 +151,25 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
 
         val result = transaction {
             val existing = RefreshTokens.selectAll().where {
-                (RefreshTokens.tokenHash eq tokenHash) and (RefreshTokens.revokedAt.isNull())
+                RefreshTokens.tokenHash eq tokenHash
             }.singleOrNull() ?: return@transaction null
+            val tokenFamily = existing[RefreshTokens.family]
+
+            // A rotated token presented again means two parties hold copies: revoke the whole family
+            if (existing[RefreshTokens.revokedAt] != null) {
+                RefreshTokens.update({ (RefreshTokens.family eq tokenFamily) and RefreshTokens.revokedAt.isNull() }) {
+                    it[RefreshTokens.revokedAt] = LocalDateTime.now()
+                }
+                call.application.environment.log.warn(
+                    "SECURITY ALERT: refresh token replay for user ${existing[RefreshTokens.username]}; family revoked")
+                return@transaction null
+            }
 
             // Check expiry
             if (existing[RefreshTokens.expiresAt].isBefore(LocalDateTime.now())) {
                 return@transaction null
             }
 
-            val tokenFamily = existing[RefreshTokens.family]
             val existingId = existing[RefreshTokens.id]
             val existingUsername = existing[RefreshTokens.username]
 
@@ -241,23 +254,21 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
 
         val hashedPassword = se.onemanstudio.core.Passwords.hash(body.newPassword)
 
-        // Update password in the Users table for the admin user
+        // Update the admin's password and sign that account out everywhere (cookies and refresh tokens)
+        val adminUsername = resetConfig.security.adminUsername
         transaction {
-            se.onemanstudio.db.Users.update({
-                se.onemanstudio.db.Users.username eq resetConfig.security.adminUsername
-            }) {
-                it[se.onemanstudio.db.Users.passwordHash] = hashedPassword
+            Users.update({ Users.username eq adminUsername }) {
+                it[passwordHash] = hashedPassword
+                it[sessionsValidFrom] = System.currentTimeMillis()
             }
-
-            // Invalidate all refresh tokens
-            RefreshTokens.deleteAll()
+            RefreshTokens.deleteWhere { RefreshTokens.username eq adminUsername }
         }
 
         call.application.environment.log.info("Password reset completed for admin user")
 
         call.respond(HttpStatusCode.OK, buildJsonObject {
             put("success", true)
-            put("message", "Password updated successfully. All sessions have been invalidated.")
+            put("message", "Password updated. This account has been signed out everywhere; sign in again.")
         })
     }
 

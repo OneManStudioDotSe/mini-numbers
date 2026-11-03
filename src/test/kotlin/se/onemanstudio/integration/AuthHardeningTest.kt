@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Test
 import io.ktor.server.sessions.*
+import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.db.RefreshTokens
 import se.onemanstudio.db.Users
 import se.onemanstudio.core.JwtService
@@ -261,8 +262,107 @@ class AuthHardeningTest {
         assertEquals(0L, refreshTokensFor(username))
     }
 
+    private suspend fun HttpClient.refreshTokenFor(username: String, password: String): String {
+        val response = post("/api/token") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"username":"$username","password":"$password"}""")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        return Regex("\"refreshToken\":\"([^\"]+)\"").find(response.bodyAsText())!!.groupValues[1]
+    }
+
+    private suspend fun HttpClient.refresh(token: String): HttpResponse = post("/api/token/refresh") {
+        contentType(ContentType.Application.Json)
+        setBody("""{"refreshToken":"$token"}""")
+    }
+
+    @Test
+    fun `logging out ends the user's sessions on every device`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "viewer-two-${System.nanoTime()}"
+        admin.createUser(username, "viewerpass123", "viewer")
+
+        val phone = createAuthClient()
+        val laptop = createAuthClient()
+        assertEquals(HttpStatusCode.OK, phone.login(username, "viewerpass123").status)
+        assertEquals(HttpStatusCode.OK, laptop.login(username, "viewerpass123").status)
+        assertEquals(HttpStatusCode.OK, laptop.get("/admin/projects").status)
+
+        assertEquals(HttpStatusCode.OK, phone.post("/api/logout").status)
+        assertEquals(HttpStatusCode.Unauthorized, laptop.get("/admin/projects").status, "the other device is signed out too")
+        assertEquals(HttpStatusCode.OK, laptop.login(username, "viewerpass123").status)
+        assertEquals(HttpStatusCode.OK, laptop.get("/admin/projects").status, "a fresh login works")
+    }
+
+    @Test
+    fun `a replayed refresh token revokes its whole family`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "viewer-replay-${System.nanoTime()}"
+        admin.createUser(username, "viewerpass123", "viewer")
+
+        val first = client.refreshTokenFor(username, "viewerpass123")
+        val rotated = client.refresh(first)
+        assertEquals(HttpStatusCode.OK, rotated.status)
+        val second = Regex("\"refreshToken\":\"([^\"]+)\"").find(rotated.bodyAsText())!!.groupValues[1]
+
+        assertEquals(HttpStatusCode.Unauthorized, client.refresh(first).status, "a used token is refused")
+        assertEquals(HttpStatusCode.Unauthorized, client.refresh(second).status, "its successor is revoked by the replay")
+    }
+
+    @Test
+    fun `password reset signs the env admin out everywhere and leaves other users' tokens alone`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val viewerName = "viewer-keep-${System.nanoTime()}"
+        admin.createUser(viewerName, "viewerpass123", "viewer")
+        client.refreshTokenFor(viewerName, "viewerpass123")
+        client.refreshTokenFor("admin", "testpassword123")
+        assertTrue(refreshTokensFor("admin") >= 1L)
+
+        val salt = ConfigLoader.load().security.serverSalt
+        suspend fun reset(current: String, new: String): HttpStatusCode = client.post("/api/password-reset") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"currentPassword":"$current","newPassword":"$new","serverSalt":"$salt"}""")
+        }.status
+        try {
+            assertEquals(HttpStatusCode.OK, reset("testpassword123", "temporary-pass-123"))
+            assertEquals(HttpStatusCode.Unauthorized, admin.get("/admin/projects").status, "the admin's cookie session is gone")
+            assertEquals(0L, refreshTokensFor("admin"), "the admin's refresh tokens are revoked")
+            assertEquals(1L, refreshTokensFor(viewerName), "other users keep theirs")
+            assertEquals(HttpStatusCode.OK, createAuthClient().login("admin", "temporary-pass-123").status)
+        } finally {
+            reset("temporary-pass-123", "testpassword123")
+        }
+    }
+
     private fun forgedCookieFor(username: String, role: String = "admin"): String =
-        defaultSessionSerializer<UserSession>().serialize(UserSession(username = username, role = role))
+        defaultSessionSerializer<UserSession>()
+            .serialize(UserSession(username = username, role = role, createdAt = System.currentTimeMillis()))
+
+    /** A genuinely signed cookie whose creation time we choose. */
+    private fun signedCookieCreatedAt(username: String, createdAt: Long): String =
+        SessionSigner.transformWrite(
+            defaultSessionSerializer<UserSession>().serialize(UserSession(username, "viewer", createdAt)))
+
+    @Test
+    fun `the cookie carries its creation time, so the 4-hour session lifetime applies`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "viewer-aged-${System.nanoTime()}" // a fresh user has no logout cut-off to interfere
+        admin.createUser(username, "viewerpass123", "viewer")
+        val hour = 60 * 60 * 1000L
+        suspend fun withSessionAged(age: Long): HttpStatusCode = client.get("/admin/projects") {
+            cookie("mini_numbers_session", signedCookieCreatedAt(username, System.currentTimeMillis() - age))
+        }.status
+        assertEquals(HttpStatusCode.OK, withSessionAged(hour))
+        assertEquals(HttpStatusCode.Unauthorized, withSessionAged(5 * hour), "a five-hour-old session must be rejected")
+    }
 
     @Test
     fun `a hand-made unsigned session cookie is rejected`() = testApplication {

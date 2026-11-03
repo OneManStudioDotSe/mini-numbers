@@ -201,6 +201,7 @@ browser/OS/device; STRICT: country only; STANDARD: everything above) — `docs/p
 id: UUID (PK), username: String(100, unique), passwordHash: String(255)
 role: String(20) default "viewer" - "admin" | "viewer"
 isActive: Boolean default true, createdAt: DateTime
+sessionsValidFrom: Long? (epoch ms; cookie sessions created before this are rejected; set on logout and password change)
 ```
 
 ### RefreshTokens
@@ -333,9 +334,9 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 
 ### Auth / users (session cookie or JWT)
 
-- `POST /api/login` / `POST /api/logout` — Session-based auth
-- `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair
-- `POST /api/password-reset` — Invalidates all sessions for the user
+- `POST /api/login` / `POST /api/logout` — Session-based auth; logout signs the user out on every device
+- `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair; a replayed refresh token revokes its family
+- `POST /api/password-reset` — Resets the `.env` admin's password and signs that account out everywhere (cookies and refresh tokens)
 - `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
 - `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip (also at `/api/privacy`)
 - `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `PUT /admin/users/{userId}/active`,
@@ -455,7 +456,8 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 - **Brute force**: 5 failed logins lock that username for 15 minutes (`core/Security.kt`).
 - **Sessions**: cookie `mini_numbers_session`, HttpOnly, `SameSite=Strict`, `Secure` unless `KTOR_DEVELOPMENT`,
   signed with HMAC-SHA256 (`SessionSigner` in `core/Security.kt`, key `sha256("session-signing-key:" + SERVER_SALT)`) so a forged or edited cookie is rejected;
-  valid 4 hours from login; role and active flag re-read on every request.
+  valid 4 hours from login; role, active flag and the user's `sessions_valid_from` cut-off re-read on every request, so
+  logout and a password change end that user's sessions on every device.
 - **API tokens**: JWT access tokens (15 min) plus refresh tokens stored hashed and revoked on use
   (`core/JwtService.kt`, `routing/AuthRouting.kt`).
 - **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin.
