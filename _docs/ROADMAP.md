@@ -18,8 +18,10 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       on purpose (it is bundled into the JAR; see the next item). The Dependabot branches built on the old history are
       deleted too; the only remaining copies are GitHub's cached pull-request refs (ask support to clear them) and
       clones made before the purge.
-- [ ] **GeoLite2**: download at start with a MaxMind licence key (recommended) or keep shipping the 63 MB file and
-      accept the redistribution question. Add the attribution to the Docker image either way.
+- [x] **GeoLite2** (decided 2026-11-03): keep shipping the bundled file under the GeoLite2 EULA, with the MaxMind
+      attribution in the README, the docs and the Docker image labels. The bundled copy is from 2026-01-30; replace
+      `src/main/resources/geo/geolite2-city.mmdb` with a fresh download before a release when it is older than a
+      few months, and update the date in `docs/configuration.md` and `_docs/ARCHITECTURE.md`.
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.

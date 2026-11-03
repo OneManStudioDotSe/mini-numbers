@@ -84,7 +84,7 @@ Email reports stay switched off until `SMTP_HOST` and `SMTP_FROM` are set.
 
 | Setting | Default | What it does |
 |---------|---------|--------------|
-| `GEOIP_DATABASE_PATH` | bundled file | Path to a MaxMind GeoLite2 City database. A copy is built in; set this only to use a newer one |
+| `GEOIP_DATABASE_PATH` | bundled file | Path to a MaxMind GeoLite2 City database. A copy built on 2026-01-30 is included (this product includes GeoLite2 data created by MaxMind, available from [maxmind.com](https://www.maxmind.com)); set this to use a newer download from MaxMind |
 
 ---
 

@@ -27,6 +27,11 @@ RUN ./gradlew buildFatJar --no-daemon
 FROM eclipse-temurin:21-jre-alpine-3.23
 WORKDIR /app
 
+# This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com
+LABEL org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/OneManStudioDotSe/mini-numbers" \
+      com.maxmind.geolite2.attribution="This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com"
+
 # Install wget for health checks
 RUN apk add --no-cache wget
 

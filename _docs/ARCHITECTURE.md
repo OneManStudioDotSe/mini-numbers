@@ -302,7 +302,7 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 | `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
 | `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `TRACKER_SPA_ENABLED`        | `true`                                      | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
-| `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path                                 |
+| `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path; the bundled GeoLite2-City copy (MaxMind attribution in README, docs and the Docker image) is from 2026-01-30 |
 
 ### Email reports (SMTP)
 

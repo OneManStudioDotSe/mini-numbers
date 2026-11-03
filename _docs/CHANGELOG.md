@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dark theme keeps its green, gets red-400 (`#f87171`) for danger text and a lighter muted sidebar colour. The
   accessibility test now checks colour contrast in both themes.
 - Exposed 1.5.1 → 1.6.0. No schema change; verified by starting on a database created by 1.5.0.
+- The MaxMind GeoLite2 attribution is now also on the Docker image labels and the configuration page, with the
+  build date of the bundled database (2026-01-30).
 
 ## [1.5.0] - 2026-11-03
 
