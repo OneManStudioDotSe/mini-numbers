@@ -22,11 +22,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       accept the redistribution question. Add the attribution to the Docker image either way.
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
-- [ ] **Light-theme contrast**: 16 dashboard elements fail WCAG AA (`#10b981`, `#ef4444`, `#a8a29e`,
-      `.sidebar-subtitle`); pick darker tokens, then re-enable `color-contrast` in `e2e/tests/a11y.spec.js`.
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
-- [ ] **Exposed 1.6.0**: Dependabot proposed it just before the purge; evaluate it on a fresh branch (the SQLite
-      driver `sqlite-jdbc` is held at 3.47.2.0 for Exposed's sake, so test a fresh and an upgraded database).
 
 ## Milestones
 

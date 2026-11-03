@@ -28,9 +28,13 @@
   /* Sidebar (darker in dark mode) */
   --color-sidebar-bg: #0c0a09;
   --color-sidebar-text: #f5f5f4;
-  --color-sidebar-text-muted: #78716c;
+  --color-sidebar-text-muted: #a8a29e;
   --color-sidebar-hover: #1c1917;
   --color-sidebar-active: #292524;
+
+  /* Status colours readable as text on the dark surfaces */
+  --color-success: #10b981;
+  --color-danger: #f87171;
 
   /* Adjust primary colors for better contrast (Amber-400) */
   --color-primary: #fbbf24;

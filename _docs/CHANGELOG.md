@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Light-theme colours now meet WCAG AA.** Success text is emerald-700 (`#047857`), danger text red-600
+  (`#dc2626`) and muted text stone-500 (`#78716c`); the sidebar subtitle no longer fades to 70 % opacity. The
+  dark theme keeps its green, gets red-400 (`#f87171`) for danger text and a lighter muted sidebar colour. The
+  accessibility test now checks colour contrast in both themes.
+- Exposed 1.5.1 → 1.6.0. No schema change; verified by starting on a database created by 1.5.0.
+
 ## [1.5.0] - 2026-11-03
 
 The first tagged release (1.3.0 was published as source only), and the result of the November audit of
