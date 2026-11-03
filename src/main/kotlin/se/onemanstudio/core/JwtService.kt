@@ -15,7 +15,7 @@ import java.util.*
  */
 object JwtService {
     private lateinit var algorithm: Algorithm
-    private lateinit var verifier: JWTVerifier
+    @Volatile private var verifier: JWTVerifier? = null
     private const val ISSUER = "mini-numbers"
     private const val ACCESS_TOKEN_MINUTES = 15L
     private val secureRandom = SecureRandom()
@@ -52,7 +52,8 @@ object JwtService {
     }
 
     fun getAlgorithm(): Algorithm = algorithm
-    fun getVerifier(): JWTVerifier = verifier
+    /** Null until [init] has run (setup mode); the auth plugin then rejects every token. */
+    fun getVerifier(): JWTVerifier? = verifier
     fun getIssuer(): String = ISSUER
 
     /**

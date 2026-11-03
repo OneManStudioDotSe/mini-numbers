@@ -32,7 +32,7 @@ import java.util.UUID
  * 2. **DatabaseFactory** — connect to SQLite or PostgreSQL, run migrations.
  * 3. **Admin user seed** — if the Users table is empty, seed from `.env` config.
  * 4. **GeoLocationService** — load MaxMind `.mmdb` file (optional, non-fatal).
- * 5. **JwtService** — HMAC-SHA256 signer for API token authentication.
+ * 5. **JwtService** and **SessionSigner** — HMAC-SHA256 keys for API tokens and the session cookie.
  * 6. **Data retention timer** — background task that purges old events every 6 h.
  * 7. **EmailService** — SMTP transport + scheduled report delivery.
  *
@@ -118,10 +118,11 @@ object ServiceManager {
                 logger.warn("Location tracking will be disabled")
             }
 
-            // 4. Initialize JWT service
+            // 4. Initialize JWT service and the session cookie signer
             logger.info("Initializing JWT service...")
             JwtService.init(config.security.serverSalt)
-            logger.info("JWT service initialized")
+            SessionSigner.init(config.security.serverSalt, secureCookie = !config.server.isDevelopment)
+            logger.info("JWT service and session signer initialized")
 
             // 5. Start data retention cleanup if configured
             if (config.privacy.dataRetentionDays > 0) {

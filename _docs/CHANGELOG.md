@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The session cookie could be forged.** It was stored as readable JSON and only checked against the users table, so anyone who knew a username could write a cookie by hand and get in without the password. The cookie is now signed with HMAC-SHA256 using a key derived from `SERVER_SALT`; unsigned or edited cookies are rejected. Everyone is signed out once after upgrading.
+- **API tokens issued right after the setup wizard were rejected until a restart**, and the cookie signer would have had the same problem: both keys were fixed when the server started, before the wizard had produced a salt. They are now looked up per request.
 - **The "Create project" dialog showed a tracking key that did not exist.** Since March the dialog generated its own key while the server generated another and kept that one, so the snippet a new user copied never collected anything and "Go to dashboard" did nothing. The dialog now shows the key the server stored, the misleading "pre-generated key" field on step 1 is gone, and the browser test loads a page with the exact snippet shown and checks that the page view arrives.
 - **`POST /admin/projects` now returns the new project's `id` and `apiKey`** instead of an empty 201. Fifteen integration tests (webhooks, email reports, revenue) had been reading the id from that body, getting nothing, and returning early as if they had passed.
 - **Tests no longer exit early.** 97 checks of the form `if (login failed) return` across five test files are now assertions, so a broken login or project creation fails the build instead of hiding.

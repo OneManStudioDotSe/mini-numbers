@@ -259,7 +259,7 @@ All configuration via `.env` file or environment variables.
 | Variable          | Default | Description                                              |
 | ----------------- | ------- | -------------------------------------------------------- |
 | `ADMIN_PASSWORD`  | —       | Admin panel password (required)                          |
-| `SERVER_SALT`     | —       | Server salt for visitor hashing, min 32 chars (required) |
+| `SERVER_SALT`     | —       | Server salt for visitor hashing and for deriving the session-cookie and JWT signing keys, min 32 chars (required) |
 | `ADMIN_USERNAME`  | `admin` | Admin panel username                                     |
 | `ALLOWED_ORIGINS` | —       | Origin allowlist for `/admin/*` and `/api/*` only (`AdminCorsGuard`; empty or `*` = any; same host always allowed). CORS itself is `anyHost()` so the tracker and widgets work everywhere |
 
@@ -447,7 +447,8 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 
 - **Passwords**: BCrypt `$2a$`, cost 12 (`core/Passwords.kt`, password4j); `$2b$`/`$2y$` hashes also accepted.
 - **Brute force**: 5 failed logins lock that username for 15 minutes (`core/Security.kt`).
-- **Sessions**: cookie `mini_numbers_session`, HttpOnly, `SameSite=Strict`, `Secure` unless `KTOR_DEVELOPMENT`;
+- **Sessions**: cookie `mini_numbers_session`, HttpOnly, `SameSite=Strict`, `Secure` unless `KTOR_DEVELOPMENT`,
+  signed with HMAC-SHA256 (`SessionSigner` in `core/Security.kt`, key `sha256("session-signing-key:" + SERVER_SALT)`) so a forged or edited cookie is rejected;
   valid 4 hours from login; role and active flag re-read on every request.
 - **API tokens**: JWT access tokens (15 min) plus refresh tokens stored hashed and revoked on use
   (`core/JwtService.kt`, `routing/AuthRouting.kt`).
