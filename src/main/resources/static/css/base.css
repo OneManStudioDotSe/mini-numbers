@@ -98,8 +98,7 @@ a:hover {
   position: fixed;
   left: 0;
   top: 0;
-  padding: var(--spacing-xl) var(--spacing-lg);
-  padding-bottom: 80px; /* Space for footer */
+  padding: var(--spacing-xl) var(--spacing-lg) 0;
   overflow-y: auto;
   z-index: var(--z-index-sticky);
   display: flex;

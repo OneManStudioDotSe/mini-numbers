@@ -145,6 +145,13 @@ fun Route.adminProjectRoutes() {
                 Funnels.deleteWhere { Funnels.projectId eq uuid }
                 ConversionGoals.deleteWhere { ConversionGoals.projectId eq uuid }
                 Segments.deleteWhere { Segments.projectId eq uuid }
+                val webhookIds = Webhooks.selectAll().where { Webhooks.projectId eq uuid }
+                    .map { it[Webhooks.id] }
+                if (webhookIds.isNotEmpty()) {
+                    WebhookDeliveries.deleteWhere { WebhookDeliveries.webhookId inList webhookIds }
+                }
+                Webhooks.deleteWhere { Webhooks.projectId eq uuid }
+                EmailReports.deleteWhere { EmailReports.projectId eq uuid }
                 Events.deleteWhere { Events.projectId eq uuid }
                 Projects.deleteWhere { Projects.id eq uuid }
             }

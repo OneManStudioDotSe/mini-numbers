@@ -497,7 +497,7 @@ paths:
           schema: { type: integer, default: 0 }
         - name: limit
           in: query
-          schema: { type: integer, default: 50, maximum: 1000 }
+          schema: { type: integer, default: 50, maximum: 10000 }
         - name: filter
           in: query
           schema: { type: string, enum: ['pageview', 'heartbeat', 'custom'] }

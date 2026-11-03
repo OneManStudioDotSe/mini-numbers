@@ -76,49 +76,6 @@ const EmailReportsManager = {
     return await response.json();
   },
 
-  // ── Rendering ───────────────────────────────────────────────
-
-  renderReports(reports, projectId) {
-    const container = document.getElementById('email-reports-list');
-    const section = document.getElementById('email-reports-section');
-    if (!container || !section) return;
-
-    section.style.display = '';
-
-    if (!reports.length) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
-          <i class="ri-mail-line" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
-          No email reports configured. Click "Manage reports" to set one up.
-        </div>`;
-      return;
-    }
-
-    container.innerHTML = reports.map(r => `
-      <div class="stat-entry" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
-        <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 500;">
-            <i class="ri-mail-send-line" style="color: var(--color-primary);"></i>
-            ${Utils.escapeHtml(r.recipientEmail)}
-          </div>
-          <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 2px;">
-            <span class="badge badge-sm">${Utils.escapeHtml(r.schedule)}</span>
-            &middot; ${r.isActive ? '<span style="color: var(--color-success);">Active</span>' : '<span>Inactive</span>'}
-            ${r.lastSentAt ? '&middot; Last sent: ' + new Date(r.lastSentAt).toLocaleDateString() : ''}
-          </div>
-        </div>
-        <div style="display: flex; gap: 0.25rem; margin-left: 0.5rem;">
-          <button class="btn btn-ghost btn-sm" onclick="EmailReportsManager.onToggle('${projectId}', '${r.id}', ${!r.isActive})" title="${r.isActive ? 'Pause' : 'Activate'}">
-            <i class="${r.isActive ? 'ri-pause-line' : 'ri-play-line'}"></i>
-          </button>
-          <button class="btn btn-ghost btn-sm" onclick="EmailReportsManager.onTest('${projectId}', '${r.id}')" title="Send test email">
-            <i class="ri-send-plane-line"></i>
-          </button>
-        </div>
-      </div>
-    `).join('');
-  },
-
   // ── Modal ───────────────────────────────────────────────────
 
   initModal(projectId) {

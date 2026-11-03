@@ -62,49 +62,6 @@ const WebhooksManager = {
     }
   },
 
-  // ── Rendering ───────────────────────────────────────────────
-
-  renderWebhooks(webhooks, projectId) {
-    const container = document.getElementById('webhooks-list');
-    const section = document.getElementById('webhooks-section');
-    if (!container || !section) return;
-
-    section.style.display = '';
-
-    if (!webhooks.length) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
-          <i class="ri-webhook-line" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
-          No webhooks configured yet. Click "Manage webhooks" to add one.
-        </div>`;
-      return;
-    }
-
-    container.innerHTML = webhooks.map(wh => `
-      <div class="stat-entry" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
-        <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            <i class="ri-link" style="color: var(--color-primary);"></i>
-            ${Utils.escapeHtml(this.maskUrl(wh.url))}
-          </div>
-          <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 2px;">
-            Events: ${wh.events.map(e => `<span class="badge badge-sm">${Utils.escapeHtml(e)}</span>`).join(' ')}
-            &nbsp;&middot;&nbsp;
-            ${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : '<span style="color: var(--color-text-muted);">Inactive</span>'}
-          </div>
-        </div>
-        <div style="display: flex; gap: 0.25rem; margin-left: 0.5rem;">
-          <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onTest('${projectId}', '${wh.id}')" title="Send test">
-            <i class="ri-send-plane-line"></i>
-          </button>
-          <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onViewDeliveries('${projectId}', '${wh.id}')" title="View deliveries">
-            <i class="ri-file-list-line"></i>
-          </button>
-        </div>
-      </div>
-    `).join('');
-  },
-
   maskUrl(url) {
     try {
       const u = new URL(url);

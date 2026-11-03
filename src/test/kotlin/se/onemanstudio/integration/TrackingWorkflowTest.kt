@@ -6,8 +6,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Test
+import se.onemanstudio.db.*
 import se.onemanstudio.module
+import java.util.UUID
 import kotlin.test.*
 
 /**
@@ -260,24 +266,76 @@ class TrackingWorkflowTest {
     }
 
     @Test
-    fun `project deletion cascades to events`() = testApplication {
+    fun `project deletion removes everything that belongs to it`() = testApplication {
         application { module() }
         val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
 
-        val loginResponse = authClient.login()
-        assertEquals(HttpStatusCode.OK, loginResponse.status, "login")
-
-        // Create project
-        authClient.post("/admin/projects") {
+        val created = authClient.post("/admin/projects") {
             contentType(ContentType.Application.Json)
             setBody("""{"name":"Delete Test","domain":"delete-test.com"}""")
         }
+        assertEquals(HttpStatusCode.Created, created.status, "create project")
+        val projectId = assertNotNull(extractProjectId(authClient.get("/admin/projects").bodyAsText()), "projectId")
+        val uuid = UUID.fromString(projectId)
 
-        val projectsBody = authClient.get("/admin/projects").bodyAsText()
-        val projectId = assertNotNull(extractProjectId(projectsBody), "projectId")
+        val children = listOf(
+            "goals" to """{"name":"Goal","goalType":"url","matchValue":"/thanks"}""",
+            "funnels" to """{"name":"Funnel","steps":[{"name":"A","stepType":"url","matchValue":"/a"},
+                {"name":"B","stepType":"url","matchValue":"/b"}]}""",
+            "segments" to """{"name":"Segment","filters":[{"field":"browser","operator":"equals","value":"Chrome","logic":"AND"}]}""",
+            "webhooks" to """{"url":"https://example.com/hook","events":["goal_conversion"]}""",
+            "email-reports" to """{"recipientEmail":"owner@example.com","schedule":"WEEKLY"}""",
+            "demo-data" to """{"count":20,"timeScope":1}"""
+        )
+        for ((path, body) in children) {
+            val response = authClient.post("/admin/projects/$projectId/$path") {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }
+            assertTrue(response.status.isSuccess(), "create $path: ${response.status}")
+        }
 
-        // Delete it
+        // A delivery row hangs off the webhook, two levels below the project
+        val (funnelIds, webhookId) = transaction {
+            val webhookId = Webhooks.selectAll().where { Webhooks.projectId eq uuid }.single()[Webhooks.id]
+            WebhookDeliveries.insert {
+                it[id] = UUID.randomUUID()
+                it[WebhookDeliveries.webhookId] = webhookId
+                it[eventType] = "goal_conversion"
+                it[payload] = "{}"
+            }
+            Funnels.selectAll().where { Funnels.projectId eq uuid }.map { it[Funnels.id] } to webhookId
+        }
+
+        fun rows(): Map<String, Long> = transaction {
+            mapOf(
+                "events" to Events.selectAll().where { Events.projectId eq uuid }.count(),
+                "goals" to ConversionGoals.selectAll().where { ConversionGoals.projectId eq uuid }.count(),
+                "funnels" to Funnels.selectAll().where { Funnels.projectId eq uuid }.count(),
+                "funnel_steps" to FunnelSteps.selectAll().where { FunnelSteps.funnelId inList funnelIds }.count(),
+                "segments" to Segments.selectAll().where { Segments.projectId eq uuid }.count(),
+                "webhooks" to Webhooks.selectAll().where { Webhooks.projectId eq uuid }.count(),
+                "webhook_deliveries" to WebhookDeliveries.selectAll().where { WebhookDeliveries.webhookId eq webhookId }.count(),
+                "email_reports" to EmailReports.selectAll().where { EmailReports.projectId eq uuid }.count(),
+                "projects" to Projects.selectAll().where { Projects.id eq uuid }.count()
+            )
+        }
+        assertEquals(emptyList(), rows().filter { it.value == 0L }.keys.toList(), "every table has rows before the delete")
+
         val deleteResponse = authClient.delete("/admin/projects/$projectId")
         assertEquals(HttpStatusCode.NoContent, deleteResponse.status)
+        assertEquals(emptyList(), rows().filter { it.value > 0L }.keys.toList(), "rows left behind by the delete")
+    }
+
+    @Test
+    fun `SQLite enforces foreign keys`() = testApplication {
+        application { module() }
+        assertEquals(HttpStatusCode.OK, createAuthClient().get("/health").status) // boots the app
+        transaction {
+            if (TransactionManager.current().db.vendor != "sqlite") return@transaction
+            val enabled = exec("PRAGMA foreign_keys") { rs -> rs.next(); rs.getInt(1) }
+            assertEquals(1, enabled, "PRAGMA foreign_keys")
+        }
     }
 }
