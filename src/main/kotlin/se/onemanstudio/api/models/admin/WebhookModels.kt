@@ -9,6 +9,11 @@ data class CreateWebhookRequest(
 )
 
 @Serializable
+data class UpdateWebhookRequest(
+    val isActive: Boolean
+)
+
+@Serializable
 data class WebhookResponse(
     val id: String,
     val projectId: String,

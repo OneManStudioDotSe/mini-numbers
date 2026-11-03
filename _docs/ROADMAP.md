@@ -38,6 +38,8 @@ The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT
 items and all five H items (early-exit tests, escaping, delete cascade, dead dashboard code, CSV export) are fixed
 and unreleased. Still open from it:
 
+- Webhook retries are in memory: a restart drops deliveries still waiting for their retry. Durable retries would
+  re-read pending rows from `webhook_deliveries` on start (M4 leftover).
 - The server computes a **regions** breakdown that the dashboard never shows (the dead chart code was removed);
   add a card next to Countries when the geography section is next designed.
 - **`TRACKER_HEARTBEAT_INTERVAL` / `TRACKER_SPA_ENABLED` do nothing**: they're served at `/tracker/config` but the

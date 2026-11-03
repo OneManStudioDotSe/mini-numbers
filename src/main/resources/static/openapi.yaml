@@ -950,6 +950,30 @@ paths:
         '400': { description: Invalid URL (must use HTTPS) }
 
   /admin/projects/{id}/webhooks/{webhookId}:
+    put:
+      summary: Pause or resume a webhook
+      tags: [Webhooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: webhookId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive: { type: boolean }
+      responses:
+        '200': { description: Updated }
+        '404': { description: Webhook not found }
     delete:
       summary: Delete webhook
       tags: [Webhooks]

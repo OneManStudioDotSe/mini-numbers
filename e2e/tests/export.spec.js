@@ -32,7 +32,8 @@ test.describe('report export (audit H5)', () => {
     const csv = fs.readFileSync(await download.path(), 'utf8');
 
     expect(csv).toMatch(/REVENUE\nTotal revenue,[0-9]*[1-9]/);
-    expect(csv).toMatch(/\nEvent,Revenue,Transactions\n"purchase",/);
+    expect(csv).toContain('\nEvent,Revenue,Transactions\n');
+    expect(csv).toMatch(/\n"purchase",[0-9.]+,\d+\n/); // the breakdown is sorted by revenue, so the row can be anywhere
     const raw = csv.split('RAW EVENTS\n')[1];
     expect(raw, 'raw events section').toBeTruthy();
     const rows = raw.trim().split('\n');

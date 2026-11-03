@@ -561,6 +561,36 @@ fun Route.adminFeatureRoutes() {
         })
     }
 
+    // Pause or resume a webhook; a paused one receives nothing until resumed
+    put("/projects/{id}/webhooks/{webhookId}") {
+        if (!call.requireRole(UserRole.ADMIN)) return@put
+        val pid = safeParseUUID(call.parameters["id"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing project ID"))
+        val webhookId = safeParseUUID(call.parameters["webhookId"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing webhook ID"))
+        val request = try {
+            call.receive<UpdateWebhookRequest>()
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
+            return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid request body"))
+        }
+
+        val updated = transaction {
+            Webhooks.update({ (Webhooks.id eq webhookId) and (Webhooks.projectId eq pid) }) {
+                it[isActive] = request.isActive
+            }
+        }
+
+        if (updated > 0) {
+            WebhookTrigger.invalidateProject(pid.toString())
+            call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+        } else {
+            call.respond(HttpStatusCode.NotFound, ApiError.notFound("Webhook not found"))
+        }
+    }
+
     delete("/projects/{id}/webhooks/{webhookId}") {
         if (!call.requireRole(UserRole.ADMIN)) return@delete
         val pid = safeParseUUID(call.parameters["id"])
