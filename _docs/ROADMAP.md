@@ -15,10 +15,9 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       is public, so they are burned; the history purge below does not make them invalid.
 - [x] **Purge history** (2026-11-03): `stats.db`, `.env`, `server.log` and `test-*.db` stripped from every commit
       with `git filter-repo`, `main` force-pushed, `v1.5.0` tagged on the clean history. The GeoLite2 file was kept
-      on purpose (it is bundled into the JAR; see the next item). Still to do: delete the three remaining Dependabot
-      branches on GitHub (`dependabot/docker/eclipse-temurin-24-jdk`, `.../actions/checkout-7`,
-      `.../docker/setup-qemu-action-4`), which are based on the old history, then ask GitHub support to clear the
-      cached pull-request refs.
+      on purpose (it is bundled into the JAR; see the next item). The Dependabot branches built on the old history are
+      deleted too; the only remaining copies are GitHub's cached pull-request refs (ask support to clear them) and
+      clones made before the purge.
 - [ ] **GeoLite2**: download at start with a MaxMind licence key (recommended) or keep shipping the 63 MB file and
       accept the redistribution question. Add the attribution to the Docker image either way.
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
