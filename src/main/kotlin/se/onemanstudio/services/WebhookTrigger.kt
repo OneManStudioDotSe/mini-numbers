@@ -28,6 +28,12 @@ object WebhookTrigger {
         .expireAfterWrite(60, TimeUnit.SECONDS)
         .build<String, List<WebhookInfo>>()
 
+    /** goalId:sessionId pairs that already fired, so a goal converts once per session like the stats count it */
+    private val firedConversions = Caffeine.newBuilder()
+        .maximumSize(50_000)
+        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .build<String, Boolean>()
+
     /** Sliding window event counters per project for traffic spike detection */
     private val trafficCounters = Caffeine.newBuilder()
         .maximumSize(500)
@@ -56,14 +62,15 @@ object WebhookTrigger {
         projectId: UUID,
         eventType: String,
         eventName: String?,
-        path: String?
+        path: String?,
+        sessionId: String
     ) {
         val webhooks = getActiveWebhooks(projectId)
         if (webhooks.isEmpty()) return
 
         // Check goal conversions
         if (eventType == "custom" || eventType == "pageview") {
-            checkGoalConversions(projectId, webhooks, eventType, eventName, path)
+            checkGoalConversions(projectId, webhooks, eventType, eventName, path, sessionId)
         }
 
         // Update traffic counter and check for spikes
@@ -88,12 +95,22 @@ object WebhookTrigger {
         }
     }
 
+    /** True the first time this session converts on this goal; false for every repeat within the window. */
+    internal fun firstConversionInSession(goalId: UUID, sessionId: String): Boolean {
+        val key = "$goalId:$sessionId"
+        if (firedConversions.getIfPresent(key) != null) return false
+        firedConversions.put(key, true)
+        return true
+    }
+
+    @Suppress("LongParameterList")
     private fun checkGoalConversions(
         projectId: UUID,
         webhooks: List<WebhookInfo>,
         eventType: String,
         eventName: String?,
-        path: String?
+        path: String?,
+        sessionId: String
     ) {
         val goalWebhooks = webhooks.filter { "goal_conversion" in it.events }
         if (goalWebhooks.isEmpty()) return
@@ -114,6 +131,7 @@ object WebhookTrigger {
         }
 
         for (goal in matchingGoals) {
+            if (!firstConversionInSession(goal[ConversionGoals.id], sessionId)) continue
             val payload = buildJsonObject {
                 put("event", "goal_conversion")
                 put("projectId", projectId.toString())

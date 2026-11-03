@@ -13,16 +13,19 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 /**
  * Delivers webhook payloads with HMAC-SHA256 signatures.
- * Async delivery with automatic retry (3 attempts, exponential backoff).
+ * Async delivery with automatic retry (3 attempts, 5 s then 10 s apart) scheduled on the
+ * pool rather than slept on, so a failing endpoint never blocks other deliveries.
+ * Retries live in memory: a restart drops whatever was still waiting.
  */
 object WebhookService {
     private val logger = LoggerFactory.getLogger(WebhookService::class.java)
-    private val executor = Executors.newFixedThreadPool(2)
+    private val executor = Executors.newScheduledThreadPool(2)
     private val httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(5))
         .build()
@@ -72,11 +75,10 @@ object WebhookService {
                 status = if (success) "success" else "failed"
             )
 
-            // Retry on failure (max 3 attempts, exponential backoff)
+            // Retry on failure (max 3 attempts, 5 s then 10 s later)
             if (!success && attempt < 3) {
                 logger.warn("Webhook delivery failed (attempt $attempt/3, status ${response.statusCode()}), retrying...")
-                Thread.sleep(attempt * 5000L)
-                deliver(webhookId, url, secret, eventType, payload, attempt + 1)
+                scheduleRetry(webhookId, url, secret, eventType, payload, attempt)
             }
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.error("Webhook delivery error (attempt $attempt/3): ${e.message}")
@@ -91,11 +93,20 @@ object WebhookService {
             )
 
             if (attempt < 3) {
-                Thread.sleep(attempt * 5000L)
-                deliver(webhookId, url, secret, eventType, payload, attempt + 1)
+                scheduleRetry(webhookId, url, secret, eventType, payload, attempt)
             }
         }
     }
+
+    @Suppress("LongParameterList")
+    private fun scheduleRetry(webhookId: UUID, url: String, secret: String, eventType: String, payload: String, attempt: Int) {
+        executor.schedule(
+            { deliver(webhookId, url, secret, eventType, payload, attempt + 1) },
+            attempt * RETRY_STEP_SECONDS, TimeUnit.SECONDS
+        )
+    }
+
+    private const val RETRY_STEP_SECONDS = 5L
 
     private fun recordDelivery(
         webhookId: UUID,

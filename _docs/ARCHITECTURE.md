@@ -371,6 +371,7 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 
 - `GET /admin/projects/{id}/webhooks` — list
 - `POST /admin/projects/{id}/webhooks` — create (returns the signing secret once)
+- `PUT /admin/projects/{id}/webhooks/{webhookId}` — `{isActive}` pauses or resumes
 - `DELETE /admin/projects/{id}/webhooks/{webhookId}`
 - `GET /admin/projects/{id}/webhooks/{webhookId}/deliveries` — delivery log
 - `POST /admin/projects/{id}/webhooks/{webhookId}/test` — sends a synthetic test payload
@@ -406,8 +407,11 @@ All error responses use standardized `ApiError` format: `{ error, code, details[
 Per-project outbound HTTP notifications (`db/Webhooks.kt`, `services/WebhookService.kt`,
 `services/WebhookTrigger.kt`). Each webhook has its own HMAC-SHA256 secret; payloads are
 signed and deliveries logged to `WebhookDeliveries` (status, response code/body, attempt
-count) for debugging. Triggered from the collection path (`WebhookTrigger`) on events such
-as goal conversions. The admin UI's `webhooks.js` renders the config + delivery log modal.
+count) for debugging. Triggered from the collection path (`WebhookTrigger`) on goal
+conversions (once per goal per session, matching how the stats count them) and traffic
+spikes. Failed deliveries are retried twice (5 s, then 10 s later) on a scheduled pool;
+retries are in memory, so a restart drops the ones still waiting. The admin UI's
+`webhooks.js` renders the config + delivery log modal with pause/resume.
 
 ### Email reports
 

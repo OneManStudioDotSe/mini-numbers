@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Webhooks can be paused and resumed** from the webhooks dialog (`PUT /admin/projects/{id}/webhooks/{webhookId}` with `{"isActive": false}`); a paused webhook receives nothing until resumed. The flag existed but nothing could set it.
 - **Users can be deactivated and reactivated** with `PUT /admin/users/{id}/active`. A deactivated user's session and tokens stop working on the next request, their refresh tokens are revoked, and they cannot sign in until reactivated. Deleting a user now revokes their refresh tokens too. An admin cannot demote, deactivate or delete their own account, so there is always an active admin left.
 - **One-file install with automatic HTTPS**: `docker-compose.yml` now pulls the published image and runs Caddy in front of it. Point a domain at the server, put `DOMAIN=…` in `.env`, run `docker compose up -d`, and the certificate is obtained and renewed for you. The PostgreSQL compose file works the same way.
 - **`TRUST_PROXY` setting**: behind a reverse proxy (Caddy, nginx, Railway, Render, Fly.io, server panels) set `TRUST_PROXY=true` and visitor IPs are read from `X-Forwarded-For`. The compose files, `fly.toml` and `render.yaml` set it.
@@ -27,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A goal-conversion webhook fired on every matching event**, so a visitor reloading the thank-you page produced a call each time. It now fires once per goal per session, which is how the conversion stats count it.
+- **A failing webhook endpoint blocked other deliveries**: retries slept on one of the two delivery threads. Retries are now scheduled 5 and 10 seconds later without holding a thread. They are still kept in memory, so a restart drops retries that were waiting.
+- Deleting a webhook from the dialog showed "Failed to delete webhook" after the dead dashboard-section renderer was removed, although the delete had succeeded.
 - **Email reports went out at the server's hour, not the report's**, ignored the section choices, rendered project names, page paths and custom text without escaping, and a test send counted as that day's scheduled send. The scheduler now evaluates "send at 8" in the report's own timezone (the dialog sends the admin's browser zone, and unknown zones are rejected), only the chosen sections are rendered (an events table was missing), all text is escaped, and test sends no longer block the scheduled one.
 - **`/health` answered 200 even when services had failed to start, and never touched the database.** It now returns 503 `unhealthy` in that case or when a database probe fails, 200 `healthy` with `"database":"ok"` once everything runs, and 200 `ok` while the setup wizard is still needed. The documented response matches what is sent.
 - **Signing out only cleared the cookie in that browser**: a copy of the cookie kept working until its 4-hour limit, and a password reset claimed to have ended all sessions while cookies and access tokens stayed valid. The users table now records a per-user cut-off (`sessions_valid_from`, added automatically on upgrade) that logout and password reset set; every cookie issued before it is rejected, so signing out ends the session on every device. The reset also revokes only that account's refresh tokens instead of everyone's, and says what it did.

@@ -43,6 +43,15 @@ const WebhooksManager = {
     if (!response.ok) throw new Error('Failed to delete webhook');
   },
 
+  async updateWebhook(projectId, webhookId, data) {
+    const response = await fetch(`/admin/projects/${projectId}/webhooks/${webhookId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to update webhook');
+  },
+
   async testWebhook(projectId, webhookId) {
     const response = await fetch(`/admin/projects/${projectId}/webhooks/${webhookId}/test`, {
       method: 'POST'
@@ -141,8 +150,11 @@ const WebhooksManager = {
       <tr>
         <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(wh.url)}">${Utils.escapeHtml(wh.url)}</td>
         <td>${wh.events.map(e => `<span class="badge badge-sm">${Utils.escapeHtml(e)}</span>`).join(' ')}</td>
-        <td>${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Inactive'}</td>
+        <td>${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Paused'}</td>
         <td>
+          <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onToggle('${projectId}', '${wh.id}', ${!wh.isActive})" title="${wh.isActive ? 'Pause' : 'Resume'}">
+            <i class="${wh.isActive ? 'ri-pause-line' : 'ri-play-line'}"></i>
+          </button>
           <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onTest('${projectId}', '${wh.id}')" title="Test">
             <i class="ri-send-plane-line"></i>
           </button>
@@ -190,7 +202,6 @@ const WebhooksManager = {
       // Refresh
       await this.loadWebhooks(projectId);
       this.renderModalTable(projectId);
-      this.renderWebhooks(this.state.webhooks, projectId);
     } catch (e) {
       alert('Failed to create webhook: ' + e.message);
     }
@@ -210,9 +221,18 @@ const WebhooksManager = {
       await this.deleteWebhook(projectId, webhookId);
       await this.loadWebhooks(projectId);
       this.renderModalTable(projectId);
-      this.renderWebhooks(this.state.webhooks, projectId);
     } catch (e) {
       alert('Failed to delete webhook: ' + e.message);
+    }
+  },
+
+  async onToggle(projectId, webhookId, isActive) {
+    try {
+      await this.updateWebhook(projectId, webhookId, { isActive });
+      await this.loadWebhooks(projectId);
+      this.renderModalTable(projectId);
+    } catch (e) {
+      alert('Failed to update webhook: ' + e.message);
     }
   },
 

@@ -156,7 +156,8 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
                     projectId = project[Projects.id],
                     eventType = payload.type,
                     eventName = sanitizedEventName,
-                    path = sanitizedPath
+                    path = sanitizedPath,
+                    sessionId = payload.sessionId
                 )
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 call.application.environment.log.warn("Webhook trigger error: ${e.message}")

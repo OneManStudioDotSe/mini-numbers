@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.Test
 import se.onemanstudio.module
+import java.util.UUID
 import kotlin.test.*
 
 /**
@@ -82,6 +83,44 @@ class WebhookEndpointTest {
         }
 
         assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
+    fun `a webhook can be paused and resumed`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val createProjectResponse = authClient.post("/admin/projects") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Webhook Pause","domain":"webhook-pause.com"}""")
+        }
+        assertEquals(HttpStatusCode.Created, createProjectResponse.status, "create project")
+        val projectId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(createProjectResponse.bodyAsText())?.groupValues?.get(1))
+        val created = authClient.post("/admin/projects/$projectId/webhooks") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"url":"https://hooks.example.com/in","events":["goal_conversion"]}""")
+        }
+        assertEquals(HttpStatusCode.Created, created.status, created.bodyAsText())
+        val webhookId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(created.bodyAsText())?.groupValues?.get(1))
+
+        suspend fun setActive(active: Boolean): HttpStatusCode = authClient.put("/admin/projects/$projectId/webhooks/$webhookId") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"isActive":$active}""")
+        }.status
+        suspend fun listedAsActive(): Boolean {
+            val listing = authClient.get("/admin/projects/$projectId/webhooks").bodyAsText()
+            return Regex(""""isActive"\s*:\s*(true|false)""").find(listing)!!.groupValues[1] == "true"
+        }
+
+        assertTrue(listedAsActive())
+        assertEquals(HttpStatusCode.OK, setActive(false))
+        assertFalse(listedAsActive(), "paused")
+        assertEquals(HttpStatusCode.OK, setActive(true))
+        assertTrue(listedAsActive(), "resumed")
+        assertEquals(HttpStatusCode.NotFound, authClient.put("/admin/projects/$projectId/webhooks/${UUID.randomUUID()}") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"isActive":false}""")
+        }.status)
     }
 
     @Test

@@ -200,7 +200,6 @@ const EmailReportsManager = {
       if (emailInput) emailInput.value = '';
       await this.loadReports(projectId);
       this.renderModalTable(projectId);
-      this.renderReports(this.state.reports, projectId);
     } catch (e) {
       alert('Failed to create report: ' + e.message);
     }
@@ -212,7 +211,6 @@ const EmailReportsManager = {
       await this.deleteReport(projectId, reportId);
       await this.loadReports(projectId);
       this.renderModalTable(projectId);
-      this.renderReports(this.state.reports, projectId);
     } catch (e) {
       alert('Failed to delete: ' + e.message);
     }
@@ -223,7 +221,6 @@ const EmailReportsManager = {
       await this.updateReport(projectId, reportId, { isActive });
       await this.loadReports(projectId);
       this.renderModalTable(projectId);
-      this.renderReports(this.state.reports, projectId);
     } catch (e) {
       alert('Failed to update: ' + e.message);
     }
