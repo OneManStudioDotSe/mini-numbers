@@ -15,6 +15,11 @@ data class UpdateUserRoleRequest(
 )
 
 @Serializable
+data class UpdateUserActiveRequest(
+    val isActive: Boolean
+)
+
+@Serializable
 data class UserResponse(
     val id: String,
     val username: String,

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Users can be deactivated and reactivated** with `PUT /admin/users/{id}/active`. A deactivated user's session and tokens stop working on the next request, their refresh tokens are revoked, and they cannot sign in until reactivated. Deleting a user now revokes their refresh tokens too. An admin cannot demote, deactivate or delete their own account, so there is always an active admin left.
 - **One-file install with automatic HTTPS**: `docker-compose.yml` now pulls the published image and runs Caddy in front of it. Point a domain at the server, put `DOMAIN=…` in `.env`, run `docker compose up -d`, and the certificate is obtained and renewed for you. The PostgreSQL compose file works the same way.
 - **`TRUST_PROXY` setting**: behind a reverse proxy (Caddy, nginx, Railway, Render, Fly.io, server panels) set `TRUST_PROXY=true` and visitor IPs are read from `X-Forwarded-For`. The compose files, `fly.toml` and `render.yaml` set it.
 - **Downloadable JAR**: tagging a version publishes `mini-numbers.jar` on the GitHub Release (`release.yml`), and the Docker image gets a `latest` tag on version tags.
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A deactivated account whose username matched `ADMIN_USERNAME` could still sign in** with the `.env` password, because the login fell back to the config credentials whenever no *active* database user matched. The fallback now applies only when the username has no database row at all.
 - **`/admin/me` and `/admin/privacy` sat outside the admin guard**, so they skipped the `ALLOWED_ORIGINS` check and the admin rate limit. They are inside it now (and reachable at `/api/me` and `/api/privacy` for token users). `/admin/me` reports the role the account has now rather than the one stored in the cookie or token at login, and `/admin/privacy` reads the running configuration instead of re-reading `.env`.
 - **Deleting a project left its webhooks, webhook deliveries and email reports behind** on SQLite, and failed on PostgreSQL. The delete now removes them too, and SQLite runs with foreign keys enforced, so an incomplete cascade fails loudly instead of orphaning rows. `./gradlew reset` clears every table.
 - **The revenue section of the exported CSV report was always empty**, because the export read a field the revenue module never sets. It now lists total revenue, transactions, average order value, revenue per visitor, and the per-event and per-source breakdowns. Text cells in the report and the raw-events export are quoted, so a path or label with a comma or quote no longer breaks a row.

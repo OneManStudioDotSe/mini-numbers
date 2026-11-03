@@ -291,10 +291,42 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { description: User not found }
+        '409': { description: Target is the caller's own account }
+
+  /admin/users/{userId}/active:
+    put:
+      summary: Deactivate or reactivate a user
+      description: A deactivated user's sessions and tokens stop working on the next request and their refresh tokens are revoked. Admins cannot deactivate themselves.
+      tags: [User Management]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive: { type: boolean }
+      responses:
+        '200': { description: Active flag updated }
+        '400': { description: Invalid body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: User not found }
+        '409': { description: Target is the caller's own account }
 
   /admin/users/{userId}:
     delete:
       summary: Delete user
+      description: Also removes the user's refresh tokens. Admins cannot delete themselves.
       tags: [User Management]
       security:
         - sessionCookie: []
@@ -309,6 +341,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { description: User not found }
+        '409': { description: Target is the caller's own account }
 
   /api/login:
     post:
