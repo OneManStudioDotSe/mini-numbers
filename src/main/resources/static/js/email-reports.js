@@ -176,7 +176,8 @@ const EmailReportsManager = {
     const data = {
       recipientEmail: email,
       schedule: scheduleSelect?.value || 'WEEKLY',
-      sendHour: parseInt(hourInput?.value || '8', 10)
+      sendHour: parseInt(hourInput?.value || '8', 10),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' // "send at 8" means 8 where the admin is
     };
 
     // Collect include sections

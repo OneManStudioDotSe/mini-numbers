@@ -13,7 +13,11 @@ import se.onemanstudio.db.EmailReports
 import se.onemanstudio.db.Projects
 import se.onemanstudio.utils.generateReport
 import se.onemanstudio.utils.getCurrentPeriod
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -53,11 +57,18 @@ object EmailService {
 
     /**
      * Send a report email asynchronously.
+     * @param recordSend false for a manual test send, so it does not count as that day's scheduled send
      */
-    fun sendReportAsync(projectId: UUID, recipientEmail: String, period: String, reportId: UUID? = null) {
+    fun sendReportAsync(
+        projectId: UUID,
+        recipientEmail: String,
+        period: String,
+        reportId: UUID? = null,
+        recordSend: Boolean = true
+    ) {
         executor.submit {
             try {
-                sendReport(projectId, recipientEmail, period, reportId)
+                sendReport(projectId, recipientEmail, period, reportId, recordSend)
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.error("Failed to send email report to $recipientEmail: ${e.message}")
             }
@@ -67,7 +78,14 @@ object EmailService {
     /**
      * Generate and send an HTML analytics report via SMTP.
      */
-    fun sendReport(projectId: UUID, recipientEmail: String, period: String, reportId: UUID? = null) {
+    @Suppress("LongParameterList")
+    fun sendReport(
+        projectId: UUID,
+        recipientEmail: String,
+        period: String,
+        reportId: UUID? = null,
+        recordSend: Boolean = true
+    ) {
         val config = checkNotNull(emailConfig) { "SMTP not configured" }
         check(config.isConfigured()) { "SMTP not configured" }
 
@@ -100,9 +118,12 @@ object EmailService {
 
         val headerText = reportConfig?.get(EmailReports.headerText)
         val footerText = reportConfig?.get(EmailReports.footerText)
+        val sections = reportConfig?.get(EmailReports.includeSections)
+            ?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet()
+            ?: ALL_SECTIONS
 
         // Build HTML email
-        val html = buildReportHtml(projectName, projectDomain, period, report, headerText, footerText)
+        val html = buildReportHtml(projectName, projectDomain, period, report, headerText, footerText, sections)
 
         // Send via SMTP
         val props = Properties().apply {
@@ -135,8 +156,8 @@ object EmailService {
         Transport.send(message)
         logger.info("Email report sent to $recipientEmail for project $projectName ($period)")
 
-        // Update lastSentAt
-        if (reportId != null) {
+        // Update lastSentAt (not for a manual test send, which must not replace the scheduled one)
+        if (reportId != null && recordSend) {
             transaction {
                 EmailReports.update({ EmailReports.id eq reportId }) {
                     it[lastSentAt] = LocalDateTime.now()
@@ -172,11 +193,6 @@ object EmailService {
     }
 
     private fun checkAndSendDueReports() {
-        val now = LocalDateTime.now()
-        val currentHour = now.hour
-        val currentDayOfWeek = now.dayOfWeek.value // 1=Monday
-        val currentDayOfMonth = now.dayOfMonth
-
         val dueReports = transaction {
             EmailReports.selectAll().where {
                 EmailReports.isActive eq true
@@ -185,23 +201,13 @@ object EmailService {
 
         for (report in dueReports) {
             val schedule = report[EmailReports.schedule]
-            val sendHour = report[EmailReports.sendHour]
-            val sendDay = report[EmailReports.sendDay]
-            val lastSent = report[EmailReports.lastSentAt]
+            // "Send at 8" means 8 o'clock in the report's own timezone, not the server's
+            val zone = runCatching { ZoneId.of(report[EmailReports.timezone]) }.getOrDefault(ZoneOffset.UTC)
+            val now = ZonedDateTime.now(zone)
+            val lastSentDate = report[EmailReports.lastSentAt]
+                ?.atZone(ZoneId.systemDefault())?.withZoneSameInstant(zone)?.toLocalDate()
 
-            // Check if this report is due
-            val isDue = when (schedule) {
-                "DAILY" -> currentHour == sendHour && (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
-                "WEEKLY" -> currentHour == sendHour && currentDayOfWeek == sendDay &&
-                        (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
-
-                "MONTHLY" -> currentHour == sendHour && currentDayOfMonth == sendDay &&
-                        (lastSent == null || lastSent.toLocalDate() != now.toLocalDate())
-
-                else -> false
-            }
-
-            if (isDue) {
+            if (isDue(schedule, report[EmailReports.sendHour], report[EmailReports.sendDay], lastSentDate, now)) {
                 val period = when (schedule) {
                     "DAILY" -> "24h"
                     "WEEKLY" -> "7d"
@@ -223,17 +229,36 @@ object EmailService {
         }
     }
 
+    /** Section names accepted in `includeSections`. */
+    val ALL_SECTIONS = setOf("overview", "pages", "referrers", "geo", "events")
+
     /**
-     * Build HTML email report with inline CSS (email-safe).
+     * Whether a report is due at [now] (already in the report's timezone): the right hour,
+     * the right day for weekly/monthly schedules, and not already sent on that date.
      */
-    @Suppress("LongMethod")
-    private fun buildReportHtml(
+    internal fun isDue(schedule: String, sendHour: Int, sendDay: Int, lastSentDate: LocalDate?, now: ZonedDateTime): Boolean {
+        val notSentToday = lastSentDate != now.toLocalDate()
+        return when (schedule) {
+            "DAILY" -> now.hour == sendHour && notSentToday
+            "WEEKLY" -> now.hour == sendHour && now.dayOfWeek.value == sendDay && notSentToday // 1 = Monday
+            "MONTHLY" -> now.hour == sendHour && now.dayOfMonth == sendDay && notSentToday
+            else -> false
+        }
+    }
+
+    /**
+     * Build HTML email report with inline CSS (email-safe). Everything that comes from the
+     * database or the request is escaped; [sections] picks which blocks are rendered.
+     */
+    @Suppress("LongMethod", "LongParameterList")
+    internal fun buildReportHtml(
         projectName: String,
         projectDomain: String,
         period: String,
         report: ProjectReport,
         headerText: String?,
-        footerText: String?
+        footerText: String?,
+        sections: Set<String> = ALL_SECTIONS
     ): String {
         val periodLabel = when (period) {
             "24h" -> "Last 24 hours"
@@ -253,12 +278,13 @@ object EmailService {
             <div style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
                 <!-- Header -->
                 <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:32px 24px;color:#ffffff;">
-                    <div style="font-size:24px;font-weight:700;margin-bottom:4px;">$projectName</div>
-                    <div style="font-size:14px;opacity:0.85;">$periodLabel &middot; $projectDomain</div>
-                    ${if (!headerText.isNullOrBlank()) "<div style=\"margin-top:12px;font-size:14px;opacity:0.9;\">$headerText</div>" else ""}
+                    <div style="font-size:24px;font-weight:700;margin-bottom:4px;">${esc(projectName)}</div>
+                    <div style="font-size:14px;opacity:0.85;">$periodLabel &middot; ${esc(projectDomain)}</div>
+                    ${if (!headerText.isNullOrBlank()) "<div style=\"margin-top:12px;font-size:14px;opacity:0.9;\">${esc(headerText)}</div>" else ""}
                 </div>
 
                 <!-- Stats -->
+                ${if ("overview" in sections) """
                 <div style="padding:24px;">
                     <table style="width:100%;border-collapse:collapse;">
                         <tr>
@@ -276,62 +302,16 @@ object EmailService {
                             </td>
                         </tr>
                     </table>
-                </div>
+                </div>""" else ""}
 
-                <!-- Top Pages -->
-                <div style="padding:0 24px 24px;">
-                    <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Pages</div>
-                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${
-            report.topPages.take(5).joinToString("") { page ->
-                """<tr style="border-bottom:1px solid #f0f0f0;">
-                                <td style="padding:8px 0;color:#374151;">${page.label}</td>
-                                <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${page.value}</td>
-                            </tr>"""
-            }
-        }
-                    </table>
-                </div>
-
-                <!-- Top Referrers -->
-                ${
-            if (report.referrers.isNotEmpty()) """
-                <div style="padding:0 24px 24px;">
-                    <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Referrers</div>
-                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${
-                report.referrers.take(5).joinToString("") { ref ->
-                    """<tr style="border-bottom:1px solid #f0f0f0;">
-                                <td style="padding:8px 0;color:#374151;">${ref.label}</td>
-                                <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${ref.value}</td>
-                            </tr>"""
-                }
-            }
-                    </table>
-                </div>""" else ""
-        }
-
-                <!-- Top Countries -->
-                ${
-            if (report.countries.isNotEmpty()) """
-                <div style="padding:0 24px 24px;">
-                    <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">Top Countries</div>
-                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                        ${
-                report.countries.take(5).joinToString("") { country ->
-                    """<tr style="border-bottom:1px solid #f0f0f0;">
-                                <td style="padding:8px 0;color:#374151;">${country.label}</td>
-                                <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${country.value}</td>
-                            </tr>"""
-                }
-            }
-                    </table>
-                </div>""" else ""
-        }
+                ${if ("pages" in sections) topTable("Top Pages", report.topPages) else ""}
+                ${if ("referrers" in sections) topTable("Top Referrers", report.referrers) else ""}
+                ${if ("geo" in sections) topTable("Top Countries", report.countries) else ""}
+                ${if ("events" in sections) topTable("Top Events", report.customEvents) else ""}
 
                 <!-- Footer -->
                 <div style="padding:16px 24px;background:#f9fafb;border-top:1px solid #f0f0f0;text-align:center;">
-                    ${if (!footerText.isNullOrBlank()) "<div style=\"font-size:13px;color:#6b7280;margin-bottom:8px;\">$footerText</div>" else ""}
+                    ${if (!footerText.isNullOrBlank()) "<div style=\"font-size:13px;color:#6b7280;margin-bottom:8px;\">${esc(footerText)}</div>" else ""}
                     <div style="font-size:12px;color:#9ca3af;">
                         Sent by Mini Numbers &middot; Privacy-first web analytics
                     </div>
@@ -342,4 +322,26 @@ object EmailService {
         </html>
         """.trimIndent()
     }
+}
+
+/** Escape text that lands in the email HTML. */
+private fun esc(text: String): String = text
+    .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")
+
+/** One "Top …" table of label/count rows, or nothing when there is no data. */
+private fun topTable(title: String, rows: List<se.onemanstudio.api.models.StatEntry>): String {
+    if (rows.isEmpty()) return ""
+    val body = rows.take(5).joinToString("") { row ->
+        """<tr style="border-bottom:1px solid #f0f0f0;">
+                            <td style="padding:8px 0;color:#374151;">${esc(row.label)}</td>
+                            <td style="padding:8px 0;text-align:right;color:#6366f1;font-weight:500;">${row.value}</td>
+                        </tr>"""
+    }
+    return """
+            <div style="padding:0 24px 24px;">
+                <div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:12px;">$title</div>
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                    $body
+                </table>
+            </div>"""
 }
