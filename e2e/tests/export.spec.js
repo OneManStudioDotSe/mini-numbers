@@ -12,6 +12,12 @@ test.describe('report export (audit H5)', () => {
     const project = await createProject(page.request);
     const demo = await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 300, timeScope: 7 } });
     expect(demo.status()).toBe(200);
+    // Demo data only sometimes contains a purchase; one real revenue event makes the revenue section deterministic
+    const purchase = await page.request.post('/collect', {
+      headers: { 'X-Project-Key': project.apiKey },
+      data: { path: '/checkout', sessionId: 'export-revenue', type: 'custom', eventName: 'purchase', properties: '{"revenue":42.5,"currency":"USD"}' },
+    });
+    expect(purchase.status()).toBe(202);
 
     await page.goto('/admin-panel');
     const item = page.locator('.project-menu__item', { hasText: project.name });

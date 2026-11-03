@@ -1369,7 +1369,7 @@ components:
       type: object
       properties:
         path: { type: string }
-        timestamp: { type: string }
+        timestamp: { type: string, format: date-time, description: ISO-8601 with the server's UTC offset }
         city: { type: string, nullable: true }
 
     RawEventsResponse:
@@ -1384,7 +1384,7 @@ components:
       type: object
       properties:
         id: { type: integer }
-        timestamp: { type: string }
+        timestamp: { type: string, format: date-time, description: ISO-8601 with the server's UTC offset }
         eventType: { type: string }
         eventName: { type: string, nullable: true }
         path: { type: string }

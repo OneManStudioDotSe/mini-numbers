@@ -19,6 +19,7 @@ import se.onemanstudio.utils.getCurrentPeriod
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import se.onemanstudio.utils.nowApiString
 
 /**
  * Validate a widget request: resolve the project from the API key and enforce rate limits.
@@ -63,7 +64,7 @@ fun Application.configureWidgetRouting(rateLimiter: RateLimiter) {
                             .count()
                         RealtimeCounterWidget(
                             activeVisitors = count,
-                            timestamp = LocalDateTime.now().toString()
+                            timestamp = nowApiString()
                         )
                     }
                 }

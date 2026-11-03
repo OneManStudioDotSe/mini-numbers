@@ -329,6 +329,28 @@ class TrackingWorkflowTest {
     }
 
     @Test
+    fun `event timestamps carry the server's UTC offset`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val created = authClient.post("/admin/projects") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Offset Test","domain":"offset-test.com"}""")
+        }
+        assertEquals(HttpStatusCode.Created, created.status)
+        val projectId = assertNotNull(extractProjectId(authClient.get("/admin/projects").bodyAsText()), "projectId")
+        assertEquals(HttpStatusCode.OK, authClient.post("/admin/projects/$projectId/demo-data") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"count":5,"timeScope":1}""")
+        }.status)
+
+        val events = authClient.get("/admin/projects/$projectId/events?page=0&limit=1").bodyAsText()
+        val timestamp = assertNotNull(Regex("\"timestamp\":\"([^\"]+)\"").find(events)?.groupValues?.get(1), events)
+        assertTrue(Regex(".*(Z|[+-]\\d{2}:\\d{2})$").matches(timestamp), "timestamp without offset: $timestamp")
+        java.time.OffsetDateTime.parse(timestamp) // ISO-8601 the browser's Date can parse
+    }
+
+    @Test
     fun `SQLite runs with foreign keys, WAL and a busy timeout`() = testApplication {
         application { module() }
         assertEquals(HttpStatusCode.OK, createAuthClient().get("/health").status) // boots the app

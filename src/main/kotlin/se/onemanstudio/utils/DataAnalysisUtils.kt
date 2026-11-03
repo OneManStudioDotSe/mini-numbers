@@ -337,7 +337,7 @@ fun generateReport(id: UUID, start: LocalDateTime, end: LocalDateTime): ProjectR
                 .map {
                     VisitSnippet(
                         path = it[Events.path],
-                        timestamp = it[Events.timestamp].toString(),
+                        timestamp = it[Events.timestamp].toApiString(),
                         city = it[Events.city],
                         country = it[Events.country]
                     )

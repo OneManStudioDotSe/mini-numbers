@@ -14,6 +14,7 @@ import se.onemanstudio.api.models.dashboard.RawEventsResponse
 import se.onemanstudio.db.Events
 import se.onemanstudio.middleware.QueryCache
 import se.onemanstudio.utils.*
+import se.onemanstudio.utils.toApiString
 
 fun Route.adminAnalyticsRoutes() {
     // Main dashboard report
@@ -100,7 +101,7 @@ fun Route.adminAnalyticsRoutes() {
                 .map { row ->
                     RawEvent(
                         id = row[Events.id],
-                        timestamp = row[Events.timestamp].toString(),
+                        timestamp = row[Events.timestamp].toApiString(),
                         eventType = row[Events.eventType],
                         eventName = row[Events.eventName],
                         path = row[Events.path],

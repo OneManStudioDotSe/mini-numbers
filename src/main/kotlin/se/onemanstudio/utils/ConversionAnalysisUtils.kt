@@ -91,7 +91,7 @@ fun calculateGoalStats(projectId: UUID, filter: String): List<GoalStats> {
                 goalType = goal[ConversionGoals.goalType],
                 matchValue = goal[ConversionGoals.matchValue],
                 isActive = goal[ConversionGoals.isActive],
-                createdAt = goal[ConversionGoals.createdAt].toString()
+                createdAt = goal[ConversionGoals.createdAt].toApiString()
             )
 
             val (currentConversions, currentRate) = calculateGoalConversions(
@@ -156,7 +156,7 @@ fun analyzeFunnel(
                     matchValue = step[FunnelSteps.matchValue]
                 )
             },
-            createdAt = funnel[Funnels.createdAt].toString()
+            createdAt = funnel[Funnels.createdAt].toApiString()
         )
 
         if (steps.isEmpty()) {
