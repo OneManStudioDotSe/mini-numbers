@@ -569,6 +569,15 @@ const Utils = {
     /**
      * Convert array of objects to CSV string
      */
+    /**
+     * One quoted CSV cell (RFC 4180: wrap in quotes, double any quote inside)
+     * @param {*} value - Cell value; null/undefined become an empty cell
+     * @returns {string} Quoted cell
+     */
+    cell(value) {
+      return `"${String(value ?? '').replace(/"/g, '""')}"`;
+    },
+
     toCSV(data, headers) {
       if (!data || data.length === 0) return '';
 

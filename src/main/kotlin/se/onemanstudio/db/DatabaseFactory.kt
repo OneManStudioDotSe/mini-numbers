@@ -46,7 +46,11 @@ object DatabaseFactory {
                 // SQLite connection (simple, file-based)
                 Database.connect(
                     url = "jdbc:sqlite:${config.path}",
-                    driver = "org.sqlite.JDBC"
+                    driver = "org.sqlite.JDBC",
+                    setupConnection = { connection ->
+                        // SQLite ignores the REFERENCES clauses unless each connection asks for them
+                        connection.createStatement().use { it.execute("PRAGMA foreign_keys = ON") }
+                    }
                 )
             }
             DatabaseType.POSTGRESQL -> {
@@ -71,7 +75,14 @@ object DatabaseFactory {
      */
     fun reset() {
         transaction {
-            // Delete in correct order (events first due to foreign key constraint)
+            // Children first: foreign keys are enforced on both databases
+            WebhookDeliveries.deleteAll()
+            Webhooks.deleteAll()
+            EmailReports.deleteAll()
+            FunnelSteps.deleteAll()
+            Funnels.deleteAll()
+            ConversionGoals.deleteAll()
+            Segments.deleteAll()
             Events.deleteAll()
             Projects.deleteAll()
         }

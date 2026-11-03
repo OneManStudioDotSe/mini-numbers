@@ -204,17 +204,9 @@ const GlobeManager = {
       );
       if (data && data.visitors && data.visitors.length > 0) {
         this.update(data.visitors);
-        const countEl = document.getElementById('globe-visitor-count');
-        if (countEl) {
-          countEl.textContent = data.totalActive;
-        }
       } else if (typeof Dashboard !== 'undefined' && Dashboard.isDemoProject()) {
         // Auto-show demo markers for demo project when no real live data
         this.showDemoMarkers();
-        const countEl = document.getElementById('globe-visitor-count');
-        if (countEl) {
-          countEl.textContent = this._demoMarkers.reduce((sum, d) => sum + d.count, 0);
-        }
       }
     } catch (error) {
       console.error('Failed to fetch globe data:', error);

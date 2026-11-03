@@ -69,7 +69,7 @@ fun Route.adminAnalyticsRoutes() {
                 ApiError.badRequest("Invalid project ID"))
 
         val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 0
-        val limit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 50).coerceIn(1, 1000)
+        val limit = (call.request.queryParameters["limit"]?.toIntOrNull() ?: 50).coerceIn(1, 10000)
         val filterType = call.request.queryParameters["filter"]
         val sortBy = call.request.queryParameters["sortBy"] ?: "timestamp"
         val sortOrder = call.request.queryParameters["order"] ?: "desc"

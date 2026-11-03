@@ -35,12 +35,11 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Known gaps
 
 The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Its three critical
-items (forged session cookie, create-project key, placeholder security after the wizard), the early-exit tests and
-the escaping gaps (H2) are fixed and unreleased; the remaining H items come first:
+items and all five H items (early-exit tests, escaping, delete cascade, dead dashboard code, CSV export) are fixed
+and unreleased. Still open from it:
 
-- **Six dashboard element ids referenced by the JS do not exist**; the regions chart never renders (H4).
-- **The revenue section of the CSV report is always empty** (H5).
-- **Deleting a project fails** when it has webhooks or email reports (no cascade for those tables).
+- The server computes a **regions** breakdown that the dashboard never shows (the dead chart code was removed);
+  add a card next to Countries when the geography section is next designed.
 - **`TRACKER_HEARTBEAT_INTERVAL` / `TRACKER_SPA_ENABLED` do nothing**: they're served at `/tracker/config` but the
   tracker never reads it. Either wire them up or remove them (the docs no longer mention them).
 - Table and bar-chart rendering is duplicated across `static/js/*.js` (how the escaping gap happened).

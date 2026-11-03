@@ -276,6 +276,10 @@ All configuration via `.env` file or environment variables.
 | `DB_PG_PASSWORD`      | —              | PostgreSQL password (required when `DB_TYPE=POSTGRESQL`) |
 | `DB_PG_MAX_POOL_SIZE` | `3`            | HikariCP maximum pool size (PostgreSQL only)             |
 
+SQLite connections run with `PRAGMA foreign_keys = ON` (`db/DatabaseFactory.kt`), so the `REFERENCES` clauses
+in the schema are enforced on both databases; `DELETE /admin/projects/{id}` removes the project's rows from every
+table, children first.
+
 > These are the actual variable names read by `ConfigLoader.loadDatabaseConfig()`.
 > Earlier docs referenced `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` (no `_PG_`
 > prefix) and a `mininumbers` default name — both were wrong and have been corrected here.
@@ -350,7 +354,7 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 - `GET /admin/projects/{id}/globe`
 - `GET /admin/projects/{id}/report?filter=7d`, `GET /admin/projects/{id}/report/comparison?filter=7d`
 - `GET /admin/projects/{id}/calendar`
-- `GET /admin/projects/{id}/events` (paginated, filterable, sortable)
+- `GET /admin/projects/{id}/events` (paginated, filterable, sortable; `limit` ≤ 10 000, the exports ask for that and warn when more exist)
 
 ### Conversion goals / funnels / segments
 

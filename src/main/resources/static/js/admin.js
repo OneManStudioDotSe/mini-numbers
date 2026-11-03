@@ -772,13 +772,6 @@ const Dashboard = {
   },
 
   /**
-   * Hide loading skeletons
-   */
-  hideLoadingState() {
-    document.querySelectorAll('.skeleton-chart').forEach(el => el.remove());
-  },
-
-  /**
    * Show a unified error message across all chart containers
    */
   showDashboardError(message) {
@@ -1205,24 +1198,6 @@ const Dashboard = {
         }
       } else {
         outboundSection.style.display = 'none';
-      }
-    }
-
-    // Regions / States — with country flags extracted from "Region, Country" labels
-    const regionsSection = document.getElementById('regions-section');
-    if (regionsSection) {
-      if (data.regions?.length) {
-        regionsSection.style.display = '';
-        // Labels are "Region, Country" — pass to icon bar chart with country type
-        // so flags are resolved from the country portion
-        const regionsWithFlags = data.regions.map(r => {
-          const parts = r.label.split(', ');
-          const country = parts.length > 1 ? parts[parts.length - 1] : '';
-          return { ...r, _country: country };
-        });
-        this.renderRegionsChart('chart-regions', regionsWithFlags, 5);
-      } else {
-        regionsSection.style.display = 'none';
       }
     }
   },
@@ -1679,14 +1654,14 @@ const Dashboard = {
     if (isChecked('top-pages') && data.topPages?.length) {
       lines.push('TOP PAGES');
       lines.push('Path,Views');
-      data.topPages.forEach(p => lines.push(`"${p.label}",${p.value}`));
+      data.topPages.forEach(p => lines.push(`${Utils.export.cell(p.label)},${p.value}`));
       lines.push('');
     }
 
     if (isChecked('referrers') && data.referrers?.length) {
       lines.push('REFERRERS');
       lines.push('Referrer,Count');
-      data.referrers.forEach(r => lines.push(`"${r.label}",${r.value}`));
+      data.referrers.forEach(r => lines.push(`${Utils.export.cell(r.label)},${r.value}`));
       lines.push('');
     }
 
@@ -1694,15 +1669,15 @@ const Dashboard = {
       lines.push('UTM CAMPAIGNS');
       if (data.utmSources?.length) {
         lines.push('Source,Count');
-        data.utmSources.forEach(s => lines.push(`"${s.label}",${s.value}`));
+        data.utmSources.forEach(s => lines.push(`${Utils.export.cell(s.label)},${s.value}`));
       }
       if (data.utmMediums?.length) {
         lines.push('Medium,Count');
-        data.utmMediums.forEach(m => lines.push(`"${m.label}",${m.value}`));
+        data.utmMediums.forEach(m => lines.push(`${Utils.export.cell(m.label)},${m.value}`));
       }
       if (data.utmCampaigns?.length) {
         lines.push('Campaign,Count');
-        data.utmCampaigns.forEach(c => lines.push(`"${c.label}",${c.value}`));
+        data.utmCampaigns.forEach(c => lines.push(`${Utils.export.cell(c.label)},${c.value}`));
       }
       lines.push('');
     }
@@ -1711,19 +1686,19 @@ const Dashboard = {
       if (data.browsers?.length) {
         lines.push('BROWSERS');
         lines.push('Browser,Count');
-        data.browsers.forEach(b => lines.push(`"${b.label}",${b.value}`));
+        data.browsers.forEach(b => lines.push(`${Utils.export.cell(b.label)},${b.value}`));
         lines.push('');
       }
       if (data.oss?.length) {
         lines.push('OPERATING SYSTEMS');
         lines.push('OS,Count');
-        data.oss.forEach(o => lines.push(`"${o.label}",${o.value}`));
+        data.oss.forEach(o => lines.push(`${Utils.export.cell(o.label)},${o.value}`));
         lines.push('');
       }
       if (data.devices?.length) {
         lines.push('DEVICES');
         lines.push('Device,Count');
-        data.devices.forEach(d => lines.push(`"${d.label}",${d.value}`));
+        data.devices.forEach(d => lines.push(`${Utils.export.cell(d.label)},${d.value}`));
         lines.push('');
       }
     }
@@ -1731,11 +1706,11 @@ const Dashboard = {
     if (isChecked('countries') && data.countries?.length) {
       lines.push('COUNTRIES & REGIONS');
       lines.push('Country,Visits');
-      data.countries.forEach(c => lines.push(`"${c.label}",${c.value}`));
+      data.countries.forEach(c => lines.push(`${Utils.export.cell(c.label)},${c.value}`));
       if (data.regions?.length) {
         lines.push('');
         lines.push('Region,Visits');
-        data.regions.forEach(r => lines.push(`"${r.label}",${r.value}`));
+        data.regions.forEach(r => lines.push(`${Utils.export.cell(r.label)},${r.value}`));
       }
       lines.push('');
     }
@@ -1743,17 +1718,24 @@ const Dashboard = {
     if (isChecked('custom-events') && data.customEvents?.length) {
       lines.push('CUSTOM EVENTS');
       lines.push('Event,Count');
-      data.customEvents.forEach(e => lines.push(`"${e.label}",${e.value}`));
+      data.customEvents.forEach(e => lines.push(`${Utils.export.cell(e.label)},${e.value}`));
       lines.push('');
     }
 
-    if (isChecked('revenue') && typeof RevenueManager !== 'undefined' && RevenueManager.data) {
+    if (isChecked('revenue') && typeof RevenueManager !== 'undefined' && RevenueManager.state.stats) {
+      const { stats, breakdown, attribution } = RevenueManager.state;
       lines.push('REVENUE');
-      const rev = RevenueManager.data;
-      if (rev.totalRevenue != null) lines.push(`Total revenue,${rev.totalRevenue}`);
-      if (rev.revenueByEvent?.length) {
-        lines.push('Event,Revenue');
-        rev.revenueByEvent.forEach(r => lines.push(`"${r.label}",${r.value}`));
+      lines.push(`Total revenue,${stats.totalRevenue}`);
+      lines.push(`Transactions,${stats.transactions}`);
+      lines.push(`Average order value,${stats.averageOrderValue}`);
+      lines.push(`Revenue per visitor,${stats.revenuePerVisitor}`);
+      if (breakdown.length) {
+        lines.push('Event,Revenue,Transactions');
+        breakdown.forEach(b => lines.push(`${Utils.export.cell(b.eventName)},${b.revenue},${b.transactions}`));
+      }
+      if (attribution.length) {
+        lines.push('Source,Revenue,Transactions');
+        attribution.forEach(a => lines.push(`${Utils.export.cell(a.source)},${a.revenue},${a.transactions}`));
       }
       lines.push('');
     }
@@ -1776,6 +1758,16 @@ const Dashboard = {
   },
 
   /**
+   * The events endpoint returns at most 10 000 rows; say so instead of exporting silently short
+   */
+  warnIfTruncated(data) {
+    const exported = (data.events || []).length;
+    if (data.total > exported) {
+      Utils.toast.warning(`Exported the newest ${Utils.format.number(exported)} of ${Utils.format.number(data.total)} events`, 8000);
+    }
+  },
+
+  /**
    * Export raw events and append to report lines
    */
   async exportRawEventsForReport(lines, projectName, timestamp) {
@@ -1785,10 +1777,12 @@ const Dashboard = {
         `/admin/projects/${this.state.currentProjectId}/events?${params}`
       );
 
+      this.warnIfTruncated(data);
       lines.push('RAW EVENTS');
       lines.push('Timestamp,Type,Path,Country,City,Browser,Device,Duration');
       (data.events || []).forEach(e => {
-        lines.push(`"${e.timestamp}","${e.eventType}","${e.path}","${e.country || ''}","${e.city || ''}","${e.browser || ''}","${e.device || ''}",${e.duration || 0}`);
+        const cells = [e.timestamp, e.eventType, e.path, e.country, e.city, e.browser, e.device].map(Utils.export.cell);
+        lines.push(`${cells.join(',')},${e.duration || 0}`);
       });
 
       const csvData = lines.join('\n');
@@ -1862,62 +1856,19 @@ const Dashboard = {
   },
 
   /**
-   * Load and render webhooks for current project
+   * Wire the webhooks dialog to the current project
    */
-  /**
-   * Load and render webhooks for current project
-   */
-  async loadWebhooks() {
+  loadWebhooks() {
     if (!this.state.currentProjectId) return;
-    const container = document.getElementById('webhooks-list-container');
-
-    try {
-      if (typeof WebhooksManager !== 'undefined') {
-        WebhooksManager.initModal(this.state.currentProjectId);
-        const webhooks = await WebhooksManager.loadWebhooks(this.state.currentProjectId);
-        
-        if (webhooks && webhooks.length > 0) {
-          WebhooksManager.renderWebhooks(webhooks, this.state.currentProjectId);
-        } else if (container) {
-          Utils.dom.showEmptyState(container, { 
-            icon: '&#128279;', 
-            message: 'No webhooks configured', 
-            hint: 'Send real-time event data to your own server or tools like Slack/Zapier.' 
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load webhooks:', error);
-      if (container) Utils.dom.showError(container, 'Failed to load webhooks', null, '/assets/set_3/png/030-research.png');
-    }
+    if (typeof WebhooksManager !== 'undefined') WebhooksManager.initModal(this.state.currentProjectId);
   },
 
   /**
-   * Load and render email reports for current project
+   * Wire the email reports dialog to the current project
    */
-  async loadEmailReports() {
+  loadEmailReports() {
     if (!this.state.currentProjectId) return;
-    const container = document.getElementById('email-reports-list-container');
-
-    try {
-      if (typeof EmailReportsManager !== 'undefined') {
-        EmailReportsManager.initModal(this.state.currentProjectId);
-        const reports = await EmailReportsManager.loadReports(this.state.currentProjectId);
-        
-        if (reports && reports.length > 0) {
-          EmailReportsManager.renderReports(reports, this.state.currentProjectId);
-        } else if (container) {
-          Utils.dom.showEmptyState(container, { 
-            icon: '&#128231;', 
-            message: 'No email reports scheduled', 
-            hint: 'Get automated PDF/HTML summaries of your analytics delivered to your inbox.' 
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load email reports:', error);
-      if (container) Utils.dom.showError(container, 'Failed to load email reports', null, '/assets/set_3/png/030-research.png');
-    }
+    if (typeof EmailReportsManager !== 'undefined') EmailReportsManager.initModal(this.state.currentProjectId);
   },
 
   /**
@@ -2532,6 +2483,7 @@ const Dashboard = {
       const data = await Utils.api.fetch(
         `/admin/projects/${this.state.currentProjectId}/events?${params}`
       );
+      this.warnIfTruncated(data);
 
       const csvData = Utils.export.toCSV(
         data.events.map(e => ({
@@ -2868,95 +2820,6 @@ const Dashboard = {
         } else {
           container.style.height = `${Math.max(200, allItems.length * 36 + 16)}px`;
           ChartManager.createIconBarChart(chartId, allItems, iconType);
-          btn.textContent = 'Show less';
-          btn.dataset.expanded = 'true';
-        }
-      });
-
-      card.appendChild(btn);
-    }
-  },
-
-  /**
-   * Render regions chart with country flags using icon bar chart
-   * @param {string} chartId - Canvas element ID
-   * @param {Array} allItems - Items with _country field for flag lookup
-   * @param {number} visibleCount - Number of items to show initially
-   */
-  renderRegionsChart(chartId, allItems, visibleCount = 5) {
-    const canvas = document.getElementById(chartId);
-    if (!canvas) return;
-
-    const container = canvas.parentElement;
-    const card = container.parentElement;
-
-    // Remove existing show more button
-    const existingBtn = card.querySelector('.show-more-btn');
-    if (existingBtn) existingBtn.remove();
-
-    const renderItems = (items) => {
-      // Destroy Chart.js instance and hide canvas
-      if (ChartManager.instances[chartId]) {
-        ChartManager.instances[chartId].destroy();
-        delete ChartManager.instances[chartId];
-      }
-      canvas.style.display = 'none';
-
-      const existingChart = container.querySelector('.icon-bar-chart');
-      if (existingChart) existingChart.remove();
-
-      const maxValue = Math.max(...items.map(d => d.value));
-      const total = items.reduce((sum, d) => sum + d.value, 0);
-
-      const chartEl = document.createElement('div');
-      chartEl.className = 'icon-bar-chart';
-
-      chartEl.innerHTML = items.map(item => {
-        const pct = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
-        const pctOfTotal = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
-        const flag = item._country ? Utils.icons.countryFlag(item._country) : '';
-        const iconHtml = flag ? `<span class="icon-bar-chart__flag">${flag}</span>` : '';
-
-        return `
-          <div class="icon-bar-chart__item">
-            <div class="icon-bar-chart__label">
-              ${iconHtml}
-              <span class="icon-bar-chart__name">${Utils.escapeHtml(item.label)}</span>
-            </div>
-            <div class="icon-bar-chart__bar-wrap">
-              <div class="icon-bar-chart__bar" style="width: ${pct}%"></div>
-            </div>
-            <div class="icon-bar-chart__value">
-              ${Utils.format.compact(item.value)}<span class="icon-bar-chart__pct">${pctOfTotal}%</span>
-            </div>
-          </div>`;
-      }).join('');
-
-      container.appendChild(chartEl);
-    };
-
-    const needsShowMore = allItems.length > visibleCount;
-    const itemsToShow = needsShowMore ? allItems.slice(0, visibleCount) : allItems;
-
-    container.style.height = `${Math.max(200, itemsToShow.length * 36 + 16)}px`;
-    renderItems(itemsToShow);
-
-    if (needsShowMore) {
-      const btn = document.createElement('button');
-      btn.className = 'show-more-btn';
-      btn.textContent = `Show ${allItems.length - visibleCount} more`;
-      btn.dataset.expanded = 'false';
-
-      btn.addEventListener('click', () => {
-        const expanded = btn.dataset.expanded === 'true';
-        if (expanded) {
-          container.style.height = `${Math.max(200, visibleCount * 36 + 16)}px`;
-          renderItems(allItems.slice(0, visibleCount));
-          btn.textContent = `Show ${allItems.length - visibleCount} more`;
-          btn.dataset.expanded = 'false';
-        } else {
-          container.style.height = `${Math.max(200, allItems.length * 36 + 16)}px`;
-          renderItems(allItems);
           btn.textContent = 'Show less';
           btn.dataset.expanded = 'true';
         }
