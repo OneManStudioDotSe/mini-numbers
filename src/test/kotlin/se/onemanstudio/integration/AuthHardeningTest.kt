@@ -116,6 +116,58 @@ class AuthHardeningTest {
         assertEquals(HttpStatusCode.OK, second.get("/admin/projects").status, "viewer keeps read access")
     }
 
+    @Test
+    fun `me and privacy sit behind the Origin allowlist like the rest of the admin API`() {
+        System.setProperty("ALLOWED_ORIGINS", "https://dashboard.example.com")
+        try {
+            testApplication {
+                application { module() }
+                val authClient = createAuthClient()
+                assertEquals(HttpStatusCode.OK, authClient.login("admin", "testpassword123").status)
+                for (path in listOf("/admin/me", "/admin/privacy")) {
+                    assertEquals(HttpStatusCode.Forbidden,
+                        authClient.get(path) { header(HttpHeaders.Origin, "https://evil.example.com") }.status, path)
+                    assertEquals(HttpStatusCode.OK,
+                        authClient.get(path) { header(HttpHeaders.Origin, "https://dashboard.example.com") }.status, path)
+                }
+            }
+        } finally {
+            System.clearProperty("ALLOWED_ORIGINS")
+        }
+    }
+
+    @Test
+    fun `me reports the role as it is now, for the session and for a token issued before a demotion`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val username = "admin-me-${System.nanoTime()}"
+        val userId = admin.createUser(username, "secondadmin123", "admin")
+
+        val second = createAuthClient()
+        assertEquals(HttpStatusCode.OK, second.login(username, "secondadmin123").status)
+        val tokenResponse = second.post("/api/token") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"username":"$username","password":"secondadmin123"}""")
+        }
+        assertEquals(HttpStatusCode.OK, tokenResponse.status)
+        val token = Regex("\"accessToken\":\"([^\"]+)\"").find(tokenResponse.bodyAsText())!!.groupValues[1]
+        suspend fun role(viaToken: Boolean): String {
+            val body = if (viaToken) client.get("/api/me") { bearerAuth(token) }.bodyAsText() else second.get("/admin/me").bodyAsText()
+            return Regex("\"role\":\"([^\"]+)\"").find(body)!!.groupValues[1]
+        }
+        assertEquals("admin", role(viaToken = false))
+        assertEquals("admin", role(viaToken = true))
+
+        val demote = admin.put("/admin/users/$userId/role") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"role":"viewer"}""")
+        }
+        assertEquals(HttpStatusCode.OK, demote.status)
+        assertEquals("viewer", role(viaToken = false), "session cookie still says admin, the answer must not")
+        assertEquals("viewer", role(viaToken = true), "token claim still says admin, the answer must not")
+    }
+
     private fun forgedCookieFor(username: String, role: String = "admin"): String =
         defaultSessionSerializer<UserSession>().serialize(UserSession(username = username, role = role))
 

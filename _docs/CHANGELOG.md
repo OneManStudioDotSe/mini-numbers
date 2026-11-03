@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`/admin/me` and `/admin/privacy` sat outside the admin guard**, so they skipped the `ALLOWED_ORIGINS` check and the admin rate limit. They are inside it now (and reachable at `/api/me` and `/api/privacy` for token users). `/admin/me` reports the role the account has now rather than the one stored in the cookie or token at login, and `/admin/privacy` reads the running configuration instead of re-reading `.env`.
 - **Deleting a project left its webhooks, webhook deliveries and email reports behind** on SQLite, and failed on PostgreSQL. The delete now removes them too, and SQLite runs with foreign keys enforced, so an incomplete cascade fails loudly instead of orphaning rows. `./gradlew reset` clears every table.
 - **The revenue section of the exported CSV report was always empty**, because the export read a field the revenue module never sets. It now lists total revenue, transactions, average order value, revenue per visitor, and the per-event and per-source breakdowns. Text cells in the report and the raw-events export are quoted, so a path or label with a comma or quote no longer breaks a row.
 - **Raw-event exports stopped at 1 000 rows without saying so.** The limit is 10 000, and the dashboard shows a warning when a project has more events than that.

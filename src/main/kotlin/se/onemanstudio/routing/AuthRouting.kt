@@ -23,6 +23,7 @@ import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.JwtService
 import se.onemanstudio.core.getUserRole
+import se.onemanstudio.core.resolveActiveRole
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.core.verifyCredentials
@@ -260,29 +261,31 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         })
     }
 
-    authenticate("admin-session", "api-jwt") {
-        // Me endpoint (current user info)
-        get("/admin/me") {
-            val session = call.sessions.get<UserSession>()
-            val principal = call.principal<JWTPrincipal>()
-            
-            val username = session?.username ?: principal?.payload?.subject ?: "unknown"
-            val role = session?.role ?: principal?.payload?.getClaim("role")?.asString() ?: "viewer"
-            
-            call.respond(mapOf(
-                "username" to username,
-                "role" to role
-            ))
-        }
+}
 
-        // Privacy posture: what the running configuration stores and for how long
-        get("/admin/privacy") {
-            val privacy = ConfigLoader.load().privacy
-            call.respond(buildJsonObject {
-                put("privacyMode", privacy.privacyMode.name)
-                put("hashRotationHours", privacy.hashRotationHours)
-                put("dataRetentionDays", privacy.dataRetentionDays)
-            })
-        }
+/**
+ * Routes about the caller and the running configuration. Registered inside the guarded
+ * `/admin` and `/api` blocks, so they get the Origin allowlist and the admin rate limit.
+ */
+fun Route.adminSessionRoutes(config: AppConfig) {
+    // Current user, with the role as it is now (the session principal carries the re-resolved role)
+    get("/me") {
+        val session = call.principal<UserSession>()
+        val jwt = call.principal<JWTPrincipal>()
+        val username = session?.username ?: jwt?.payload?.subject ?: "unknown"
+        val role = session?.role
+            ?: jwt?.let { resolveActiveRole(username, it.payload.getClaim("role")?.asString() ?: "viewer") }
+            ?: "viewer"
+        call.respond(mapOf("username" to username, "role" to role))
+    }
+
+    // Privacy posture of the running configuration (not a re-read of .env)
+    get("/privacy") {
+        val privacy = config.privacy
+        call.respond(buildJsonObject {
+            put("privacyMode", privacy.privacyMode.name)
+            put("hashRotationHours", privacy.hashRotationHours)
+            put("dataRetentionDays", privacy.dataRetentionDays)
+        })
     }
 }
