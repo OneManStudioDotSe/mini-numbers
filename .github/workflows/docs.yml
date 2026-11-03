@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
+  workflow_dispatch: # redeploy the site by hand, e.g. right after enabling Pages
 
 permissions:
   contents: read
