@@ -80,6 +80,9 @@ const Dashboard = {
     // Set up sign out
     this.setupSignOut();
 
+    // Set up the project list (one delegated listener; items are re-rendered on every load)
+    this.setupProjectMenu();
+
     // Load projects
     await this.loadProjects();
 
@@ -269,6 +272,23 @@ const Dashboard = {
   },
 
   /**
+   * Clicks on the project list: the item selects, its delete button confirms deletion
+   */
+  setupProjectMenu() {
+    const menu = document.getElementById('project-menu');
+    if (!menu) return;
+    menu.addEventListener('click', (e) => {
+      const item = e.target.closest('.project-menu__item');
+      if (!item) return;
+      if (e.target.closest('.project-menu__delete')) {
+        this.confirmDeleteProject(item.dataset.id, item.dataset.name);
+      } else {
+        this.selectProject(item.dataset.id, item.dataset.name);
+      }
+    });
+  },
+
+  /**
    * Load projects list
    */
   async loadProjects() {
@@ -314,13 +334,13 @@ const Dashboard = {
           class="project-menu__item"
           role="listitem"
           data-id="${project.id}"
-          onclick="Dashboard.selectProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')"
+          data-name="${Utils.escapeHtml(project.name)}"
         >
           <div class="project-menu__info">
             <div class="project-menu__name">${Utils.escapeHtml(project.name)}</div>
             <div class="project-menu__domain">${Utils.escapeHtml(project.domain)}</div>
           </div>
-          <button class="project-menu__delete" onclick="event.stopPropagation(); Dashboard.confirmDeleteProject('${project.id}', '${Utils.escapeHtml(project.name).replace(/'/g, "\\'")}')" title="Delete project" aria-label="Delete ${Utils.escapeHtml(project.name)}">
+          <button class="project-menu__delete" title="Delete project" aria-label="Delete ${Utils.escapeHtml(project.name)}">
             <i class="ri-delete-bin-line"></i>
           </button>
         </div>
@@ -2437,7 +2457,7 @@ const Dashboard = {
         const today = new Date().toDateString();
         tbody.innerHTML = data.events.map(e => {
           const badgeClass = e.eventType === 'pageview' ? 'primary' : e.eventType === 'custom' ? 'accent' : 'secondary';
-          const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${Utils.escapeHtml(e.eventName)}` : e.eventType;
+          const typeLabel = e.eventType === 'custom' && e.eventName ? `custom: ${Utils.escapeHtml(e.eventName)}` : Utils.escapeHtml(e.eventType);
           
           // Timestamp logic
           const dateDate = new Date(e.timestamp);

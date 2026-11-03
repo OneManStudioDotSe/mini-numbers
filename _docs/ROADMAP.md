@@ -35,20 +35,17 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Known gaps
 
 The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Its three critical
-items (forged session cookie, create-project key, placeholder security after the wizard) and the early-exit tests
-are fixed and unreleased; the remaining H items come first:
+items (forged session cookie, create-project key, placeholder security after the wizard), the early-exit tests and
+the escaping gaps (H2) are fixed and unreleased; the remaining H items come first:
 
-- **The referrer can carry quotes and `Utils.escapeHtml` does not escape them**, so a visitor can inject attributes into the referrers card (H2).
 - **Six dashboard element ids referenced by the JS do not exist**; the regions chart never renders (H4).
 - **The revenue section of the CSV report is always empty** (H5).
-- **Unescaped admin-entered text** in the dashboard: `webhooks.js` (webhook URL), `email-reports.js` (recipient
-  address), `segments.js` (filter values). Only admins can enter them today, but they should go through
-  `Utils.escapeHtml()` — and must before M4b, where demo visitors can create segments.
 - **Deleting a project fails** when it has webhooks or email reports (no cascade for those tables).
 - **`TRACKER_HEARTBEAT_INTERVAL` / `TRACKER_SPA_ENABLED` do nothing**: they're served at `/tracker/config` but the
   tracker never reads it. Either wire them up or remove them (the docs no longer mention them).
 - Table and bar-chart rendering is duplicated across `static/js/*.js` (how the escaping gap happened).
-- CSP still allows `'unsafe-inline'`; no OWASP/Trivy scan in CI (Dependabot only).
+- CSP still allows `'unsafe-inline'`; the remaining inline handlers (`admin.html` dialogs, UUID-only row buttons in
+  `webhooks.js`/`email-reports.js`, `login.html`) must go before it can be dropped. No OWASP/Trivy scan in CI (Dependabot only).
 - Sessions last a flat 4 hours from login; no sliding window.
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
 - No user-management screen; users are managed through `/api/users`.

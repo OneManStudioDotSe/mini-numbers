@@ -458,8 +458,11 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 - **Headers** (`core/HTTP.kt`): CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, HSTS outside
   development mode. CORS is `anyHost()` without credentials; `/admin` and `/api` additionally check
   `ALLOWED_ORIGINS` (`middleware/AdminCorsGuard.kt`).
-- **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); all SQL goes
-  through Exposed.
+- **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); the referrer must be
+  an `http(s)` URL with no whitespace, quotes, angle brackets or backticks. All SQL goes through Exposed.
+- **Output**: anything from the database that lands in dashboard HTML goes through `Utils.escapeHtml`
+  (`static/js/utils.js`; escapes `& < > " '`), toasts are set with `textContent`, and row buttons carry `data-*`
+  attributes with delegated listeners instead of inline `onclick` built from names.
 - **Visitor IP**: used in memory for the hash, GeoIP and rate limiting only; never written anywhere.
 
 How to report a vulnerability: [SECURITY.md](../SECURITY.md).

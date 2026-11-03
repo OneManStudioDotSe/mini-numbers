@@ -39,14 +39,14 @@ const SegmentsManager = {
             <strong>${Utils.escapeHtml(segment.name)}</strong>
             ${segment.description ? `<div class="text-muted text-sm">${Utils.escapeHtml(segment.description)}</div>` : ''}
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="SegmentsManager.analyzeSegment('${projectId}', '${segment.id}', '${filter}')" aria-label="Analyze segment ${Utils.escapeHtml(segment.name)}">
+          <button class="btn btn-ghost btn-sm" data-action="analyze-segment" data-id="${segment.id}" aria-label="Analyze segment ${Utils.escapeHtml(segment.name)}">
             <i class="ri-bar-chart-line"></i> Analyze
           </button>
         </div>
         <div class="segment-card__filters">
           ${segment.filters.map((f, i) => `
-            <span class="badge badge-secondary">${f.field} ${f.operator} "${f.value}"</span>
-            ${i < segment.filters.length - 1 ? `<span class="segment-logic">${f.logic}</span>` : ''}
+            <span class="badge badge-secondary">${Utils.escapeHtml(f.field)} ${Utils.escapeHtml(f.operator)} "${Utils.escapeHtml(f.value)}"</span>
+            ${i < segment.filters.length - 1 ? `<span class="segment-logic">${Utils.escapeHtml(f.logic)}</span>` : ''}
           `).join('')}
         </div>
       </div>
@@ -223,9 +223,9 @@ const SegmentsManager = {
         <tr>
           <td>${Utils.escapeHtml(s.name)}</td>
           <td>${s.description ? Utils.escapeHtml(s.description) : '<span class="text-muted">-</span>'}</td>
-          <td>${s.filters.map(f => `<span class="badge badge-secondary">${f.field} ${f.operator} "${f.value}"</span>`).join(' ')}</td>
+          <td>${s.filters.map(f => `<span class="badge badge-secondary">${Utils.escapeHtml(f.field)} ${Utils.escapeHtml(f.operator)} "${Utils.escapeHtml(f.value)}"</span>`).join(' ')}</td>
           <td>
-            <button class="btn btn-ghost btn-icon" onclick="SegmentsManager.deleteSegment('${projectId}', '${s.id}')" aria-label="Delete segment ${Utils.escapeHtml(s.name)}">
+            <button class="btn btn-ghost btn-icon" data-action="delete-segment" data-id="${s.id}" aria-label="Delete segment ${Utils.escapeHtml(s.name)}">
               <i class="ri-delete-bin-line"></i>
             </button>
           </td>
@@ -255,3 +255,15 @@ const SegmentsManager = {
     }
   }
 };
+
+// Row actions (lists are re-rendered on every refresh, so delegate once)
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('segments-list')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="analyze-segment"]');
+    if (btn) SegmentsManager.analyzeSegment(Dashboard.state.currentProjectId, btn.dataset.id, Dashboard.state.currentFilter);
+  });
+  document.getElementById('segments-table-body')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="delete-segment"]');
+    if (btn) SegmentsManager.deleteSegment(Dashboard.state.currentProjectId, btn.dataset.id);
+  });
+});

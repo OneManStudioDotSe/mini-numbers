@@ -85,10 +85,10 @@ const WebhooksManager = {
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
             <i class="ri-link" style="color: var(--color-primary);"></i>
-            ${this.maskUrl(wh.url)}
+            ${Utils.escapeHtml(this.maskUrl(wh.url))}
           </div>
           <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 2px;">
-            Events: ${wh.events.map(e => `<span class="badge badge-sm">${e}</span>`).join(' ')}
+            Events: ${wh.events.map(e => `<span class="badge badge-sm">${Utils.escapeHtml(e)}</span>`).join(' ')}
             &nbsp;&middot;&nbsp;
             ${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : '<span style="color: var(--color-text-muted);">Inactive</span>'}
           </div>
@@ -182,8 +182,8 @@ const WebhooksManager = {
 
     tbody.innerHTML = this.state.webhooks.map(wh => `
       <tr>
-        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${wh.url}">${wh.url}</td>
-        <td>${wh.events.map(e => `<span class="badge badge-sm">${e}</span>`).join(' ')}</td>
+        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(wh.url)}">${Utils.escapeHtml(wh.url)}</td>
+        <td>${wh.events.map(e => `<span class="badge badge-sm">${Utils.escapeHtml(e)}</span>`).join(' ')}</td>
         <td>${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Inactive'}</td>
         <td>
           <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onTest('${projectId}', '${wh.id}')" title="Test">
@@ -290,7 +290,7 @@ const WebhooksManager = {
           <tbody>
             ${deliveries.map(d => `
               <tr>
-                <td>${d.eventType}</td>
+                <td>${Utils.escapeHtml(d.eventType)}</td>
                 <td>
                   <span class="badge badge-sm ${d.status === 'success' ? 'badge-success' : d.status === 'failed' ? 'badge-danger' : 'badge-warning'}">
                     ${d.status}

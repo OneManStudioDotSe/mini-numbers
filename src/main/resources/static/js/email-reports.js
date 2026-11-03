@@ -99,10 +99,10 @@ const EmailReportsManager = {
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 500;">
             <i class="ri-mail-send-line" style="color: var(--color-primary);"></i>
-            ${r.recipientEmail}
+            ${Utils.escapeHtml(r.recipientEmail)}
           </div>
           <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 2px;">
-            <span class="badge badge-sm">${r.schedule}</span>
+            <span class="badge badge-sm">${Utils.escapeHtml(r.schedule)}</span>
             &middot; ${r.isActive ? '<span style="color: var(--color-success);">Active</span>' : '<span>Inactive</span>'}
             ${r.lastSentAt ? '&middot; Last sent: ' + new Date(r.lastSentAt).toLocaleDateString() : ''}
           </div>
@@ -184,8 +184,8 @@ const EmailReportsManager = {
 
     tbody.innerHTML = this.state.reports.map(r => `
       <tr>
-        <td>${r.recipientEmail}</td>
-        <td><span class="badge badge-sm">${r.schedule}</span></td>
+        <td>${Utils.escapeHtml(r.recipientEmail)}</td>
+        <td><span class="badge badge-sm">${Utils.escapeHtml(r.schedule)}</span></td>
         <td>${r.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Inactive'}</td>
         <td style="font-size: 0.85em;">${r.lastSentAt ? new Date(r.lastSentAt).toLocaleString() : 'Never'}</td>
         <td>

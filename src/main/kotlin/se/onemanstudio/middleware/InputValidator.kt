@@ -41,8 +41,9 @@ object InputValidator {
     // Path: alphanumeric + common URL characters
     private val PATH_REGEX = Regex("^[a-zA-Z0-9/_\\-?=&.#%+]*$")
 
-    // Referrer: valid HTTP/HTTPS URL
-    private val URL_REGEX = Regex("^https?://[a-zA-Z0-9.-]+(:[0-9]+)?(/.*)?$")
+    // Referrer: valid HTTP/HTTPS URL. Browsers percent-encode whitespace, quotes, angle brackets
+    // and backticks when serialising document.referrer, so a value carrying them is not a real referrer.
+    private val URL_REGEX = Regex("^https?://[a-zA-Z0-9.-]+(:[0-9]+)?(/[^\\s\"<>`]*)?$")
 
     // Session ID: alphanumeric + hyphens
     private val SESSION_ID_REGEX = Regex("^[a-zA-Z0-9-]+$")

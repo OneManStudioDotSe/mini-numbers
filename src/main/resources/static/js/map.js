@@ -408,7 +408,7 @@ const MapManager = {
       // Add popup with country info
       marker.bindPopup(`
         <div style="text-align: center;">
-          <strong>${country.label}</strong><br>
+          <strong>${Utils.escapeHtml(country.label)}</strong><br>
           <span style="color: #2563eb; font-size: 1.2em; font-weight: bold;">
             ${Utils.format.number(country.value)}
           </span> visitors
@@ -416,7 +416,7 @@ const MapManager = {
       `);
 
       // Add tooltip on hover
-      marker.bindTooltip(country.label, {
+      marker.bindTooltip(Utils.escapeHtml(country.label), {
         permanent: false,
         direction: 'top',
       });
