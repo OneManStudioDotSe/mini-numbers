@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Comparison page refreshed** (`docs/comparison.html`, checked 2 Nov 2026): adds Liwan, Medama and Counterscale, shows Plausible as its self-hosted CE with cloud-only features marked, and lists what each tool needs to self-host and when it last released.
 - The setup wizard's help text for Paranoid mode and development mode now says what they actually do; `.env.example` no longer enables development mode.
 - Browser tests take `E2E_PORT` when port 8080 is busy, and include the dashboard's tracking snippet exactly as shown.
+- `server.log` is no longer tracked in the repository and `*.log` files are ignored.
 
 ### Fixed
 

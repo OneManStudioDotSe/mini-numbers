@@ -42,3 +42,6 @@ test-dbs/
 .env.backup
 .env.backup*
 /.kotlin
+
+# Logs
+*.log
