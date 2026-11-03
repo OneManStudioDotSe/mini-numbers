@@ -1,7 +1,7 @@
 # Mini Numbers — Roadmap
 
 The one place for what's next: owner actions, milestones, known gaps and feature ideas. What already shipped
-is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-02.
+is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-03.
 
 **Positioning:** the easiest and most private analytics you can self-host — one program, SQLite built in, every
 feature included. Not a race for feature parity with Plausible, Umami or PostHog.
@@ -11,32 +11,38 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Owner actions (blocking a public launch)
 
 - [ ] **Rotate the credentials** that were committed in `stats.db` (admin password, `SERVER_SALT`, three project
-      keys, one of them live on www.poofly.se). The repository is public, so they are burned.
-- [ ] **Purge history**: strip `stats.db` and `src/main/resources/geo/geolite2-city.mmdb` from every commit with
-      `git filter-repo`, then force-push `main` (explicit approval needed for both steps).
+      keys, one of them live on www.poofly.se) on the live instance, then update the Poofly snippet. The repository
+      is public, so they are burned; the history purge below does not make them invalid.
+- [x] **Purge history** (2026-11-03): `stats.db`, `.env`, `server.log` and `test-*.db` stripped from every commit
+      with `git filter-repo`, `main` force-pushed, `v1.5.0` tagged on the clean history. The GeoLite2 file was kept
+      on purpose (it is bundled into the JAR; see the next item). Still to do: delete the three remaining Dependabot
+      branches on GitHub (`dependabot/docker/eclipse-temurin-24-jdk`, `.../actions/checkout-7`,
+      `.../docker/setup-qemu-action-4`), which are based on the old history, then ask GitHub support to clear the
+      cached pull-request refs.
 - [ ] **GeoLite2**: download at start with a MaxMind licence key (recommended) or keep shipping the 63 MB file and
       accept the redistribution question. Add the attribution to the Docker image either way.
-- [ ] **Enable GitHub Pages** (the docs site has never deployed) and **GitHub Discussions** (the issue templates
-      link to it).
+- [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
+- [ ] **Enable GitHub Discussions** (the issue templates link to it).
 - [ ] **Light-theme contrast**: 16 dashboard elements fail WCAG AA (`#10b981`, `#ef4444`, `#a8a29e`,
       `.sidebar-subtitle`); pick darker tokens, then re-enable `color-contrast` in `e2e/tests/a11y.spec.js`.
-- [ ] **Tag `v1.4.0`** — publishes the `latest` image and the JAR the install guide links to.
+- [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
+- [ ] **Exposed 1.6.0**: Dependabot proposed it just before the purge; evaluate it on a fresh branch (the SQLite
+      driver `sqlite-jdbc` is held at 3.47.2.0 for Exposed's sake, so test a fresh and an upgraded database).
 
 ## Milestones
 
 | | Milestone | Status |
 |---|---|---|
-| M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Done, unreleased |
-| M2 | Release hardening: escape admin-entered fields (below), project-delete cascade, tag v1.4.0 | Next |
+| M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
+| M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
 
 ## Known gaps
 
-The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Its three critical
-items and all five H items (early-exit tests, escaping, delete cascade, dead dashboard code, CSV export) are fixed
-and unreleased. Still open from it:
+The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Every critical, high
+and medium item in it is fixed in 1.5.0. Still open from it:
 
 - Webhook retries are in memory: a restart drops deliveries still waiting for their retry. Durable retries would
   re-read pending rows from `webhook_deliveries` on start (M4 leftover).

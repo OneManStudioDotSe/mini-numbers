@@ -137,7 +137,7 @@ For the exact commands and mechanics behind each check (gradle targets, browser/
 
 **Act without stopping:** bug fixes with a clear reproduction, additive features scoped to a single area, behavior-preserving refactors, documentation updates.
 
-**Stop and ask first:** schema or migration changes, anything touching auth/session/token logic, changes to privacy-mode behavior or data retention, deleting user data, force-push or history rewrite, adding a new dependency (check its license — this project already ships one LGPL dependency inside an MIT fat JAR that needs resolving, don't add a second compliance question), rotating or regenerating secrets, deploying or publishing.
+**Stop and ask first:** schema or migration changes, anything touching auth/session/token logic, changes to privacy-mode behavior or data retention, deleting user data, force-push or history rewrite, adding a new dependency (check that its license fits an MIT fat JAR first), rotating or regenerating secrets, deploying or publishing.
 
 When a decision is genuinely the user's to make, ask — don't guess and move on.
 
