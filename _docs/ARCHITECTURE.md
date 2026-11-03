@@ -320,6 +320,10 @@ is missing, Email Reports endpoints return 400 ("SMTP is not configured").
 
 ## API endpoints reference
 
+Date-times in responses are ISO-8601 with the server's UTC offset (`utils/Timestamps.kt`, e.g.
+`2026-11-03T02:24:52.145+01:00`); rows are stored as server wall-clock time. Hour and day buckets (time series,
+heatmap, calendar, "last 24 hours") are computed in the server's zone and sent as plain labels — set `TZ` to choose it.
+
 ### Public
 
 - `GET /` — Intelligent redirect based on application state

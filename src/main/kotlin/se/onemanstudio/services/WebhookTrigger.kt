@@ -14,6 +14,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import se.onemanstudio.utils.nowApiString
 
 /**
  * Bridges the /collect endpoint to webhook firing.
@@ -139,7 +140,7 @@ object WebhookTrigger {
                 put("goalName", goal[ConversionGoals.name])
                 put("goalType", goal[ConversionGoals.goalType])
                 put("matchValue", goal[ConversionGoals.matchValue])
-                put("timestamp", LocalDateTime.now().toString())
+                put("timestamp", nowApiString())
                 if (path != null) put("path", path)
                 if (eventName != null) put("eventName", eventName)
             }.toString()
@@ -185,7 +186,7 @@ object WebhookTrigger {
                 put("currentRate", currentRate)
                 put("baselineRate", window.baselineRate)
                 put("eventsInWindow", count)
-                put("timestamp", LocalDateTime.now().toString())
+                put("timestamp", nowApiString())
             }.toString()
 
             for (webhook in spikeWebhooks) {

@@ -32,6 +32,8 @@ services:
       - DB_PG_PASSWORD=${DB_PG_PASSWORD:?Set DB_PG_PASSWORD in .env}
       # Only Caddy can reach this container, so the visitor IP it forwards can be trusted
       - TRUST_PROXY=true
+      # Zone for "today", hour/day charts and email send hours; timestamps are sent with this offset
+      - TZ=${TZ:-UTC}
     depends_on:
       postgres:
         condition: service_healthy

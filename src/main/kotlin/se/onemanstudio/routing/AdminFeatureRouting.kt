@@ -26,6 +26,8 @@ import se.onemanstudio.services.WebhookTrigger
 import se.onemanstudio.utils.*
 import java.time.LocalDateTime
 import java.util.UUID
+import se.onemanstudio.utils.toApiString
+import se.onemanstudio.utils.nowApiString
 
 fun Route.adminFeatureRoutes() {
     // ── Conversion Goals ──────────────────────────────────────────
@@ -48,7 +50,7 @@ fun Route.adminFeatureRoutes() {
                         goalType = it[ConversionGoals.goalType],
                         matchValue = it[ConversionGoals.matchValue],
                         isActive = it[ConversionGoals.isActive],
-                        createdAt = it[ConversionGoals.createdAt].toString()
+                        createdAt = it[ConversionGoals.createdAt].toApiString()
                     )
                 }
         }
@@ -194,7 +196,7 @@ fun Route.adminFeatureRoutes() {
                         id = funnelId.toString(),
                         name = funnel[Funnels.name],
                         steps = steps,
-                        createdAt = funnel[Funnels.createdAt].toString()
+                        createdAt = funnel[Funnels.createdAt].toApiString()
                     )
                 }
         }
@@ -343,7 +345,7 @@ fun Route.adminFeatureRoutes() {
                         filters = try {
                             Json.decodeFromString<List<SegmentFilter>>(it[Segments.filtersJson])
                         } catch (_: SerializationException) { emptyList() },
-                        createdAt = it[Segments.createdAt].toString()
+                        createdAt = it[Segments.createdAt].toApiString()
                     )
                 }
         }
@@ -510,7 +512,7 @@ fun Route.adminFeatureRoutes() {
                     url = it[Webhooks.url],
                     events = it[Webhooks.events].split(",").map { e -> e.trim() },
                     isActive = it[Webhooks.isActive],
-                    createdAt = it[Webhooks.createdAt].toString()
+                    createdAt = it[Webhooks.createdAt].toApiString()
                 )
             }
         }
@@ -652,8 +654,8 @@ fun Route.adminFeatureRoutes() {
                         responseCode = it[WebhookDeliveries.responseCode],
                         attempt = it[WebhookDeliveries.attempt],
                         status = it[WebhookDeliveries.status],
-                        createdAt = it[WebhookDeliveries.createdAt].toString(),
-                        deliveredAt = it[WebhookDeliveries.deliveredAt]?.toString()
+                        createdAt = it[WebhookDeliveries.createdAt].toApiString(),
+                        deliveredAt = it[WebhookDeliveries.deliveredAt]?.toApiString()
                     )
                 }
         }
@@ -680,7 +682,7 @@ fun Route.adminFeatureRoutes() {
             put("event", "test")
             put("projectId", pid.toString())
             put("message", "This is a test webhook delivery from Mini Numbers")
-            put("timestamp", LocalDateTime.now().toString())
+            put("timestamp", nowApiString())
         }.toString()
 
         WebhookService.deliverAsync(
@@ -726,8 +728,8 @@ private fun Route.emailReportAndRevenueRoutes() {
                     footerText = it[EmailReports.footerText],
                     includeSections = it[EmailReports.includeSections].split(",").map { s -> s.trim() },
                     isActive = it[EmailReports.isActive],
-                    lastSentAt = it[EmailReports.lastSentAt]?.toString(),
-                    createdAt = it[EmailReports.createdAt].toString()
+                    lastSentAt = it[EmailReports.lastSentAt]?.toApiString(),
+                    createdAt = it[EmailReports.createdAt].toApiString()
                 )
             }
         }

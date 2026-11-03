@@ -1899,9 +1899,12 @@ const Dashboard = {
     // Create date map for quick lookup
     const dateMap = new Map(calendar.days.map(day => [day.date, day]));
 
-    // Calculate weeks needed
-    const startDate = new Date(calendar.startDate);
-    const endDate = new Date(calendar.endDate);
+    // Calendar dates are plain "YYYY-MM-DD" in the server's zone; keep them as local calendar days
+    // (new Date("2026-01-01") would mean UTC midnight and shift a day west of Greenwich)
+    const parseDay = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+    const formatDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const startDate = parseDay(calendar.startDate);
+    const endDate = parseDay(calendar.endDate);
     const daysDiff = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
     const weeksCount = Math.ceil(daysDiff / 7);
 
@@ -1937,7 +1940,7 @@ const Dashboard = {
 
     for (let week = 0; week < weeksCount; week++) {
       for (let day = 0; day < 7; day++) {
-        const dateStr = currentDate.toISOString().split('T')[0];
+        const dateStr = formatDay(currentDate);
         const dayData = dateMap.get(dateStr);
         const level = dayData?.level || 0;
         const visits = dayData?.visits || 0;

@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Timestamps were off by hours when the server and the viewer were in different time zones.** The API sent bare wall-clock times that the browser read as its own local time. Every timestamp now carries the server's UTC offset, so the dashboard, Raw events and exports show the right instant anywhere. Hour and day buckets (charts, heatmap, calendar) stay in the server's zone, which the compose files now expose as `TZ`; the contribution calendar no longer mixes UTC and local dates when drawing its grid.
 - **A goal-conversion webhook fired on every matching event**, so a visitor reloading the thank-you page produced a call each time. It now fires once per goal per session, which is how the conversion stats count it.
 - **A failing webhook endpoint blocked other deliveries**: retries slept on one of the two delivery threads. Retries are now scheduled 5 and 10 seconds later without holding a thread. They are still kept in memory, so a restart drops retries that were waiting.
 - Deleting a webhook from the dialog showed "Failed to delete webhook" after the dead dashboard-section renderer was removed, although the delete had succeeded.

@@ -23,6 +23,7 @@ import se.onemanstudio.db.RefreshTokens
 import se.onemanstudio.db.Users
 import se.onemanstudio.middleware.requireRole
 import java.util.UUID
+import se.onemanstudio.utils.toApiString
 
 fun Route.adminUserRoutes() {
     // List all users
@@ -35,7 +36,7 @@ fun Route.adminUserRoutes() {
                     username = it[Users.username],
                     role = it[Users.role],
                     isActive = it[Users.isActive],
-                    createdAt = it[Users.createdAt].toString()
+                    createdAt = it[Users.createdAt].toApiString()
                 )
             }
         }

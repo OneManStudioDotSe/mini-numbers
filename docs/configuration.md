@@ -40,6 +40,7 @@ Changing `SERVER_SALT` makes every visitor look new from then on — keep it sec
 | `TRUST_PROXY` | `false` | `true` when a reverse proxy or hosting platform sits in front, so the visitor's real IP is read from `X-Forwarded-For`. Leave it off when visitors connect directly, or they could fake their IP |
 | `RATE_LIMIT_PER_IP` | `1000` | Requests per minute from one IP address |
 | `RATE_LIMIT_PER_API_KEY` | `10000` | Requests per minute for one website (project key) |
+| `TZ` | *(system; `UTC` in Docker)* | Time zone used for "today", the hour and day charts and the calendar. Individual timestamps are sent with this zone's offset, so the dashboard shows the right instant wherever you open it. Standard `TZ` names such as `Europe/Stockholm` |
 
 Requests over a limit get HTTP 429 and the event is dropped.
 

@@ -27,6 +27,8 @@ import java.util.UUID
 
 import se.onemanstudio.api.models.admin.DemoDataRequest
 import se.onemanstudio.api.models.admin.DemoDataResponse
+import se.onemanstudio.utils.toApiString
+import se.onemanstudio.utils.nowApiString
 
 fun Route.adminProjectRoutes() {
     // List all projects (with pagination)
@@ -232,7 +234,7 @@ fun Route.adminProjectRoutes() {
                 .where { (Events.projectId eq id) and (Events.timestamp greaterEq fiveMinutesAgo) }
                 .orderBy(Events.timestamp, SortOrder.DESC)
                 .limit(20)
-                .map { VisitSnippet(it[Events.path], it[Events.timestamp].toString(), it[Events.city], it[Events.country]) }
+                .map { VisitSnippet(it[Events.path], it[Events.timestamp].toApiString(), it[Events.city], it[Events.country]) }
         }
         call.respond(liveData)
     }
@@ -255,7 +257,7 @@ fun Route.adminProjectRoutes() {
         }
         call.respond(buildJsonObject {
             put("activeVisitors", count)
-            put("timestamp", LocalDateTime.now().toString())
+            put("timestamp", nowApiString())
         })
     }
 
@@ -309,7 +311,7 @@ fun Route.adminProjectRoutes() {
                 .where { Events.projectId eq id }
                 .orderBy(Events.timestamp, SortOrder.ASC)
                 .limit(1)
-                .map { it[Events.timestamp].toString() }
+                .map { it[Events.timestamp].toApiString() }
                 .firstOrNull()
             toDelete to oldestTs
         }
