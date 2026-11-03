@@ -99,7 +99,7 @@
         container.className = 'mn-widget mn-theme-' + theme;
         container.innerHTML =
             '<span class="mn-views-count">' + fmt.format(data.views) + '</span>' +
-            '<span class="mn-views-label">views ' + label + '</span>';
+            '<span class="mn-views-label">views ' + escHtml(label) + '</span>';
     }
 
     function renderToppages(data) {

@@ -322,10 +322,11 @@ const Utils = {
 
       toast.innerHTML = `
         <div class="toast__content">
-          <div class="toast__message">${message}</div>
+          <div class="toast__message"></div>
         </div>
         <button class="toast__close" aria-label="Close">×</button>
       `;
+      toast.querySelector('.toast__message').textContent = message;
 
       const closeBtn = toast.querySelector('.toast__close');
       closeBtn.addEventListener('click', () => {
@@ -614,15 +615,19 @@ const Utils = {
   },
 
   /**
-   * Escape HTML entities to prevent XSS
+   * Escape HTML entities to prevent XSS. Safe in text and in quoted attributes;
+   * never build inline event handlers from escaped strings (use data-* + listeners).
    * @param {string} str - String to escape
    * @returns {string} Escaped string
    */
   escapeHtml(str) {
     if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   },
 
   // Icon mappings for chart labels (Remix Icon classes)

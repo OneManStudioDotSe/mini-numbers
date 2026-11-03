@@ -291,12 +291,12 @@ const GoalsManager = {
         <td><code>${Utils.escapeHtml(goal.matchValue)}</code></td>
         <td>
           <label class="toggle-switch">
-            <input type="checkbox" ${goal.isActive ? 'checked' : ''} onchange="GoalsManager.toggleGoal('${projectId}', '${goal.id}', this.checked)">
+            <input type="checkbox" ${goal.isActive ? 'checked' : ''} data-action="toggle-goal" data-id="${goal.id}">
             <span class="toggle-slider"></span>
           </label>
         </td>
         <td>
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteGoal('${projectId}', '${goal.id}', '${Utils.escapeHtml(goal.name)}')" title="Delete">
+          <button class="btn btn-ghost btn-icon btn-sm" data-action="delete-goal" data-id="${goal.id}" data-name="${Utils.escapeHtml(goal.name)}" title="Delete">
             <i class="ri-delete-bin-line"></i>
           </button>
         </td>
@@ -321,7 +321,7 @@ const GoalsManager = {
         <td>${funnel.steps.length}</td>
         <td>${funnel.steps.map(s => Utils.escapeHtml(s.name)).join(' &rarr; ')}</td>
         <td>
-          <button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.confirmDeleteFunnel('${projectId}', '${funnel.id}', '${Utils.escapeHtml(funnel.name)}')" title="Delete">
+          <button class="btn btn-ghost btn-icon btn-sm" data-action="delete-funnel" data-id="${funnel.id}" data-name="${Utils.escapeHtml(funnel.name)}" title="Delete">
             <i class="ri-delete-bin-line"></i>
           </button>
         </td>
@@ -509,6 +509,21 @@ const GoalsManager = {
 
     // Add funnel step button
     document.getElementById('add-funnel-step-btn')?.addEventListener('click', () => this.addFunnelStep());
+
+    // Row actions (rows are re-rendered on every refresh, so delegate once)
+    const goalsBody = document.getElementById('goals-table-body');
+    goalsBody?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action="delete-goal"]');
+      if (btn) this.confirmDeleteGoal(Dashboard.state.currentProjectId, btn.dataset.id, btn.dataset.name);
+    });
+    goalsBody?.addEventListener('change', (e) => {
+      const cb = e.target.closest('[data-action="toggle-goal"]');
+      if (cb) this.toggleGoal(Dashboard.state.currentProjectId, cb.dataset.id, cb.checked);
+    });
+    document.getElementById('funnels-table-body')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action="delete-funnel"]');
+      if (btn) this.confirmDeleteFunnel(Dashboard.state.currentProjectId, btn.dataset.id, btn.dataset.name);
+    });
   }
 };
 

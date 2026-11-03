@@ -263,7 +263,8 @@ class InputValidatorTest {
             "https://google.com",
             "https://www.example.com/page",
             "http://localhost:3000",
-            "https://sub.domain.com/path?query=value"
+            "https://sub.domain.com/path?query=value",
+            "https://en.wikipedia.org/wiki/Don't_Look_Up" // browsers leave ' unencoded in paths
         )
 
         validReferrers.forEach { referrer ->
@@ -276,6 +277,29 @@ class InputValidatorTest {
 
             val result = InputValidator.validatePageViewPayload(payload)
             assertTrue(result.isValid, "Referrer $referrer should be valid")
+        }
+    }
+
+    @Test
+    fun `validatePageViewPayload rejects referrer that carries markup`() {
+        val markupReferrers = listOf(
+            "https://evil.test/\" onmouseover=\"alert(1)",
+            "https://evil.test/<script>",
+            "https://evil.test/a b",
+            "https://evil.test/`x`"
+        )
+
+        markupReferrers.forEach { referrer ->
+            val payload = PageViewPayload(
+                path = "/home",
+                referrer = referrer,
+                sessionId = "abc123",
+                type = "pageview"
+            )
+
+            val result = InputValidator.validatePageViewPayload(payload)
+            assertFalse(result.isValid, "Referrer $referrer should be rejected")
+            assertTrue(result.errors.any { it.contains("referrer", ignoreCase = true) })
         }
     }
 
