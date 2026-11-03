@@ -413,9 +413,12 @@ as goal conversions. The admin UI's `webhooks.js` renders the config + delivery 
 
 Scheduled recurring analytics emails per project (`db/EmailReports.kt`,
 `services/EmailService.kt` via Jakarta Mail over SMTP). Schedule is DAILY/WEEKLY/MONTHLY
-with a configurable send hour/day and timezone; `includeSections` controls which report
-sections are rendered into the email. Disabled entirely unless `SMTP_HOST` and `SMTP_FROM`
-are set — see Configuration reference above. `email-reports.js` is the admin UI modal.
+with a send hour/day evaluated in the report's `timezone` (the dialog sends the admin's
+browser zone; unknown ids are rejected); `includeSections` picks the rendered blocks
+(`overview`, `pages`, `referrers`, `geo`, `events`); everything from the database is escaped.
+The hourly scheduler sends at most once per day per report; a manual test send does not
+count as that day's send. Disabled entirely unless `SMTP_HOST` and `SMTP_FROM` are set —
+see Configuration reference above. `email-reports.js` is the admin UI modal.
 
 ### Revenue tracking
 

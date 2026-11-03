@@ -92,6 +92,20 @@ class EmailReportEndpointTest {
     }
 
     @Test
+    fun `create email report with unknown timezone returns 400`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val projectId = assertNotNull(authClient.createTestProject("TZ Test", "tz-test.com"), "projectId")
+
+        val response = authClient.post("/admin/projects/$projectId/email-reports") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"recipientEmail":"owner@example.com","schedule":"WEEKLY","timezone":"Mars/Olympus"}""")
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+    @Test
     fun `delete nonexistent email report returns 404`() = testApplication {
         application { module() }
         val authClient = createAuthClient()

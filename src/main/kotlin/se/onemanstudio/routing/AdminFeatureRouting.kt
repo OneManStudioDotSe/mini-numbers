@@ -727,6 +727,10 @@ private fun Route.emailReportAndRevenueRoutes() {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Schedule must be one of: $validSchedules"))
         }
+        if (!isValidZone(request.timezone)) {
+            return@post call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Unknown timezone: ${request.timezone}"))
+        }
 
         val reportId = UUID.randomUUID()
         transaction {
@@ -767,6 +771,11 @@ private fun Route.emailReportAndRevenueRoutes() {
                 ApiError.badRequest("Invalid request body"))
         }
 
+        if (request.timezone != null && !isValidZone(request.timezone)) {
+            return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Unknown timezone: ${request.timezone}"))
+        }
+
         val updated = transaction {
             val exists = EmailReports.selectAll().where {
                 (EmailReports.id eq reportId) and
@@ -782,7 +791,7 @@ private fun Route.emailReportAndRevenueRoutes() {
                     request.schedule?.let { v -> it[EmailReports.schedule] = v.uppercase() }
                     request.sendHour?.let { v -> it[EmailReports.sendHour] = v.coerceIn(0, 23) }
                     request.sendDay?.let { v -> it[EmailReports.sendDay] = v.coerceIn(1, 28) }
-                    request.timezone?.let { v -> it[EmailReports.timezone] = v.take(50) }
+                    request.timezone?.let { v -> it[EmailReports.timezone] = v }
                     request.subjectTemplate?.let { v -> it[EmailReports.subjectTemplate] = v.take(500) }
                     request.headerText?.let { v -> it[EmailReports.headerText] = v.take(500) }
                     request.footerText?.let { v -> it[EmailReports.footerText] = v.take(500) }
@@ -853,7 +862,8 @@ private fun Route.emailReportAndRevenueRoutes() {
                 "MONTHLY" -> "30d"
                 else -> "7d"
             },
-            reportId = reportId
+            reportId = reportId,
+            recordSend = false // a test must not replace today's scheduled send
         )
 
         call.respond(HttpStatusCode.OK, buildJsonObject {
@@ -915,3 +925,6 @@ private fun Route.emailReportAndRevenueRoutes() {
         call.respond(attribution)
     }
 }
+
+/** A timezone id java.time understands, short enough for the column. */
+private fun isValidZone(id: String): Boolean = id.length <= 50 && runCatching { java.time.ZoneId.of(id) }.isSuccess
