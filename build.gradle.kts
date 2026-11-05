@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.serialization") version "2.4.21"
-    id("io.ktor.plugin") version "3.6.0"
+    id("io.ktor.plugin") version "3.6.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
@@ -26,12 +26,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.21")
 
     // Ktor Server
-    implementation("io.ktor:ktor-server-core-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-netty-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-core-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-netty-jvm:3.6.1")
 
     // JSON & Serialization
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:3.6.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:3.6.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:3.6.1")
 
     // Database (Exposed + Postgres/SQLite)
     implementation("org.jetbrains.exposed:exposed-core:1.5.1")
@@ -43,12 +43,12 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.53.4.0")
 
     // Security & Utilities
-    implementation("io.ktor:ktor-server-auth-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-auth-jwt-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-cors-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-default-headers-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-forwarded-header-jvm:3.6.0")
-    implementation("io.ktor:ktor-server-status-pages-jvm:3.6.0")
+    implementation("io.ktor:ktor-server-auth-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-auth-jwt-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-cors-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-default-headers-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-forwarded-header-jvm:3.6.1")
+    implementation("io.ktor:ktor-server-status-pages-jvm:3.6.1")
     implementation("com.password4j:password4j:1.8.4")
 
     implementation("com.maxmind.geoip2:geoip2:5.2.0")
