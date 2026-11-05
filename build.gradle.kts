@@ -40,7 +40,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:1.5.1")
     implementation("com.zaxxer:HikariCP:7.1.0")
     implementation("org.postgresql:postgresql:42.7.14")
-    implementation("org.xerial:sqlite-jdbc:3.53.4.0")
+    implementation("org.xerial:sqlite-jdbc:3.54.1.0")
 
     // Security & Utilities
     implementation("io.ktor:ktor-server-auth-jvm:3.6.0")
