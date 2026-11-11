@@ -30,6 +30,8 @@ test.describe('accessibility (axe, WCAG 2 A/AA, serious and critical only)', () 
     expect(await seriousViolations(page), 'light theme').toEqual([]);
     await page.click('#theme-toggle');
     await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute('data-theme'))).toBe('dark');
+    // the theme switch animates colours; scanning mid-transition measures blended colours
+    await page.waitForFunction(() => !document.getAnimations().some(a => a instanceof CSSTransition));
     expect(await seriousViolations(page), 'dark theme').toEqual([]);
   });
 });
