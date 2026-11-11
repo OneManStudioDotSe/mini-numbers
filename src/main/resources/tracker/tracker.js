@@ -6,6 +6,15 @@
     var endpoint = s.getAttribute('data-api-endpoint') || new URL(s.src).origin + '/collect';
     if (!key) return;
 
+    // Visitors whose browser asks not to be tracked (Global Privacy Control or Do Not Track) are not counted,
+    // unless the site opts out with data-respect-privacy-signals="false". track() stays callable as a no-op.
+    var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+    if (s.getAttribute('data-respect-privacy-signals') !== 'false' &&
+        (navigator.globalPrivacyControl === true || dnt === '1' || dnt === 'yes')) {
+        window.MiniNumbers = { track: function() {} };
+        return;
+    }
+
     // Configurable options via data attributes
     var heartbeatInterval = parseInt(s.getAttribute('data-heartbeat-interval')) || 30000;
     var spaEnabled = s.getAttribute('data-disable-spa') !== 'true';

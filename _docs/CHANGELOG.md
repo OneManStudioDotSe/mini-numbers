@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The tracker honours Global Privacy Control and Do Not Track.** Visitors whose browser sends either are not
+  counted; `MiniNumbers.track()` stays callable and does nothing. Add `data-respect-privacy-signals="false"` to the
+  snippet to count them anyway.
 - **Labs.** Funnels, segments, revenue, webhooks, email reports and embeddable widgets are now experimental and off
   by default: their dashboard parts are hidden and their API answers 404. Turn any of them on with
   `LABS=funnels,webhooks,…` (see the configuration page). Nothing stored is removed.

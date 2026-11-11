@@ -25,10 +25,12 @@ It sends events to the server it was loaded from. Optional attributes:
 | `data-api-endpoint` | `<script origin>/collect` | Send events somewhere else, e.g. through your own proxy |
 | `data-heartbeat-interval` | `30000` | Milliseconds between "still on the page" signals, used for time on page |
 | `data-disable-spa` | `false` | `true` stops counting page changes made with the History API (React, Vue…) |
+| `data-respect-privacy-signals` | `true` | `false` also counts visitors whose browser sends Global Privacy Control or Do Not Track |
 
 Recorded automatically: page views (including single-page-app navigation), heartbeats while the tab is visible,
 scroll depth at 25/50/75/100%, clicks on links to other sites, and file downloads. Events sent while the visitor
-is offline are queued and delivered when they're back online.
+is offline are queued and delivered when they're back online. Visitors whose browser sends Global Privacy
+Control or Do Not Track are not counted at all; `MiniNumbers.track()` still exists for them but sends nothing.
 
 ## Custom events
 

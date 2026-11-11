@@ -18,6 +18,8 @@ else. This page says exactly what it keeps.
 - **IP addresses are never stored.** They're used in memory for a moment and then dropped.
 - **Visitors are anonymous.** A returning visitor is recognised only until the next "forget" moment you choose
   (default: 24 hours), and never across different websites.
+- **"Don't track me" is respected.** Browsers that send Global Privacy Control or Do Not Track aren't counted
+  at all. A site can turn this off with `data-respect-privacy-signals="false"` on the snippet.
 - **Everything stays on your server.** Locations are looked up in a database that ships with Mini Numbers, not
   through an outside service.
 

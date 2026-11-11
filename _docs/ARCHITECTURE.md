@@ -431,6 +431,13 @@ Stored rows are untouched, and the demo seeder still creates funnels and segment
 switched on. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
 testing them; `LabsTest` and the dashboard spec check the defaults.
 
+### Tracker privacy signals
+
+`tracker.js` sends nothing when the browser reports Global Privacy Control (`navigator.globalPrivacyControl`) or Do
+Not Track (`navigator.doNotTrack`/`window.doNotTrack`/`navigator.msDoNotTrack` = `"1"` or `"yes"`), unless the snippet
+has `data-respect-privacy-signals="false"`. `window.MiniNumbers.track` is then a no-op so site code keeps working.
+The check is client-side only; `/collect` does not look at the headers.
+
 ### Setup wizard Quick Setup
 
 `wizard.js` `quickSetup()` fills the recommended defaults, generates a 20-character admin password with

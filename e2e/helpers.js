@@ -45,13 +45,13 @@ async function rawEvents(request, projectId) {
  * sendBeacon, sessionStorage, History API). See playwright.config.js for why Chrome's
  * local-network-access check is disabled for these runs.
  */
-async function serveTrackedSite(page, apiKey, extraHtml = '', { snippetAsShown = false } = {}) {
+async function serveTrackedSite(page, apiKey, extraHtml = '', { snippetAsShown = false, scriptAttrs = '' } = {}) {
   // snippetAsShown: the exact one-line snippet the dashboard hands out, with no extra attributes
   const script = snippetAsShown
     ? `<script async src="${SERVER}/tracker/tracker.min.js" data-project-key="${apiKey}"></script>`
     : `<script defer src="${SERVER}/tracker/tracker.min.js"
       data-project-key="${apiKey}" data-api-endpoint="${SERVER}/collect"
-      data-heartbeat-interval="2000"></script>`;
+      data-heartbeat-interval="2000" ${scriptAttrs}></script>`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Tracked site</title>
     ${script}</head>
     <body><h1>Tracked</h1>${extraHtml}<div style="height:3000px"></div></body></html>`;
