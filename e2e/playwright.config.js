@@ -47,4 +47,6 @@ module.exports = defineConfig({
       TRACKER_HEARTBEAT_INTERVAL: '2',
     },
   },
+      // Labs are off by default; the suite keeps them on so it can test them (dashboard.spec checks them off)
+      LABS: 'widgets,funnels,segments,revenue,webhooks,email-reports',
 });

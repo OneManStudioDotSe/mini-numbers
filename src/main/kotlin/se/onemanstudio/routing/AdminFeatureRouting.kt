@@ -16,6 +16,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.api.models.*
 import se.onemanstudio.api.models.admin.*
 import se.onemanstudio.api.models.dashboard.*
+import se.onemanstudio.core.Lab
+import se.onemanstudio.core.Labs
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.db.*
 import se.onemanstudio.middleware.QueryCache
@@ -164,6 +166,14 @@ fun Route.adminFeatureRoutes() {
         call.respond(stats)
     }
 
+    if (Labs.isOn(Lab.FUNNELS)) funnelRoutes()
+    if (Labs.isOn(Lab.SEGMENTS)) segmentRoutes()
+    if (Labs.isOn(Lab.WEBHOOKS)) webhookRoutes()
+    if (Labs.isOn(Lab.EMAIL_REPORTS)) emailReportRoutes()
+    if (Labs.isOn(Lab.REVENUE)) revenueRoutes()
+}
+
+private fun Route.funnelRoutes() {
     // ── Funnels ──────────────────────────────────────────────────
 
     get("/projects/{id}/funnels") {
@@ -324,6 +334,9 @@ fun Route.adminFeatureRoutes() {
         call.respond(analysis)
     }
 
+}
+
+private fun Route.segmentRoutes() {
     // ── User Segments ─────────────────────────────────────────────
 
     get("/projects/{id}/segments") {
@@ -497,6 +510,9 @@ fun Route.adminFeatureRoutes() {
         call.respond(analysis)
     }
 
+}
+
+private fun Route.webhookRoutes() {
     // ── Webhooks ─────────────────────────────────────────────────
 
     get("/projects/{id}/webhooks") {
@@ -699,11 +715,10 @@ fun Route.adminFeatureRoutes() {
         })
     }
 
-    emailReportAndRevenueRoutes()
 }
 
-/** Email reports, SMTP status and revenue analytics (split out to keep cyclomatic complexity in bounds). */
-private fun Route.emailReportAndRevenueRoutes() {
+/** Email reports and SMTP status. */
+private fun Route.emailReportRoutes() {
     // ── Email Reports ────────────────────────────────────────────
 
     get("/projects/{id}/email-reports") {
@@ -916,6 +931,9 @@ private fun Route.emailReportAndRevenueRoutes() {
         )
     }
 
+}
+
+private fun Route.revenueRoutes() {
     // ── Revenue Analytics ─────────────────────────────────────────
 
     get("/projects/{id}/revenue") {

@@ -1,5 +1,7 @@
 package se.onemanstudio.config.models
 
+import se.onemanstudio.core.Lab
+
 /**
  * Root configuration for Mini Numbers application
  * All settings loaded from environment variables or .env file
@@ -12,5 +14,6 @@ data class AppConfig(
     val rateLimit: RateLimitConfig,
     val privacy: PrivacyConfig = PrivacyConfig(),
     val tracker: TrackerConfig = TrackerConfig(),
-    val email: EmailConfig = EmailConfig()
+    val email: EmailConfig = EmailConfig(),
+    val labs: Set<Lab> = emptySet()
 )

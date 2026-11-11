@@ -22,6 +22,7 @@ import se.onemanstudio.api.models.admin.PasswordResetRequest
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.JwtService
+import se.onemanstudio.core.Labs
 import se.onemanstudio.core.cutOffSessions
 import se.onemanstudio.core.getUserRole
 import se.onemanstudio.core.resolveActiveRole
@@ -298,5 +299,10 @@ fun Route.adminSessionRoutes(config: AppConfig) {
             put("hashRotationHours", privacy.hashRotationHours)
             put("dataRetentionDays", privacy.dataRetentionDays)
         })
+    }
+
+    // Labs switched on with LABS; the dashboard removes the sections of the others
+    get("/labs") {
+        call.respond(mapOf("enabled" to Labs.enabled.map { it.key }))
     }
 }

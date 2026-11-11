@@ -1,5 +1,7 @@
 package se.onemanstudio.routing
 
+import se.onemanstudio.core.Lab
+import se.onemanstudio.core.Labs
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -151,16 +153,18 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
             WidgetCache.invalidateProject(project[Projects.id].toString())
 
             // Fire webhooks for matching events (non-blocking)
-            try {
-                WebhookTrigger.checkAndFire(
-                    projectId = project[Projects.id],
-                    eventType = payload.type,
-                    eventName = sanitizedEventName,
-                    path = sanitizedPath,
-                    sessionId = payload.sessionId
-                )
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                call.application.environment.log.warn("Webhook trigger error: ${e.message}")
+            if (Labs.isOn(Lab.WEBHOOKS)) {
+                try {
+                    WebhookTrigger.checkAndFire(
+                        projectId = project[Projects.id],
+                        eventType = payload.type,
+                        eventName = sanitizedEventName,
+                        path = sanitizedPath,
+                        sessionId = payload.sessionId
+                    )
+                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                    call.application.environment.log.warn("Webhook trigger error: ${e.message}")
+                }
             }
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             call.application.environment.log.error("Failed to save event: ${e.message}", e)

@@ -45,6 +45,10 @@ properties are stored as sent — keep personal data out of them.
 
 ## Widgets
 
+{: .warning }
+Widgets are a [lab](configuration#labs), off unless `LABS` includes `widgets`. While they are on, anyone who
+copies the project key from your site's HTML can read the numbers below for that site.
+
 Show live numbers on your own pages. Add a placeholder and the widget script:
 
 ```html
@@ -73,9 +77,6 @@ on the server for 60 seconds.
 | `GET /widget/toppages?filter=7d&limit=5` | `{"pages": [{"path": "/", "views": 340}], "filter": "7d"}` |
 | `GET /widget/sparkline` | `{"points": [{"date": "2026-11-01", "views": 120}], "maxValue": 180}` |
 
-{: .note }
-The project key is visible in your site's HTML anyway (it's in the tracking snippet); widgets only expose
-the aggregate numbers above.
 
 ---
 
@@ -105,7 +106,7 @@ Users with the **viewer** role can read everything but change nothing. Users are
 
 ## Webhooks
 
-Set up in **Settings → Automations → Webhooks**. Mini Numbers sends a `POST` with a JSON body when a
+A [lab](configuration#labs): on when `LABS` includes `webhooks`. Set up in **Settings → Automations → Webhooks**. Mini Numbers sends a `POST` with a JSON body when a
 conversion goal is reached or traffic spikes. Each request carries:
 
 - `X-MiniNumbers-Event` — `goal_conversion` or `traffic_spike`

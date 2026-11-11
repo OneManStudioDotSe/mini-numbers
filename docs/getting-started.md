@@ -70,5 +70,4 @@ MiniNumbers.track("signup");
 MiniNumbers.track("purchase", { revenue: 29.99, currency: "EUR" });
 ```
 
-They appear under **Events & Revenue**. Turn them into **conversion goals** or **funnels** from the
-**Conversions** section. All tracker options are in [For developers](developers).
+They appear under **Events**. Turn them into **conversion goals** from the **Conversions** section. All tracker options are in [For developers](developers).

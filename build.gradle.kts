@@ -89,6 +89,8 @@ tasks.withType<Test> {
     systemProperty("DB_SQLITE_PATH", "test-dbs/ci-test.db")
     // Tests talk plain HTTP; outside development mode the session cookie is Secure-only and never sent back
     systemProperty("KTOR_DEVELOPMENT", "true")
+    // Labs are off by default; the suite keeps testing them (LabsTest checks the defaults)
+    systemProperty("LABS", "widgets,funnels,segments,revenue,webhooks,email-reports")
 }
 
 // Minify tracker.js (strip comments and collapse whitespace)

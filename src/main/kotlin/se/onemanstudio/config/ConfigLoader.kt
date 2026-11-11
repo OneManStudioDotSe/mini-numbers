@@ -1,5 +1,6 @@
 package se.onemanstudio.config
 
+import se.onemanstudio.core.Labs
 import se.onemanstudio.config.models.*
 import java.io.File
 
@@ -90,7 +91,8 @@ object ConfigLoader {
             rateLimit = loadRateLimitConfig(),
             privacy = loadPrivacyConfig(),
             tracker = loadTrackerConfig(),
-            email = loadEmailConfig()
+            email = loadEmailConfig(),
+            labs = Labs.parse(getEnvOrNull("LABS"))
         )
     }
 

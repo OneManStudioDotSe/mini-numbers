@@ -21,10 +21,11 @@ It's one program with its own database, so it runs on a small server next to not
   Perplexity and others), countries and cities.
 - **What they do**: top, entry and exit pages, scroll depth, outbound links, file downloads, and your own
   custom events (`MiniNumbers.track("signup")`).
-- **Conversions and revenue**: goals, funnels, visitor segments, revenue per source and campaign.
+- **Conversions**: goals for the pages and events that matter to you.
 - **Live view**: visitors in the last five minutes, a globe, an hourly heatmap and a year-long activity calendar.
-- **Sharing your data**: CSV export, a REST API, signed webhooks, scheduled email reports, and widgets you can
-  embed on your own pages.
+- **Sharing your data**: CSV export and a REST API.
+- **Labs**: funnels, segments, revenue, signed webhooks, email reports and embeddable widgets, off until you
+  [switch them on](configuration#labs).
 - **Privacy you choose**: three privacy modes and an adjustable "forget visitors after" window.
 
 ---

@@ -24,9 +24,9 @@ The page is split into eight sections. Each can be collapsed.
 | **Traffic Sources** | Referrers and UTM sources, mediums and campaigns |
 | **Audience & Technology** | Countries and cities on a map or globe, browsers, operating systems, devices |
 | **Time Patterns** | Busiest day, peak hour, top month, an hour-by-day heatmap and a 365-day activity calendar |
-| **Events & Revenue** | Your custom events; revenue totals, revenue per event and revenue by source and campaign |
+| **Events** | Your custom events; with the revenue [lab](configuration#labs) also revenue totals, revenue per event and revenue by source and campaign |
 | **Real-Time** | Visitors on the site in the last five minutes, as they arrive |
-| **Conversions** | Conversion goals, funnels and visitor segments |
+| **Conversions** | Conversion goals; funnels and visitor segments with their [labs](configuration#labs) on |
 
 ## Goals, funnels and segments
 
@@ -34,9 +34,9 @@ In **Conversions**, each card has a **Manage** button:
 
 - **Goal** — a page someone reaches (`/thank-you`) or an event they trigger (`signup`). Shows how many
   visitors convert.
-- **Funnel** — a list of steps (pages or events). Shows how many visitors make it through each step and where
+- **Funnel** *(lab)* — a list of steps (pages or events). Shows how many visitors make it through each step and where
   they drop off.
-- **Segment** — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
+- **Segment** *(lab)* — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
 
 ## Raw events
 
@@ -51,7 +51,7 @@ In **Conversions**, each card has a **Manage** button:
 - **Dashboard preferences** — 12/24-hour time, date format and heatmap colours.
 - **Export report** — tick what to include (views, pages, referrers, campaigns, technology, locations, events,
   revenue, raw events) and download one CSV file.
-- **Automations** — **Webhooks** (Mini Numbers calls your URL when a goal converts or traffic spikes; each
+- **Automations** *(labs)* — **Webhooks** (Mini Numbers calls your URL when a goal converts or traffic spikes; each
   call is signed so you can verify it) and **Email reports** (daily, weekly or monthly summaries; needs the
   [SMTP settings](configuration#email-reports)).
 

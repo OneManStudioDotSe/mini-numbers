@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Labs.** Funnels, segments, revenue, webhooks, email reports and embeddable widgets are now experimental and off
+  by default: their dashboard parts are hidden and their API answers 404. Turn any of them on with
+  `LABS=funnels,webhooks,…` (see the configuration page). Nothing stored is removed.
+
+### Security
+
+- **Widgets are off by default.** With them on, anyone who copied the project key from a site's HTML could read
+  that site's top pages and visitor counts. They now need `LABS=widgets`.
+
 ### Changed
 
 - **Light-theme colours now meet WCAG AA.** Success text is emerald-700 (`#047857`), danger text red-600

@@ -106,4 +106,26 @@ test.describe('dashboard', () => {
     await expect(sidebar).toBeInViewport();
     await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390);
   });
+
+  test('labs that are off leave no trace in the dashboard', async ({ page }) => {
+    await loginViaApi(page.request);
+    const project = await createProject(page.request);
+    await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 100, timeScope: 7 } });
+    // The suite's server has every lab on; answer as a default server (LABS unset) would
+    await page.route('**/admin/labs', route => route.fulfill({ json: { enabled: [] } }));
+    const labCalls = [];
+    page.on('request', r => { if (/\/(funnels|segments|revenue|webhooks|email-reports)(\/|\?|$)/.test(new URL(r.url()).pathname)) labCalls.push(r.url()); });
+
+    await page.goto('/admin-panel');
+    await page.locator('.project-menu__item', { hasText: project.name }).click();
+    await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });
+    await expect(page.locator('#goals-section')).toBeAttached();
+    for (const id of ['#funnels-section', '#segments-section', '#revenue-section', '#manage-webhooks-btn', '#manage-email-reports-btn']) {
+      await expect(page.locator(id), id).toHaveCount(0);
+    }
+    await expect(page.locator('[data-section="events"] h2')).toHaveText('Events');
+    await expect(page.locator('[data-section="conversions"] p')).toHaveText('Conversion goals with completion rates.');
+    expect(labCalls, 'no requests to the API of a lab that is off').toEqual([]);
+  });
+
 });

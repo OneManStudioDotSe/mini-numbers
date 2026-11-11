@@ -68,6 +68,9 @@ const Dashboard = {
     // Initialize global error handling
     Utils.errors.init();
 
+    // Remove what belongs to labs that are off (LABS on the server) before anything renders
+    await this.applyLabs();
+
     // Set up theme toggle
     this.setupThemeToggle();
 
@@ -123,6 +126,26 @@ const Dashboard = {
       view: 'countries',
       selectedCountry: null
     };
+  },
+
+  /**
+   * Read which labs are switched on and remove every [data-lab] element whose labs are all off.
+   * data-lab holds one or more space-separated lab keys; the element stays if any of them is on.
+   */
+  async applyLabs() {
+    try {
+      this.state.labs = new Set((await Utils.api.fetch('/admin/labs')).enabled);
+    } catch (error) {
+      console.error('Failed to load labs:', error);
+      this.state.labs = new Set();
+    }
+    document.querySelectorAll('[data-lab]').forEach(el => {
+      if (!el.dataset.lab.split(' ').some(lab => this.state.labs.has(lab))) el.remove();
+    });
+  },
+
+  labOn(lab) {
+    return this.state.labs?.has(lab) ?? false;
   },
 
   /**
@@ -734,10 +757,10 @@ const Dashboard = {
       Promise.allSettled([
         this.loadContributionCalendar(),
         this.loadGoalsAndFunnels(),
-        this.loadSegments(),
-        this.loadWebhooks(),
-        this.loadEmailReports(),
-        this.loadRevenue()
+        this.labOn('segments') && this.loadSegments(),
+        this.labOn('webhooks') && this.loadWebhooks(),
+        this.labOn('email-reports') && this.loadEmailReports(),
+        this.labOn('revenue') && this.loadRevenue()
       ]);
     } catch (error) {
       console.error('Failed to refresh report:', error);
@@ -1820,11 +1843,12 @@ const Dashboard = {
     try {
       const [goalStats, funnels] = await Promise.all([
         GoalsManager.loadGoalStats(this.state.currentProjectId, this.state.currentFilter),
-        GoalsManager.loadFunnels(this.state.currentProjectId)
+        funnelsOn ? GoalsManager.loadFunnels(this.state.currentProjectId) : null
       ]);
 
       GoalsManager.renderGoals(goalStats);
-      GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
+      if (funnelsOn) GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
+      const funnelsOn = this.labOn('funnels');
     } catch (error) {
       console.error('Failed to load goals and funnels:', error);
     }

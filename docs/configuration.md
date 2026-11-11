@@ -67,9 +67,31 @@ Requests over a limit get HTTP 429 and the event is dropped.
 
 Tables are created and updated automatically at start-up.
 
+## Labs
+
+Features that work but haven't been tested enough to be on for everyone. They are off by default: their parts of
+the dashboard are hidden and their API answers 404. Turn on the ones you want with a comma-separated list, then
+restart:
+
+```bash
+LABS=webhooks,funnels
+```
+
+| Lab | What it adds |
+|-----|--------------|
+| `funnels` | Multi-step funnels in **Conversions** |
+| `segments` | Saved visitor segments in **Conversions** |
+| `revenue` | Revenue cards and attribution from events with a `revenue` property, and a revenue section in the CSV report |
+| `webhooks` | Signed HTTP calls when a goal converts or traffic spikes ([details](developers#webhooks)) |
+| `email-reports` | Scheduled email summaries (also needs the SMTP settings below) |
+| `widgets` | Embeddable live numbers ([details](developers#widgets)). Anyone with the project key from your site's HTML can read them |
+
+Data collected while a lab is off is kept, so turning it on later shows the history too.
+
 ## Email reports
 
-Email reports stay switched off until `SMTP_HOST` and `SMTP_FROM` are set.
+Email reports are a [lab](#labs) (`LABS=email-reports`) and stay switched off until `SMTP_HOST` and `SMTP_FROM`
+are set as well.
 
 | Setting | Default | What it does |
 |---------|---------|--------------|

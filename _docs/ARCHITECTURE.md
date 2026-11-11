@@ -100,6 +100,7 @@ mini-numbers/
 │   │   ├── AnalyticsSecurity.kt          # Visitor hashing (configurable rotation)
 │   │   ├── HTTP.kt                       # CORS & content negotiation
 │   │   ├── JwtService.kt                 # Access/refresh token issuance & verification
+│   │   ├── Labs.kt                       # Lab enum + LABS parsing; which experimental features are mounted
 │   │   ├── Security.kt                   # Session auth & login page
 │   │   ├── ServiceManager.kt             # Lifecycle management, uptime, retention timer
 │   │   ├── WidgetAuth.kt                 # API-key auth for /widget/* endpoints
@@ -302,6 +303,7 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 | `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
 | `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `TRACKER_SPA_ENABLED`        | `true`                                      | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
+| `LABS`                       | *(empty)*                                   | Comma-separated labs to switch on: `widgets`, `funnels`, `segments`, `revenue`, `webhooks`, `email-reports` (see Feature notes → Labs) |
 | `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path; the bundled GeoLite2-City copy (MaxMind attribution in README, docs and the Docker image) is from 2026-01-30 |
 
 ### Email reports (SMTP)
@@ -344,6 +346,7 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 - `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair; a replayed refresh token revokes its family
 - `POST /api/password-reset` — Resets the `.env` admin's password and signs that account out everywhere (cookies and refresh tokens)
 - `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
+- `GET /admin/labs` — `{enabled: [...]}`, the labs switched on with `LABS` (also at `/api/labs`)
 - `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip (also at `/api/privacy`)
 - `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `PUT /admin/users/{userId}/active`,
   `DELETE /admin/users/{userId}` — admin only. Deactivating or deleting a user revokes their refresh tokens; an admin
@@ -366,6 +369,10 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 - `GET /admin/projects/{id}/events` (paginated, filterable, sortable; `limit` ≤ 10 000, the exports ask for that and warn when more exist)
 
 ### Conversion goals / funnels / segments
+
+Funnels and segments are labs; with their lab off the routes are not mounted (404). The same goes for the
+webhook, email-report (including `/smtp/status`), revenue and widget routes below.
+
 
 - `GET|POST /admin/projects/{id}/goals`, `PUT|DELETE /admin/projects/{id}/goals/{goalId}`, `GET /admin/projects/{id}/goals/stats?filter=7d`
 - `GET|POST /admin/projects/{id}/funnels`, `DELETE /admin/projects/{id}/funnels/{funnelId}`, `GET /admin/projects/{id}/funnels/{funnelId}/analysis?filter=7d`
@@ -405,6 +412,24 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 All error responses use standardized `ApiError` format: `{ error, code, details[] }`.
 
 ## Feature notes
+
+### Labs
+
+`core/Labs.kt` lists the features that work but are not verified well enough to be on by default (see
+`_docs/LAUNCH-AUDIT.md`). `ConfigLoader` parses `LABS` into `AppConfig.labs`; `ServiceManager.initialize` hands it to
+`Labs.init`, so the set is fixed for the life of the process. A lab that is off is switched off at three levels:
+
+- **Routes**: `adminFeatureRoutes()` mounts `funnelRoutes()`, `segmentRoutes()`, `webhookRoutes()`, `emailReportRoutes()`
+  and `revenueRoutes()` only for labs that are on; `configureWidgetRouting` (including `/widget/widget.js`) is only
+  installed with `widgets` on.
+- **Background work**: the email scheduler does not start and `/collect` does not call `WebhookTrigger`.
+- **Dashboard**: `admin.js` `applyLabs()` reads `/admin/labs` before anything renders and removes every element
+  whose `data-lab` (one or more space-separated keys) names no enabled lab; `refreshReport()` and
+  `loadGoalsAndFunnels()` skip the loaders of labs that are off, so nothing requests a 404.
+
+Stored rows are untouched, and the demo seeder still creates funnels and segments; they appear when the lab is
+switched on. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
+testing them; `LabsTest` and the dashboard spec check the defaults.
 
 ### Webhooks
 

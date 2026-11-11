@@ -1,5 +1,7 @@
 package se.onemanstudio.setup
 
+import se.onemanstudio.core.Lab
+import se.onemanstudio.core.Labs
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
@@ -207,7 +209,7 @@ fun Application.configureSetupRouting() {
                         )
                         configureHTTP(reloadedConfig)
                         configureRouting(reloadedConfig, rateLimiter)
-                        configureWidgetRouting(rateLimiter)
+                        if (Labs.isOn(Lab.WIDGETS)) configureWidgetRouting(rateLimiter)
                     } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
                         environment.log.warn("Could not install plugins dynamically: ${e.message}")
                         // This is expected if plugins are already installed - not a fatal error

@@ -627,8 +627,8 @@
                     <div class="dashboard-section__title">
                         <i class="ri-flashlight-line"></i>
                         <div>
-                            <h2>Events & Revenue</h2>
-                            <p>Custom events tracked via MiniNumbers.track(), revenue totals, average order value, and which referrers and campaigns generate actual income.</p>
+                            <h2>Events<span data-lab="revenue"> &amp; Revenue</span></h2>
+                            <p>Custom events tracked via MiniNumbers.track()<span data-lab="revenue">, revenue totals, average order value, and which referrers and campaigns generate actual income</span>.</p>
                         </div>
                     </div>
                     <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
@@ -650,7 +650,7 @@
                     </div>
 
                     <!-- Revenue -->
-                    <div class="card mt-lg" id="revenue-section" style="display: none;">
+                    <div class="card mt-lg" id="revenue-section" data-lab="revenue" style="display: none;">
                         <div class="chart-card__header mb-lg">
                             <h3 class="chart-card__title">
                                 <i class="ri-money-dollar-circle-line"></i> Revenue
@@ -828,7 +828,7 @@ MiniNumbers.track("donation", {
                         <i class="ri-focus-3-line"></i>
                         <div>
                             <h2>Conversions</h2>
-                            <p>Conversion goals with completion rates, multi-step funnels showing drop-off at each stage, and custom audience segments for targeted analysis.</p>
+                            <p>Conversion goals with completion rates<span data-lab="funnels">, multi-step funnels showing drop-off at each stage</span><span data-lab="segments">, custom audience segments for targeted analysis</span>.</p>
                         </div>
                     </div>
                     <i class="ri-arrow-down-s-line dashboard-section__chevron"></i>
@@ -851,7 +851,7 @@ MiniNumbers.track("donation", {
                     </div>
 
                     <!-- Funnels -->
-                    <div class="card mt-lg" id="funnels-section" style="display: none;">
+                    <div class="card mt-lg" id="funnels-section" data-lab="funnels" style="display: none;">
                         <div class="chart-card__header mb-lg">
                             <h3 class="chart-card__title">
                                 <i class="ri-filter-3-line"></i> Funnels
@@ -867,7 +867,7 @@ MiniNumbers.track("donation", {
                     </div>
 
                     <!-- User Segments -->
-                    <div class="card mt-lg" id="segments-section" style="display: none;">
+                    <div class="card mt-lg" id="segments-section" data-lab="segments" style="display: none;">
                         <div class="chart-card__header mb-lg">
                             <h3 class="chart-card__title">
                                 <i class="ri-equalizer-line"></i> User segments
@@ -1083,7 +1083,7 @@ MiniNumbers.track("donation", {
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="custom-events"> Custom events
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label data-lab="revenue" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" class="export-section-cb" value="revenue"> Revenue attribution
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
@@ -1095,16 +1095,18 @@ MiniNumbers.track("donation", {
                 </button>
 
                 <!-- Automations Section -->
+                <div data-lab="webhooks email-reports">
                 <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Automations</h3>
                 <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
-                    <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn">
+                    <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn" data-lab="webhooks">
                         <i class="ri-webhook-line"></i>
                         <span>Manage webhooks</span>
                     </button>
-                    <button class="btn btn-ghost btn-sm" id="manage-email-reports-btn" aria-label="Manage email reports">
+                    <button class="btn btn-ghost btn-sm" id="manage-email-reports-btn" data-lab="email-reports" aria-label="Manage email reports">
                         <i class="ri-mail-send-line"></i>
                         <span>Manage email reports</span>
                     </button>
+                </div>
                 </div>
             </div>
             <div class="modal-footer">

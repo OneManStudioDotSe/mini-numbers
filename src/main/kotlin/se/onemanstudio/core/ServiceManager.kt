@@ -131,8 +131,9 @@ object ServiceManager {
             }
 
             // 6. Initialize email service and scheduler
+            Labs.init(config.labs)
             se.onemanstudio.services.EmailService.init(config.email)
-            se.onemanstudio.services.EmailService.startScheduler()
+            if (Labs.isOn(Lab.EMAIL_REPORTS)) se.onemanstudio.services.EmailService.startScheduler()
 
             currentState = State.READY
             startTime = System.currentTimeMillis()

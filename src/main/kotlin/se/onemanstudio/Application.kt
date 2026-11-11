@@ -1,5 +1,7 @@
 package se.onemanstudio
 
+import se.onemanstudio.core.Lab
+import se.onemanstudio.core.Labs
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -216,7 +218,7 @@ private fun Application.configureUnifiedRouting() {
         )
         configureHTTP(config)
         configureRouting(config, rateLimiter)
-        configureWidgetRouting(rateLimiter)
+        if (Labs.isOn(Lab.WIDGETS)) configureWidgetRouting(rateLimiter)
     }
 
     // Always install setup routes (they handle state-based redirects)
