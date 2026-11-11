@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`scripts/smoke.sh`** checks a live server in about 30 seconds (health, HTTPS headers, tracker, a page view
+  collected and stored, wrong passwords refused, widgets off) and exits non-zero on any failure. See "Verify your
+  install" in the deployment guide; `_docs/GO-LIVE.md` is the full go-live checklist around it.
 - **The tracker honours Global Privacy Control and Do Not Track.** Visitors whose browser sends either are not
   counted; `MiniNumbers.track()` stays callable and does nothing. Add `data-respect-privacy-signals="false"` to the
   snippet to count them anyway.

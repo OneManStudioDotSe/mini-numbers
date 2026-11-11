@@ -157,6 +157,7 @@ mini-numbers/
 │   └── static/                           # Admin panel frontend (admin.html, css/, js/)
 ├── src/test/kotlin/                      # JVM tests (unit + Ktor test-host integration)
 ├── deploy/mini-numbers.service           # systemd unit for JAR installs (127.0.0.1:8080 behind Caddy/nginx)
+├── scripts/smoke.sh                      # post-deploy smoke test (bash + curl); _docs/GO-LIVE.md is the checklist around it
 ├── Dockerfile                            # runtime WORKDIR is the /app/data volume: .env + stats.db persist; PORT=8080
 ├── docker-compose.yml / .postgres.yml    # pulls ghcr.io/onemanstudiodotse/mini-numbers:latest + Caddy (HTTPS from DOMAIN)
 ├── .github/workflows/                    # build.yml (tests, e2e, Docker persistence check), docker-publish.yml

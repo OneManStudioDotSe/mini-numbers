@@ -223,6 +223,18 @@ while running with `sqlite3 stats.db ".backup mini-numbers-backup.db"`.
 - Java: `sudo systemctl stop mini-numbers && sudo tar czf ~/mini-numbers-backup.tgz -C /opt/mini-numbers .env stats.db && sudo systemctl start mini-numbers`
 - PostgreSQL: `docker compose -f docker-compose.postgres.yml exec postgres pg_dump -U analytics mini_numbers > backup.sql`
 
+**Verify your install** — `scripts/smoke.sh` checks a running server end to end in about 30 seconds: health,
+HTTPS and security headers, the tracker script, that a page view is accepted, stored and readable, that wrong
+passwords are refused, and that widgets stay off unless you switched them on. Create a project named "Smoke test"
+first (its numbers fill with the test's page views, not your site's), then:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/scripts/smoke.sh && chmod +x smoke.sh
+BASE_URL=https://stats.example.com PROJECT_KEY=<smoke project key> ./smoke.sh
+```
+
+It asks for the admin password, prints one line per check and exits non-zero if any fails. Run it after every upgrade.
+
 **Health check** — `GET /health` returns `{"status":"healthy","state":"READY",…}` once setup is complete,
 for uptime monitors and load balancers.
 
