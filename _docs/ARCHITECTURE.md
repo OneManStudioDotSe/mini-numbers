@@ -520,6 +520,8 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 - **Headers** (`core/HTTP.kt`): CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, HSTS outside
   development mode. CORS is `anyHost()` without credentials; `/admin` and `/api` additionally check
   `ALLOWED_ORIGINS` (`middleware/AdminCorsGuard.kt`).
+  Third-party sources are limited to `cdn.jsdelivr.net` (Chart.js, chartjs-chart-matrix, Remixicon, globe.gl, all
+  pinned); Inter is self-hosted in `assets/fonts/` (OFL) and declared in `static/css/fonts.css` for the login page and wizard.
 - **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); the referrer must be
   an `http(s)` URL with no whitespace, quotes, angle brackets or backticks. All SQL goes through Exposed.
 - **Output**: anything from the database that lands in dashboard HTML goes through `Utils.escapeHtml`

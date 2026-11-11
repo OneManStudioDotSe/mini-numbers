@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   turns on development mode only over plain HTTP, and waits for you to launch.
 - The globe library and its textures are pinned to exact versions, and the script is checked with an SRI hash.
 
+- The dashboard no longer loads Leaflet and chartjs-chart-geo, which nothing used, and the login page and wizard
+  serve Inter themselves instead of loading it from Google Fonts. unpkg.com and Google are gone from the CSP.
+
 ### Fixed
 
 - The "Filter by" values read "(undefined)" instead of their counts.

@@ -1153,8 +1153,6 @@ const Dashboard = {
       if (!MapManager._toggleInitialized) {
         MapManager.initViewToggle(data.countries);
         MapManager._toggleInitialized = true;
-      } else if (MapManager.currentView === 'map' && MapManager.leafletMap) {
-        MapManager.updateLeafletMap(data.countries);
       }
 
       // Attach drill-down listener only once
@@ -2277,9 +2275,9 @@ const Dashboard = {
             await Utils.api.post(`/admin/projects/${this.state.currentProjectId}`, {
               name: newName
             });
-            this.state.currentProjectName = newName;
 
             // Update the title display
+            this.state.currentProjectName = newName;
             const titleEl = document.getElementById('active-title');
             if (titleEl) titleEl.textContent = newName;
 

@@ -46,12 +46,11 @@ fun Application.configureHTTP(config: AppConfig) {
         // Allows same-origin scripts/styles, inline styles (for admin panel), and CDN resources
         header("Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " +
-            "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net " +
-            "https://fonts.googleapis.com; " +
-            "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+            "font-src 'self' https://cdn.jsdelivr.net; " +  // Inter is self-hosted; Remixicon comes from jsdelivr
             "img-src 'self' data: https:; " +        // Allow images from same origin, data URIs, and HTTPS
-            "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com; " +  // Allow AJAX to same origin and CDN source maps
+            "connect-src 'self' https://cdn.jsdelivr.net; " +  // Allow AJAX to same origin and CDN source maps
             "frame-ancestors 'none'; " +             // Prevent embedding (redundant with X-Frame-Options)
             "base-uri 'self'; " +                    // Prevent base tag injection
             "form-action 'self'"                     // Prevent form submission to external sites
