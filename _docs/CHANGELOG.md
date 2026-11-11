@@ -48,6 +48,11 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
 
 ### Fixed
 
+- Switching project (or period) could leave the previous project's numbers on screen: the browser, OS and device
+  legends, "Show more" buttons, the stat-card sparklines, the peak-time cards and charts in hidden cards. Every chart
+  area is now put back to its original state before new data renders, and a card that showed "No data" draws again
+  when data returns. The globe survives a switch to a project without location data.
+- "Top month" read "NaN visits".
 - The "Filter by" values read "(undefined)" instead of their counts.
 - While a country was opened in the countries card, changing the period left the views chart, heatmap and the
   other charts after it on the old period. The country's regions now follow the period too, and switching

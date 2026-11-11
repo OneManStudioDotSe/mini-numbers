@@ -162,4 +162,53 @@ test.describe('dashboard', () => {
     await expect.poll(() => page.evaluate(() => typeof window.Globe), { timeout: 20_000 }).toBe('function');
     expect(errors).toEqual([]);
   });
+
+  test('switching projects leaves nothing of the previous project behind', async ({ page, browser }) => {
+    await loginViaApi(page.request);
+    const full = await createProject(page.request, `full ${Date.now()}`);
+    await page.request.post(`/admin/projects/${full.id}/demo-data`, { data: { count: 300, timeScope: 7 } });
+    const empty = await createProject(page.request, `empty ${Date.now()}`);
+
+    // What each card shows: its visible text and which of its charts hold data
+    const snapshot = p => p.evaluate(() => {
+      const charts = {};
+      for (const c of Object.values(Chart.instances)) {
+        const id = c.canvas.id || c.canvas.closest('[id]')?.id;
+        if (document.body.contains(c.canvas)) charts[id] = c.data.datasets.some(d => (d.data || []).length > 0);
+      }
+      const cards = {};
+      document.querySelectorAll('#dashboard-content .card').forEach((card, i) => {
+        if (card.closest('#section-realtime-content')) return; // live feed changes by itself
+        cards[card.id || `card-${i}`] = card.offsetParent === null ? '(hidden)' : card.innerText.replace(/\s+/g, ' ').trim();
+      });
+      return { cards, charts };
+    });
+    const open = async (p, project) => {
+      await p.locator('.project-menu__item', { hasText: project.name }).click();
+      await p.waitForLoadState('networkidle');
+      await p.waitForTimeout(1200);
+    };
+    const expand = p => p.evaluate(() => document.querySelectorAll('.dashboard-section[data-expanded="false"] .dashboard-section__header').forEach(h => h.click()));
+    const fresh = async project => {
+      const ctx = await browser.newContext({ storageState: await page.context().storageState() });
+      const p = await ctx.newPage();
+      await p.goto('/admin-panel'); await expand(p); await open(p, project);
+      const shot = await snapshot(p); await ctx.close(); return shot;
+    };
+    const emptyFresh = await fresh(empty);
+    const fullFresh = await fresh(full);
+
+    await page.goto('/admin-panel');
+    await expand(page);
+    await open(page, full);
+    await open(page, empty);
+    expect(await snapshot(page), 'empty project after the full one').toEqual(emptyFresh);
+    await open(page, full);
+    expect(await snapshot(page), 'full project after the empty one').toEqual(fullFresh);
+
+    // Another period and back renders the same as before
+    await page.selectOption('#time-filter', '24h'); await page.waitForLoadState('networkidle');
+    await page.selectOption('#time-filter', '7d'); await page.waitForLoadState('networkidle'); await page.waitForTimeout(1200);
+    expect(await snapshot(page), 'full project after a period change').toEqual(fullFresh);
+  });
 });

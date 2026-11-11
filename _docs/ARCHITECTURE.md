@@ -432,6 +432,15 @@ Stored rows are untouched, and the demo seeder still creates funnels and segment
 switched on. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
 testing them; `LabsTest` and the dashboard spec check the defaults.
 
+### Dashboard re-renders
+
+`admin.js` `capturePristineCharts()` records, at start-up, the original child elements of every element that holds a
+chart canvas in `#dashboard-content`. `resetCharts()` runs at the start of every `refreshReport()` (project switch,
+period change): it destroys the charts in the dashboard, removes whatever the renderers added to those areas (icon
+bar lists, empty states), puts back any original element they removed (the globe lives in the countries area), and
+clears legends, "show more" buttons and the peak-time cards. The e2e test "switching projects leaves nothing of the
+previous project behind" compares every card after a switch with a fresh load of the same project.
+
 ### Tracker privacy signals
 
 `tracker.js` sends nothing when the browser reports Global Privacy Control (`navigator.globalPrivacyControl`) or Do

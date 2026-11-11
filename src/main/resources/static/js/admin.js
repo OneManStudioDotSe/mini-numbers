@@ -74,6 +74,9 @@ const Dashboard = {
     // Viewers can read everything but change nothing: hide the controls that would answer 403
     await this.applyRole();
 
+    // Remember every chart area as it is before any data renders (resetCharts puts it back)
+    this.capturePristineCharts();
+
     // Set up theme toggle
     this.setupThemeToggle();
 
@@ -160,6 +163,45 @@ const Dashboard = {
     const viewer = this.state.role === 'viewer';
     document.documentElement.toggleAttribute('data-viewer', viewer);
     if (viewer) document.getElementById('setting-project-name')?.setAttribute('readonly', '');
+  },
+
+  capturePristineCharts() {
+    this._pristineCharts = [...document.querySelectorAll('#dashboard-content canvas[id]')].map(canvas => {
+      const box = canvas.parentElement;
+      const canvases = [...box.querySelectorAll(':scope > canvas')].map(c => [c, c.getAttribute('style')]);
+      return { box, nodes: [...box.children], className: box.className, style: box.getAttribute('style'), canvases };
+    });
+  },
+
+  /**
+   * Put every chart area back to how it was before any data, so nothing of the previous project or period survives:
+   * chart instances, legends, "show more" buttons, empty states and the peak-time numbers. Runs before each report.
+   * The original elements themselves are kept and put back (not re-created from markup), so the globe, which lives in
+   * the countries area, survives; which view is showing stays MapManager's business.
+   */
+  resetCharts() {
+    const content = document.getElementById('dashboard-content');
+    if (!content) return;
+    Object.entries(ChartManager.instances).forEach(([id, chart]) => {
+      if (content.contains(chart.canvas)) ChartManager.destroy(id);
+    });
+    Object.values(Chart.instances).forEach(chart => {
+      if (!content.contains(chart.canvas)) return;
+      if (MapManager.instance === chart) MapManager.instance = null;
+      chart.destroy();
+    });
+    const restoreStyle = (el, style) => (style === null ? el.removeAttribute('style') : el.setAttribute('style', style));
+    (this._pristineCharts || []).forEach(({ box, nodes, className, style, canvases }) => {
+      [...box.children].forEach(el => { if (!nodes.includes(el)) el.remove(); });
+      nodes.forEach((el, i) => {
+        if (el.parentNode !== box) box.insertBefore(el, nodes.slice(i + 1).find(n => n.parentNode === box) || null);
+      });
+      box.className = className;
+      restoreStyle(box, style);
+      canvases.forEach(([canvas, canvasStyle]) => restoreStyle(canvas, canvasStyle));
+    });
+    content.querySelectorAll('.icon-legend, .show-more-btn').forEach(el => el.remove());
+    this.updatePeakTimeStats([]);
   },
 
   labOn(lab) {
@@ -752,7 +794,8 @@ const Dashboard = {
     if (!this.state.currentProjectId) return;
 
     try {
-      // Show loading skeletons for the entire dashboard
+      // Start from empty chart areas, then show loading skeletons for the entire dashboard
+      this.resetCharts();
       this.showLoadingState();
 
       // Fetch comparison report with time series
@@ -1153,6 +1196,9 @@ const Dashboard = {
       if (!MapManager._toggleInitialized) {
         MapManager.initViewToggle(data.countries);
         MapManager._toggleInitialized = true;
+      } else if (MapManager.currentView === 'globe') {
+        // createMap draws the country list; keep it hidden behind the globe when that is the chosen view
+        MapManager.switchView('globe', data.countries);
       }
 
       // Attach drill-down listener only once
@@ -2577,6 +2623,8 @@ const Dashboard = {
       document.getElementById('peak-hour-value').textContent = '-';
       document.getElementById('peak-day-count').textContent = '0 visits';
       document.getElementById('peak-hour-count').textContent = '0 visits';
+      document.getElementById('peak-month-value').textContent = '-';
+      document.getElementById('peak-month-count').textContent = '0 visits';
       return;
     }
 
@@ -2604,7 +2652,7 @@ const Dashboard = {
         this.state.data.timeSeries.forEach(ts => {
             const date = new Date(ts.timestamp);
             const m = months[date.getMonth()];
-            monthCounts[m] = (monthCounts[m] || 0) + ts.count;
+            monthCounts[m] = (monthCounts[m] || 0) + ts.views;
         });
         const entries = Object.entries(monthCounts).sort((a,b) => b[1] - a[1]);
         if (entries.length) {
