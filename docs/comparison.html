@@ -122,7 +122,7 @@
 
   <section class="facts" aria-label="Headline facts">
     <div class="fact"><b>~2 KB</b><span>Mini Numbers tracker, gzipped. Medama &lt;1, Plausible ~1.9, Umami ~2.4, Rybbit ~9, PostHog ~44.</span></div>
-    <div class="fact"><b>1 program</b><span>SQLite built in, no other service. Only GoatCounter, Liwan and Medama are as light — none has funnels, revenue or webhooks.</span></div>
+    <div class="fact"><b>1 program</b><span>SQLite built in, no other service. Only GoatCounter, Liwan and Medama are as light — none has funnels, revenue or webhooks (ours are labs, off until you switch them on).</span></div>
     <div class="fact"><b>3 modes</b><span>Privacy modes plus a 1 h to 1 y "forget visitors" window. No competitor offers either.</span></div>
     <div class="fact"><b>4 gaps</b><span>Now expected and still missing: annotations, MCP access, smarter bot filtering, journeys.</span></div>
   </section>
@@ -159,7 +159,7 @@
     <div class="panel">
       <h2>Where Mini Numbers wins</h2>
       <ul>
-        <li><b>Light and complete.</b> One MIT-licensed program on SQLite with funnels, segments, revenue attribution, signed webhooks, email reports and widgets. The other light tools (GoatCounter, Liwan, Medama) stop at page views and events.</li>
+        <li><b>Light and complete.</b> One MIT-licensed program on SQLite with goals and AI referrals built in, and funnels, segments, revenue attribution, signed webhooks, email reports and widgets as labs you switch on. The other light tools (GoatCounter, Liwan, Medama) stop at page views and events.</li>
         <li><b>Nothing held back.</b> Plausible CE lacks funnels, revenue, journeys, annotations and the AI channel its cloud has; Rybbit's web vitals are cloud-only; Pirsch self-hosting is enterprise-only. Mini Numbers has one edition.</li>
         <li><b>Privacy you can configure.</b> A forget-visitors window from one hour to a year and three modes whose stored fields are checked by tests — and the dashboard tells you which is active.</li>
         <li><b>No heavy stack.</b> Plausible needs ClickHouse and 2 GB, Rybbit and Swetrix ClickHouse plus Redis, OpenPanel 4 GB, PostHog 16 GB.</li>
@@ -245,9 +245,9 @@
     { s: 'Core analytics' },
     { f: 'Custom events with properties', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'T', ry:'Y', gc:'T', li:'Y', me:'Y', cs:'N' }, note: { gc:'no properties', li:'1.8' } },
     { f: 'Goals', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
-    { f: 'Funnels', v: { mn:'Y', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud Business only' } },
-    { f: 'Saved segments', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
-    { f: 'Revenue tracking and attribution', v: { mn:'Y', um:'Y', pl:'N', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud Business only' } },
+    { f: 'Funnels', v: { mn:'Y', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'lab (off by default)', pl:'cloud Business only' } },
+    { f: 'Saved segments', v: { mn:'Y', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'lab (off by default)' } },
+    { f: 'Revenue tracking and attribution', v: { mn:'Y', um:'Y', pl:'N', ma:'Y', ph:'Y', fa:'Y', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'lab (off by default)', pl:'cloud Business only' } },
     { f: 'AI-assistant referrer channel', v: { mn:'Y', um:'T', pl:'N', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud only (Jun 2026)', ma:'5.5, Oct 2025', ry:'crawlers vs agents' } },
     { f: 'User journeys / paths', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'cloud only' } },
     { f: 'Retention / cohorts', v: { mn:'N', um:'Y', pl:'N', ma:'P', ph:'Y', fa:'N', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' } },
@@ -261,9 +261,9 @@
     { s: 'Integration' },
     { f: 'Public API', v: { mn:'Y', um:'Y', pl:'T', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'T', li:'Y', me:'T', cs:'N' }, note: { mn:'OpenAPI spec' } },
     { f: 'MCP / AI-assistant access', v: { mn:'N', um:'Y', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'Y', gc:'N', li:'N', me:'N', cs:'N' }, note: { pl:'community servers', fa:'Luna assistant' } },
-    { f: 'Webhooks', v: { mn:'Y', um:'T', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'HMAC-signed' } },
-    { f: 'Email reports', v: { mn:'Y', um:'P', pl:'Y', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' }, note: { um:'cloud Pro' } },
-    { f: 'Embeddable widgets', v: { mn:'Y', um:'T', pl:'T', ma:'Y', ph:'T', fa:'T', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' } },
+    { f: 'Webhooks', v: { mn:'Y', um:'T', pl:'N', ma:'T', ph:'Y', fa:'T', ry:'T', gc:'N', li:'N', me:'N', cs:'N' }, note: { mn:'HMAC-signed, lab (off by default)' } },
+    { f: 'Email reports', v: { mn:'Y', um:'P', pl:'Y', ma:'Y', ph:'T', fa:'Y', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' }, note: { mn:'lab (off by default)', um:'cloud Pro' } },
+    { f: 'Embeddable widgets', v: { mn:'Y', um:'T', pl:'T', ma:'Y', ph:'T', fa:'T', ry:'T', gc:'Y', li:'N', me:'N', cs:'N' }, note: { mn:'lab (off by default)' } },
     { f: 'Teams with roles', v: { mn:'T', um:'Y', pl:'Y', ma:'Y', ph:'Y', fa:'Y', ry:'Y', gc:'Y', li:'Y', me:'N', cs:'N' }, note: { mn:'admin / viewer, via API' } },
     { f: 'Single sign-on', v: { mn:'N', um:'P', pl:'N', ma:'P', ph:'P', fa:'N', ry:'P', gc:'N', li:'Y', me:'N', cs:'N' }, note: { li:'OIDC, free', pl:'cloud Enterprise' } },
     { f: 'Import from GA4 or other tools', v: { mn:'N', um:'N', pl:'Y', ma:'Y', ph:'T', fa:'N', ry:'Y', gc:'T', li:'N', me:'N', cs:'N' }, note: { ry:'from Umami, Simple Analytics' } },

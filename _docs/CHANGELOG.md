@@ -68,6 +68,10 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
 
 ### Changed
 
+- The documentation matches 1.6.0: labs are marked as labs everywhere (README, docs site, comparison page, landing),
+  "Filter by" is described as what it does, troubleshooting covers labs, viewers, privacy signals and demo data, the
+  install guide warns that an unfinished setup wizard is open to anyone, and websites-only is stated (apps are on the
+  roadmap).
 - **Light-theme colours now meet WCAG AA.** Success text is emerald-700 (`#047857`), danger text red-600
   (`#dc2626`) and muted text stone-500 (`#78716c`); the sidebar subtitle no longer fades to 70 % opacity. The
   dark theme keeps its green, gets red-400 (`#f87171`) for danger text and a lighter muted sidebar colour. The

@@ -1,11 +1,18 @@
 # Mini Numbers - Testing plan
 
-> Much of this list is automated. `./gradlew test` (JVM tests, SQLite locally and PostgreSQL in CI) covers the API, privacy modes, RBAC, JWT, caching and collection rules;
-> `cd e2e && npx playwright test` (browser tests) covers login/sign-out, project creation, the demo
-> dashboard with the Raw events and privacy dialogs in both themes, the phone-width sidebar, the real
-> tracker on a cross-site page (the dashboard's snippet as-is, page views, SPA, custom events, heartbeats, offline queue, outbound and
-> downloads) and axe WCAG 2 A/AA scans. The checklist below remains for what still needs a human:
-> visual judgement, other browsers, email rendering, and the items marked *(manual)*.
+> Much of this list is automated. `./gradlew test` (359 JVM tests, SQLite locally and PostgreSQL in CI) covers the API,
+> privacy modes, RBAC, JWT, caching, collection rules, the labs switch and the demo-data limits;
+> `cd e2e && npx playwright test` (25 browser tests) covers login/sign-out, a viewer's dashboard, the setup wizard's
+> Quick Setup on an unconfigured server, project creation, the demo dashboard with the Raw events and privacy dialogs
+> in both themes, labs that are off leaving no trace, filters, the country drill-down and the globe, switching
+> projects without leftovers, the phone-width sidebar, CSV export, escaping, the real tracker on a cross-site page
+> (the dashboard's snippet as-is, page views, SPA, custom events, heartbeats, offline queue, outbound links and
+> downloads, Global Privacy Control and Do Not Track) and axe WCAG 2 A/AA scans in both themes. A live server is
+> checked with `scripts/smoke.sh` (see `_docs/GO-LIVE.md`). The checklist below remains for what still needs a
+> human: visual judgement, other browsers, email rendering, and the items marked *(manual)*.
+>
+> Funnels, segments, webhooks, email reports, revenue and widgets are labs, off by default (`LABS`); test their
+> sections with the lab switched on.
 
 ## Browser matrix
 
@@ -70,7 +77,7 @@
 - [ ] OS doughnut/bar toggle works and persists
 - [ ] Devices doughnut/bar toggle works and persists
 - [ ] Countries bar chart renders with data
-- [ ] Countries map view renders with markers
+- [ ] Countries globe view renders and keeps working after switching project
 - [ ] Country drill-down shows cities
 - [ ] Time series line chart renders
 - [ ] Activity heatmap renders with peak highlighting
@@ -97,13 +104,13 @@
 - [ ] Delete goal
 - [ ] Goal stats display conversion rates
 
-### Funnels
+### Funnels *(lab: `LABS=funnels`)*
 
 - [ ] Create funnel with 2+ steps
 - [ ] Funnel visualization shows drop-off percentages
 - [ ] Delete funnel
 
-### User segments
+### User segments *(lab: `LABS=segments`)*
 
 - [ ] Create segment with single filter
 - [ ] Create segment with multiple AND/OR filters

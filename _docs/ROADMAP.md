@@ -25,6 +25,9 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
+- [ ] **Refresh GeoLite2** before tagging 1.6.0 (the bundled copy is from 2026-01-30).
+- [ ] **Tag `v1.6.0`** (prepared on `main` 2026-11-11: version, changelog), then run [GO-LIVE.md](GO-LIVE.md) on the
+      production server.
 
 ## Milestones
 
@@ -32,11 +35,17 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 |---|---|---|
 | M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
 | M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
+| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Prepared as 1.6.0, not tagged |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
 
 ## Known gaps
+
+**Labs to graduate.** Each lab is off by default until it has the tests it lacks
+([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): webhooks need delivery, signing and retry tests; email reports a scheduler and
+real-send test; revenue endpoint tests; funnels and segments browser tests and an edit flow; widgets a deliberate
+opt-in per project, because the public tracking key is enough to read them today.
 
 The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Every critical, high
 and medium item in it is fixed in 1.5.0. Still open from it:
@@ -51,8 +60,10 @@ and medium item in it is fixed in 1.5.0. Still open from it:
 - CSP still allows `'unsafe-inline'`; the remaining inline handlers (`admin.html` dialogs, UUID-only row buttons in
   `webhooks.js`/`email-reports.js`, `login.html`) must go before it can be dropped. No OWASP/Trivy scan in CI (Dependabot only).
 - Sessions last a flat 4 hours from login; no sliding window.
+- `auth.spec.js`'s sign-out test only passes after other specs created a project: on an empty database the first-run
+  onboarding dialog covers the sign-out button.
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
-- No user-management screen; users are managed through `/api/users`.
+- No user-management screen; users are managed through `/api/users` (viewers no longer see write controls).
 - The landing page (`landing/`) states only true things since 2026-11-11, but still loads Remixicon from a CDN and
   predates the current design — replaced in M3.
 

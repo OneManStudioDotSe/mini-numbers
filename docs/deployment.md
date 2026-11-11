@@ -43,6 +43,11 @@ Works on any Ubuntu or Debian server. HTTPS is set up automatically.
    ```
 4. **Open `https://stats.example.com`** and complete the setup wizard.
 
+{: .important }
+Until the wizard is completed, whoever opens the address first chooses the admin password. Complete it right
+after starting, or skip it altogether: add `ADMIN_PASSWORD=<a long password>` and `SERVER_SALT=<output of
+openssl rand -hex 64>` to `.env` before `docker compose up -d`, and Mini Numbers starts ready to sign in.
+
 If the page doesn't load, check that ports 80 and 443 are open in your provider's firewall
 (Hetzner, DigitalOcean and others have one in their control panel).
 

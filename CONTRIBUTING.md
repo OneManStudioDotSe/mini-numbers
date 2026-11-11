@@ -18,8 +18,9 @@ cd mini-numbers
 cd e2e && npm ci && npx playwright test   # browser tests against the JAR (needs Chrome)
 ```
 
-UI changes: check light and dark themes. The browser tests start the JAR on port 8080; if that port is busy,
-run them with `E2E_PORT=8096 npx playwright test`. `tests/screenshots.spec.js` rewrites the README screenshots;
+UI changes: check light and dark themes. The browser tests start the JAR twice, on port 8080 (every lab on) and
+on 8081 (unconfigured, for the setup wizard); if those ports are busy, run them with `E2E_PORT=8096 npx playwright
+test`, which uses 8096 and 8097. `tests/screenshots.spec.js` rewrites the README screenshots;
 skip it unless you mean to update them.
 
 ## Where things are

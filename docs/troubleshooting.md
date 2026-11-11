@@ -32,7 +32,8 @@ The login cookie only works over HTTPS (or on `localhost`). Open your server thr
 path in the [Install guide](deployment) sets one up. For testing on your own network only, set
 `KTOR_DEVELOPMENT=true`.
 
-Wrong password? There's no default: it's the one you chose in the setup wizard (`ADMIN_PASSWORD` in `.env`).
+Wrong password? There's no default: it's the one you chose in the setup wizard, the one **Quick Setup** generated
+and showed on its review step, or `ADMIN_PASSWORD` if you set it in `.env` yourself.
 
 ## The setup wizard appears again
 
@@ -63,5 +64,19 @@ per-IP limit together — set it first.
 
 ## Demo data doesn't appear
 
-Demo data goes into the project selected in the sidebar. Select one first; refresh the page if the dashboard
-doesn't update.
+**Generate demo data** is only offered on the project named "Demo project", so sample visits never mix with a
+real site's numbers. Click **Demo project** in the sidebar to create it (or open it, if it exists); refresh the page
+if the dashboard doesn't update.
+
+## A feature from the docs is missing
+
+Funnels, segments, revenue, webhooks, email reports and widgets are [labs](configuration#labs), off by default:
+their parts of the dashboard are hidden and their API answers 404. Add them to `LABS` and restart.
+
+Signed in as a **viewer**? Viewers see every number but none of the buttons that change something (new project,
+delete, manage goals, rotate key).
+
+## Visits from my own browser don't count
+
+If your browser sends Global Privacy Control or Do Not Track (Brave and some privacy extensions do by default),
+the tracker doesn't count you. That's on purpose; see [Privacy](privacy).

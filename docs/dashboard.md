@@ -10,8 +10,8 @@ Pick a project in the sidebar. The bar at the top sets what you're looking at:
 
 - **Time range** — the last 24 hours, 3 days, 7 days, 30 days or year. Most numbers are compared with the
   period before.
-- **Filter by** — narrow everything to one browser, operating system, device, country or referrer.
-  **Clear** removes the filter.
+- **Filter by** — highlight one browser, operating system, device, country or referrer in its own chart. The
+  totals and the other charts don't change. **Clear** removes the filter.
 - **Privacy chip** — shows this server's privacy mode and when visitors are forgotten; click it for the
   full list of what is and isn't stored.
 

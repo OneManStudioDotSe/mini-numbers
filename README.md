@@ -23,7 +23,8 @@ without cookies, without storing IP addresses, and without handing data to anyon
 - **One program, nothing else to run.** A single JAR or Docker image with SQLite built in — no ClickHouse,
   Redis or separate database server.
 - **Privacy you can tune.** Three privacy modes and an adjustable "forget visitors after" window (1 hour to
-  1 year). The dashboard shows exactly what your server stores.
+  1 year). The dashboard shows exactly what your server stores, and browsers that send Global Privacy Control or
+  Do Not Track aren't counted.
 - **Everything included.** Goals, AI-assistant referrals, CSV export and a REST API — no paid tier, no feature
   held back from self-hosters. Funnels, segments, revenue, webhooks, email reports and widgets are in
   [labs](docs/configuration.md#labs): switch them on with one setting while they mature.
@@ -44,8 +45,11 @@ docker compose up -d
 ```
 
 Open `https://stats.example.com`, complete the setup wizard, create a project and paste the snippet it shows
-into your website. Server panels, Railway/Render/Fly.io, plain Java and cPanel: see the
-**[Install guide](docs/deployment.md)**.
+into your website. Then check the install end to end in about 30 seconds with
+[`scripts/smoke.sh`](docs/deployment.md#after-installing). Server panels, Railway/Render/Fly.io, plain Java and
+cPanel: see the **[Install guide](docs/deployment.md)**.
+
+Mini Numbers is for websites; apps for Android and iOS aren't supported yet.
 
 ## Documentation
 
