@@ -4,7 +4,7 @@ info:
   description: |
     Privacy-first, minimalist web analytics API. No cookies, no PII storage.
     All admin endpoints require session authentication via /api/login.
-  version: 1.5.0
+  version: 1.6.0
   license:
     name: MIT
 
@@ -218,6 +218,29 @@ paths:
                   privacyMode: { type: string, enum: [STANDARD, STRICT, PARANOID] }
                   hashRotationHours: { type: integer }
                   dataRetentionDays: { type: integer, description: 0 means keep forever }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/labs:
+    get:
+      summary: Labs switched on
+      description: |
+        The experimental features switched on with the LABS setting. A lab that is off has no routes (404) and the
+        dashboard removes its elements. Keys: widgets, funnels, segments, revenue, webhooks, email-reports.
+      tags: [Authentication]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Enabled labs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: array
+                    items: { type: string, enum: [widgets, funnels, segments, revenue, webhooks, email-reports] }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /admin/users:

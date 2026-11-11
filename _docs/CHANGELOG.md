@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-11
+
+The launch release: what isn't verified yet is switched off, the setup wizard can no longer leave a known
+password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` checks a live server.
+
+**Upgrading**
+
+- **Funnels, segments, revenue, webhooks, email reports and widgets are now off.** Their data is kept. If you use
+  any of them, add them to `LABS` (e.g. `LABS=funnels,webhooks`) before upgrading, or they disappear from the
+  dashboard and their API answers 404; scheduled email reports and webhooks stop until you do.
+- **Counts can drop a little:** visitors whose browser sends Global Privacy Control or Do Not Track are no longer
+  counted. Add `data-respect-privacy-signals="false"` to the snippet to keep counting them.
+- No database changes.
+
 ### Added
 
 - **`scripts/smoke.sh`** checks a live server in about 30 seconds (health, HTTPS headers, tracker, a page view
