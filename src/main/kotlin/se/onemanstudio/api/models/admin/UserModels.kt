@@ -27,3 +27,11 @@ data class UserResponse(
     val isActive: Boolean,
     val createdAt: String
 )
+
+
+/** Change the signed-in user's own password. */
+@Serializable
+data class ChangePasswordRequest(
+    val currentPassword: String,
+    val newPassword: String
+)

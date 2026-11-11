@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Test
 import io.ktor.server.sessions.*
+import se.onemanstudio.cli.ResetPasswordCommand
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.db.RefreshTokens
 import se.onemanstudio.db.Users
@@ -338,6 +339,60 @@ class AuthHardeningTest {
         } finally {
             reset("temporary-pass-123", "testpassword123")
         }
+    }
+
+    private suspend fun HttpClient.changePassword(current: String, new: String): HttpStatusCode =
+        post("/admin/me/password") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"currentPassword":"$current","newPassword":"$new"}""")
+        }.status
+
+    @Test
+    fun `any user can change their own password, which signs only that account out everywhere`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val name = "viewer-own-${System.nanoTime()}"
+        admin.createUser(name, "viewerpass123", "viewer")
+        val viewer = createAuthClient()
+        assertEquals(HttpStatusCode.OK, viewer.login(name, "viewerpass123").status)
+        client.refreshTokenFor(name, "viewerpass123")
+
+        assertEquals(HttpStatusCode.Forbidden, viewer.changePassword("not-it", "new-viewer-pass"), "wrong current password")
+        assertEquals(HttpStatusCode.BadRequest, viewer.changePassword("viewerpass123", "short"), "too short")
+        assertEquals(HttpStatusCode.OK, viewer.login(name, "viewerpass123").status, "nothing changed yet")
+
+        assertEquals(HttpStatusCode.OK, viewer.changePassword("viewerpass123", "new-viewer-pass"))
+        assertEquals(HttpStatusCode.Unauthorized, viewer.get("/admin/projects").status, "signed out")
+        assertEquals(0L, refreshTokensFor(name), "refresh tokens revoked")
+        assertEquals(HttpStatusCode.Unauthorized, createAuthClient().login(name, "viewerpass123").status)
+        assertEquals(HttpStatusCode.OK, createAuthClient().login(name, "new-viewer-pass").status)
+        assertEquals(HttpStatusCode.OK, admin.get("/admin/projects").status, "the admin stays signed in")
+    }
+
+    @Test
+    fun `the reset-password command sets a forgotten password and signs that account out`() = testApplication {
+        application { module() }
+        val admin = createAuthClient()
+        assertEquals(HttpStatusCode.OK, admin.login("admin", "testpassword123").status)
+        val name = "viewer-cli-${System.nanoTime()}"
+        admin.createUser(name, "viewerpass123", "viewer")
+        val viewer = createAuthClient()
+        assertEquals(HttpStatusCode.OK, viewer.login(name, "viewerpass123").status)
+
+        val out = java.io.ByteArrayOutputStream()
+        fun reset(vararg args: String, password: String?) =
+            ResetPasswordCommand.run(args.toList(), java.io.PrintStream(out)) { password }
+
+        assertEquals(2, reset(password = "irrelevant"), "no username")
+        assertEquals(1, reset("nobody-${System.nanoTime()}", password = "long-enough-1"), "unknown user")
+        assertEquals(1, reset(name, password = "short"), "too short")
+        assertEquals(HttpStatusCode.OK, createAuthClient().login(name, "viewerpass123").status, "nothing changed yet")
+
+        assertEquals(0, reset(name, password = "recovered-pass-1"))
+        assertTrue(out.toString().contains("Password changed for $name"), out.toString())
+        assertEquals(HttpStatusCode.Unauthorized, viewer.get("/admin/projects").status, "signed out")
+        assertEquals(HttpStatusCode.OK, createAuthClient().login(name, "recovered-pass-1").status)
     }
 
     private fun forgedCookieFor(username: String, role: String = "admin"): String =

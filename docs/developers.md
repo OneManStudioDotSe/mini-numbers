@@ -102,7 +102,9 @@ Access tokens last 15 minutes; `POST /api/token/refresh` with `{"refreshToken":"
 Every `/admin/...` route is also available as `/api/...`.
 
 Users with the **viewer** role can read everything but change nothing; the dashboard hides the controls they
-can't use. Users are managed through the API (`/api/users`); there's no user screen in the dashboard yet.
+can't use. Admins manage users in **Settings → Account → Manage users**, or through the API (`/api/users`). Any user
+changes their own password with `POST /api/me/password` (`{"currentPassword":"…","newPassword":"…"}`), which signs
+that account out everywhere.
 
 Mini Numbers tracks websites. There is no SDK for Android or iOS apps yet (it's on the
 [roadmap](https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/ROADMAP.md)).

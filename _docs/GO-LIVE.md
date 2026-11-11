@@ -12,7 +12,9 @@ Placeholders: `stats.example.com` is your analytics domain, `$KEY` the key of th
 
 - [ ] **Leaked secrets rotated** on any instance that still uses them (the admin password, the `SERVER_SALT` and the
       three project keys that were in the old `stats.db`; update the snippet on the sites that use them). A fresh
-      server with a new `.env` is not affected.
+      server with a new `.env` is not affected. The admin password: Settings → Account → Change password, or on the
+      server `docker compose exec mini-numbers java -jar /app/app.jar reset-password admin` (editing `ADMIN_PASSWORD`
+      in `.env` does nothing once the admin exists). Rotate a project key with Settings → Rotate key.
 - [ ] **GeoLite2 refreshed** if `src/main/resources/geo/geolite2-city.mmdb` is more than a few months old (it is from
       2026-01-30): download GeoLite2-City from your MaxMind account, replace the file, and update the date in
       `docs/configuration.md` and `_docs/ARCHITECTURE.md`.
@@ -92,6 +94,9 @@ BASE_URL=https://stats.example.com PROJECT_KEY=$KEY ./smoke.sh
 - [ ] **A goal:** Conversions → Manage goals → a page goal for a path you visit; it counts after the next visit.
 - [ ] **Raw events and CSV:** Raw events lists the visits; the export downloads and opens.
 - [ ] **Phone width:** the dashboard on a phone, sidebar behind the menu button.
+- [ ] **Users:** Settings → Account → Manage users → add a viewer; sign in as them in a private window with the
+      password shown once; they see the numbers and no buttons that change things. Then remove them.
+- [ ] **Change password:** Settings → Account → Change password signs you out; the new password works.
 - [ ] **Sign-out everywhere:** signed in on two browsers, sign out in one; the other is signed out on its next click.
 - [ ] **Lockout:** five wrong passwords lock the account for 15 minutes (do it with a second, throwaway user if you
       don't want to wait).
@@ -100,6 +105,9 @@ BASE_URL=https://stats.example.com PROJECT_KEY=$KEY ./smoke.sh
 
 - [ ] `docker compose restart` — the login still works, the numbers are still there, and `./smoke.sh` passes again.
 - [ ] `docker compose down && docker compose up -d` (containers recreated, volumes kept) — same result.
+
+- [ ] **Forgotten-password drill:** `docker compose exec mini-numbers java -jar /app/app.jar reset-password admin`,
+      type a new password twice; it prints `Password changed for admin`, and the new password signs in.
 
 ## 8. Backup and restore drill
 

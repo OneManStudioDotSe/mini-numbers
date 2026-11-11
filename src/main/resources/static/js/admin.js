@@ -151,15 +151,18 @@ const Dashboard = {
   },
 
   /**
-   * Mark the page for a viewer: CSS hides [data-admin-only] and the per-project delete buttons, and the project
+   * Fill Settings → Account and mark the page for a viewer: CSS hides [data-admin-only] and the per-project delete buttons, and the project
    * name in Settings becomes read-only.
    */
   async applyRole() {
+    let me = {};
     try {
-      this.state.role = (await Utils.api.fetch('/admin/me')).role;
+      me = await Utils.api.fetch('/admin/me');
+      this.state.role = me.role;
     } catch (error) {
       console.error('Failed to load the current user:', error);
     }
+    UsersManager.init(me);
     const viewer = this.state.role === 'viewer';
     document.documentElement.toggleAttribute('data-viewer', viewer);
     if (viewer) document.getElementById('setting-project-name')?.setAttribute('readonly', '');

@@ -51,6 +51,15 @@ In **Conversions**, each card has a **Manage** button:
 - **Dashboard preferences** — 12/24-hour time, date format and heatmap colours.
 - **Export report** — tick what to include (views, pages, referrers, campaigns, technology, locations, events,
   revenue, raw events) and download one CSV file.
+- **Account** — who you're signed in as, and **Change password** (this signs you out on every device; sign in
+  again with the new password). Admins also get **Manage users**:
+  - **Add a user** with a username and a role. Mini Numbers generates their password and shows it once: copy it
+    and give it to them; they can change it here afterwards.
+  - Change a user's role: **admin** can change everything, **viewer** sees every number but can't change anything.
+  - **Deactivate** a user (signed out at once, can't sign in until reactivated) or remove them.
+
+  You can't change your own role or remove yourself, so there is always one admin left.
+  Forgot your password? See [Troubleshooting](troubleshooting#i-cant-stay-signed-in).
 - **Automations** *(labs)* — **Webhooks** (Mini Numbers calls your URL when a goal converts or traffic spikes; each
   call is signed so you can verify it) and **Email reports** (daily, weekly or monthly summaries; needs the
   [SMTP settings](configuration#email-reports)).

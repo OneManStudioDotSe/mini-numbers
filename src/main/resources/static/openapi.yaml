@@ -171,13 +171,15 @@ paths:
           application/json:
             schema:
               type: object
-              required: [newPassword, serverSalt]
+              required: [currentPassword, newPassword, serverSalt]
               properties:
+                currentPassword: { type: string }
                 newPassword: { type: string, minLength: 8 }
                 serverSalt: { type: string, description: Must match SERVER_SALT in your .env }
       responses:
         '200': { description: Password updated, all sessions invalidated }
         '400': { description: Password too short }
+        '401': { description: Current password is incorrect }
         '403': { description: Invalid server salt }
 
   /admin/me:
@@ -198,6 +200,34 @@ paths:
                   username: { type: string }
                   role: { type: string, enum: [admin, viewer] }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /admin/me/password:
+    post:
+      summary: Change your own password
+      description: |
+        Any signed-in user changes their own password. Signs that account out everywhere, this session included
+        (cookie sessions and refresh tokens). Uses the credential rate limit; a wrong current password counts toward
+        the lockout. A forgotten password is reset on the server with `java -jar app.jar reset-password <username>`.
+      tags: [Authentication]
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string, minLength: 8 }
+      responses:
+        '200': { description: Password changed; the account is signed out everywhere }
+        '400': { description: Password too short }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { description: Current password is incorrect }
+        '429': { description: Too many credential attempts from this IP }
 
   /admin/privacy:
     get:

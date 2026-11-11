@@ -31,6 +31,13 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
   snippet to count them anyway.
 - Viewers no longer see controls they cannot use (new project, demo data, delete, manage goals, rotate key,
   automations); the project name in Settings is read-only for them.
+- **Settings → Account.** Every user can change their own password (it signs that account out on every device), and
+  admins get **Manage users**: add a user with a role and a generated password shown once, change roles, deactivate
+  and remove users. Before, users and passwords could only be managed through the API.
+- **`reset-password` command** for a forgotten or leaked password, run on the server:
+  `docker compose exec mini-numbers java -jar /app/app.jar reset-password admin` (or
+  `java -jar mini-numbers.jar reset-password admin` next to your `.env`). It works for any user and signs that
+  account out everywhere. Changing `ADMIN_PASSWORD` in `.env` after the first start has no effect; this does.
 - **Labs.** Funnels, segments, revenue, webhooks, email reports and embeddable widgets are now experimental and off
   by default: their dashboard parts are hidden and their API answers 404. Turn any of them on with
   `LABS=funnels,webhooks,…` (see the configuration page). Nothing stored is removed.

@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
-const { loginViaUi, loginViaApi, createProject } = require('../helpers');
+const { loginViaApi, createProject } = require('../helpers');
 
 async function seriousViolations(page) {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
@@ -23,7 +23,7 @@ test.describe('accessibility (axe, WCAG 2 A/AA, serious and critical only)', () 
     await loginViaApi(page.request);
     const project = await createProject(page.request);
     await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 100, timeScope: 7 } });
-    await loginViaUi(page);
+    await page.goto('/admin-panel'); // page.request already signed this page in
     await page.locator('.project-menu__item', { hasText: project.name }).click();
     await expect(page.locator('#view-raw-events-btn')).toBeVisible();
     await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });

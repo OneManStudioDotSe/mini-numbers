@@ -15,6 +15,7 @@ import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.models.LoginAttempt
 import se.onemanstudio.core.models.UserSession
+import se.onemanstudio.db.RefreshTokens
 import se.onemanstudio.db.Users
 import java.security.MessageDigest
 import java.time.Duration
@@ -168,6 +169,27 @@ fun sessionIsCutOff(username: String, createdAtMillis: Long): Boolean {
         }
     } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
         false // DB not available yet (setup mode)
+    }
+}
+
+/** Shortest password accepted anywhere a password is set. */
+const val MIN_PASSWORD_LENGTH = 8
+
+/**
+ * Give [username] a new password and sign that account out everywhere (cookie sessions and refresh tokens).
+ * Used by the dashboard's "Change password" and by the `reset-password` command.
+ *
+ * @return false when there is no such user.
+ */
+fun setPassword(username: String, newPassword: String): Boolean {
+    val hashed = Passwords.hash(newPassword)
+    return transaction {
+        val updated = Users.update({ Users.username eq username }) {
+            it[passwordHash] = hashed
+            it[sessionsValidFrom] = System.currentTimeMillis()
+        }
+        if (updated > 0) RefreshTokens.deleteWhere { RefreshTokens.username eq username }
+        updated > 0
     }
 }
 

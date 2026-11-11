@@ -10,6 +10,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import kotlinx.serialization.SerializationException
 import se.onemanstudio.api.models.ApiError
+import se.onemanstudio.cli.ResetPasswordCommand
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.ConfigurationException
 import se.onemanstudio.config.models.*
@@ -19,12 +20,17 @@ import se.onemanstudio.core.configureHTTP
 import se.onemanstudio.core.configureProxyHeaders
 import se.onemanstudio.core.configureSecurity
 import se.onemanstudio.setup.configureSetupRouting
+import kotlin.system.exitProcess
 
 /**
  * Application entry point. Launches the embedded Netty server on the port from `PORT` or
  * `SERVER_PORT` (see [ConfigLoader.bindPort]); arguments passed on the command line still win.
+ * `reset-password <username>` runs [ResetPasswordCommand] instead of the server.
  */
 fun main(args: Array<String>) {
+    if (args.firstOrNull() == ResetPasswordCommand.NAME) {
+        exitProcess(ResetPasswordCommand.run(args.drop(1)))
+    }
     io.ktor.server.netty.EngineMain.main(arrayOf("-P:ktor.deployment.port=${ConfigLoader.bindPort()}") + args)
 }
 

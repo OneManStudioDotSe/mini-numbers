@@ -36,7 +36,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
         authenticate("admin-session", "api-jwt") {
             route("/admin") {
                 guardAdminRequests(allowedOrigins, rateLimiter)
-                adminSessionRoutes(config)
+                adminSessionRoutes(config, authLimiter)
                 adminProjectRoutes()
                 adminAnalyticsRoutes()
                 adminFeatureRoutes()
@@ -46,7 +46,7 @@ fun Application.configureRouting(config: AppConfig, rateLimiter: RateLimiter) {
             // Also expose as /api for JWT programmatic access
             route("/api") {
                 guardAdminRequests(allowedOrigins, rateLimiter)
-                adminSessionRoutes(config)
+                adminSessionRoutes(config, authLimiter)
                 adminProjectRoutes()
                 adminAnalyticsRoutes()
                 adminFeatureRoutes()

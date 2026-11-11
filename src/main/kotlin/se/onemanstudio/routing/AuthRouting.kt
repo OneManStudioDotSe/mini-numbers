@@ -18,14 +18,17 @@ import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.LoginRequest
+import se.onemanstudio.api.models.admin.ChangePasswordRequest
 import se.onemanstudio.api.models.admin.PasswordResetRequest
 import se.onemanstudio.config.ConfigLoader
 import se.onemanstudio.config.models.AppConfig
 import se.onemanstudio.core.JwtService
+import se.onemanstudio.core.MIN_PASSWORD_LENGTH
 import se.onemanstudio.core.Labs
 import se.onemanstudio.core.cutOffSessions
 import se.onemanstudio.core.getUserRole
 import se.onemanstudio.core.resolveActiveRole
+import se.onemanstudio.core.setPassword
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.core.verifyCredentials
@@ -279,7 +282,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
  * Routes about the caller and the running configuration. Registered inside the guarded
  * `/admin` and `/api` blocks, so they get the Origin allowlist and the admin rate limit.
  */
-fun Route.adminSessionRoutes(config: AppConfig) {
+fun Route.adminSessionRoutes(config: AppConfig, authLimiter: RateLimiter) {
     // Current user, with the role as it is now (the session principal carries the re-resolved role)
     get("/me") {
         val session = call.principal<UserSession>()
@@ -289,6 +292,36 @@ fun Route.adminSessionRoutes(config: AppConfig) {
             ?: jwt?.let { resolveActiveRole(username, it.payload.getClaim("role")?.asString() ?: "viewer") }
             ?: "viewer"
         call.respond(mapOf("username" to username, "role" to role))
+    }
+
+    // Change the caller's own password (any role). Signs that account out everywhere, this session included.
+    post("/me/password") {
+        if (!call.enforceRateLimit(authLimiter, "auth")) return@post
+        val username = call.callerName()
+            ?: return@post call.respond(HttpStatusCode.Unauthorized, ApiError.unauthorized("Not signed in"))
+        val body = try {
+            call.receive<ChangePasswordRequest>()
+        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
+            return@post call.respond(HttpStatusCode.BadRequest, ApiError.badRequest("Invalid request body"))
+        }
+        if (body.newPassword.length < MIN_PASSWORD_LENGTH) {
+            return@post call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Password must be at least $MIN_PASSWORD_LENGTH characters"))
+        }
+        // 403, not 401: the caller is signed in, only the password they typed is wrong
+        if (!verifyCredentials(username, body.currentPassword, config, call.application.environment.log)) {
+            return@post call.respond(HttpStatusCode.Forbidden,
+                ApiError(error = "Current password is incorrect", code = "FORBIDDEN"))
+        }
+        if (!setPassword(username, body.newPassword)) {
+            return@post call.respond(HttpStatusCode.NotFound, ApiError.notFound("User not found"))
+        }
+        call.sessions.clear<UserSession>()
+        call.application.environment.log.info("Password changed for user: $username")
+        call.respond(HttpStatusCode.OK, buildJsonObject {
+            put("success", true)
+            put("message", "Password changed. You have been signed out everywhere; sign in with the new password.")
+        })
     }
 
     // Privacy posture of the running configuration (not a re-read of .env)
@@ -306,3 +339,7 @@ fun Route.adminSessionRoutes(config: AppConfig) {
         call.respond(mapOf("enabled" to Labs.enabled.map { it.key }))
     }
 }
+
+/** The username of the authenticated caller, from the session cookie or the JWT. */
+private fun ApplicationCall.callerName(): String? =
+    principal<UserSession>()?.username ?: principal<JWTPrincipal>()?.payload?.subject

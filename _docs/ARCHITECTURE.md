@@ -88,6 +88,8 @@ mini-numbers/
 │   │   │   ├── RawEventsResponse.kt, TimeSeriesPoint.kt, TopPage.kt, VisitSnippet.kt
 │   │   └── widget/
 │   │       └── WidgetModels.kt
+│   ├── cli/
+│   │   └── ResetPasswordCommand.kt       # `reset-password <username>`: new password from the server's shell
 │   ├── config/
 │   │   ├── ConfigLoader.kt               # Environment variable loader
 │   │   ├── ConfigurationException.kt
@@ -101,7 +103,7 @@ mini-numbers/
 │   │   ├── HTTP.kt                       # CORS & content negotiation
 │   │   ├── JwtService.kt                 # Access/refresh token issuance & verification
 │   │   ├── Labs.kt                       # Lab enum + LABS parsing; which experimental features are mounted
-│   │   ├── Security.kt                   # Session auth & login page
+│   │   ├── Security.kt                   # Session auth & login page; setPassword()
 │   │   ├── ServiceManager.kt             # Lifecycle management, uptime, retention timer
 │   │   ├── WidgetAuth.kt                 # API-key auth for /widget/* endpoints
 │   │   └── models/                       # LoginAttempt, UserRole, UserSession
@@ -349,6 +351,9 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 - `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair; a replayed refresh token revokes its family
 - `POST /api/password-reset` — Resets the `.env` admin's password and signs that account out everywhere (cookies and refresh tokens)
 - `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
+- `POST /admin/me/password` — `{currentPassword, newPassword}`: any user changes their own password (min. 8 characters;
+  403 on a wrong current password, which counts toward the lockout). Uses the credential rate limit and signs that
+  account out everywhere, this session included (also at `/api/me/password`)
 - `GET /admin/labs` — `{enabled: [...]}`, the labs switched on with `LABS` (also at `/api/labs`)
 - `GET /admin/privacy` — Privacy posture of the running config (`privacyMode`, `hashRotationHours`, `dataRetentionDays`); feeds the dashboard's privacy chip (also at `/api/privacy`)
 - `GET /admin/users`, `POST /admin/users`, `PUT /admin/users/{userId}/role`, `PUT /admin/users/{userId}/active`,
@@ -527,6 +532,14 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 - **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin. The dashboard hides
   write controls from viewers: `admin.js` `applyRole()` reads `/admin/me` and sets `data-viewer` on `<html>`, and
   `base.css` hides `[data-admin-only]` and `.project-menu__delete` under it.
+- **Accounts**: Settings → Account (`static/js/users.js`, `UsersManager`, initialised from `applyRole()`) changes the
+  signed-in user's password through `POST /admin/me/password`; admins' **Manage users** drives `/admin/users`. A new
+  user's password is generated in the browser (20 characters, the wizard's generator), sent once and shown once.
+  `core/Security.kt` `setPassword()` hashes the new password, sets `sessions_valid_from` and deletes the user's refresh
+  tokens; it backs both that endpoint and the `reset-password` command (`cli/ResetPasswordCommand.kt`, dispatched
+  from `main()` before the server starts). The command reads `.env`/environment like the server, opens the same
+  database, and takes the password hidden and twice on a terminal or as one line of standard input. `ADMIN_PASSWORD`
+  only seeds the first admin while the users table is empty, so editing it later changes nothing.
 - **Limits**: per-IP and per-key buckets on `/collect`, `/widget/*`, `/admin/*`, `/api/*`; a stricter fixed
   bucket (20/IP/min, 300/min overall) on the credential endpoints (`middleware/RateLimitGuard.kt`).
 - **Headers** (`core/HTTP.kt`): CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, HSTS outside

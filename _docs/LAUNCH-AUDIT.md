@@ -61,8 +61,9 @@ download, enable Discussions) and the smaller notes at the end.
 | Login / logout / session cookie | Ship | `AuthHardeningTest` (18), `auth.spec.js`, walk-through | Logout ends sessions on every device |
 | JWT tokens + refresh rotation | Ship | `PrivacyRbacAndCacheTest` | |
 | Brute-force lockout, credential rate limit | Ship | `AuthHardeningTest`, curl run | |
-| Password change (`/api/password-reset`) | Ship (API only) | `AuthHardeningTest` | Only for the `.env` admin; no UI or email. Docs should call it a password change |
-| Extra users + viewer role | Ship (API only) | `PrivacyRbacAndCacheTest`, walk-through | No user screen. Viewers saw "New project" and other write buttons that answered 403; hidden since 1.6.0 (`auth.spec.js`). Launch as single-admin |
+| Password change | Fixed in 1.6.0 | `AuthHardeningTest`, `auth.spec.js` | Fixed in 1.6.0: Settings → Account → Change password for every user (`/admin/me/password`). The older `/api/password-reset` (needs `SERVER_SALT`, `.env` admin only) stays for compatibility. No email |
+| Forgotten password | Fixed in 1.6.0 | `AuthHardeningTest` | Fixed in 1.6.0: `reset-password <username>` on the server. Before, a forgotten password could not be recovered: `ADMIN_PASSWORD` only seeds the first admin |
+| Extra users + viewer role | Fixed in 1.6.0 | `PrivacyRbacAndCacheTest`, `AuthHardeningTest`, `auth.spec.js` | Fixed in 1.6.0: Settings → Account → Manage users (add with a generated password shown once, role, deactivate, remove). Viewers no longer see write controls. No invitations by email |
 | Self-service signup, OAuth/OIDC, 2FA | Not built | — | Roadmap ideas #10, #11 |
 
 ### Collection and privacy
@@ -116,7 +117,7 @@ download, enable Discussions) and the smaller notes at the end.
 |---|---|---|
 | Public demo instance | Not built | Roadmap M4. Launch with screenshots + "try it locally" instead |
 | Landing page (`landing/`) | Fixed in 1.6.0 | Claims v1.3.0, "327 tests", a 5-step wizard (it has 6), Slack/Discord webhooks, Stripe/Shopify/WooCommerce; marks Plausible self-hosted "Paid" and Matomo cookies "Required"; snippet uses `tracker.js` instead of `tracker.min.js`; loads Remixicon from a CDN |
-| Docs site (`docs/`) | Ship | Accurate on what exists (viewer role, no user screen, demo data) |
+| Docs site (`docs/`) | Ship | Accurate on what exists (viewer role, user screen, demo data) |
 
 ## Third-party requests from the dashboard
 

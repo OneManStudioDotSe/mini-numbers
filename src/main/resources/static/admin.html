@@ -1103,6 +1103,20 @@ MiniNumbers.track("donation", {
                     </button>
                 </div>
                 </div>
+
+                <!-- Account Section -->
+                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Account</h3>
+                <p class="account-summary">Signed in as <strong id="account-username">…</strong> <span class="badge badge-secondary" id="account-role"></span></p>
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <button class="btn btn-ghost btn-sm" id="change-password-btn">
+                        <i class="ri-lock-password-line"></i>
+                        <span>Change password</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" id="manage-users-btn" data-admin-only>
+                        <i class="ri-team-line"></i>
+                        <span>Manage users</span>
+                    </button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-ghost" id="cancel-settings">Cancel</button>
@@ -1768,6 +1782,88 @@ SMTP_STARTTLS=true</pre>
         </div>
     </div>
 
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal" role="dialog" aria-labelledby="change-password-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--compact">
+            <div class="modal-header">
+                <h2 id="change-password-title">Change password</h2>
+                <button class="modal-close" id="close-change-password" aria-label="Close dialog">&times;</button>
+            </div>
+            <form id="change-password-form" novalidate>
+                <div class="modal-body">
+                    <p class="text-muted account-note">You'll be signed out on every device, this one included, and sign in again with the new password.</p>
+                    <div class="form-group">
+                        <label for="current-password">Current password</label>
+                        <input type="password" id="current-password" class="input" autocomplete="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New password <span class="text-muted">(at least 8 characters)</span></label>
+                        <input type="password" id="new-password" class="input" autocomplete="new-password" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="repeat-password">Repeat the new password</label>
+                        <input type="password" id="repeat-password" class="input" autocomplete="new-password" minlength="8" required>
+                    </div>
+                    <p class="form-error" id="change-password-error" role="alert" hidden></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancel-change-password">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submit-change-password">Change password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users Modal (admins only) -->
+    <div id="users-modal" class="modal" role="dialog" aria-labelledby="users-modal-title" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-content--wide">
+            <div class="modal-header">
+                <h2 id="users-modal-title">Users</h2>
+                <button class="modal-close" id="close-users-modal" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted account-note">Admins can change everything; viewers see every number but can't change anything. You can't change your own role or remove yourself.</p>
+                <div class="table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr>
+                        </thead>
+                        <tbody id="users-list"></tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg);">Add a user</h3>
+                <form id="add-user-form" class="add-user-form" novalidate>
+                    <div class="form-group">
+                        <label for="new-user-name">Username</label>
+                        <input type="text" id="new-user-name" class="input" maxlength="100" autocomplete="off" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-role">Role</label>
+                        <select id="new-user-role" class="select">
+                            <option value="viewer" selected>Viewer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="add-user-btn"><i class="ri-user-add-line"></i> Add user</button>
+                </form>
+                <p class="form-error" id="add-user-error" role="alert" hidden></p>
+
+                <div class="new-user-password" id="new-user-password" hidden>
+                    <p>Give <strong id="new-user-password-name"></strong> this password. It's shown only once; they can change it in Settings &rarr; Account.</p>
+                    <div class="api-key-display">
+                        <code id="new-user-password-value"></code>
+                        <button class="btn btn-ghost btn-icon" id="copy-new-user-password" title="Copy password" aria-label="Copy password">
+                            <i class="ri-file-copy-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Project Confirmation Modal -->
     <div id="delete-project-modal" class="modal" role="dialog" aria-labelledby="delete-project-title" aria-modal="true">
         <div class="modal-backdrop" onclick="document.getElementById('delete-project-modal').classList.remove('show')"></div>
@@ -1798,6 +1894,7 @@ SMTP_STARTTLS=true</pre>
     <script src="/admin-panel/js/webhooks.js"></script>
     <script src="/admin-panel/js/email-reports.js"></script>
     <script src="/admin-panel/js/revenue.js"></script>
+    <script src="/admin-panel/js/users.js"></script>
     <script src="/admin-panel/js/admin.js"></script>
 
 </body>

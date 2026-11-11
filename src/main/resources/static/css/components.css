@@ -2873,3 +2873,106 @@ tbody tr {
   from { opacity: 1; transform: translateX(0); }
   to   { opacity: 0; transform: translateX(100%); }
 }
+
+/* ============================================
+   ACCOUNT AND USERS
+   ============================================ */
+
+.account-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+}
+
+.account-note {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  vertical-align: middle;
+}
+
+.users-table .select {
+  min-width: 7rem;
+}
+
+.users-table__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.users-table__inactive {
+  color: var(--color-text-muted);
+}
+
+.add-user-form {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--spacing-sm);
+  align-items: end;
+}
+
+.add-user-form .form-group {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .add-user-form {
+    grid-template-columns: 1fr;
+  }
+
+  /* Status is also shown by the muted row and the Deactivate/Reactivate button */
+  .users-table th:nth-child(3),
+  .users-table td:nth-child(3) {
+    display: none;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+
+  .users-table .select {
+    min-width: 6.25rem;
+  }
+
+  .users-table__actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}
+
+.new-user-password {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.new-user-password p {
+  margin-bottom: var(--spacing-sm);
+}

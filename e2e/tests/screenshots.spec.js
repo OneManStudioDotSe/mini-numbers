@@ -4,7 +4,7 @@
 // Output goes to ../docs/screenshots (committed) so the README can embed them.
 const { test, expect } = require('@playwright/test');
 const path = require('path');
-const { loginViaUi, loginViaApi, createProject } = require('../helpers');
+const { loginViaApi, createProject } = require('../helpers');
 
 const OUT = path.resolve(__dirname, '../../docs/screenshots');
 
@@ -15,7 +15,7 @@ test('capture dashboard screenshots for the README', async ({ page }) => {
   const demo = await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 1500, timeScope: 30 } });
   expect(demo.status()).toBe(200);
 
-  await loginViaUi(page);
+  await page.goto('/admin-panel'); // page.request already signed this page in
   await page.locator('.project-menu__item', { hasText: 'Acme Store' }).click();
   await expect(page.locator('#view-raw-events-btn')).toBeVisible();
   await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });

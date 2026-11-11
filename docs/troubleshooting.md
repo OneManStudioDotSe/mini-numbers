@@ -33,7 +33,20 @@ path in the [Install guide](deployment) sets one up. For testing on your own net
 `KTOR_DEVELOPMENT=true`.
 
 Wrong password? There's no default: it's the one you chose in the setup wizard, the one **Quick Setup** generated
-and showed on its review step, or `ADMIN_PASSWORD` if you set it in `.env` yourself.
+and showed on its review step, `ADMIN_PASSWORD` if you set it in `.env` before the first start, or the one an admin
+gave you when they added you.
+
+Forgot it? Set a new one on the server, for any user:
+
+```bash
+docker compose exec mini-numbers java -jar /app/app.jar reset-password admin   # Docker
+java -jar mini-numbers.jar reset-password admin                                 # JAR, from the folder with .env
+```
+
+It asks for the new password twice and signs that user out everywhere. Changing `ADMIN_PASSWORD` in `.env` doesn't
+work for this: it is only read once, to create the first admin. After five wrong passwords the account is locked
+for 15 minutes; a new password doesn't lift the lock, waiting (or restarting the server) does. Signed in and just
+want a new password? Use **Settings → Account → Change password**.
 
 ## The setup wizard appears again
 

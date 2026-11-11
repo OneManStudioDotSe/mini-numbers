@@ -12,7 +12,8 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 
 - [ ] **Rotate the credentials** that were committed in `stats.db` (admin password, `SERVER_SALT`, three project
       keys, one of them live on www.poofly.se) on the live instance, then update the Poofly snippet. The repository
-      is public, so they are burned; the history purge below does not make them invalid.
+      is public, so they are burned; the history purge below does not make them invalid. The admin password: Settings
+      → Account → Change password, or `reset-password admin` on the server (see GO-LIVE.md §1).
 - [x] **Purge history** (2026-11-03): `stats.db`, `.env`, `server.log` and `test-*.db` stripped from every commit
       with `git filter-repo`, `main` force-pushed, `v1.5.0` tagged on the clean history. The GeoLite2 file was kept
       on purpose (it is bundled into the JAR; see the next item). The Dependabot branches built on the old history are
@@ -35,7 +36,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 |---|---|---|
 | M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
 | M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
-| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Prepared as 1.6.0, not tagged |
+| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Prepared as 1.6.0, not tagged |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
@@ -63,7 +64,8 @@ and medium item in it is fixed in 1.5.0. Still open from it:
 - `auth.spec.js`'s sign-out test only passes after other specs created a project: on an empty database the first-run
   onboarding dialog covers the sign-out button.
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
-- No user-management screen; users are managed through `/api/users` (viewers no longer see write controls).
+- Users get no email (no invitation, no reset link): an admin hands a new user their generated password, and a
+  forgotten password is reset on the server with `reset-password`. Email needs SMTP, which is still a lab.
 - The landing page (`landing/`) states only true things since 2026-11-11, but still loads Remixicon from a CDN and
   predates the current design — replaced in M3.
 
