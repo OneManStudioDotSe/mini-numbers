@@ -26,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   submitted by itself. It now generates a strong password, shows it once on the review step with a copy button,
   turns on development mode only over plain HTTP, and waits for you to launch.
 - The globe library and its textures are pinned to exact versions, and the script is checked with an SRI hash.
-
 - The dashboard no longer loads Leaflet and chartjs-chart-geo, which nothing used, and the login page and wizard
   serve Inter themselves instead of loading it from Google Fonts. unpkg.com and Google are gone from the CSP.
 
@@ -40,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the demo project, and the server refuses more than 3,000 events or more than 365 days.
 - Deleting a project reported success even when the server refused it.
 - Saving Settings re-sent the project name every time; it is now only sent when it changed.
+- The landing page claimed v1.3.0, 327 tests, a 5-step wizard, Slack/Discord webhooks and Stripe/Shopify/WooCommerce
+  integrations, and listed Plausible self-hosting as paid and Matomo cookies as required. It now matches the product,
+  and marks lab features as labs.
+- The Railway instructions now say what `railway.json` does when deploying a fork.
 
 ### Changed
 

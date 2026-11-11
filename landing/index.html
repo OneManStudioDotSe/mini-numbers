@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Numbers — Privacy-First Web Analytics</title>
-  <meta name="description" content="Self-hosted, privacy-first web analytics. 1.9KB tracker, zero cookies, three privacy modes. An open source alternative to Google Analytics.">
+  <meta name="description" content="Self-hosted, privacy-first web analytics. 2KB tracker, zero cookies, three privacy modes. An open source alternative to Google Analytics.">
   <meta property="og:title" content="Mini Numbers — Privacy-First Web Analytics">
-  <meta property="og:description" content="Self-hosted, privacy-first web analytics. 1.9KB tracker, zero cookies, three privacy modes.">
+  <meta property="og:description" content="Self-hosted, privacy-first web analytics. 2KB tracker, zero cookies, three privacy modes.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://github.com/OneManStudioDotSe/mini-numbers">
   <meta name="twitter:card" content="summary_large_image">
@@ -31,7 +31,7 @@
   <div class="landing-nav-inner">
     <a href="#" class="landing-nav-brand" aria-label="Mini Numbers home">
       <img src="assets/mini_numbers_logo.png" alt="Mini Numbers" class="landing-logo-img">
-      <span class="landing-nav-version">v1.3.0</span>
+      <span class="landing-nav-version">v1.5.0</span>
     </a>
 
     <ul class="landing-nav-links" id="nav-links" role="list">
@@ -68,7 +68,7 @@
     <h1>Web analytics that <span class="landing-gradient-text">respect your visitors</span></h1>
 
     <p class="landing-hero-sub">
-      Privacy-first, self-hosted analytics in a 1.9KB (gzipped) script. No cookies. No IP storage. No GDPR headaches. <strong>Now with revenue tracking and smart webhooks.</strong>
+      Privacy-first, self-hosted analytics in a 2KB (gzipped) script. No cookies. No IP storage. No GDPR headaches.
     </p>
 
     <div class="landing-hero-actions">
@@ -82,8 +82,8 @@
     </div>
 
     <div class="landing-hero-trust">
-      <span><i class="ri-test-tube-line"></i> 327 tests</span>
-      <span><i class="ri-code-s-slash-line"></i> 1.9KB tracker</span>
+      <span><i class="ri-test-tube-line"></i> 383 tests</span>
+      <span><i class="ri-code-s-slash-line"></i> 2KB tracker</span>
       <span><i class="ri-shield-check-line"></i> Zero cookies</span>
       <span><i class="ri-open-source-line"></i> MIT License</span>
     </div>
@@ -153,7 +153,7 @@
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-3">
         <div class="landing-metric-icon"><i class="ri-test-tube-line"></i></div>
-        <div class="landing-metric-value" data-count="327">0</div>
+        <div class="landing-metric-value" data-count="383">0</div>
         <div class="landing-metric-label">Automated Tests</div>
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-4">
@@ -243,7 +243,7 @@
         <ul class="landing-feature-list">
           <li><i class="ri-check-line"></i> One-line custom event tracking</li>
           <li><i class="ri-check-line"></i> Event-based conversion goals</li>
-          <li><i class="ri-check-line"></i> Multi-step funnel analysis</li>
+          <li><i class="ri-check-line"></i> Multi-step funnel analysis (lab)</li>
           <li><i class="ri-check-line"></i> Event summary cards with breakdown</li>
           <li><i class="ri-check-line"></i> Auto-detect downloads and outbound links</li>
         </ul>
@@ -362,7 +362,7 @@
       <img src="assets/set_3/png/031-seo.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Slice your data any way you want</h3>
-        <p>Build segments with a visual filter builder, define conversion goals, and track multi-step funnels with drop-off analysis.</p>
+        <p>Build segments with a visual filter builder, define conversion goals, and track multi-step funnels with drop-off analysis. Segments and funnels are labs: off by default, on with one setting.</p>
         <ul class="landing-feature-list">
           <li><i class="ri-check-line"></i> Visual filter builder with AND/OR logic</li>
           <li><i class="ri-check-line"></i> URL-based and event-based conversion goals</li>
@@ -428,7 +428,7 @@
       <img src="assets/set_3/png/032-graph%20line.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Embeddable widgets for your site</h3>
-        <p>Show real-time stats on your website with lightweight, self-updating widgets. Drop in a script tag and you're done.</p>
+        <p>Show real-time stats on your website with lightweight, self-updating widgets. Drop in a script tag and you're done. Widgets are a lab: off by default, because anyone with your site's tracking key can read them.</p>
         <ul class="landing-feature-list">
           <li><i class="ri-check-line"></i> Real-time visitor counter with live pulse</li>
           <li><i class="ri-check-line"></i> Page views badge (daily, weekly, monthly)</li>
@@ -465,7 +465,7 @@
   <div class="landing-container">
     <div class="landing-section-header animate-on-scroll">
       <h2 class="landing-section-title">Know where your <span class="landing-gradient-text">money</span> comes from</h2>
-      <p class="landing-section-subtitle">Go beyond page views. Track revenue, attribute income to traffic sources, and understand which channels actually drive your business.</p>
+      <p class="landing-section-subtitle">Go beyond page views. Track revenue, attribute income to traffic sources, and understand which channels actually drive your business. Revenue, webhooks and email reports are labs: off by default, on with one setting.</p>
     </div>
 
     <div class="landing-revenue-grid animate-on-scroll">
@@ -514,7 +514,7 @@
         <div class="landing-revenue-feature animate-on-scroll">
           <i class="ri-money-dollar-circle-line"></i>
           <h3>Revenue Tracking</h3>
-          <p>Track purchases, subscriptions, and any monetary event with a single API call. Works with Stripe, Shopify, WooCommerce, and any payment system.</p>
+          <p>Track purchases, subscriptions, and any monetary event with a single API call from your checkout's success page, whichever payment provider you use.</p>
         </div>
         <div class="landing-revenue-feature animate-on-scroll">
           <i class="ri-route-line"></i>
@@ -524,7 +524,7 @@
         <div class="landing-revenue-feature animate-on-scroll">
           <i class="ri-webhook-line"></i>
           <h3>Smart Webhooks</h3>
-          <p>Get real-time alerts when goals convert or traffic spikes. Integrate with Slack, Discord, Zapier, or your own server.</p>
+          <p>Get real-time alerts when goals convert or traffic spikes: signed JSON to your own server or to an automation tool such as Zapier.</p>
         </div>
         <div class="landing-revenue-feature animate-on-scroll">
           <i class="ri-mail-send-line"></i>
@@ -677,7 +677,7 @@ MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
         <div class="landing-how-step-number">2</div>
         <i class="ri-settings-3-line landing-how-step-icon"></i>
         <h3>Configure</h3>
-        <p>Browser-based setup wizard. 5 steps, zero restart. Set credentials, database, and CORS.</p>
+        <p>Browser-based setup wizard. 6 steps, zero restart. Set credentials, database, and privacy.</p>
         <code>visit your-domain.com/setup</code>
       </div>
 
@@ -686,7 +686,7 @@ MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
         <i class="ri-line-chart-line landing-how-step-icon"></i>
         <h3>Analyze</h3>
         <p>Add one script tag to your site and start seeing data in your dashboard immediately.</p>
-        <code>&lt;script src=".../tracker.js"&gt;</code>
+        <code>&lt;script src=".../tracker.min.js"&gt;</code>
       </div>
     </div>
 
@@ -788,7 +788,7 @@ java -jar build/libs/mini-numbers-all.jar
 
     <div class="landing-callout animate-on-scroll">
       <i class="ri-magic-line"></i>
-      <p>The interactive setup wizard guides you through configuration in 5 easy steps. No <code>.env</code> file needed. Save and go — no server restart required.</p>
+      <p>The interactive setup wizard guides you through configuration in 6 easy steps. No <code>.env</code> file needed. Save and go — no server restart required.</p>
     </div>
   </div>
 </section>
@@ -817,7 +817,7 @@ java -jar build/libs/mini-numbers-all.jar
         <tbody>
           <tr>
             <td>Tracker size</td>
-            <td class="hl-col">1.9KB gz</td>
+            <td class="hl-col">2KB gz</td>
             <td>1KB</td>
             <td>2KB</td>
             <td>21KB</td>
@@ -825,7 +825,7 @@ java -jar build/libs/mini-numbers-all.jar
           <tr>
             <td>Self-hosted</td>
             <td class="hl-col">Free</td>
-            <td>Paid</td>
+            <td>Free (Community Edition)</td>
             <td>Free</td>
             <td>Free</td>
           </tr>
@@ -848,7 +848,7 @@ java -jar build/libs/mini-numbers-all.jar
             <td class="hl-col">None</td>
             <td>None</td>
             <td>None</td>
-            <td>Required</td>
+            <td>Optional (cookieless mode)</td>
           </tr>
           <tr>
             <td>Setup wizard</td>
@@ -859,7 +859,7 @@ java -jar build/libs/mini-numbers-all.jar
           </tr>
           <tr>
             <td>Embeddable widgets</td>
-            <td class="hl-col"><i class="ri-check-line check"></i></td>
+            <td class="hl-col">Lab</td>
             <td><i class="ri-close-line cross"></i></td>
             <td><i class="ri-close-line cross"></i></td>
             <td><i class="ri-close-line cross"></i></td>

@@ -98,13 +98,14 @@ java -jar build/libs/mini-numbers-all.jar</pre>
   </div>
 
   <h2>Setup Wizard</h2>
-  <p>On first launch, Mini Numbers presents a browser-based setup wizard. It walks you through 5 steps:</p>
+  <p>On first launch, Mini Numbers presents a browser-based setup wizard. It walks you through 6 steps:</p>
   <ol>
-    <li><strong>Security</strong> — Choose an admin username, set a strong password, and generate or provide a server salt (used for visitor hash generation)</li>
-    <li><strong>Database</strong> — Select SQLite (default, file-based, zero config) or PostgreSQL (for larger deployments with connection pooling)</li>
-    <li><strong>Server</strong> — Set the server port, allowed CORS origins (your website domains), and development mode toggle</li>
-    <li><strong>Advanced</strong> — Configure the GeoIP database path and rate limiting thresholds</li>
-    <li><strong>Review</strong> — Confirm all settings, save, and launch — services start immediately with no restart</li>
+    <li><strong>Secure your dashboard</strong> — admin username, password and the server salt (generated for you)</li>
+    <li><strong>Choose storage</strong> — SQLite (default, one file, no setup) or PostgreSQL</li>
+    <li><strong>Privacy approach</strong> — Standard, Strict or Paranoid</li>
+    <li><strong>Server settings</strong> — port, allowed origins for the admin API, and development mode</li>
+    <li><strong>Fine-tuning</strong> — request limits per visitor and per website</li>
+    <li><strong>Review</strong> — confirm and launch; services start without a restart</li>
   </ol>
 
   <h2>Adding the Tracker</h2>
@@ -118,7 +119,7 @@ java -jar build/libs/mini-numbers-all.jar</pre>
     <div class="landing-code-body">
 <pre><span class="hl-tag">&lt;script</span>
   <span class="hl-attr">async</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.js"</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.min.js"</span>
   <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
 <span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
     </div>

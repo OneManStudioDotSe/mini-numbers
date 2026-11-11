@@ -153,7 +153,7 @@
 - [ ] Skip-to-content link works
 - [ ] ARIA labels present on all form controls
 - [ ] Screen reader can navigate dashboard sections
-- [ ] Color contrast meets WCAG AA (4.5:1 for text) — light theme currently fails on 16 elements, see ROADMAP
+- [ ] Color contrast meets WCAG AA (4.5:1 for text) — checked by `a11y.spec.js` in both themes
 - [ ] Focus indicators are visible
 
 ## Performance checks

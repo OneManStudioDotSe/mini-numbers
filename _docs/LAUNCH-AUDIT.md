@@ -14,8 +14,12 @@ on 2026-11-11 against the fat JAR built from `2d02626`.
 
 Fixed after this audit (see the CHANGELOG, Unreleased): Quick Setup, widgets (now a lab, off), the labs switch
 for the six Labs rows, the "Filter by" values, the country drill-down, the pinned globe, demo data only on the
-demo project with a server-side limit, and project delete reporting failures. Still open: Railway config, the
-landing page, the owner actions, and the smaller notes at the end.
+demo project with a server-side limit, project delete reporting failures, Do Not Track / Global Privacy Control
+(honoured), viewers seeing write controls, the dead Leaflet/chartjs-chart-geo loads, Google Fonts (Inter is
+self-hosted), the Railway docs and the landing page's false claims. Android/iOS is roadmap idea #15.
+
+Still open: the owner actions (rotate the leaked secrets on the live instance, refresh GeoLite2 with a MaxMind
+download, enable Discussions) and the smaller notes at the end.
 
 ## Verification run (2026-11-11)
 

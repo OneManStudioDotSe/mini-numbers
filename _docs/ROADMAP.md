@@ -53,7 +53,8 @@ and medium item in it is fixed in 1.5.0. Still open from it:
 - Sessions last a flat 4 hours from login; no sliding window.
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
 - No user-management screen; users are managed through `/api/users`.
-- The landing page (`landing/`) is out of date and loads Remixicon from a CDN — replaced in M3.
+- The landing page (`landing/`) states only true things since 2026-11-11, but still loads Remixicon from a CDN and
+  predates the current design — replaced in M3.
 
 ---
 
@@ -78,8 +79,8 @@ S/M/L is a rough size. "Who has it" shows it's expected, not that we should copy
 | 12 | **Web vitals, opt-in** — page speed (LCP, INP, CLS), off in Paranoid mode | M | Umami, PostHog, Swetrix, Cloudflare | Useful, but grows the tracker; keep it opt-in |
 | 13 | **User-management screen** | S | Most | API exists; only the UI is missing |
 | 14 | **Retention / cohorts** | L | Umami, Rybbit, OpenPanel, PostHog | Valuable but large, and hard to do well with rotating hashes |
-
 | 15 | **Android and iOS apps** — screen views and events from native apps: first a docs page on posting to `/collect`, then `platform`/`appVersion` fields and app-aware device parsing, then a small SDK per platform (or one Kotlin Multiplatform library) | M–L | Umami (API), PostHog, Aptabase, TelemetryDeck | Nothing exists today: an app can only post to `/collect` by hand and shows up as an "Unknown" device |
+
 **Out of scope by design:** session replay, click heatmaps and error tracking. They need much more data about
 visitors than our privacy promise allows, and the market is splitting between simple privacy tools (us) and
 product-analytics suites.

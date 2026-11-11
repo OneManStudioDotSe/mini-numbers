@@ -52,13 +52,14 @@ docker compose up -d</pre>
   <p>The Docker image is multi-platform (amd64, arm64) and weighs approximately 200MB.</p>
 
   <h2>2. Configure</h2>
-  <p>When you first visit your Mini Numbers instance, the setup wizard guides you through configuration in 5 steps:</p>
+  <p>When you first visit your Mini Numbers instance, the setup wizard guides you through configuration in 6 steps:</p>
   <ol>
-    <li><strong>Security</strong> — Set admin username, password, and server salt</li>
-    <li><strong>Database</strong> — Choose SQLite (default, zero-config) or PostgreSQL</li>
-    <li><strong>Server</strong> — Configure port, CORS origins, and development mode</li>
-    <li><strong>Advanced</strong> — GeoIP database path and rate limiting</li>
-    <li><strong>Review</strong> — Confirm settings and launch</li>
+    <li><strong>Secure your dashboard</strong> — admin username, password and the server salt (generated for you)</li>
+    <li><strong>Choose storage</strong> — SQLite (default, one file, no setup) or PostgreSQL</li>
+    <li><strong>Privacy approach</strong> — Standard, Strict or Paranoid</li>
+    <li><strong>Server settings</strong> — port, allowed origins for the admin API, and development mode</li>
+    <li><strong>Fine-tuning</strong> — request limits per visitor and per website</li>
+    <li><strong>Review</strong> — confirm and launch; services start without a restart</li>
   </ol>
   <p>The wizard saves a <code>.env</code> file and initializes all services — no server restart required. This is Mini Numbers' zero-restart architecture in action.</p>
 
@@ -73,7 +74,7 @@ docker compose up -d</pre>
     <div class="landing-code-body">
 <pre><span class="hl-tag">&lt;script</span>
   <span class="hl-attr">async</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.js"</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.min.js"</span>
   <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
 <span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
     </div>
@@ -81,7 +82,7 @@ docker compose up -d</pre>
 
   <h3>Tracker Features</h3>
   <ul>
-    <li><strong>1.9KB gzipped (4.9KB minified)</strong> — smaller than most favicon images</li>
+    <li><strong>2KB gzipped (5.2KB minified)</strong> — smaller than most favicon images</li>
     <li><strong>SPA support</strong> — automatically patches History API for single-page apps</li>
     <li><strong>Heartbeat tracking</strong> — measures actual time-on-page (visibility-aware)</li>
     <li><strong>Custom events</strong> — track any interaction with <code>MiniNumbers.track("event")</code></li>

@@ -77,6 +77,10 @@ All three need a persistent volume at `/app/data` — that's where your settings
 2. Add a **Volume** mounted at `/app/data`.
 3. Add the variable `TRUST_PROXY=true`, then generate a domain under **Networking**.
 
+Deploying a fork of the repository instead also works: Railway reads `railway.json`, builds the `Dockerfile` and
+uses `/health` as its health check. The volume and `TRUST_PROXY=true` still have to be added by hand (steps 2–3),
+because a Railway config file can't declare them.
+
 **Render** (needs a paid plan, because free services can't keep files)
 1. Fork the repository on GitHub.
 2. In Render: **New → Blueprint** → pick your fork. It reads `render.yaml` and creates the service and its disk.
