@@ -512,7 +512,9 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
   logout and a password change end that user's sessions on every device.
 - **API tokens**: JWT access tokens (15 min) plus refresh tokens stored hashed and revoked on use
   (`core/JwtService.kt`, `routing/AuthRouting.kt`).
-- **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin.
+- **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin. The dashboard hides
+  write controls from viewers: `admin.js` `applyRole()` reads `/admin/me` and sets `data-viewer` on `<html>`, and
+  `base.css` hides `[data-admin-only]` and `.project-menu__delete` under it.
 - **Limits**: per-IP and per-key buckets on `/collect`, `/widget/*`, `/admin/*`, `/api/*`; a stricter fixed
   bucket (20/IP/min, 300/min overall) on the credential endpoints (`middleware/RateLimitGuard.kt`).
 - **Headers** (`core/HTTP.kt`): CSP, `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy, HSTS outside

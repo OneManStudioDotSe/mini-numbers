@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The tracker honours Global Privacy Control and Do Not Track.** Visitors whose browser sends either are not
   counted; `MiniNumbers.track()` stays callable and does nothing. Add `data-respect-privacy-signals="false"` to the
   snippet to count them anyway.
+- Viewers no longer see controls they cannot use (new project, demo data, delete, manage goals, rotate key,
+  automations); the project name in Settings is read-only for them.
 - **Labs.** Funnels, segments, revenue, webhooks, email reports and embeddable widgets are now experimental and off
   by default: their dashboard parts are hidden and their API answers 404. Turn any of them on with
   `LABS=funnels,webhooks,…` (see the configuration page). Nothing stored is removed.
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Generate demo data** was offered on every project, mixing sample visits into real numbers. It is now only on
   the demo project, and the server refuses more than 3,000 events or more than 365 days.
 - Deleting a project reported success even when the server refused it.
+- Saving Settings re-sent the project name every time; it is now only sent when it changed.
 
 ### Changed
 

@@ -71,6 +71,9 @@ const Dashboard = {
     // Remove what belongs to labs that are off (LABS on the server) before anything renders
     await this.applyLabs();
 
+    // Viewers can read everything but change nothing: hide the controls that would answer 403
+    await this.applyRole();
+
     // Set up theme toggle
     this.setupThemeToggle();
 
@@ -142,6 +145,21 @@ const Dashboard = {
     document.querySelectorAll('[data-lab]').forEach(el => {
       if (!el.dataset.lab.split(' ').some(lab => this.state.labs.has(lab))) el.remove();
     });
+  },
+
+  /**
+   * Mark the page for a viewer: CSS hides [data-admin-only] and the per-project delete buttons, and the project
+   * name in Settings becomes read-only.
+   */
+  async applyRole() {
+    try {
+      this.state.role = (await Utils.api.fetch('/admin/me')).role;
+    } catch (error) {
+      console.error('Failed to load the current user:', error);
+    }
+    const viewer = this.state.role === 'viewer';
+    document.documentElement.toggleAttribute('data-viewer', viewer);
+    if (viewer) document.getElementById('setting-project-name')?.setAttribute('readonly', '');
   },
 
   labOn(lab) {
@@ -2253,12 +2271,13 @@ const Dashboard = {
       // Save project name if changed
       if (this.state.currentProjectId) {
         const newName = document.getElementById('setting-project-name')?.value.trim();
-        if (newName) {
+        if (newName && newName !== this.state.currentProjectName) {
           try {
             // Update project name via API
             await Utils.api.post(`/admin/projects/${this.state.currentProjectId}`, {
               name: newName
             });
+            this.state.currentProjectName = newName;
 
             // Update the title display
             const titleEl = document.getElementById('active-title');

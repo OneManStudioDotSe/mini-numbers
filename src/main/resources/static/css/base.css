@@ -382,3 +382,9 @@ input:focus-visible {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Viewers (role "viewer") see no controls that change data; admin.js applyRole() sets the attribute */
+[data-viewer] [data-admin-only],
+[data-viewer] .project-menu__delete {
+  display: none !important;
+}
