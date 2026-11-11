@@ -1,7 +1,7 @@
 # Mini Numbers — Roadmap
 
 The one place for what's next: owner actions, milestones, known gaps and feature ideas. What already shipped
-is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-03.
+is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-11.
 
 **Positioning:** the easiest and most private analytics you can self-host — one program, SQLite built in, every
 feature included. Not a race for feature parity with Plausible, Umami or PostHog.
@@ -79,6 +79,7 @@ S/M/L is a rough size. "Who has it" shows it's expected, not that we should copy
 | 13 | **User-management screen** | S | Most | API exists; only the UI is missing |
 | 14 | **Retention / cohorts** | L | Umami, Rybbit, OpenPanel, PostHog | Valuable but large, and hard to do well with rotating hashes |
 
+| 15 | **Android and iOS apps** — screen views and events from native apps: first a docs page on posting to `/collect`, then `platform`/`appVersion` fields and app-aware device parsing, then a small SDK per platform (or one Kotlin Multiplatform library) | M–L | Umami (API), PostHog, Aptabase, TelemetryDeck | Nothing exists today: an app can only post to `/collect` by hand and shows up as an "Unknown" device |
 **Out of scope by design:** session replay, click heatmaps and error tracking. They need much more data about
 visitors than our privacy promise allows, and the market is splitting between simple privacy tools (us) and
 product-analytics suites.
