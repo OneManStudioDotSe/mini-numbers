@@ -162,6 +162,9 @@ label { display: block; font-size: 13px; font-weight: 600; color: var(--color-te
 .review-content { background: var(--glass-bg-input); border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1.5px solid var(--color-border); }
 .review-item { display: flex; justify-content: space-between; padding: 10px 0; font-size: 12px; border-bottom: 1px solid rgba(0,0,0,0.04); }
 .review-item:last-child { border-bottom: none; }
+.review-password { padding: 0 0 16px; margin-bottom: 8px; border-bottom: 1px solid var(--color-border); }
+.review-password__row { display: flex; gap: 10px; margin-top: 8px; }
+.review-password__row code { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-primary); background: var(--glass-bg-input); color: var(--color-text-primary); font-size: 15px; font-weight: 700; letter-spacing: 0.04em; user-select: all; overflow-wrap: anywhere; }
 .review-label { color: var(--color-text-secondary); font-weight: 500; }
 .review-value { font-weight: 700; color: var(--color-text-primary); }
 

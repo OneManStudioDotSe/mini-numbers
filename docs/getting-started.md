@@ -39,8 +39,8 @@ The wizard saves your choices in a `.env` file. Hash rotation, data retention an
 wizard; add them to `.env` later if you need them (see [Configuration](configuration)).
 
 {: .tip }
-**Quick Setup** on the first step fills everything in with test-friendly defaults. Use it to try Mini Numbers,
-not for a real site.
+**Quick Setup** on the first step fills everything in with the recommended defaults and generates a strong admin
+password (user name `admin`). It shows the password once, on the review step: copy it before you press launch.
 
 ---
 

@@ -5,6 +5,8 @@ const path = require('path');
 const JAR = path.resolve(__dirname, '../build/libs/mini-numbers-all.jar');
 const DB = path.resolve(__dirname, 'data/e2e.db');
 const PORT = process.env.E2E_PORT || '8080'; // set E2E_PORT when 8080 is busy
+const WIZARD_PORT = String(Number(PORT) + 1);
+const WIZARD_DIR = path.resolve(__dirname, 'data/wizard');
 
 /**
  * Boots the real fat JAR on a throwaway SQLite database for every run.
@@ -31,7 +33,7 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  webServer: {
+  webServer: [{
     command: `rm -f "${DB}" "${DB}-wal" "${DB}-shm" && mkdir -p "${path.dirname(DB)}" && java -jar "${JAR}"`,
     url: `http://localhost:${PORT}/health`,
     timeout: 90_000,
@@ -45,8 +47,15 @@ module.exports = defineConfig({
       KTOR_DEVELOPMENT: 'true',
       ALLOWED_ORIGINS: '*',
       TRACKER_HEARTBEAT_INTERVAL: '2',
-    },
-  },
       // Labs are off by default; the suite keeps them on so it can test them (dashboard.spec checks them off)
       LABS: 'widgets,funnels,segments,revenue,webhooks,email-reports',
+    },
+  }, {
+    // A second, unconfigured instance in an empty directory, for the setup wizard (wizard.spec.js)
+    command: `rm -rf "${WIZARD_DIR}" && mkdir -p "${WIZARD_DIR}" && cd "${WIZARD_DIR}" && java -jar "${JAR}"`,
+    url: `http://localhost:${WIZARD_PORT}/health`,
+    timeout: 90_000,
+    reuseExistingServer: false,
+    env: { PORT: WIZARD_PORT },
+  }],
 });

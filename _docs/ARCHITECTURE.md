@@ -431,6 +431,13 @@ Stored rows are untouched, and the demo seeder still creates funnels and segment
 switched on. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
 testing them; `LabsTest` and the dashboard spec check the defaults.
 
+### Setup wizard Quick Setup
+
+`wizard.js` `quickSetup()` fills the recommended defaults, generates a 20-character admin password with
+`crypto.getRandomValues` (no look-alike characters, no modulo bias), sets development mode only when the wizard is
+served over plain HTTP, and stops on the review step, which shows the password once with a copy button. It never
+submits by itself.
+
 ### Webhooks
 
 Per-project outbound HTTP notifications (`db/Webhooks.kt`, `services/WebhookService.kt`,

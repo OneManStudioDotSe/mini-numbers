@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Widgets are off by default.** With them on, anyone who copied the project key from a site's HTML could read
   that site's top pages and visitor counts. They now need `LABS=widgets`.
+- **Quick Setup no longer uses a fixed password.** It generated `admin123456`, turned on development mode and
+  submitted by itself. It now generates a strong password, shows it once on the review step with a copy button,
+  turns on development mode only over plain HTTP, and waits for you to launch.
 
 ### Changed
 

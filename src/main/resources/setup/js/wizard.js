@@ -229,7 +229,17 @@ const SetupWizard = {
     populateReview() {
         const content = document.getElementById('review-content');
         const config = this.buildConfigFromForm();
-        content.innerHTML = `
+        // Shown only while the password is still the one Quick Setup generated (alphanumeric, safe to interpolate)
+        const generated = this.quickPassword && this.quickPassword === config.adminPassword;
+        content.innerHTML = (generated ? `
+            <div class="review-password" role="group" aria-labelledby="review-password-label">
+                <span class="review-label" id="review-password-label">Your admin password</span>
+                <div class="review-password__row">
+                    <code id="review-password-value">${this.quickPassword}</code>
+                    <button type="button" class="btn-generate-salt" id="btn-copy-password">Copy</button>
+                </div>
+                <p class="field-tip">Save it in your password manager now. It is not shown again.</p>
+            </div>` : '') + `
             <div class="review-item"><span class="review-label">Admin User</span><span class="review-value">${config.adminUsername}</span></div>
             <div class="review-item"><span class="review-label">Database</span><span class="review-value">${config.database.type}</span></div>
             <div class="review-item"><span class="review-label">Privacy</span><span class="review-value">${config.privacyMode}</span></div>
@@ -238,6 +248,7 @@ const SetupWizard = {
             <div class="review-item"><span class="review-label">IP Rate Limit</span><span class="review-value">${config.rateLimit.perIp}/min</span></div>
             <div class="review-item"><span class="review-label">Dev Mode</span><span class="review-value">${config.server.isDevelopment ? 'Enabled' : 'Disabled'}</span></div>
         `;
+        document.getElementById('btn-copy-password')?.addEventListener('click', () => this.copyPassword());
     },
 
     buildConfigFromForm() {
@@ -335,9 +346,11 @@ const SetupWizard = {
     async quickSetup() {
         if (this.isTransitioning) return;
         
-        // 1. Fill all fields with sensible defaults
+        // 1. Fill all fields with sensible defaults. The password is generated here and shown once on the review step,
+        // so no install ever starts with a known password.
+        this.quickPassword = this.generatePassword();
         document.querySelector('input[name="adminUsername"]').value = 'admin';
-        document.querySelector('input[name="adminPassword"]').value = 'admin123456';
+        document.querySelector('input[name="adminPassword"]').value = this.quickPassword;
         
         // Ensure we have a fresh salt
         await this.generateSalt();
@@ -354,8 +367,9 @@ const SetupWizard = {
         
         // Server
         document.querySelector('input[name="serverPort"]').value = '8080';
-        document.querySelector('input[name="allowedOrigins"]').value = '*';
-        document.querySelector('input[name="isDevelopment"]').checked = true;
+        document.querySelector('input[name="allowedOrigins"]').value = '';
+        // Development mode only drops the Secure cookie flag and HSTS: needed over plain HTTP, wrong over HTTPS
+        document.querySelector('input[name="isDevelopment"]').checked = location.protocol === 'http:';
         
         // Rate Limits
         document.querySelector('input[name="rateLimitPerIp"]').value = '1000';
@@ -371,11 +385,34 @@ const SetupWizard = {
         reviewStep.classList.add('active', 'slide-next');
         
         this.updateUIState();
+        // 3. Stop on the review step: the user copies the password and launches themselves
+        document.getElementById('btn-copy-password')?.focus();
+    },
 
-        // 3. Trigger Action: Submit after a small "visual confirmation" delay
-        setTimeout(() => {
-            this.submitConfiguration();
-        }, 800);
+    /** 20 characters from an alphabet without look-alikes (no 0/O, 1/l/I), drawn without modulo bias. */
+    generatePassword() {
+        const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        const limit = 256 - (256 % alphabet.length);
+        let password = '';
+        while (password.length < 20) {
+            for (const byte of crypto.getRandomValues(new Uint8Array(32))) {
+                if (byte < limit && password.length < 20) password += alphabet[byte % alphabet.length];
+            }
+        }
+        return password;
+    },
+
+    async copyPassword() {
+        const value = document.getElementById('review-password-value');
+        const button = document.getElementById('btn-copy-password');
+        try {
+            await navigator.clipboard.writeText(value.textContent);
+            button.textContent = 'Copied';
+        } catch (e) {
+            // No clipboard outside secure contexts (plain HTTP on a public host): select it for a manual copy
+            window.getSelection().selectAllChildren(value);
+            button.textContent = 'Press Ctrl/⌘+C';
+        }
     }
 };
 
