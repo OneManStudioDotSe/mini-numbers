@@ -128,4 +128,38 @@ test.describe('dashboard', () => {
     expect(labCalls, 'no requests to the API of a lab that is off').toEqual([]);
   });
 
+  test('filter values, the country drill-down and the globe follow the data', async ({ page }) => {
+    await loginViaApi(page.request);
+    const project = await createProject(page.request);
+    await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 300, timeScope: 7 } });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto('/admin-panel');
+    await page.locator('.project-menu__item', { hasText: project.name }).click();
+    await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });
+
+    // "Filter by" values carry their counts
+    await page.selectOption('#filter-dimension', 'browser');
+    await expect.poll(() => page.locator('#filter-value option').count()).toBeGreaterThan(1);
+    const options = await page.$$eval('#filter-value option', os => os.slice(1).map(o => o.textContent));
+    for (const o of options) expect(o).toMatch(/\(\d+\)$/);
+    await page.selectOption('#filter-dimension', '');
+
+    // While drilled into a country, a period change still updates the other charts
+    const points = () => page.evaluate(() => Object.values(Chart.instances).find(c => c.canvas.closest('#chart-timeseries') || c.canvas.id === 'chart-timeseries')?.data.labels.length);
+    const report24h = () => page.waitForResponse(r => r.url().includes('/report/comparison') && r.url().includes('filter=24h'));
+    const country = await page.evaluate(() => Dashboard.state.data.current.countries[0].label);
+    await page.evaluate(c => Dashboard.drillDownToCountry(c), country);
+    await expect(page.locator('#geo-title')).toHaveText(`Regions in ${country}`);
+    await Promise.all([report24h(), page.selectOption('#time-filter', '24h')]);
+    const expected = await page.evaluate(() => Dashboard.state.data.timeSeries.length);
+    await expect.poll(points).toBe(expected);
+    await expect(page.locator('#geo-title')).toHaveText(`Regions in ${country}`);
+
+    // The globe loads its pinned script (a wrong integrity hash would refuse it)
+    await page.locator('#geo-back-btn').dispatchEvent('click');
+    await page.locator('#geo-view-toggle [data-view="globe"]').dispatchEvent('click');
+    await expect.poll(() => page.evaluate(() => typeof window.Globe), { timeout: 20_000 }).toBe('function');
+    expect(errors).toEqual([]);
+  });
 });

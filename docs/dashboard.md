@@ -57,8 +57,9 @@ In **Conversions**, each card has a **Manage** button:
 
 ## Demo data
 
-**Generate demo data** fills the selected project with sample visits over a period you choose, so you can
-explore every chart before real traffic arrives. **Demo project** in the sidebar creates a separate project
+**Generate demo data** fills the demo project with up to 3,000 sample visits over a period you choose, so you can
+explore every chart before real traffic arrives. It is only offered on the demo project, so sample visits never
+mix with a real site's numbers. **Demo project** in the sidebar creates a separate project
 with demo data, goals, a funnel and segments ready-made.
 
 ## Light and dark

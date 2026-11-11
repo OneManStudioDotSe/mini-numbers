@@ -10,6 +10,13 @@ on 2026-11-11 against the fat JAR built from `2d02626`.
 - **Labs**: hidden by default behind `LABS` (step 2).
 - **Not built**: doesn't exist, and nothing may claim it does.
 
+## Status
+
+Fixed after this audit (see the CHANGELOG, Unreleased): Quick Setup, widgets (now a lab, off), the labs switch
+for the six Labs rows, the "Filter by" values, the country drill-down, the pinned globe, demo data only on the
+demo project with a server-side limit, and project delete reporting failures. Still open: Railway config, the
+landing page, the owner actions, and the smaller notes at the end.
+
 ## Verification run (2026-11-11)
 
 | Check | Result |

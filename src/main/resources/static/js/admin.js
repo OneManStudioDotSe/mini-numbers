@@ -403,9 +403,10 @@ const Dashboard = {
    */
   async deleteProject(projectId) {
     try {
-      await fetch(`/admin/projects/${projectId}`, {
+      const res = await fetch(`/admin/projects/${projectId}`, {
         method: 'DELETE',
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const modal = document.getElementById('delete-project-modal');
       if (modal) modal.classList.remove('show');
@@ -660,6 +661,13 @@ const Dashboard = {
   async selectProject(id, name) {
     this.state.currentProjectId = id;
     this.state.currentProjectName = name;
+
+    // Sample data only goes into the demo project, never into a real site's numbers
+    const generateDemoBtn = document.getElementById('generate-demo-btn');
+    if (generateDemoBtn) generateDemoBtn.style.display = this.isDemoProject() ? 'flex' : 'none';
+
+    // A country drill-down belongs to the previous project
+    if (this.state.geoState?.view === 'cities') document.getElementById('geo-back-btn')?.click();
 
     // Update UI
     const titleEl = document.getElementById('active-title');
@@ -1118,11 +1126,10 @@ const Dashboard = {
 
     // Countries - Geographic visualization
     const countriesEl = document.getElementById('chart-countries');
-    if (data.countries?.length && countriesEl) {
-      if (this.state.geoState?.view === 'cities') {
-        return;
-      }
-
+    if (data.countries?.length && countriesEl && this.state.geoState?.view === 'cities') {
+      // Drilled into a country: refresh its regions for the new data and carry on with the other charts
+      this.drillDownToCountry(this.state.geoState.selectedCountry);
+    } else if (data.countries?.length && countriesEl) {
       MapManager.createMap('chart-countries', data.countries);
 
       if (!MapManager._toggleInitialized) {
@@ -1575,7 +1582,7 @@ const Dashboard = {
     this.state.data.current[dimKey].forEach(item => {
       const option = document.createElement('option');
       option.value = item.label;
-      option.textContent = `${item.label} (${item.count})`;
+      option.textContent = `${item.label} (${item.value})`;
       valueSelect.appendChild(option);
     });
 
@@ -1841,6 +1848,7 @@ const Dashboard = {
     if (!this.state.currentProjectId) return;
 
     try {
+      const funnelsOn = this.labOn('funnels');
       const [goalStats, funnels] = await Promise.all([
         GoalsManager.loadGoalStats(this.state.currentProjectId, this.state.currentFilter),
         funnelsOn ? GoalsManager.loadFunnels(this.state.currentProjectId) : null
@@ -1848,7 +1856,6 @@ const Dashboard = {
 
       GoalsManager.renderGoals(goalStats);
       if (funnelsOn) GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
-      const funnelsOn = this.labOn('funnels');
     } catch (error) {
       console.error('Failed to load goals and funnels:', error);
     }
@@ -2025,7 +2032,7 @@ const Dashboard = {
 
     // Show button when project is selected
     const observer = new MutationObserver(() => {
-      if (this.state.currentProjectId) {
+      if (this.state.currentProjectId && this.isDemoProject()) {
         generateBtn.style.display = 'flex';
       } else {
         generateBtn.style.display = 'none';

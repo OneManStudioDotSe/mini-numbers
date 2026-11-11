@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quick Setup no longer uses a fixed password.** It generated `admin123456`, turned on development mode and
   submitted by itself. It now generates a strong password, shows it once on the review step with a copy button,
   turns on development mode only over plain HTTP, and waits for you to launch.
+- The globe library and its textures are pinned to exact versions, and the script is checked with an SRI hash.
+
+### Fixed
+
+- The "Filter by" values read "(undefined)" instead of their counts.
+- While a country was opened in the countries card, changing the period left the views chart, heatmap and the
+  other charts after it on the old period. The country's regions now follow the period too, and switching
+  project closes the country.
+- **Generate demo data** was offered on every project, mixing sample visits into real numbers. It is now only on
+  the demo project, and the server refuses more than 3,000 events or more than 365 days.
+- Deleting a project reported success even when the server refused it.
 
 ### Changed
 

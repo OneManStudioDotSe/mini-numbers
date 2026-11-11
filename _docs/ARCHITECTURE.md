@@ -357,7 +357,7 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 - `GET /admin/projects` (paginated), `POST /admin/projects` (201 with `{id, apiKey}`), `POST /admin/projects/{id}` (update),
   `DELETE /admin/projects/{id}` (cascades events/goals/funnels/segments/webhooks/email-reports)
 - `POST /admin/projects/{id}/rotate-api-key`
-- `POST /admin/projects/{id}/demo-data`
+- `POST /admin/projects/{id}/demo-data` — `count` 1–3000, `timeScope` 1–365 days (400 otherwise)
 - `GET /admin/projects/{id}/retention-preview?days=N`
 
 ### Analytics & reports

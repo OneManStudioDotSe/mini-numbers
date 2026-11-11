@@ -420,4 +420,28 @@ class AdminEndpointTest {
         val body = logoutResponse.bodyAsText()
         assertTrue(body.contains("success") || body.contains("Logged out"), "Logout should confirm success")
     }
+
+    @Test
+    fun `demo data is limited to what the dialog allows`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        authClient.login()
+        val created = authClient.post("/admin/projects") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"demo-limit-${System.nanoTime()}","domain":"example.com"}""")
+        }
+        val id = Regex("\"id\"\\s*:\\s*\"([^\"]+)\"").find(created.bodyAsText())!!.groupValues[1]
+
+        for (body in listOf("""{"count":3001,"timeScope":30}""", """{"count":0,"timeScope":30}""", """{"count":10,"timeScope":366}""")) {
+            val response = authClient.post("/admin/projects/$id/demo-data") {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status, body)
+        }
+        assertEquals(HttpStatusCode.OK, authClient.post("/admin/projects/$id/demo-data") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"count":10,"timeScope":7}""")
+        }.status)
+    }
 }

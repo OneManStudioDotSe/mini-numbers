@@ -30,6 +30,11 @@ import se.onemanstudio.api.models.admin.DemoDataResponse
 import se.onemanstudio.utils.toApiString
 import se.onemanstudio.utils.nowApiString
 
+
+/** Same limits as the demo-data dialog (`admin.html`). */
+private const val MAX_DEMO_EVENTS = 3000
+private const val MAX_DEMO_DAYS = 365
+
 fun Route.adminProjectRoutes() {
     // List all projects (with pagination)
     get("/projects") {
@@ -332,6 +337,10 @@ fun Route.adminProjectRoutes() {
         val params = call.receive<DemoDataRequest>()
         val count = params.count
         val timeScope = params.timeScope
+        if (count !in 1..MAX_DEMO_EVENTS || timeScope !in 1..MAX_DEMO_DAYS) {
+            return@post call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("count must be 1-$MAX_DEMO_EVENTS and timeScope 1-$MAX_DEMO_DAYS days"))
+        }
         
         try {
             // Also seed goals, funnels and segments for a better demo experience

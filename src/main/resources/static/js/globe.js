@@ -30,7 +30,10 @@ const GlobeManager = {
     this.loading = true;
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/globe.gl';
+      // Pinned with SRI: an unpinned CDN script could change under us (update both together)
+      script.src = 'https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js';
+      script.integrity = 'sha384-1uolMBZ25k3zJcNwCLEv49+L+m2dZudqAzsoSAJfQTzDCSBxJzrMuZ2dkp/5JKiT';
+      script.crossOrigin = 'anonymous';
       script.onload = () => {
         this.loaded = true;
         this.loading = false;
@@ -92,8 +95,8 @@ const GlobeManager = {
       .width(width)
       .height(height)
       .globeImageUrl(isDark
-        ? 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg'
-        : 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+        ? 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-night.jpg'
+        : 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-blue-marble.jpg')
       .backgroundColor(isDark ? '#0f172a' : '#f8fafc')
       .showAtmosphere(true)
       .atmosphereColor(isDark ? '#818cf8' : '#6366f1')
@@ -232,8 +235,8 @@ const GlobeManager = {
 
     this.instance
       .globeImageUrl(isDark
-        ? 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg'
-        : 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+        ? 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-night.jpg'
+        : 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-blue-marble.jpg')
       .backgroundColor(isDark ? '#0f172a' : '#f8fafc')
       .atmosphereColor(isDark ? '#818cf8' : '#6366f1')
       .ringColor(() => isDark
