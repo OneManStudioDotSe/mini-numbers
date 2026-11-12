@@ -309,7 +309,7 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 | `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `TRACKER_SPA_ENABLED`        | `true`                                      | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `LABS`                       | *(empty)*                                   | Comma-separated labs to switch on: `widgets`, `funnels`, `segments`, `revenue`, `webhooks`, `email-reports` (see Feature notes → Labs) |
-| `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path; the bundled GeoLite2-City copy (MaxMind attribution in README, docs and the Docker image) is from 2026-01-30 |
+| `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path; the bundled GeoLite2-City copy (MaxMind attribution in README, docs and the Docker image) is from 2026-11-10 |
 
 ### Email reports (SMTP)
 

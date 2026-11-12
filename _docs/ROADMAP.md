@@ -20,15 +20,15 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       deleted too; the only remaining copies are GitHub's cached pull-request refs (ask support to clear them) and
       clones made before the purge.
 - [x] **GeoLite2** (decided 2026-11-03): keep shipping the bundled file under the GeoLite2 EULA, with the MaxMind
-      attribution in the README, the docs and the Docker image labels. The bundled copy is from 2026-01-30; replace
+      attribution in the README, the docs and the Docker image labels. The bundled copy is from 2026-11-10; replace
       `src/main/resources/geo/geolite2-city.mmdb` with a fresh download before a release when it is older than a
       few months, and update the date in `docs/configuration.md` and `_docs/ARCHITECTURE.md`.
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
-- [ ] **Refresh GeoLite2** before tagging 1.6.0 (the bundled copy is from 2026-01-30).
-- [ ] **Tag `v1.6.0`** (prepared on `main` 2026-11-11: version, changelog), then run [GO-LIVE.md](GO-LIVE.md) on the
-      production server.
+- [x] **Refresh GeoLite2** (2026-11-12): the bundled copy is now the 2026-11-10 build, for the next release.
+- [x] **Tag `v1.6.0`** (2026-11-12): the release JAR and the `1.6.0`, `1.6` and `latest` images are published.
+- [ ] **Run [GO-LIVE.md](GO-LIVE.md)** on the production server.
 
 ## Milestones
 
@@ -36,7 +36,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 |---|---|---|
 | M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
 | M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
-| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Prepared as 1.6.0, not tagged |
+| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Released as 1.6.0 (2026-11-12) |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |

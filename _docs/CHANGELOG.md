@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-11-12
+
+### Changed
+
+- The bundled MaxMind GeoLite2 City database is refreshed to the 2026-11-10 build (was 2026-01-30), so
+  countries and cities are placed correctly for addresses reassigned since January.
+
 ## [1.6.0] - 2026-11-11
 
 The launch release: what isn't verified yet is switched off, the setup wizard can no longer leave a known

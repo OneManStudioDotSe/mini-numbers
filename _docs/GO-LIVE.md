@@ -16,7 +16,7 @@ Placeholders: `stats.example.com` is your analytics domain, `$KEY` the key of th
       server `docker compose exec mini-numbers java -jar /app/app.jar reset-password admin` (editing `ADMIN_PASSWORD`
       in `.env` does nothing once the admin exists). Rotate a project key with Settings → Rotate key.
 - [ ] **GeoLite2 refreshed** if `src/main/resources/geo/geolite2-city.mmdb` is more than a few months old (it is from
-      2026-01-30): download GeoLite2-City from your MaxMind account, replace the file, and update the date in
+      2026-11-10): download GeoLite2-City from your MaxMind account, replace the file, and update the date in
       `docs/configuration.md` and `_docs/ARCHITECTURE.md`.
 - [ ] **Tests green:** `./gradlew test`, `./gradlew detekt` (JDK 21), and
       `./gradlew buildFatJar && cd e2e && npx playwright test` (then `git checkout -- docs/screenshots`).

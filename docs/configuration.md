@@ -106,7 +106,7 @@ are set as well.
 
 | Setting | Default | What it does |
 |---------|---------|--------------|
-| `GEOIP_DATABASE_PATH` | bundled file | Path to a MaxMind GeoLite2 City database. A copy built on 2026-01-30 is included (this product includes GeoLite2 data created by MaxMind, available from [maxmind.com](https://www.maxmind.com)); set this to use a newer download from MaxMind |
+| `GEOIP_DATABASE_PATH` | bundled file | Path to a MaxMind GeoLite2 City database. A copy built on 2026-11-10 is included (this product includes GeoLite2 data created by MaxMind, available from [maxmind.com](https://www.maxmind.com)); set this to use a newer download from MaxMind |
 
 ---
 
