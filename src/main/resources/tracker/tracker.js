@@ -87,11 +87,19 @@
     // Drain on reconnect
     window.addEventListener('online', queueDrain);
 
+    // A web address without its query string and fragment, which can carry tokens, search terms or email addresses
+    function bare(address) {
+        try {
+            var u = new URL(address, location.origin);
+            return u.protocol.indexOf('http') === 0 ? (u.origin + u.pathname).substring(0, 512) : null;
+        } catch (e) { return null; }
+    }
+
     // Send event to server
     function send(type, eventName, extra) {
         var payload = {
             path: location.pathname,
-            referrer: document.referrer || null,
+            referrer: document.referrer ? bare(document.referrer) : null,
             sessionId: sid,
             type: type || 'pageview'
         };
@@ -163,12 +171,13 @@
             // File download detection
             if (fileExts.test(url.pathname)) {
                 var fname = url.pathname.split('/').pop() || url.pathname;
-                send('download', fname.substring(0, 100), { targetUrl: link.href.substring(0, 1024) });
+                var file = bare(link.href);
+                if (file) send('download', fname.substring(0, 100), { targetUrl: file });
                 return;
             }
             // Outbound link detection (different hostname)
             if (url.hostname && url.hostname !== location.hostname && url.protocol.indexOf('http') === 0) {
-                send('outbound', url.hostname, { targetUrl: link.href.substring(0, 1024) });
+                send('outbound', url.hostname, { targetUrl: bare(link.href) });
             }
         } catch(ex) { /* ignore invalid URLs */ }
     });

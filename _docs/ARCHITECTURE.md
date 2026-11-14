@@ -121,6 +121,7 @@ mini-numbers/
 │   │   └── ResetDatabase.kt
 │   ├── middleware/
 │   │   ├── AdminCorsGuard.kt             # Origin allowlist for /admin and /api (same-host always allowed)
+│   │   ├── BodyLimit.kt                  # 64 KB request body limit on every route → 413
 │   │   ├── InputValidator.kt
 │   │   ├── QueryCache.kt                 # Caffeine query cache (30s TTL, 500 entries)
 │   │   ├── RateLimiter.kt                # Token buckets per IP / per API key
@@ -207,7 +208,7 @@ browser/OS/device; STRICT: country only; STANDARD: everything above) — `docs/p
 id: UUID (PK), username: String(100, unique), passwordHash: String(255)
 role: String(20) default "viewer" - "admin" | "viewer"
 isActive: Boolean default true, createdAt: DateTime
-sessionsValidFrom: Long? (epoch ms; cookie sessions created before this are rejected; set on logout and password change)
+sessionsValidFrom: Long? (epoch ms; cookie sessions and API tokens created before this are rejected; set on logout and password change)
 ```
 
 ### RefreshTokens
@@ -297,6 +298,7 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 
 | Variable                     | Default                                     | Description                                         |
 | ---------------------------- | ------------------------------------------- | --------------------------------------------------- |
+| `SETUP_TOKEN`                | *(generated at start, printed in the log)*  | Token the setup wizard must send (`X-Setup-Token`) to save the first configuration; only used while setup is needed (`setup/SetupToken.kt`) |
 | `PORT`                       | —                                           | Listen port; wins over `SERVER_PORT` (PaaS-injected; the Docker image sets 8080). Resolved in `main()` via `ConfigLoader.bindPort()` and passed as `-P:ktor.deployment.port` |
 | `SERVER_PORT`                | `8080`                                      | Listen port when `PORT` is unset (written by the setup wizard; read from `.env` too) |
 | `TRUST_PROXY`                | `false`                                     | `true` installs `XForwardedHeaders` (last X-Forwarded-For entry) so `request.origin.remoteHost` is the visitor IP behind a proxy (`core/HTTP.kt` `configureProxyHeaders`) |
@@ -334,20 +336,23 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 ### Public
 
 - `GET /` — Intelligent redirect based on application state
-- `GET /health` — 200 `healthy` with a database probe, 200 `ok` while the wizard is needed, 503 `unhealthy` when services failed or the database is unreachable (no auth)
+- `GET /health` — 200 `healthy` with a database probe, 200 `ok` while the wizard is needed, 503 `unhealthy` when services failed or the database is unreachable (no auth). The reason for a failed start is in the server log only
 - `GET /metrics` — Prometheus text: uptime, GeoIP cache hit rate and size
 - `GET /favicon.ico`
 - `GET /tracker/config` — heartbeat interval and SPA flag from `TRACKER_*` (not read by the tracker today)
 - `GET /tracker/tracker.min.js` — Minified tracker script
-- `POST /collect` — Data collection (rate limited, privacy-mode aware, 202). The tracker posts to `<its script origin>/collect` unless `data-api-endpoint` is set
+- `POST /collect` — Data collection (rate limited, privacy-mode aware, 202). A request from a crawler that announces itself (uap-core device `Spider`) is answered 202 and not stored. The tracker posts to `<its script origin>/collect` unless `data-api-endpoint` is set
 
 ### Setup wizard
 
 - `GET /setup`, `GET /setup/api/status`, `GET /setup/api/generate-salt`, `POST /setup/api/save`
+- `POST /setup/api/save` needs the setup token in `X-Setup-Token` and answers 403 as soon as a configuration exists
+  (`ADMIN_PASSWORD` and `SERVER_SALT` set), also when services failed to start with it. A save whose configuration
+  does not start is taken back (`.env` restored or removed), so the wizard can be retried.
 
 ### Auth / users (session cookie or JWT)
 
-- `POST /api/login` / `POST /api/logout` — Session-based auth; logout signs the user out on every device
+- `POST /api/login` / `POST /api/logout` — Session-based auth; logout signs the user out everywhere (cookie sessions, API access tokens and refresh tokens)
 - `POST /api/token` / `POST /api/token/refresh` — JWT access + refresh token pair; a replayed refresh token revokes its family
 - `POST /api/password-reset` — Resets the `.env` admin's password and signs that account out everywhere (cookies and refresh tokens)
 - `GET /admin/me` — Current authenticated user and their role as it is now (also at `/api/me`)
@@ -522,13 +527,21 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
 ## Security model
 
 - **Passwords**: BCrypt `$2a$`, cost 12 (`core/Passwords.kt`, password4j); `$2b$`/`$2y$` hashes also accepted.
-- **Brute force**: 5 failed logins lock that username for 15 minutes (`core/Security.kt`).
+- **Brute force**: 5 failed logins for a username from one address lock that address out of the account for 15
+  minutes (`core/Security.kt`). The lock is per username and address, so a stranger cannot keep the owner out by
+  guessing wrong on purpose; the credential rate limit below bounds guessing from many addresses.
+- **Request size**: no body over 64 KB is read (`middleware/BodyLimit.kt`): a larger `Content-Length` gets 413 at
+  once, a chunked body is cut off at the limit. Applies to every route, setup included.
+- **Setup**: the wizard's save needs the setup token from the server log (or `SETUP_TOKEN`) and closes for good once a
+  configuration exists (`setup/SetupToken.kt`, `setupSaveRefusal`).
 - **Sessions**: cookie `mini_numbers_session`, HttpOnly, `SameSite=Strict`, `Secure` unless `KTOR_DEVELOPMENT`,
   signed with HMAC-SHA256 (`SessionSigner` in `core/Security.kt`, key `sha256("session-signing-key:" + SERVER_SALT)`) so a forged or edited cookie is rejected;
   valid 4 hours from login; role, active flag and the user's `sessions_valid_from` cut-off re-read on every request, so
   logout and a password change end that user's sessions on every device.
-- **API tokens**: JWT access tokens (15 min) plus refresh tokens stored hashed and revoked on use
-  (`core/JwtService.kt`, `routing/AuthRouting.kt`).
+- **API tokens**: JWT access tokens (15 min, with `iat`) plus refresh tokens stored hashed and revoked on use
+  (`core/JwtService.kt`, `routing/AuthRouting.kt`). An access token issued before the user's `sessions_valid_from`
+  is rejected, and logout and password change delete the refresh tokens, so both end API access too (`iat` has
+  whole seconds: a token from the same second as the cut-off survives it).
 - **Roles**: `admin` and `viewer` (`middleware/RoleGuard.kt`); every write route requires admin. The dashboard hides
   write controls from viewers: `admin.js` `applyRole()` reads `/admin/me` and sets `data-viewer` on `<html>`, and
   `base.css` hides `[data-admin-only]` and `.project-menu__delete` under it.
@@ -547,12 +560,16 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
   `ALLOWED_ORIGINS` (`middleware/AdminCorsGuard.kt`).
   Third-party sources are limited to `cdn.jsdelivr.net` (Chart.js, chartjs-chart-matrix, Remixicon, globe.gl, all
   pinned); Inter is self-hosted in `assets/fonts/` (OFL) and declared in `static/css/fonts.css` for the login page and wizard.
-- **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); the referrer must be
-  an `http(s)` URL with no whitespace, quotes, angle brackets or backticks. All SQL goes through Exposed.
+- **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); the referrer and the
+  target URL must be `http(s)` URLs with no whitespace, quotes, angle brackets or backticks, and `properties` must be
+  a JSON object. All SQL goes through Exposed.
 - **Output**: anything from the database that lands in dashboard HTML goes through `Utils.escapeHtml`
   (`static/js/utils.js`; escapes `& < > " '`), toasts are set with `textContent`, and row buttons carry `data-*`
   attributes with delegated listeners instead of inline `onclick` built from names.
-- **Visitor IP**: used in memory for the hash, GeoIP and rate limiting only; never written anywhere.
+- **Visitor IP**: used in memory for the hash, GeoIP, rate limiting and the login lockout only; never written
+  anywhere, log lines included (a rate-limit warning names the limit, not the address).
+- **Tracker**: sends the referrer and the clicked outbound/download address without query string and fragment.
+- **CSV export**: text cells starting with `=`, `+`, `-` or `@` get a leading apostrophe (`Utils.export.safe`).
 
 How to report a vulnerability: [SECURITY.md](../SECURITY.md).
 

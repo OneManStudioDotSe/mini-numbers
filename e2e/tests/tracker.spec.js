@@ -74,7 +74,7 @@ test.describe('tracker.js on a tracked site', () => {
 
   test('detects outbound links and file downloads', async ({ page }) => {
     await serveTrackedSite(page, project.apiKey,
-      '<a id="out" href="https://other.example.com/x">out</a> <a id="dl" href="/files/report.pdf">pdf</a>');
+      '<a id="out" href="https://other.example.com/x?token=secret#part">out</a> <a id="dl" href="/files/report.pdf?sig=abc">pdf</a>');
     await page.route('https://other.example.com/**', r => r.fulfill({ status: 200, body: 'ok' }));
     await page.route('http://tracked.test/files/**', r => r.fulfill({ status: 200, body: 'pdf' }));
     await page.goto('http://tracked.test/');
@@ -86,6 +86,9 @@ test.describe('tracker.js on a tracked site', () => {
       e.some(x => x.eventType === 'outbound') && e.some(x => x.eventType === 'download'));
     expect(events.find(x => x.eventType === 'outbound').eventName).toBe('other.example.com');
     expect(events.find(x => x.eventType === 'download').eventName).toBe('report.pdf');
+    // Query strings and fragments can carry tokens, so they never leave the visitor's browser
+    expect(events.find(x => x.eventType === 'outbound').targetUrl).toBe('https://other.example.com/x');
+    expect(events.find(x => x.eventType === 'download').targetUrl).toBe('http://tracked.test/files/report.pdf');
   });
 
   for (const [signal, init] of [

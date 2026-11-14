@@ -1,5 +1,8 @@
 package se.onemanstudio.middleware
 
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import se.onemanstudio.api.models.collection.PageViewPayload
 
 /**
@@ -44,6 +47,9 @@ object InputValidator {
     // Referrer: valid HTTP/HTTPS URL. Browsers percent-encode whitespace, quotes, angle brackets
     // and backticks when serialising document.referrer, so a value carrying them is not a real referrer.
     private val URL_REGEX = Regex("^https?://[a-zA-Z0-9.-]+(:[0-9]+)?(/[^\\s\"<>`]*)?$")
+
+    // Target of an outbound link or download: an absolute web address, same forbidden characters as the referrer
+    private val TARGET_URL_REGEX = Regex("^https?://[^\\s\"<>`]*$")
 
     // Session ID: alphanumeric + hyphens
     private val SESSION_ID_REGEX = Regex("^[a-zA-Z0-9-]+$")
@@ -166,11 +172,17 @@ object InputValidator {
         } else if (payload.targetUrl != null && payload.targetUrl.length > MAX_TARGET_URL_LENGTH) {
             errors.add("Target URL exceeds maximum length of $MAX_TARGET_URL_LENGTH characters")
         }
+        if (!payload.targetUrl.isNullOrBlank() && !TARGET_URL_REGEX.matches(payload.targetUrl)) {
+            errors.add("Target URL must be a valid HTTP or HTTPS URL")
+        }
 
         // Validate properties (optional JSON string)
         payload.properties?.let { props ->
             if (props.length > MAX_PROPERTIES_LENGTH) {
                 errors.add("Properties exceeds maximum length of $MAX_PROPERTIES_LENGTH characters")
+            }
+            if (props.isNotEmpty() && !isJsonObject(props)) {
+                errors.add("Properties must be a JSON object")
             }
         }
 
@@ -179,6 +191,12 @@ object InputValidator {
         } else {
             ValidationResult.failure(errors)
         }
+    }
+
+    private fun isJsonObject(value: String): Boolean = try {
+        Json.parseToJsonElement(value) is JsonObject
+    } catch (_: SerializationException) {
+        false
     }
 
     private fun validateUtmField(value: String?, fieldName: String, errors: MutableList<String>) {

@@ -7,7 +7,8 @@
 #      DOMAIN=stats.example.com
 #      DB_PG_PASSWORD=<a long random password>
 # 3. docker compose -f docker-compose.postgres.yml up -d
-# 4. Open https://stats.example.com and complete the setup wizard.
+# 4. Open https://stats.example.com and complete the setup wizard. It asks for the setup token:
+#      docker compose logs mini-numbers | grep "Setup token"
 #
 # Caddy gets and renews the HTTPS certificate by itself; ports 80 and 443 must be free.
 # Upgrade: docker compose -f docker-compose.postgres.yml pull && docker compose -f docker-compose.postgres.yml up -d

@@ -37,6 +37,7 @@ object JwtService {
             .withIssuer(ISSUER)
             .withSubject(username)
             .withClaim("role", role)
+            .withIssuedAt(Date.from(Instant.now()))
             .withExpiresAt(Date.from(Instant.now().plusSeconds(ACCESS_TOKEN_MINUTES * 60)))
             .withJWTId(UUID.randomUUID().toString())
             .sign(algorithm)

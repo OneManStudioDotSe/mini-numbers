@@ -60,6 +60,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         val isValid = verifyCredentials(
             loginRequest.username,
             loginRequest.password,
+            call.request.origin.remoteHost,
             currentConfig,
             call.application.environment.log
         )
@@ -79,7 +80,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         }
     }
 
-    // Logout: ends the user's cookie sessions on every device, not just this one
+    // Logout: signs the user out everywhere (cookie sessions, API tokens and refresh tokens), not just here
     post("/api/logout") {
         call.sessions.get<UserSession>()?.let { cutOffSessions(it.username) }
         call.sessions.clear<UserSession>()
@@ -105,6 +106,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         val isValid = verifyCredentials(
             loginRequest.username,
             loginRequest.password,
+            call.request.origin.remoteHost,
             tokenConfig,
             call.application.environment.log
         )
@@ -248,6 +250,7 @@ fun Route.authRoutes(authLimiter: RateLimiter) {
         val isCurrentPasswordValid = verifyCredentials(
             resetConfig.security.adminUsername,
             body.currentPassword,
+            call.request.origin.remoteHost,
             resetConfig,
             call.application.environment.log
         )
@@ -309,7 +312,8 @@ fun Route.adminSessionRoutes(config: AppConfig, authLimiter: RateLimiter) {
                 ApiError.badRequest("Password must be at least $MIN_PASSWORD_LENGTH characters"))
         }
         // 403, not 401: the caller is signed in, only the password they typed is wrong
-        if (!verifyCredentials(username, body.currentPassword, config, call.application.environment.log)) {
+        val clientIp = call.request.origin.remoteHost
+        if (!verifyCredentials(username, body.currentPassword, clientIp, config, call.application.environment.log)) {
             return@post call.respond(HttpStatusCode.Forbidden,
                 ApiError(error = "Current password is incorrect", code = "FORBIDDEN"))
         }

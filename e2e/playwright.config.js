@@ -56,6 +56,7 @@ module.exports = defineConfig({
     url: `http://localhost:${WIZARD_PORT}/health`,
     timeout: 90_000,
     reuseExistingServer: false,
-    env: { PORT: WIZARD_PORT },
+    // A fixed setup token, so the test does not have to read it from the server log
+    env: { PORT: WIZARD_PORT, SETUP_TOKEN: 'e2e-setup-token' },
   }],
 });

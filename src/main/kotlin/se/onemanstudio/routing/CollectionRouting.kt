@@ -47,9 +47,8 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
 
         when (val rateLimitResult = rateLimiter.checkRateLimit(ip, apiKey)) {
             is RateLimitResult.Exceeded -> {
-                call.application.environment.log.warn(
-                    "Rate limit exceeded: ${rateLimitResult.limitType} - ${rateLimitResult.identifier}"
-                )
+                // The address itself is never logged: IPs exist in memory only
+                call.application.environment.log.warn("Rate limit exceeded on collect: ${rateLimitResult.limitType}")
                 return@post call.respond(HttpStatusCode.TooManyRequests,
                     ApiError.rateLimited(
                         "Too many requests. Please try again later.",
@@ -100,6 +99,10 @@ fun Route.collectionRoutes(rateLimiter: RateLimiter, privacyMode: PrivacyMode) {
             ApiError.notFound("Invalid API key"))
 
         val ua = call.request.headers["User-Agent"] ?: "unknown"
+        // Crawlers that announce themselves are not visitors: accepted, never stored
+        if (UserAgentParser.parseDevice(ua) == "Bot") {
+            return@post call.respond(HttpStatusCode.Accepted)
+        }
         val vHash = AnalyticsSecurity.generateVisitorHash(ip, ua, project[Projects.id].toString())
 
         // Apply privacy mode: restrict data collection based on level

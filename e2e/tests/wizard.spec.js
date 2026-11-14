@@ -29,9 +29,19 @@ test.describe('setup wizard', () => {
     for (const theme of ['light', 'dark']) {
       if ((await page.evaluate(() => document.documentElement.getAttribute('data-theme') || 'light')) !== theme) await page.click('#theme-toggle');
       await page.waitForFunction(() => !document.getAnimations().some(a => a instanceof CSSTransition));
-      await page.screenshot({ path: testInfo.outputPath(`wizard-review-${theme}.png`) });
+      await page.screenshot({ path: testInfo.outputPath(`wizard-review-${theme}.png`), fullPage: true }); // includes the setup token field
     }
 
+    // Launching needs the setup token from the server log (fixed to a known value in playwright.config.js)
+    await page.click('#btn-submit');
+    await expect(page.locator('#error-setupToken')).toHaveText(/setup token/i);
+    await page.fill('#setup-token', 'not-the-token');
+    await page.click('#btn-submit');
+    await expect(page.locator('#error-message')).toHaveText(/setup token/i);
+    expect((await (await page.request.get(`${WIZARD}/setup/api/status`)).json()).setupNeeded).toBe(true);
+    await page.locator('#error-modal button').first().click();
+
+    await page.fill('#setup-token', 'e2e-setup-token');
     await page.click('#btn-submit');
     await expect(page.locator('#success-modal')).toBeVisible({ timeout: 15_000 });
 

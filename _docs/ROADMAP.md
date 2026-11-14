@@ -1,7 +1,7 @@
 # Mini Numbers — Roadmap
 
 The one place for what's next: owner actions, milestones, known gaps and feature ideas. What already shipped
-is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-11.
+is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-14.
 
 **Positioning:** the easiest and most private analytics you can self-host — one program, SQLite built in, every
 feature included. Not a race for feature parity with Plausible, Umami or PostHog.
@@ -25,9 +25,15 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       few months, and update the date in `docs/configuration.md` and `_docs/ARCHITECTURE.md`.
 - [x] **GitHub Pages** deploys from the `docs` workflow (also by hand from the Actions tab) since 2026-11-03.
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
+- [ ] **Enable private vulnerability reporting** (repository Settings → Security): `SECURITY.md` sends reporters to
+      a form that is switched off today.
+- [ ] **Enable Dependabot alerts and security updates**, and merge or close the ten open Dependabot branches (Ktor,
+      Exposed, sqlite-jdbc, Caffeine, the Gradle wrapper, five Actions).
+- [ ] **Release the security fixes** of the 2026-11-14 audit (CHANGELOG, Unreleased) as 1.6.2 before announcing.
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
 - [x] **Refresh GeoLite2** (2026-11-12): the bundled copy is now the 2026-11-10 build, for the next release.
 - [x] **Tag `v1.6.0`** (2026-11-12): the release JAR and the `1.6.0`, `1.6` and `latest` images are published.
+- [x] **Tag `v1.6.1`** (2026-11-12): the refreshed GeoLite2 file; release JAR and images published.
 - [ ] **Run [GO-LIVE.md](GO-LIVE.md)** on the production server.
 
 ## Milestones
@@ -37,6 +43,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 | M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
 | M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
 | L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Released as 1.6.0 (2026-11-12) |
+| S | Security audit of 2026-11-14: request size limit, setup token and closed setup after a failed start, lockout per address, tokens ended by sign-out, no addresses in logs, trimmed tracker addresses, crawlers not stored | Fixed, unreleased (1.6.2) |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
@@ -47,6 +54,19 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): webhooks need delivery, signing and retry tests; email reports a scheduler and
 real-send test; revenue endpoint tests; funnels and segments browser tests and an edit flow; widgets a deliberate
 opt-in per project, because the public tracking key is enough to read them today.
+
+Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
+
+- `/metrics` is public. It only shows uptime and the GeoIP cache, but it should move behind a token before it
+  grows.
+- **Visitor IP on Fly and Render is unverified.** With `TRUST_PROXY` the last `X-Forwarded-For` entry is used; if a
+  platform appends its own proxy address after the visitor's, every visitor shares one address (one visitor hash,
+  one rate-limit bucket). Check on a real deployment before recommending those platforms.
+- A server that cannot reach its database at start stays in the error state until it is restarted
+  (no retry), for example when PostgreSQL comes up after the app following a host reboot.
+- The crawler filter only knows bots that announce themselves (idea #3 covers the rest).
+- The lockout is per username and address, so guessing from many addresses is bounded only by the credential rate
+  limit (300 a minute overall) and the password's strength; 2FA is idea #10.
 
 The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Every critical, high
 and medium item in it is fixed in 1.5.0. Still open from it:

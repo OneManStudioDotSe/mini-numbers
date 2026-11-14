@@ -283,11 +283,16 @@ const SetupWizard = {
     },
 
     async submitConfiguration() {
+        const token = document.getElementById('setup-token').value.trim();
+        if (!token) {
+            this.showFieldError('setupToken', 'Enter the setup token from the server log');
+            return;
+        }
         document.getElementById('loading-overlay').style.display = 'flex';
         try {
             const response = await fetch('/setup/api/save', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Setup-Token': token },
                 body: JSON.stringify(this.buildConfigFromForm())
             });
             const data = await response.json();

@@ -103,7 +103,7 @@ object GeoLocationService {
                 val longitude = response?.location()?.longitude()
                 GeoResult(country, city, region, latitude, longitude)
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                logger.debug("GeoIP lookup failed for $ipString: ${e.message}")
+                logger.debug("GeoIP lookup failed: ${e.javaClass.simpleName}")
                 GeoResult()
             }
         }

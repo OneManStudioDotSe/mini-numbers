@@ -211,6 +211,15 @@
                 <h2>Ready to launch?</h2>
                 <p class="step-description">Review your final configuration summary.</p>
                 <div id="review-content" class="review-content"></div>
+                <div class="form-group">
+                    <label class="label-with-hint" for="setup-token">
+                        Setup token
+                        <span class="hint-icon" title="Proves you run this server, so nobody else can finish the setup before you.">?</span>
+                    </label>
+                    <input type="text" id="setup-token" name="setupToken" autocomplete="off" spellcheck="false" placeholder="Printed in the server log at startup">
+                    <div class="field-tip">Find it with <code>docker compose logs mini-numbers | grep "Setup token"</code>, or in the terminal where the server runs.</div>
+                    <span class="error-message" id="error-setupToken"></span>
+                </div>
                 <div class="info-box">
                     After clicking launch, the server will initialize and take you to the login page.
                 </div>

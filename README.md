@@ -44,7 +44,8 @@ echo "DOMAIN=stats.example.com" > .env
 docker compose up -d
 ```
 
-Open `https://stats.example.com`, complete the setup wizard, create a project and paste the snippet it shows
+Open `https://stats.example.com`, complete the setup wizard (it asks for the setup token from
+`docker compose logs mini-numbers | grep "Setup token"`), create a project and paste the snippet it shows
 into your website. Then check the install end to end in about 30 seconds with
 [`scripts/smoke.sh`](docs/deployment.md#after-installing). Server panels, Railway/Render/Fly.io, plain Java and
 cPanel: see the **[Install guide](docs/deployment.md)**.

@@ -16,9 +16,8 @@ suspend fun ApplicationCall.enforceRateLimit(limiter: RateLimiter, scope: String
     val ip = request.origin.remoteHost
     val result = limiter.checkRateLimit(ip, scope)
     if (result is RateLimitResult.Exceeded) {
-        application.environment.log.warn(
-            "Rate limit exceeded on $scope: ${result.limitType} - ${result.identifier}"
-        )
+        // The address itself is never logged: IPs exist in memory only
+        application.environment.log.warn("Rate limit exceeded on $scope: ${result.limitType}")
         respond(
             HttpStatusCode.TooManyRequests,
             ApiError.rateLimited(

@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable from the internet.
+
+**Upgrading**
+
+- **The setup wizard now asks for a setup token** on a fresh install. It is printed in the server log at start
+  (`docker compose logs mini-numbers | grep "Setup token"`), or set your own with `SETUP_TOKEN`. Installs that are
+  already configured are not affected.
+- **Signing out now also ends that user's API tokens.** A script that uses `/api/token` with the same account
+  as someone who signs out of the dashboard has to request a new token.
+- **Counts can drop a little:** crawlers that announce themselves are no longer stored.
+- Sites pick up the new tracker by themselves. Referrers and outbound/download addresses are stored without their
+  query string from then on.
+- No database changes.
+
+### Security
+
+- **Large request bodies could crash the server.** A handful of 60 MB posts to `/collect` or `/api/login` (no login
+  needed) exhausted the memory and left the server running but unresponsive. Bodies over 64 KB are now refused
+  with 413 before they are read.
+- **A failed start reopened the setup wizard's save.** When the server could not start with its configuration
+  (database unreachable, for example), anyone could post a new configuration and replace `SERVER_SALT`, which
+  allowed forging an admin sign-in after the next restart. Saving is now refused as soon as a configuration
+  exists. To change one, edit `.env` or the environment and restart.
+- **The first visitor to a fresh install could claim it.** The wizard's save now needs the setup token.
+- **Anyone could lock the admin out** with five wrong passwords, again and again. The 15-minute lock now applies to
+  the address the wrong passwords came from, not to the account for everyone.
+- **API tokens outlived a password change and a sign-out** by up to 15 minutes (refresh tokens outlived a sign-out
+  until they expired). Both now end every token of that user.
+- `/health` and the start page no longer show why a start failed; the reason is in the server log.
+
+### Fixed
+
+- **Visitor addresses appeared in the server log** when a rate limit was hit, against the promise that IP addresses
+  are never written anywhere. The warning now names the limit only.
+- The tracker sent the full address of clicked outbound links and downloads, and the full referrer, query strings
+  included (they can carry tokens or search terms). Only the address up to the path is sent now. A referrer that is
+  not a web address (an Android app, for example) no longer makes the server reject the page view.
+- `/collect` accepted any text as a link target or as custom-event properties. The target must be a web address and
+  properties a JSON object.
+- Crawlers that announce themselves in their User-Agent were counted as visitors.
+- CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
+  does not run it as a formula.
+- When the wizard's configuration does not start (wrong database password, for example) nothing is saved and
+  the wizard can be submitted again; before, the half-working configuration stayed.
+- `src/main/.claude/settings.local.json` (local tool settings) is no longer tracked.
+
 ## [1.6.1] - 2026-11-12
 
 ### Changed

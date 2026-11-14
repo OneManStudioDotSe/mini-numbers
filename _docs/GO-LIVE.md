@@ -41,8 +41,7 @@ Placeholders: `stats.example.com` is your analytics domain, `$KEY` the key of th
   curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
   curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/scripts/smoke.sh && chmod +x smoke.sh
   ```
-- [ ] **`.env`**, pre-configured so the setup wizard is never open on the internet (whoever reaches `/setup` first on
-      an unconfigured server chooses the admin password):
+- [ ] **`.env`**, pre-configured so the setup wizard is never needed:
   ```bash
   cat > .env <<EOF
   DOMAIN=stats.example.com
@@ -55,7 +54,8 @@ Placeholders: `stats.example.com` is your analytics domain, `$KEY` the key of th
   chmod 600 .env && grep ADMIN_PASSWORD .env   # store this password in your password manager
   ```
   Leave `LABS` out: every lab stays off. Leave `KTOR_DEVELOPMENT` out (it must be `false` in production).
-  To use the wizard instead, keep only `DOMAIN` and `TZ` and complete step 4 the moment the server is up.
+  To use the wizard instead, keep only `DOMAIN` and `TZ`; in step 4 it asks for the setup token from
+  `docker compose logs mini-numbers | grep "Setup token"`.
 - [ ] **Start:** `docker compose pull && docker compose up -d`
 - [ ] **Running:** `docker compose ps` shows both containers, `mini-numbers` as `healthy` after about 30 s;
       `docker compose logs caddy | grep -i certificate` shows the certificate was obtained.
@@ -97,9 +97,11 @@ BASE_URL=https://stats.example.com PROJECT_KEY=$KEY ./smoke.sh
 - [ ] **Users:** Settings → Account → Manage users → add a viewer; sign in as them in a private window with the
       password shown once; they see the numbers and no buttons that change things. Then remove them.
 - [ ] **Change password:** Settings → Account → Change password signs you out; the new password works.
+- [ ] **Oversized request:** `head -c 100000 /dev/zero | curl -s -o /dev/null -w '%{http_code}\n' -X POST --data-binary @- https://stats.example.com/api/login`
+      prints `413`.
 - [ ] **Sign-out everywhere:** signed in on two browsers, sign out in one; the other is signed out on its next click.
-- [ ] **Lockout:** five wrong passwords lock the account for 15 minutes (do it with a second, throwaway user if you
-      don't want to wait).
+- [ ] **Lockout:** five wrong passwords lock your address out of that account for 15 minutes (do it with a second,
+      throwaway user if you don't want to wait); from another network (your phone's) the right password still works.
 
 ## 7. Restart and persistence
 

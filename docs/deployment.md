@@ -41,11 +41,12 @@ Works on any Ubuntu or Debian server. HTTPS is set up automatically.
    echo "DOMAIN=stats.example.com" > .env
    docker compose up -d
    ```
-4. **Open `https://stats.example.com`** and complete the setup wizard.
+4. **Open `https://stats.example.com`** and complete the setup wizard. Its last step asks for the setup token:
+   `docker compose logs mini-numbers | grep "Setup token"`.
 
 {: .important }
-Until the wizard is completed, whoever opens the address first chooses the admin password. Complete it right
-after starting, or skip it altogether: add `ADMIN_PASSWORD=<a long password>` and `SERVER_SALT=<output of
+Only someone who can read the server's log can complete the wizard, so a stranger who finds the address first
+cannot claim your install. To skip the wizard altogether, add `ADMIN_PASSWORD=<a long password>` and `SERVER_SALT=<output of
 openssl rand -hex 64>` to `.env` before `docker compose up -d`, and Mini Numbers starts ready to sign in.
 
 If the page doesn't load, check that ports 80 and 443 are open in your provider's firewall
@@ -100,7 +101,9 @@ fly deploy
 Fly stops the app when nobody visits; scheduled email reports and data clean-up only run while it's awake.
 Set `min_machines_running = 1` in `fly.toml` if you use them.
 
-After deploying, open the address the platform gives you and complete the setup wizard.
+After deploying, open the address the platform gives you and complete the setup wizard. The setup token it asks
+for is in the platform's log view (search for "Setup token"), or set `SETUP_TOKEN` yourself as an environment
+variable or secret before deploying.
 
 ---
 

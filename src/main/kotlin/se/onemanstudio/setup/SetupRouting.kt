@@ -37,13 +37,11 @@ fun Application.configureSetupRouting() {
                 ConfigLoader.isSetupNeeded() -> call.respondRedirect(RedirectValidator.safeRedirect("/setup", "/setup"))
                 ServiceManager.isReady() -> call.respondRedirect(RedirectValidator.safeRedirect("/admin-panel"))
                 else -> {
-                    val error = ServiceManager.getLastError()
                     call.respondText(
                         """
                         Configuration loaded but services failed to initialize.
-                        Error: ${error?.message ?: "Unknown error"}
 
-                        Please check server logs or visit /setup to reconfigure.
+                        The reason is in the server log. Fix the configuration (.env or the environment) and restart.
                         """.trimIndent(),
                         status = HttpStatusCode.ServiceUnavailable
                     )
@@ -120,7 +118,7 @@ fun Application.configureSetupRouting() {
                     put("setupNeeded", ConfigLoader.isSetupNeeded())
                     databaseOk?.let { put("database", if (it) "ok" else "unreachable") }
                     if (state == ServiceManager.State.ERROR) {
-                        put("message", ServiceManager.getLastError()?.message ?: "Service initialization failed")
+                        put("message", "Service initialization failed; see the server log")
                     }
                 }
             )
@@ -128,12 +126,13 @@ fun Application.configureSetupRouting() {
 
         // API: Save configuration and initialize services (NO RESTART!)
         post("/setup/api/save") {
-            // Guard: prevent re-entry after setup is complete
-            if (ServiceManager.isReady()) {
-                call.respond(
-                    HttpStatusCode.Forbidden,
-                    ErrorResponse(error = "Setup already completed. Use server access for config changes.")
-                )
+            // Guard: the wizard only creates the first configuration, and only for whoever holds the setup token
+            val refusal = setupSaveRefusal(
+                configExists = ServiceManager.isReady() || !ConfigLoader.isSetupNeeded(),
+                tokenMatches = SetupToken.matches(call.request.headers["X-Setup-Token"])
+            )
+            if (refusal != null) {
+                call.respond(HttpStatusCode.Forbidden, ErrorResponse(error = refusal))
                 return@post
             }
 
@@ -186,9 +185,10 @@ fun Application.configureSetupRouting() {
                     ConfigLoader.reload()
                 } catch (e: ConfigurationException) {
                     environment.log.error("Failed to reload configuration: ${e.message}")
+                    revertEnvFile()
                     call.respond(
                         HttpStatusCode.InternalServerError,
-                        ErrorResponse(error = "Configuration saved but reload failed: ${e.message}")
+                        ErrorResponse(error = "This configuration could not be loaded, nothing was saved: ${e.message}")
                     )
                     return@post
                 }
@@ -224,10 +224,12 @@ fun Application.configureSetupRouting() {
                 } else {
                     val error = ServiceManager.getLastError()
                     environment.log.error("Service initialization failed: ${error?.message}")
+                    // Take the configuration back, so the wizard stays open for another try
+                    revertEnvFile()
                     call.respond(
                         HttpStatusCode.InternalServerError,
                         ErrorResponse(
-                            error = "Configuration saved but service initialization failed: ${error?.message}"
+                            error = "Services could not start with this configuration, nothing was saved: ${error?.message}"
                         )
                     )
                 }
@@ -354,6 +356,8 @@ private fun writeEnvFileAtomic(content: String) {
     // Step 2: Backup existing .env if it exists
     if (envFile.exists()) {
         envFile.copyTo(backupFile, overwrite = true)
+    } else {
+        backupFile.delete() // a leftover backup must not be restored by revertEnvFile
     }
 
     // Step 3: Atomic rename (move temp to .env)
@@ -370,6 +374,21 @@ private fun writeEnvFileAtomic(content: String) {
         envFile.setExecutable(false)
     } catch (_: SecurityException) {
         // Permission setting might fail on some systems, but file is still created
+    }
+}
+
+/**
+ * Undo [writeEnvFileAtomic] after a save whose configuration did not start: put the previous
+ * `.env` back (or remove the new one), so setup is still "needed" and the wizard can be retried.
+ */
+private fun revertEnvFile() {
+    val envFile = File(".env")
+    val backupFile = File(".env.backup")
+    ConfigLoader.forget()
+    if (backupFile.exists()) {
+        backupFile.copyTo(envFile, overwrite = true)
+    } else {
+        envFile.delete()
     }
 }
 

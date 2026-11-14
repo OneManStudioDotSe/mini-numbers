@@ -51,27 +51,29 @@ object ConfigLoader {
      * @throws ConfigurationException if configuration is invalid
      */
     fun reload(): AppConfig {
-        // Clear previously loaded system properties from .env
-        // (Only clears system properties, not actual environment variables)
-        val envFile = File(ENV_FILE_PATH)
-        if (envFile.exists()) {
-            envFile.forEachLine { line ->
-                val trimmed = line.trim()
-                if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachLine
+        forget()
+        return load()
+    }
 
-                val separatorIndex = trimmed.indexOf("=")
-                if (separatorIndex > 0) {
-                    val key = trimmed.substring(0, separatorIndex).trim()
-                    // Only clear if it's a system property (not an env var)
-                    if (System.getenv(key) == null) {
-                        System.clearProperty(key)
-                    }
+    /**
+     * Drop the values that were read from `.env` (real environment variables are kept), so the
+     * file can be re-read after it changed or was removed.
+     */
+    fun forget() {
+        val envFile = File(ENV_FILE_PATH)
+        if (!envFile.exists()) return
+        envFile.forEachLine { line ->
+            val trimmed = line.trim()
+            if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEachLine
+
+            val separatorIndex = trimmed.indexOf("=")
+            if (separatorIndex > 0) {
+                val key = trimmed.substring(0, separatorIndex).trim()
+                if (System.getenv(key) == null) {
+                    System.clearProperty(key)
                 }
             }
         }
-
-        // Reload fresh configuration
-        return load()
     }
 
     /**
@@ -131,6 +133,9 @@ object ConfigLoader {
      * platform) and should take the visitor's IP from the X-Forwarded-For header.
      */
     fun trustProxy(): Boolean = getEnvOrNull("TRUST_PROXY")?.trim()?.lowercase() == "true"
+
+    /** `SETUP_TOKEN`: a fixed token for the setup wizard instead of the one generated at start. */
+    fun setupToken(): String? = getEnvOrNull("SETUP_TOKEN")?.trim()?.takeIf { it.isNotEmpty() }
 
     /**
      * Load .env file and set system properties

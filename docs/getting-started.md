@@ -33,7 +33,12 @@ The first time you open Mini Numbers, a six-step wizard appears:
 4. **Server settings** — port, allowed origins for the admin API (leave empty unless other sites call your
    API), and development mode (only for testing without HTTPS).
 5. **Fine-tuning** — request limits per visitor and per website.
-6. **Review** — check everything and launch. Mini Numbers starts straight away and shows the login page.
+6. **Review** — check everything, enter the **setup token** and launch. Mini Numbers starts straight away and
+   shows the login page.
+
+The setup token proves the server is yours, so nobody else can finish the setup before you. It is printed when
+Mini Numbers starts: `docker compose logs mini-numbers | grep "Setup token"` with Docker, otherwise the terminal
+or log of the server. It changes at every start; set `SETUP_TOKEN` to choose your own.
 
 The wizard saves your choices in a `.env` file. Hash rotation, data retention and email settings aren't in the
 wizard; add them to `.env` later if you need them (see [Configuration](configuration)).

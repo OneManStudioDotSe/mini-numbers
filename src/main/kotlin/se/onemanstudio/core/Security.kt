@@ -26,9 +26,10 @@ import java.time.Duration
  *
  * Authentication is **BCrypt-only** — plain-text passwords in the config are
  * rejected with an error log. The function also enforces brute-force protection:
- * after 5 consecutive failures for the same username, the account is locked out
- * for 15 minutes (tracked via a Caffeine cache that auto-expires after 15 min
- * of inactivity).
+ * after 5 consecutive failures for the same username from the same address, that
+ * address is locked out of the account for 15 minutes (tracked via a Caffeine cache
+ * that auto-expires after 15 min of inactivity). The lock is per address so that a
+ * stranger cannot keep the real owner out by guessing wrong on purpose.
  *
  * ## Lookup order
  * 1. Query the `users` table for an active user with a matching username.
@@ -37,19 +38,26 @@ import java.time.Duration
  *
  * @param username Username to verify.
  * @param password Plain-text password (compared against BCrypt hash).
+ * @param clientIp Address of the caller; only used in memory as part of the lockout key.
  * @param config   Application configuration (fallback credentials).
  * @param logger   Logger for audit trail of login attempts.
  * @return `true` if credentials are valid, `false` otherwise.
  */
-/** Tracks failed login attempts by username for brute-force protection. Expires after 15 min of inactivity. */
+/** Tracks failed login attempts by username and client address. Expires after 15 min of inactivity. */
 private val loginAttempts: Cache<String, LoginAttempt> = Caffeine.newBuilder()
     .expireAfterAccess(Duration.ofMinutes(15))
-    .maximumSize(1000)
+    .maximumSize(10_000)
     .build()
 
-fun verifyCredentials(username: String, password: String, config: AppConfig, logger: org.slf4j.Logger): Boolean {
-    // Check if username is locked out
-    val attempt = loginAttempts.get(username) { LoginAttempt() }
+fun verifyCredentials(
+    username: String,
+    password: String,
+    clientIp: String,
+    config: AppConfig,
+    logger: org.slf4j.Logger
+): Boolean {
+    // Check if this address is locked out of this username
+    val attempt = loginAttempts.get("$username|$clientIp") { LoginAttempt() }
         ?: error("Login attempt tracking failed for user: $username")
     val now = System.currentTimeMillis()
     val lockoutUntil = attempt.lockoutUntil.get()
@@ -158,8 +166,8 @@ fun resolveActiveRole(username: String, carriedRole: String): String? {
 }
 
 /**
- * True when the user signed out or changed their password after this session was created
- * (`users.sessions_valid_from`), which rejects every cookie of theirs issued before that moment.
+ * True when the user signed out or changed their password after this session or API token was created
+ * (`users.sessions_valid_from`), which rejects every cookie and token of theirs issued before that moment.
  */
 fun sessionIsCutOff(username: String, createdAtMillis: Long): Boolean {
     return try {
@@ -171,6 +179,8 @@ fun sessionIsCutOff(username: String, createdAtMillis: Long): Boolean {
         false // DB not available yet (setup mode)
     }
 }
+
+private const val MILLIS_PER_SECOND = 1000L
 
 /** Shortest password accepted anywhere a password is set. */
 const val MIN_PASSWORD_LENGTH = 8
@@ -193,10 +203,11 @@ fun setPassword(username: String, newPassword: String): Boolean {
     }
 }
 
-/** Reject every cookie session of this user created before now (logout, password change). */
+/** Sign this user out everywhere: cookie sessions and API tokens issued before now, and every refresh token. */
 fun cutOffSessions(username: String) {
     transaction {
         Users.update({ Users.username eq username }) { it[sessionsValidFrom] = System.currentTimeMillis() }
+        RefreshTokens.deleteWhere { RefreshTokens.username eq username }
     }
 }
 
@@ -284,7 +295,11 @@ fun Application.configureSecurity(config: AppConfig) {
             validate { credential ->
                 val subject = credential.payload.subject
                 val carriedRole = credential.payload.getClaim("role")?.asString() ?: "viewer"
-                if (subject != null && resolveActiveRole(subject, carriedRole) != null) {
+                // Tokens from before the user's last logout or password change are dead, like cookies.
+                // `iat` has whole seconds, so it is compared at the end of its second.
+                val issuedAtMillis = credential.payload.issuedAt?.time?.plus(MILLIS_PER_SECOND - 1)
+                val live = subject != null && issuedAtMillis != null && !sessionIsCutOff(subject, issuedAtMillis)
+                if (live && resolveActiveRole(subject, carriedRole) != null) {
                     JWTPrincipal(credential.payload)
                 } else null
             }

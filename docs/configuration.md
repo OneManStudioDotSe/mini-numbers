@@ -37,12 +37,13 @@ Changing `SERVER_SALT` makes every visitor look new from then on — keep it sec
 |---------|---------|--------------|
 | `PORT` | — | Port to listen on. Hosting platforms set it; the Docker image sets `8080`. Wins over `SERVER_PORT` |
 | `SERVER_PORT` | `8080` | Port to listen on when `PORT` isn't set (the wizard saves this one) |
+| `SETUP_TOKEN` | *(generated, printed in the log)* | The token the setup wizard asks for before it saves. Only matters on a fresh install; set it to choose the token yourself instead of reading it from the log |
 | `TRUST_PROXY` | `false` | `true` when a reverse proxy or hosting platform sits in front, so the visitor's real IP is read from `X-Forwarded-For`. Leave it off when visitors connect directly, or they could fake their IP |
 | `RATE_LIMIT_PER_IP` | `1000` | Requests per minute from one IP address |
 | `RATE_LIMIT_PER_API_KEY` | `10000` | Requests per minute for one website (project key) |
 | `TZ` | *(system; `UTC` in Docker)* | Time zone used for "today", the hour and day charts and the calendar. Individual timestamps are sent with this zone's offset, so the dashboard shows the right instant wherever you open it. Standard `TZ` names such as `Europe/Stockholm` |
 
-Requests over a limit get HTTP 429 and the event is dropped.
+Requests over a limit get HTTP 429 and the event is dropped. A request body over 64 KB gets HTTP 413.
 
 ## Privacy
 

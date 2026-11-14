@@ -3,7 +3,8 @@
 # 1. Point a domain (for example stats.example.com) at this server's IP address.
 # 2. echo "DOMAIN=stats.example.com" > .env
 # 3. docker compose up -d
-# 4. Open https://stats.example.com and complete the setup wizard.
+# 4. Open https://stats.example.com and complete the setup wizard. It asks for the setup token:
+#      docker compose logs mini-numbers | grep "Setup token"
 #
 # Caddy gets and renews the HTTPS certificate by itself; ports 80 and 443 must be free.
 # Upgrade: docker compose pull && docker compose up -d   (your data stays in the volumes)

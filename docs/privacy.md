@@ -15,7 +15,11 @@ else. This page says exactly what it keeps.
 
 - **No cookies.** The tracker keeps only a random tab session ID (gone when the tab closes) and, while the
   visitor is offline, a short queue of unsent events that is cleared once they're delivered.
-- **IP addresses are never stored.** They're used in memory for a moment and then dropped.
+- **IP addresses are never stored.** They're used in memory for a moment and then dropped; they aren't written
+  to the server's log either.
+- **Addresses are trimmed.** The referrer and clicked outbound links or downloads are stored without their query
+  string, which could carry search terms, tokens or email addresses.
+- **Crawlers aren't counted.** A bot that announces itself in its User-Agent is not stored.
 - **Visitors are anonymous.** A returning visitor is recognised only until the next "forget" moment you choose
   (default: 24 hours), and never across different websites.
 - **"Don't track me" is respected.** Browsers that send Global Privacy Control or Do Not Track aren't counted
@@ -32,8 +36,8 @@ else. This page says exactly what it keeps.
 | Page path, time, event type and name | ✓ | ✓ | ✓ |
 | Anonymous visitor ID (forgotten on schedule) | ✓ | ✓ | ✓ |
 | Tab session ID (random, ends when the tab closes) | ✓ | ✓ | ✓ |
-| Referrer and UTM campaign tags | ✓ | ✓ | ✓ |
-| Scroll depth, clicked outbound link or download | ✓ | ✓ | ✓ |
+| Referrer (without query string) and UTM campaign tags | ✓ | ✓ | ✓ |
+| Scroll depth, clicked outbound link or download (without query string) | ✓ | ✓ | ✓ |
 | Properties you send with custom events | ✓ | ✓ | ✓ |
 | Country | ✓ | ✓ | — |
 | Region, city and their approximate coordinates | ✓ | — | — |

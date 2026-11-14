@@ -44,9 +44,21 @@ java -jar mini-numbers.jar reset-password admin                                 
 ```
 
 It asks for the new password twice and signs that user out everywhere. Changing `ADMIN_PASSWORD` in `.env` doesn't
-work for this: it is only read once, to create the first admin. After five wrong passwords the account is locked
-for 15 minutes; a new password doesn't lift the lock, waiting (or restarting the server) does. Signed in and just
+work for this: it is only read once, to create the first admin. After five wrong passwords from your address, that
+address is locked out of the account for 15 minutes; a new password doesn't lift the lock, waiting (or restarting
+the server) does. Signed in and just
 want a new password? Use **Settings → Account → Change password**.
+
+## The wizard says "Wrong or missing setup token"
+
+The token is printed each time Mini Numbers starts and changes with every start, so use the latest one:
+`docker compose logs mini-numbers | grep "Setup token" | tail -1`. To choose it yourself, set `SETUP_TOKEN`.
+
+## "Configuration loaded but services failed to initialize"
+
+Mini Numbers has a configuration but could not start with it; the reason is in the server log (most often the
+database can't be reached or opened). Fix it in `.env` or the environment and restart. The setup wizard stays
+closed in this state on purpose.
 
 ## The setup wizard appears again
 

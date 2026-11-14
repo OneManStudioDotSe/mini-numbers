@@ -19,6 +19,10 @@ import se.onemanstudio.core.ServiceManager
 import se.onemanstudio.core.configureHTTP
 import se.onemanstudio.core.configureProxyHeaders
 import se.onemanstudio.core.configureSecurity
+import se.onemanstudio.middleware.PayloadTooLargeException
+import se.onemanstudio.middleware.configureBodyLimit
+import se.onemanstudio.middleware.payloadTooLarge
+import se.onemanstudio.setup.SetupToken
 import se.onemanstudio.setup.configureSetupRouting
 import kotlin.system.exitProcess
 
@@ -79,6 +83,7 @@ fun Application.module() {
     val config: AppConfig? = if (setupNeeded) {
         logger.info("Setup required: Configuration is missing or incomplete")
         logger.info("Visit $baseUrl/setup to complete setup")
+        logger.info("Setup token (the wizard asks for it): ${SetupToken.value}")
         null
     } else {
         logger.info("Configuration found - attempting service initialization...")
@@ -114,10 +119,14 @@ fun Application.module() {
         json()
     }
     configureProxyHeaders(ConfigLoader.trustProxy())
+    configureBodyLimit()
 
     // Global error handler — catch unhandled exceptions and return proper JSON errors.
     // Order matters: most specific exception types first.
     install(StatusPages) {
+        exception<PayloadTooLargeException> { call, _ ->
+            call.respond(HttpStatusCode.PayloadTooLarge, payloadTooLarge())
+        }
         exception<SerializationException> { call, cause ->
             call.application.environment.log.warn("Serialization error: ${cause.message}")
             call.respond(HttpStatusCode.BadRequest,

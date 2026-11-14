@@ -575,7 +575,19 @@ const Utils = {
      * @returns {string} Quoted cell
      */
     cell(value) {
-      return `"${String(value ?? '').replace(/"/g, '""')}"`;
+      return `"${String(Utils.export.safe(value) ?? '').replace(/"/g, '""')}"`;
+    },
+
+    /**
+     * Stop a spreadsheet from running a text cell as a formula: text starting with = + - @
+     * (or a tab / carriage return) gets a leading apostrophe. Plain numbers and percentages
+     * such as "-5" or "+12.5%" are left alone.
+     * @param {*} value - Cell value
+     * @returns {*} The value, prefixed when it is formula-like text
+     */
+    safe(value) {
+      if (typeof value !== 'string' || !/^[=+\-@\t\r]/.test(value) || /^[+-]?\d+(\.\d+)?%?$/.test(value)) return value;
+      return `'${value}`;
     },
 
     toCSV(data, headers) {
@@ -590,7 +602,7 @@ const Utils = {
       // Data rows
       data.forEach(row => {
         const values = cols.map(col => {
-          const value = row[col];
+          const value = Utils.export.safe(row[col]);
           // Escape commas and quotes
           if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
             return `"${value.replace(/"/g, '""')}"`;
