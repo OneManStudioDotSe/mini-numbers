@@ -385,35 +385,7 @@ private fun Route.segmentRoutes() {
             ?: return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
 
-        val request = try {
-            call.receive<SegmentRequest>()
-        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Invalid request body"))
-        }
-
-        if (request.name.isBlank()) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Segment name is required"))
-        }
-
-        if (request.filters.isEmpty()) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("At least one filter is required"))
-        }
-
-        val validFields = setOf("browser", "os", "device", "country", "city", "path", "referrer", "eventType")
-        val validOperators = setOf("equals", "not_equals", "contains", "starts_with")
-        for (filter in request.filters) {
-            if (filter.field !in validFields) {
-                return@post call.respond(HttpStatusCode.BadRequest,
-                    ApiError.badRequest("Invalid filter field: ${filter.field}. Valid: $validFields"))
-            }
-            if (filter.operator !in validOperators) {
-                return@post call.respond(HttpStatusCode.BadRequest,
-                    ApiError.badRequest("Invalid operator: ${filter.operator}. Valid: $validOperators"))
-            }
-        }
+        val request = call.receiveValidSegment() ?: return@post
 
         val segmentId = UUID.randomUUID()
         transaction {
@@ -433,6 +405,36 @@ private fun Route.segmentRoutes() {
             put("id", segmentId.toString())
             put("success", true)
         })
+    }
+
+    put("/projects/{id}/segments/{segmentId}") {
+        if (!call.requireRole(UserRole.ADMIN)) return@put
+        val pid = safeParseUUID(call.parameters["id"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing project ID"))
+        val segmentId = safeParseUUID(call.parameters["segmentId"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing segment ID"))
+
+        val request = call.receiveValidSegment() ?: return@put
+
+        val updated = transaction {
+            Segments.update({ (Segments.id eq segmentId) and (Segments.projectId eq pid) }) {
+                it[name] = request.name.trim()
+                it[description] = request.description?.trim()
+                it[filtersJson] = Json.encodeToString(
+                    kotlinx.serialization.builtins.ListSerializer(SegmentFilter.serializer()),
+                    request.filters
+                )
+                it[updatedAt] = java.time.LocalDateTime.now()
+            }
+        }
+
+        if (updated > 0) {
+            call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+        } else {
+            call.respond(HttpStatusCode.NotFound, ApiError.notFound("Segment not found"))
+        }
     }
 
     delete("/projects/{id}/segments/{segmentId}") {
@@ -510,6 +512,39 @@ private fun Route.segmentRoutes() {
         call.respond(analysis)
     }
 
+}
+
+private const val MAX_SEGMENT_NAME_LENGTH = 100
+private const val MAX_SEGMENT_DESCRIPTION_LENGTH = 255
+private val SEGMENT_FIELDS = setOf("browser", "os", "device", "country", "city", "path", "referrer", "eventType")
+private val SEGMENT_OPERATORS = setOf("equals", "not_equals", "contains", "starts_with")
+
+/** Read a segment from the request body; answers 400 and returns null when it is not valid. */
+private suspend fun ApplicationCall.receiveValidSegment(): SegmentRequest? {
+    val request = try {
+        receive<SegmentRequest>()
+    } catch (_: io.ktor.server.plugins.ContentTransformationException) {
+        respond(HttpStatusCode.BadRequest, ApiError.badRequest("Invalid request body"))
+        return null
+    }
+    val badFilter = request.filters.firstOrNull { it.field !in SEGMENT_FIELDS || it.operator !in SEGMENT_OPERATORS }
+    val problem = when {
+        request.name.isBlank() -> "Segment name is required"
+        request.name.trim().length > MAX_SEGMENT_NAME_LENGTH ->
+            "Segment name must be at most $MAX_SEGMENT_NAME_LENGTH characters"
+        (request.description?.trim()?.length ?: 0) > MAX_SEGMENT_DESCRIPTION_LENGTH ->
+            "Description must be at most $MAX_SEGMENT_DESCRIPTION_LENGTH characters"
+        request.filters.isEmpty() -> "At least one filter is required"
+        badFilter != null && badFilter.field !in SEGMENT_FIELDS ->
+            "Invalid filter field: ${badFilter.field}. Valid: $SEGMENT_FIELDS"
+        badFilter != null -> "Invalid operator: ${badFilter.operator}. Valid: $SEGMENT_OPERATORS"
+        else -> null
+    }
+    if (problem != null) {
+        respond(HttpStatusCode.BadRequest, ApiError.badRequest(problem))
+        return null
+    }
+    return request
 }
 
 private fun Route.webhookRoutes() {

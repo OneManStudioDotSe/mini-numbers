@@ -428,6 +428,86 @@ class GoalsFunnelsSegmentsTest {
         assertTrue(body.contains("totalViews"))
     }
 
+    /** A project of its own, so counts are not shared with other tests: returns (id, tracking key). */
+    private suspend fun newProject(authClient: HttpClient): Pair<String, String> {
+        val body = authClient.post("/admin/projects") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Segments ${System.nanoTime()}","domain":"segments-test.com"}""")
+        }.bodyAsText()
+        return assertNotNull(extractFieldValue(body, "id")) to assertNotNull(extractFieldValue(body, "apiKey"))
+    }
+
+    private fun segmentJson(name: String, logic: String) = """
+        {"name": "$name", "filters": [
+            {"field": "browser", "operator": "contains", "value": "Chrome", "logic": "$logic"},
+            {"field": "browser", "operator": "contains", "value": "Firefox", "logic": "AND"}
+        ]}
+    """.trimIndent()
+
+    @Test
+    fun `update segment changes its name and filters, and refuses invalid or unknown segments`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val (projectId, _) = newProject(authClient)
+
+        val created = authClient.post("/admin/projects/$projectId/segments") {
+            contentType(ContentType.Application.Json)
+            setBody(segmentJson("Before edit", "OR"))
+        }.bodyAsText()
+        val segmentId = assertNotNull(extractFieldValue(created, "id"), "segmentId")
+
+        suspend fun update(id: String, body: String) = authClient.put("/admin/projects/$projectId/segments/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }.status
+
+        assertEquals(HttpStatusCode.OK, update(segmentId, segmentJson("After edit", "AND")))
+        val listed = authClient.get("/admin/projects/$projectId/segments").bodyAsText()
+        assertTrue(listed.contains("After edit") && !listed.contains("Before edit"), listed)
+        assertFalse(listed.contains("\"logic\":\"OR\""), "filters replaced: $listed")
+
+        assertEquals(HttpStatusCode.BadRequest, update(segmentId, segmentJson(" ", "AND")), "blank name")
+        assertEquals(HttpStatusCode.BadRequest, update(segmentId, segmentJson("x".repeat(101), "AND")), "long name")
+        assertEquals(HttpStatusCode.BadRequest, update(segmentId, """{"name":"No filters","filters":[]}"""))
+        assertEquals(HttpStatusCode.NotFound, update(java.util.UUID.randomUUID().toString(), segmentJson("Nobody", "AND")))
+    }
+
+    @Test
+    fun `segment analysis joins filters with the logic stored on the earlier filter`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val (projectId, key) = newProject(authClient)
+
+        val agents = listOf(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 " +
+                "Safari/605.1.15"
+        )
+        agents.forEachIndexed { i, agent ->
+            val status = client.post("/collect?key=$key") {
+                header(HttpHeaders.UserAgent, agent)
+                setBody("""{"path":"/","sessionId":"seg-$i","type":"pageview"}""")
+            }.status
+            assertEquals(HttpStatusCode.Accepted, status)
+        }
+
+        suspend fun views(logic: String): String {
+            val created = authClient.post("/admin/projects/$projectId/segments") {
+                contentType(ContentType.Application.Json)
+                setBody(segmentJson("Chrome $logic Firefox", logic))
+            }.bodyAsText()
+            val id = assertNotNull(extractFieldValue(created, "id"))
+            val analysis = authClient.get("/admin/projects/$projectId/segments/$id/analysis?filter=7d").bodyAsText()
+            return assertNotNull(Regex("\"totalViews\":(\\d+)").find(analysis), analysis).groupValues[1]
+        }
+
+        assertEquals("2", views("OR"), "Chrome or Firefox")
+        assertEquals("0", views("AND"), "Chrome and Firefox at once")
+    }
+
     // ==================== Invalid Project ID Tests ====================
 
     @Test

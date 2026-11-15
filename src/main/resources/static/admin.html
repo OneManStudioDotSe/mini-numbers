@@ -1304,7 +1304,7 @@ MiniNumbers.track("donation", {
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Create new segment</h3>
+                    <h3 style="margin-top: 0;" id="segment-form-title">Create new segment</h3>
                     <div class="form-group">
                         <label for="segment-name">Segment name</label>
                         <input type="text" id="segment-name" class="input" placeholder="e.g. Mobile Chrome Users" aria-required="true">
@@ -1324,6 +1324,7 @@ MiniNumbers.track("donation", {
                             <i class="ri-add-line"></i> Add filter
                         </button>
                         <button class="btn btn-primary btn-sm" id="create-segment-btn">Create segment</button>
+                        <button class="btn btn-ghost btn-sm" id="cancel-segment-edit-btn" style="display: none;">Cancel</button>
                     </div>
                 </div>
 

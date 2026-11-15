@@ -21,6 +21,11 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   query string from then on.
 - No database changes.
 
+### Added
+
+- **Segments (lab) can be edited.** The pencil in **Manage segments** loads a segment into the form; saving
+  replaces its name, description and filters (`PUT /admin/projects/{id}/segments/{segmentId}`).
+
 ### Security
 
 - **Large request bodies could crash the server.** A handful of 60 MB posts to `/collect` or `/api/login` (no login
@@ -47,6 +52,11 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - `/collect` accepted any text as a link target or as custom-event properties. The target must be a web address and
   properties a JSON object.
 - Crawlers that announce themselves in their User-Agent were counted as visitors.
+- Segments (lab): **OR between two filters was ignored** (the dialog stored it on the wrong filter, so every
+  segment behaved as AND); a project without segments had no way to create the first one, because the card with
+  the **Manage segments** button was hidden; after switching projects one click could create a segment several
+  times; a refused save closed the dialog; a failed delete was reported as done. Names over 100 characters now
+  get a clear message instead of a database error.
 - CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
   does not run it as a formula.
 - When the wizard's configuration does not start (wrong database password, for example) nothing is saved and

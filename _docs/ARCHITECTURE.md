@@ -389,7 +389,7 @@ webhook, email-report (including `/smtp/status`), revenue and widget routes belo
 
 - `GET|POST /admin/projects/{id}/goals`, `PUT|DELETE /admin/projects/{id}/goals/{goalId}`, `GET /admin/projects/{id}/goals/stats?filter=7d`
 - `GET|POST /admin/projects/{id}/funnels`, `DELETE /admin/projects/{id}/funnels/{funnelId}`, `GET /admin/projects/{id}/funnels/{funnelId}/analysis?filter=7d`
-- `GET|POST /admin/projects/{id}/segments`, `DELETE /admin/projects/{id}/segments/{segmentId}`, `GET /admin/projects/{id}/segments/{segmentId}/analysis?filter=7d`
+- `GET|POST /admin/projects/{id}/segments`, `PUT|DELETE /admin/projects/{id}/segments/{segmentId}` (a filter's `logic` joins it to the *next* filter), `GET /admin/projects/{id}/segments/{segmentId}/analysis?filter=7d`
 
 ### Webhooks
 

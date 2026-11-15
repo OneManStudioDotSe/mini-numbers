@@ -1940,9 +1940,7 @@ const Dashboard = {
     if (!this.state.currentProjectId) return;
 
     try {
-      // Initialize modal once per project
       if (typeof SegmentsManager !== 'undefined') {
-        SegmentsManager.initModal(this.state.currentProjectId);
         const segments = await SegmentsManager.loadSegments(this.state.currentProjectId);
         SegmentsManager.renderSegments(segments, this.state.currentProjectId, this.state.currentFilter);
       }

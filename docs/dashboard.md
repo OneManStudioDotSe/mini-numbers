@@ -37,6 +37,8 @@ In **Conversions**, each card has a **Manage** button:
 - **Funnel** *(lab)* — a list of steps (pages or events). Shows how many visitors make it through each step and where
   they drop off.
 - **Segment** *(lab)* — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
+  **Manage segments** creates, edits (pencil) and deletes them; **Analyze** shows the views, visitors and bounce
+  rate of the matching visits for the selected period.
 
 ## Raw events
 

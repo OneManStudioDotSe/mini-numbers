@@ -52,8 +52,11 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
 ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): webhooks need delivery, signing and retry tests; email reports a scheduler and
-real-send test; revenue endpoint tests; funnels and segments browser tests and an edit flow; widgets a deliberate
-opt-in per project, because the public tracking key is enough to read them today.
+real-send test; revenue endpoint tests; funnels browser tests and an edit flow; widgets a deliberate
+opt-in per project, because the public tracking key is enough to read them today. **Segments** has its edit flow
+and browser test since 2026-11-14 and is ready to graduate (remove it from `LABS`) once the owner has tried it;
+its analysis reads every event of the period into memory and shows the result as a toast only, which is fine for
+small sites and should become a query and a proper panel before it is advertised.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 
