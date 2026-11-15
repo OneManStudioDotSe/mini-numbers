@@ -857,15 +857,14 @@ private fun Route.emailReportRoutes() {
                 ApiError.badRequest("Invalid request body"))
         }
 
-        if (request.recipientEmail.isBlank() || !request.recipientEmail.contains("@")) {
+        if (!isOneEmailAddress(request.recipientEmail)) {
             return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid email address"))
         }
 
-        val validSchedules = listOf("DAILY", "WEEKLY", "MONTHLY")
-        if (request.schedule.uppercase() !in validSchedules) {
+        if (request.schedule.uppercase() !in REPORT_SCHEDULES) {
             return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Schedule must be one of: $validSchedules"))
+                ApiError.badRequest("Schedule must be one of: $REPORT_SCHEDULES"))
         }
         if (!isValidZone(request.timezone)) {
             return@post call.respond(HttpStatusCode.BadRequest,
@@ -914,6 +913,10 @@ private fun Route.emailReportRoutes() {
         if (request.timezone != null && !isValidZone(request.timezone)) {
             return@put call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Unknown timezone: ${request.timezone}"))
+        }
+        if (request.schedule != null && request.schedule.uppercase() !in REPORT_SCHEDULES) {
+            return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Schedule must be one of: $REPORT_SCHEDULES"))
         }
 
         val updated = transaction {
@@ -1068,6 +1071,14 @@ private fun Route.revenueRoutes() {
         call.respond(attribution)
     }
 }
+
+private val REPORT_SCHEDULES = listOf("DAILY", "WEEKLY", "MONTHLY")
+private const val MAX_EMAIL_LENGTH = 320
+
+/** Exactly one plain address (no list, no display name) that the mail library accepts and the column holds. */
+private fun isOneEmailAddress(text: String): Boolean = text.length <= MAX_EMAIL_LENGTH && runCatching {
+    jakarta.mail.internet.InternetAddress(text, true).address == text && text.substringAfter('@').isNotEmpty()
+}.getOrDefault(false)
 
 /** A timezone id java.time understands, short enough for the column. */
 private fun isValidZone(id: String): Boolean = id.length <= 50 && runCatching { java.time.ZoneId.of(id) }.isSuccess

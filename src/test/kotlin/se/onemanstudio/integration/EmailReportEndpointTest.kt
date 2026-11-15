@@ -166,6 +166,37 @@ class EmailReportEndpointTest {
     }
 
     @Test
+    fun `a report takes exactly one valid address, and an update cannot set an unknown schedule`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val projectId = assertNotNull(authClient.createTestProject("Email Test 7", "email-test7.com"), "projectId")
+
+        suspend fun create(recipient: String) = authClient.post("/admin/projects/$projectId/email-reports") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"recipientEmail":"$recipient"}""")
+        }
+        for (bad in listOf("@", "ann@", "@example.com", "ann@example.com,bob@example.com", "Ann <ann@example.com>",
+            "ann example@example.com", "a".repeat(320) + "@example.com")) {
+            assertEquals(HttpStatusCode.BadRequest, create(bad).status, bad)
+        }
+        assertEquals("[]", authClient.get("/admin/projects/$projectId/email-reports").bodyAsText(), "nothing was stored")
+
+        val created = create("ann.o'neil+reports@mail.example.com")
+        assertEquals(HttpStatusCode.Created, created.status)
+        val reportId = assertNotNull(Regex(""""id"\s*:\s*"([^"]+)"""").find(created.bodyAsText())?.groupValues?.get(1))
+
+        suspend fun update(body: String) = authClient.put("/admin/projects/$projectId/email-reports/$reportId") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }.status
+        assertEquals(HttpStatusCode.BadRequest, update("""{"schedule":"HOURLY"}"""))
+        assertEquals(HttpStatusCode.OK, update("""{"schedule":"daily"}"""))
+        val listed = authClient.get("/admin/projects/$projectId/email-reports").bodyAsText()
+        assertTrue(listed.contains(""""schedule":"DAILY"""") && !listed.contains("HOURLY"), listed)
+    }
+
+    @Test
     fun `update nonexistent email report returns 404`() = testApplication {
         application { module() }
         val authClient = createAuthClient()

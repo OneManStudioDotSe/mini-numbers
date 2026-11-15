@@ -13,6 +13,7 @@ import se.onemanstudio.db.EmailReports
 import se.onemanstudio.db.Projects
 import se.onemanstudio.utils.generateReport
 import se.onemanstudio.utils.getCurrentPeriod
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -33,6 +34,9 @@ object EmailService {
     private var emailConfig: EmailConfig? = null
 
     private var reportTimer: Timer? = null
+
+    /** How long to wait for the mail server to connect, answer or accept data. Tests shorten it. */
+    internal var smtpTimeoutMillis = 15_000
 
     fun init(config: EmailConfig?) {
         this.emailConfig = config
@@ -133,6 +137,10 @@ object EmailService {
             if (config.smtpStartTls) {
                 put("mail.smtp.starttls.enable", "true")
             }
+            // Without these a mail server that stops answering holds the sending thread for ever
+            for (timeout in listOf("connectiontimeout", "timeout", "writetimeout")) {
+                put("mail.smtp.$timeout", smtpTimeoutMillis.toString())
+            }
         }
 
         val session = if (!config.smtpUsername.isNullOrBlank()) {
@@ -192,7 +200,8 @@ object EmailService {
         reportTimer = null
     }
 
-    private fun checkAndSendDueReports() {
+    /** Sends every active report that is due at [at]; one failing report does not stop the others. */
+    internal fun checkAndSendDueReports(at: Instant = Instant.now()) {
         val dueReports = transaction {
             EmailReports.selectAll().where {
                 EmailReports.isActive eq true
@@ -203,7 +212,7 @@ object EmailService {
             val schedule = report[EmailReports.schedule]
             // "Send at 8" means 8 o'clock in the report's own timezone, not the server's
             val zone = runCatching { ZoneId.of(report[EmailReports.timezone]) }.getOrDefault(ZoneOffset.UTC)
-            val now = ZonedDateTime.now(zone)
+            val now = ZonedDateTime.ofInstant(at, zone)
             val lastSentDate = report[EmailReports.lastSentAt]
                 ?.atZone(ZoneId.systemDefault())?.withZoneSameInstant(zone)?.toLocalDate()
 

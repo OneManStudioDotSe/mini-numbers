@@ -71,6 +71,10 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - Webhooks (lab): a webhook could be created through the API with no events or unknown ones (it then never
   fired), and an address that was malformed or longer than 1,024 characters was stored or gave a database error.
   These are now refused with a message.
+- Email reports (lab): **a mail server that stopped answering held the sender for ever**, so no later report went
+  out until a restart; sending now gives up after 15 seconds. A recipient such as `@`, a list of addresses or
+  `Name <address>` was accepted and then failed (or went to several people) at send time, and an update could set
+  a schedule that never fires; both are now refused.
 - CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
   does not run it as a formula.
 - When the wizard's configuration does not start (wrong database password, for example) nothing is saved and

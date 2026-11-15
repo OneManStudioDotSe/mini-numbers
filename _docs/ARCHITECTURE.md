@@ -402,7 +402,7 @@ webhook, email-report (including `/smtp/status`), revenue and widget routes belo
 
 ### Email reports
 
-- `GET /admin/projects/{id}/email-reports`, `POST /admin/projects/{id}/email-reports`
+- `GET /admin/projects/{id}/email-reports`, `POST /admin/projects/{id}/email-reports` (`recipientEmail` is exactly one plain address; `schedule` is `DAILY`, `WEEKLY` or `MONTHLY`, also on update)
 - `PUT /admin/projects/{id}/email-reports/{reportId}`, `DELETE /admin/projects/{id}/email-reports/{reportId}`
 - `POST /admin/projects/{id}/email-reports/{reportId}/test` — sends a test email immediately
 - `GET /admin/smtp/status` — whether SMTP is configured

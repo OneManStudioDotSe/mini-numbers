@@ -51,8 +51,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Known gaps
 
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
-([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): email reports a scheduler and
-real-send test; widgets a deliberate
+([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): widgets a deliberate
 opt-in per project, because the public tracking key is enough to read them today. **Segments** (2026-11-14) and
 **Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
 once the owner has tried them. Both analyses read every event of the period into memory, which is fine for small
@@ -66,7 +65,12 @@ signature on the wire, retries, the delivery log and which events fire them. Bef
 detection has no test and its window restarts every ten minutes, so it needs a design of its own; a webhook
 address may point at the server's own network (admins only, but worth a decision); a retry already waiting
 still goes out after its webhook is paused or deleted; `webhook_deliveries` is never trimmed; and the dialog has
-no browser test.
+no browser test. **Email reports** (2026-11-15) are sent for real to a local SMTP server in the tests (message,
+login, a silent server, the scheduler). Before they graduate: with `SMTP_STARTTLS=true` a server that does not
+offer STARTTLS still gets the login in clear text (requiring it would break such setups, so it is the owner's
+call), and port 465 (TLS from the start) is not supported; a report whose hour passes while the server is down or
+the mail server refuses is skipped until its next day, week or month; the subject shows the period as `7d`; and
+the dialog has no browser test.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 
