@@ -508,6 +508,64 @@ class GoalsFunnelsSegmentsTest {
         assertEquals("0", views("AND"), "Chrome and Firefox at once")
     }
 
+    private fun funnelJson(name: String, vararg steps: Triple<String, String, String>) =
+        """{"name": "$name", "steps": [""" + steps.joinToString(",") { (stepName, type, match) ->
+            """{"name": "$stepName", "stepType": "$type", "matchValue": "$match"}"""
+        } + "]}"
+
+    @Test
+    fun `update funnel replaces its name and steps, and the analysis follows the new steps`() = testApplication {
+        application { module() }
+        val authClient = createAuthClient()
+        assertEquals(HttpStatusCode.OK, authClient.login().status, "login")
+        val (projectId, key) = newProject(authClient)
+
+        // One session goes home -> pricing -> signup, one stops at pricing, one only sees home
+        val journeys = mapOf(
+            "fun-a" to listOf("/" to null, "/pricing" to null, "/pricing" to "signup"),
+            "fun-b" to listOf("/" to null, "/pricing" to null),
+            "fun-c" to listOf("/" to null)
+        )
+        for ((session, events) in journeys) for ((path, event) in events) {
+            val body = if (event == null) """{"path":"$path","sessionId":"$session","type":"pageview"}"""
+            else """{"path":"$path","sessionId":"$session","type":"custom","eventName":"$event"}"""
+            assertEquals(HttpStatusCode.Accepted, client.post("/collect?key=$key") { setBody(body) }.status, body)
+        }
+
+        val home = Triple("Home", "url", "/")
+        val pricing = Triple("Pricing", "url", "/pricing")
+        val created = authClient.post("/admin/projects/$projectId/funnels") {
+            contentType(ContentType.Application.Json)
+            setBody(funnelJson("Before edit", home, pricing))
+        }.bodyAsText()
+        val funnelId = assertNotNull(extractFieldValue(created, "id"), "funnelId")
+
+        suspend fun update(id: String, body: String) = authClient.put("/admin/projects/$projectId/funnels/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }.status
+        suspend fun sessionsPerStep() = Regex("\"sessions\":(\\d+)")
+            .findAll(authClient.get("/admin/projects/$projectId/funnels/$funnelId/analysis?filter=7d").bodyAsText())
+            .map { it.groupValues[1] }.toList()
+
+        assertEquals(listOf("3", "2"), sessionsPerStep())
+        assertEquals(HttpStatusCode.OK, update(funnelId, funnelJson("After edit", home, pricing, Triple("Signup", "event", "signup"))))
+        val listed = authClient.get("/admin/projects/$projectId/funnels").bodyAsText()
+        assertTrue(listed.contains("After edit") && !listed.contains("Before edit"), listed)
+        assertEquals(3, Regex("\"stepNumber\"").findAll(listed).count(), "old steps replaced: $listed")
+        assertEquals(listOf("3", "2", "1"), sessionsPerStep())
+
+        assertEquals(HttpStatusCode.BadRequest, update(funnelId, funnelJson(" ", home, pricing)), "blank name")
+        assertEquals(HttpStatusCode.BadRequest, update(funnelId, funnelJson("x".repeat(101), home, pricing)), "long name")
+        assertEquals(HttpStatusCode.BadRequest, update(funnelId, funnelJson("One step", home)), "one step")
+        assertEquals(HttpStatusCode.BadRequest, update(funnelId, funnelJson("Blank step", home, Triple(" ", "url", "/x"))))
+        assertEquals(HttpStatusCode.BadRequest, update(funnelId, funnelJson("Bad type", home, Triple("X", "click", "/x"))))
+        assertEquals(HttpStatusCode.BadRequest,
+            update(funnelId, funnelJson("Long match", home, Triple("X", "url", "/" + "x".repeat(512)))))
+        assertEquals(HttpStatusCode.NotFound, update(java.util.UUID.randomUUID().toString(), funnelJson("Nobody", home, pricing)))
+        assertEquals(listOf("3", "2", "1"), sessionsPerStep(), "refused updates change nothing")
+    }
+
     // ==================== Invalid Project ID Tests ====================
 
     @Test

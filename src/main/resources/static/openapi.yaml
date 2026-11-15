@@ -921,6 +921,42 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
 
   /admin/projects/{id}/funnels/{funnelId}:
+    put:
+      summary: Update a funnel's name and replace its steps
+      tags: [Funnels]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: funnelId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, steps]
+              properties:
+                name: { type: string, maxLength: 100 }
+                steps:
+                  type: array
+                  minItems: 2
+                  items:
+                    type: object
+                    required: [name, stepType, matchValue]
+                    properties:
+                      name: { type: string, maxLength: 100 }
+                      stepType: { type: string, enum: [url, event] }
+                      matchValue: { type: string, maxLength: 512 }
+      responses:
+        '200': { description: Funnel updated }
+        '400': { description: Invalid name or steps }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: No such funnel in this project }
     delete:
       summary: Delete funnel and all its steps
       tags: [Funnels]

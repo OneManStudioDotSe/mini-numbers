@@ -233,29 +233,7 @@ private fun Route.funnelRoutes() {
             ?: return@post call.respond(HttpStatusCode.BadRequest,
                 ApiError.badRequest("Invalid or missing project ID"))
 
-        val request = try {
-            call.receive<FunnelRequest>()
-        } catch (_: io.ktor.server.plugins.ContentTransformationException) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Invalid request body"))
-        }
-
-        if (request.name.isBlank()) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Funnel name is required"))
-        }
-
-        if (request.steps.size < 2) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Funnel must have at least 2 steps"))
-        }
-
-        for (step in request.steps) {
-            if (step.stepType !in listOf("url", "event")) {
-                return@post call.respond(HttpStatusCode.BadRequest,
-                    ApiError.badRequest("Step type must be 'url' or 'event'"))
-            }
-        }
+        val request = call.receiveValidFunnel() ?: return@post
 
         val funnelId = UUID.randomUUID()
         transaction {
@@ -265,22 +243,42 @@ private fun Route.funnelRoutes() {
                 it[name] = request.name.trim()
             }
 
-            request.steps.forEachIndexed { index, step ->
-                FunnelSteps.insert {
-                    it[id] = UUID.randomUUID()
-                    it[FunnelSteps.funnelId] = funnelId
-                    it[stepNumber] = index + 1
-                    it[name] = step.name.trim()
-                    it[stepType] = step.stepType
-                    it[matchValue] = step.matchValue.trim()
-                }
-            }
+            insertFunnelSteps(funnelId, request.steps)
         }
 
         call.respond(HttpStatusCode.Created, buildJsonObject {
             put("id", funnelId.toString())
             put("success", true)
         })
+    }
+
+    put("/projects/{id}/funnels/{funnelId}") {
+        if (!call.requireRole(UserRole.ADMIN)) return@put
+        val pid = safeParseUUID(call.parameters["id"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing project ID"))
+        val funnelId = safeParseUUID(call.parameters["funnelId"])
+            ?: return@put call.respond(HttpStatusCode.BadRequest,
+                ApiError.badRequest("Invalid or missing funnel ID"))
+
+        val request = call.receiveValidFunnel() ?: return@put
+
+        val updated = transaction {
+            val found = Funnels.update({ (Funnels.id eq funnelId) and (Funnels.projectId eq pid) }) {
+                it[name] = request.name.trim()
+            } > 0
+            if (found) {
+                FunnelSteps.deleteWhere { FunnelSteps.funnelId eq funnelId }
+                insertFunnelSteps(funnelId, request.steps)
+            }
+            found
+        }
+
+        if (updated) {
+            call.respond(HttpStatusCode.OK, buildJsonObject { put("success", true) })
+        } else {
+            call.respond(HttpStatusCode.NotFound, ApiError.notFound("Funnel not found"))
+        }
     }
 
     delete("/projects/{id}/funnels/{funnelId}") {
@@ -334,6 +332,53 @@ private fun Route.funnelRoutes() {
         call.respond(analysis)
     }
 
+}
+
+private const val MAX_FUNNEL_NAME_LENGTH = 100
+private const val MAX_FUNNEL_MATCH_LENGTH = 512
+private val FUNNEL_STEP_TYPES = setOf("url", "event")
+
+/** Stores the steps of a funnel in the order given. Call inside a transaction. */
+private fun insertFunnelSteps(funnelId: UUID, steps: List<FunnelStepRequest>) {
+    steps.forEachIndexed { index, step ->
+        FunnelSteps.insert {
+            it[id] = UUID.randomUUID()
+            it[FunnelSteps.funnelId] = funnelId
+            it[stepNumber] = index + 1
+            it[name] = step.name.trim()
+            it[stepType] = step.stepType
+            it[matchValue] = step.matchValue.trim()
+        }
+    }
+}
+
+/** Reads a funnel from the request body; answers 400 and returns null when it is not valid. */
+private suspend fun ApplicationCall.receiveValidFunnel(): FunnelRequest? {
+    val request = try {
+        receive<FunnelRequest>()
+    } catch (_: io.ktor.server.plugins.ContentTransformationException) {
+        respond(HttpStatusCode.BadRequest, ApiError.badRequest("Invalid request body"))
+        return null
+    }
+    val steps = request.steps.map { it.copy(name = it.name.trim(), matchValue = it.matchValue.trim()) }
+    val problem = when {
+        request.name.isBlank() -> "Funnel name is required"
+        request.name.trim().length > MAX_FUNNEL_NAME_LENGTH ->
+            "Funnel name must be at most $MAX_FUNNEL_NAME_LENGTH characters"
+        steps.size < 2 -> "Funnel must have at least 2 steps"
+        steps.any { it.stepType !in FUNNEL_STEP_TYPES } -> "Step type must be 'url' or 'event'"
+        steps.any { it.name.isEmpty() || it.matchValue.isEmpty() } -> "Every step needs a name and a match value"
+        steps.any { it.name.length > MAX_FUNNEL_NAME_LENGTH } ->
+            "Step names must be at most $MAX_FUNNEL_NAME_LENGTH characters"
+        steps.any { it.matchValue.length > MAX_FUNNEL_MATCH_LENGTH } ->
+            "Match values must be at most $MAX_FUNNEL_MATCH_LENGTH characters"
+        else -> null
+    }
+    if (problem != null) {
+        respond(HttpStatusCode.BadRequest, ApiError.badRequest(problem))
+        return null
+    }
+    return request
 }
 
 private fun Route.segmentRoutes() {

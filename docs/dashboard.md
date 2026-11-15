@@ -35,7 +35,7 @@ In **Conversions**, each card has a **Manage** button:
 - **Goal** — a page someone reaches (`/thank-you`) or an event they trigger (`signup`). Shows how many
   visitors convert.
 - **Funnel** *(lab)* — a list of steps (pages or events). Shows how many visitors make it through each step and where
-  they drop off.
+  they drop off. **Manage funnels** creates, edits (pencil) and deletes them.
 - **Segment** *(lab)* — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
   **Manage segments** creates, edits (pencil) and deletes them; **Analyze** shows the views, visitors and bounce
   rate of the matching visits for the selected period.

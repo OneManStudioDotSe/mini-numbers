@@ -79,15 +79,16 @@ const GoalsManager = {
     }
   },
 
-  async createFunnel(projectId, data) {
-    const response = await fetch(`/admin/projects/${projectId}/funnels`, {
-      method: 'POST',
+  /** Create a funnel, or replace the name and steps of an existing one when funnelId is given */
+  async saveFunnel(projectId, data, funnelId) {
+    const response = await fetch(`/admin/projects/${projectId}/funnels` + (funnelId ? `/${funnelId}` : ''), {
+      method: funnelId ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
     if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || 'Failed to create funnel');
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to save funnel');
     }
     return await response.json();
   },
@@ -215,25 +216,26 @@ const GoalsManager = {
 
     container.innerHTML = analysis.steps.map((step, i) => {
       const widthPercent = maxSessions > 0 ? (step.sessions / maxSessions) * 100 : 0;
-      const isLast = i === analysis.steps.length - 1;
+      // Drop-off and time are stored on the step they lead to, so the connector below a step shows the next one's
+      const next = analysis.steps[i + 1];
 
       return `
         <div class="funnel-step">
           <div class="funnel-step__info">
             <span class="funnel-step__number">${step.stepNumber}</span>
             <span class="funnel-step__name">${Utils.escapeHtml(step.name)}</span>
-            <span class="funnel-step__sessions">${step.sessions} sessions</span>
+            <span class="funnel-step__sessions">${step.sessions} session${step.sessions !== 1 ? 's' : ''}</span>
           </div>
           <div class="funnel-step__bar-container">
             <div class="funnel-step__bar" style="width: ${Math.max(widthPercent, 2)}%">
               <span class="funnel-step__percent">${step.conversionRate.toFixed(1)}%</span>
             </div>
           </div>
-          ${!isLast ? `
+          ${next ? `
             <div class="funnel-step__connector">
-              <span class="funnel-step__dropoff">&darr; ${step.dropOffRate.toFixed(1)}% drop-off</span>
-              ${step.avgTimeFromPrevious != null ? `
-                <span class="funnel-step__time">${this.formatDuration(step.avgTimeFromPrevious)}</span>
+              <span class="funnel-step__dropoff">&darr; ${next.dropOffRate.toFixed(1)}% drop-off</span>
+              ${next.avgTimeFromPrevious != null ? `
+                <span class="funnel-step__time">${this.formatDuration(next.avgTimeFromPrevious)}</span>
               ` : ''}
             </div>
           ` : ''}
@@ -320,11 +322,14 @@ const GoalsManager = {
         <td>${Utils.escapeHtml(funnel.name)}</td>
         <td>${funnel.steps.length}</td>
         <td>${funnel.steps.map(s => Utils.escapeHtml(s.name)).join(' &rarr; ')}</td>
-        <td>
-          <button class="btn btn-ghost btn-icon btn-sm" data-action="delete-funnel" data-id="${funnel.id}" data-name="${Utils.escapeHtml(funnel.name)}" title="Delete">
+        <td><div style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-ghost btn-icon btn-sm" data-action="edit-funnel" data-id="${funnel.id}" aria-label="Edit funnel ${Utils.escapeHtml(funnel.name)}">
+            <i class="ri-pencil-line"></i>
+          </button>
+          <button class="btn btn-ghost btn-icon btn-sm" data-action="delete-funnel" data-id="${funnel.id}" data-name="${Utils.escapeHtml(funnel.name)}" aria-label="Delete funnel ${Utils.escapeHtml(funnel.name)}">
             <i class="ri-delete-bin-line"></i>
           </button>
-        </td>
+        </div></td>
       </tr>
     `).join('');
 
@@ -374,95 +379,127 @@ const GoalsManager = {
 
   // ── Funnel Form ────────────────────────────────────────────
 
-  funnelStepCount: 2,
+  /** Id of the funnel being edited, or null while the form creates a new one */
+  editingFunnelId: null,
 
+  /** Empty the form and put it back in "create" mode with two blank steps */
   resetFunnelForm() {
-    this.funnelStepCount = 2;
+    this.editingFunnelId = null;
     const container = document.getElementById('funnel-steps-container');
     if (!container) return;
 
-    container.innerHTML = this.renderStepInput(1) + this.renderStepInput(2);
+    container.innerHTML = '';
+    this.addFunnelStep();
+    this.addFunnelStep();
     document.getElementById('funnel-name').value = '';
+    document.getElementById('funnel-form-title').textContent = 'Create new funnel';
+    document.getElementById('create-funnel-btn').textContent = 'Create funnel';
+    document.getElementById('cancel-funnel-edit-btn').style.display = 'none';
   },
 
-  renderStepInput(num) {
-    return `
-      <div class="funnel-step-input" id="funnel-step-${num}">
-        <div class="funnel-step-input__header">
-          <span class="funnel-step-input__number">Step ${num}</span>
-          ${num > 2 ? `<button class="btn btn-ghost btn-icon btn-sm" onclick="GoalsManager.removeFunnelStep(${num})" title="Remove step"><i class="ri-close-line"></i></button>` : ''}
-        </div>
-        <div class="funnel-step-input__fields">
-          <input type="text" class="input" placeholder="Step name" id="funnel-step-name-${num}">
-          <select class="select" id="funnel-step-type-${num}">
-            <option value="url">URL path</option>
-            <option value="event">Custom event</option>
-          </select>
-          <input type="text" class="input" placeholder="Match value (e.g. /pricing)" id="funnel-step-match-${num}">
-        </div>
-      </div>`;
+  /** Load a funnel from the table into the form for editing */
+  editFunnel(funnelId) {
+    const funnel = this.state.funnels.find(f => f.id === funnelId);
+    if (!funnel) return;
+    this.editingFunnelId = funnelId;
+    document.getElementById('funnel-steps-container').innerHTML = '';
+    funnel.steps.forEach(step => this.addFunnelStep(step));
+    document.getElementById('funnel-name').value = funnel.name;
+    document.getElementById('funnel-form-title').textContent = 'Edit funnel';
+    document.getElementById('create-funnel-btn').textContent = 'Save changes';
+    document.getElementById('cancel-funnel-edit-btn').style.display = '';
+    document.getElementById('funnel-name').focus();
   },
 
-  addFunnelStep() {
-    this.funnelStepCount++;
+  /**
+   * Add a step to the funnel form
+   * @param {Object} [step] - Existing step to show (name, stepType, matchValue)
+   */
+  addFunnelStep(step) {
     const container = document.getElementById('funnel-steps-container');
     if (!container) return;
-    container.insertAdjacentHTML('beforeend', this.renderStepInput(this.funnelStepCount));
+
+    const row = document.createElement('div');
+    row.className = 'funnel-step-input';
+    row.innerHTML = `
+      <div class="funnel-step-input__header">
+        <span class="funnel-step-input__number"></span>
+        <button type="button" class="btn btn-ghost btn-icon btn-sm" data-action="remove-funnel-step" aria-label="Remove step"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="funnel-step-input__fields">
+        <input type="text" class="input" placeholder="Step name" data-step="name" aria-label="Step name">
+        <select class="select" data-step="type" aria-label="Step type">
+          <option value="url">URL path</option>
+          <option value="event">Custom event</option>
+        </select>
+        <input type="text" class="input" placeholder="Match value (e.g. /pricing)" data-step="match" aria-label="Match value">
+      </div>`;
+    if (step) {
+      row.querySelector('[data-step="name"]').value = step.name;
+      row.querySelector('[data-step="type"]').value = step.stepType;
+      row.querySelector('[data-step="match"]').value = step.matchValue;
+    }
+    container.appendChild(row);
+    this.numberFunnelSteps();
   },
 
-  removeFunnelStep(num) {
-    const step = document.getElementById(`funnel-step-${num}`);
-    if (step) step.remove();
+  /** Number the steps in the form 1..n; a funnel keeps at least two, so those can't be removed */
+  numberFunnelSteps() {
+    const rows = document.querySelectorAll('#funnel-steps-container .funnel-step-input');
+    rows.forEach((row, i) => {
+      row.querySelector('.funnel-step-input__number').textContent = `Step ${i + 1}`;
+      row.querySelector('[data-action="remove-funnel-step"]').style.display = rows.length > 2 ? '' : 'none';
+    });
   },
 
-  async handleCreateFunnel(projectId) {
+  /** Create a funnel from the form, or save the one being edited */
+  async handleSaveFunnel(projectId) {
     const name = document.getElementById('funnel-name').value.trim();
     if (!name) {
-      alert('Please enter a funnel name');
+      Utils.toast.error('Funnel name is required');
       return;
     }
 
     const steps = [];
-    const stepElements = document.querySelectorAll('.funnel-step-input');
-    for (const el of stepElements) {
-      const id = el.id.replace('funnel-step-', '');
-      const stepName = document.getElementById(`funnel-step-name-${id}`)?.value.trim();
-      const stepType = document.getElementById(`funnel-step-type-${id}`)?.value;
-      const matchValue = document.getElementById(`funnel-step-match-${id}`)?.value.trim();
+    for (const row of document.querySelectorAll('#funnel-steps-container .funnel-step-input')) {
+      const stepName = row.querySelector('[data-step="name"]').value.trim();
+      const stepType = row.querySelector('[data-step="type"]').value;
+      const matchValue = row.querySelector('[data-step="match"]').value.trim();
 
       if (!stepName || !matchValue) {
-        alert('Please fill in all step fields');
+        Utils.toast.error('Every step needs a name and a match value');
         return;
       }
 
       steps.push({ name: stepName, stepType, matchValue });
     }
 
-    if (steps.length < 2) {
-      alert('Funnel must have at least 2 steps');
-      return;
-    }
-
+    const editing = this.editingFunnelId;
     try {
-      await this.createFunnel(projectId, { name, steps });
+      await this.saveFunnel(projectId, { name, steps }, editing);
+      Utils.toast.success(editing ? 'Funnel saved' : 'Funnel created!');
       this.resetFunnelForm();
-      await this.refreshFunnelList(projectId);
-      // Refresh dashboard funnels display
-      const funnels = await this.loadFunnels(projectId);
-      this.renderFunnels(funnels, projectId, Dashboard.state.currentFilter);
+      await this.refreshFunnels(projectId);
     } catch (e) {
-      alert(e.message);
+      Utils.toast.error(e.message);
     }
   },
 
-  confirmDeleteFunnel(projectId, funnelId, name) {
-    if (confirm(`Delete funnel "${name}"? This cannot be undone.`)) {
-      this.deleteFunnel(projectId, funnelId).then(() => {
-        this.refreshFunnelList(projectId);
-        this.loadFunnels(projectId).then(funnels => {
-          this.renderFunnels(funnels, projectId, Dashboard.state.currentFilter);
-        });
-      });
+  /** Reload the management table and the dashboard card */
+  async refreshFunnels(projectId) {
+    await this.refreshFunnelList(projectId);
+    this.renderFunnels(this.state.funnels, projectId, Dashboard.state.currentFilter);
+  },
+
+  async confirmDeleteFunnel(projectId, funnelId, name) {
+    if (!confirm(`Delete funnel "${name}"? This cannot be undone.`)) return;
+    try {
+      await this.deleteFunnel(projectId, funnelId);
+      Utils.toast.success('Funnel deleted');
+      if (this.editingFunnelId === funnelId) this.resetFunnelForm();
+      await this.refreshFunnels(projectId);
+    } catch (e) {
+      Utils.toast.error('Failed to delete funnel');
     }
   },
 
@@ -504,11 +541,18 @@ const GoalsManager = {
     // Create funnel button
     document.getElementById('create-funnel-btn')?.addEventListener('click', () => {
       const projectId = Dashboard.state.currentProjectId;
-      if (projectId) this.handleCreateFunnel(projectId);
+      if (projectId) this.handleSaveFunnel(projectId);
     });
+    document.getElementById('cancel-funnel-edit-btn')?.addEventListener('click', () => this.resetFunnelForm());
 
-    // Add funnel step button
+    // Add / remove funnel step
     document.getElementById('add-funnel-step-btn')?.addEventListener('click', () => this.addFunnelStep());
+    document.getElementById('funnel-steps-container')?.addEventListener('click', (e) => {
+      const row = e.target.closest('[data-action="remove-funnel-step"]')?.closest('.funnel-step-input');
+      if (!row) return;
+      row.remove();
+      this.numberFunnelSteps();
+    });
 
     // Row actions (rows are re-rendered on every refresh, so delegate once)
     const goalsBody = document.getElementById('goals-table-body');
@@ -521,6 +565,8 @@ const GoalsManager = {
       if (cb) this.toggleGoal(Dashboard.state.currentProjectId, cb.dataset.id, cb.checked);
     });
     document.getElementById('funnels-table-body')?.addEventListener('click', (e) => {
+      const edit = e.target.closest('[data-action="edit-funnel"]');
+      if (edit) this.editFunnel(edit.dataset.id);
       const btn = e.target.closest('[data-action="delete-funnel"]');
       if (btn) this.confirmDeleteFunnel(Dashboard.state.currentProjectId, btn.dataset.id, btn.dataset.name);
     });

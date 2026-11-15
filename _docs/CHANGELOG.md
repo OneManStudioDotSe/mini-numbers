@@ -25,6 +25,8 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 
 - **Segments (lab) can be edited.** The pencil in **Manage segments** loads a segment into the form; saving
   replaces its name, description and filters (`PUT /admin/projects/{id}/segments/{segmentId}`).
+- **Funnels (lab) can be edited.** The pencil in **Manage funnels** loads a funnel into the form; saving replaces
+  its name and steps (`PUT /admin/projects/{id}/funnels/{funnelId}`).
 
 ### Security
 
@@ -57,6 +59,11 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   the **Manage segments** button was hidden; after switching projects one click could create a segment several
   times; a refused save closed the dialog; a failed delete was reported as done. Names over 100 characters now
   get a clear message instead of a database error.
+- Funnels (lab): **the drop-off and average time between two steps were shown one step too early**, so the first
+  gap always read "0% drop-off" and the last gap's figures never appeared; removing a step left a hole in the
+  numbering ("Step 1, Step 2, Step 4"); a failed delete went unreported; a step with a blank name or match value
+  could be saved through the API, and over-long names or match values gave a database error instead of a message.
+  One session is now "1 session".
 - CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
   does not run it as a formula.
 - When the wizard's configuration does not start (wrong database password, for example) nothing is saved and
