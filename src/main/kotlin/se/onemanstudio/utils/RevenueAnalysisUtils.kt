@@ -3,6 +3,10 @@ package se.onemanstudio.utils
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenue
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueAttribution
 import se.onemanstudio.utils.RevenueAnalysisUtils.calculateRevenueByEvent
@@ -15,7 +19,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.iterator
-import kotlin.math.roundToInt
 
 /**
  * Revenue analytics engine.
@@ -61,14 +64,19 @@ object RevenueAnalysisUtils {
     }
 
     /**
-     * Parse revenue value from a JSON properties string.
-     * Looks for "revenue":N or "revenue":"N" patterns.
+     * The amount of an event: the top-level `revenue` of its properties, as a number or a numeric string.
+     * Negative amounts are not counted, and neither is a `revenue` nested deeper in the properties.
      */
     private fun extractRevenue(properties: String?): Double? {
         if (properties.isNullOrBlank()) return null
-        val match = Regex(""""revenue"\s*:\s*"?(\d+(?:\.\d+)?)"?""").find(properties)
-        return match?.groupValues?.get(1)?.toDoubleOrNull()
+        val revenue = try {
+            (Json.parseToJsonElement(properties) as? JsonObject)?.get("revenue") as? JsonPrimitive
+        } catch (_: SerializationException) { null }
+        return revenue?.content?.toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0 }
     }
+
+    /** Rounds an amount to cents. */
+    private fun cents(amount: Double): Double = Math.round(amount * 100.0) / 100.0
 
     /**
      * Calculate aggregate revenue stats for a project in a time period.
@@ -115,11 +123,11 @@ object RevenueAnalysisUtils {
             }
 
             RevenueStats(
-                totalRevenue = (totalRevenue * 100.0).roundToInt() / 100.0,
+                totalRevenue = cents(totalRevenue),
                 transactions = transactions,
-                averageOrderValue = (aov * 100.0).roundToInt() / 100.0,
-                revenuePerVisitor = (rpv * 100.0).roundToInt() / 100.0,
-                previousRevenue = (prevEvents.sum() * 100.0).roundToInt() / 100.0,
+                averageOrderValue = cents(aov),
+                revenuePerVisitor = cents(rpv),
+                previousRevenue = cents(prevEvents.sum()),
                 previousTransactions = prevEvents.size.toLong()
             )
         }
@@ -148,9 +156,9 @@ object RevenueAnalysisUtils {
                     val count = entries.size.toLong()
                     RevenueByEvent(
                         eventName = name,
-                        revenue = (totalRev * 100.0).roundToInt() / 100.0,
+                        revenue = cents(totalRev),
                         transactions = count,
-                        avgValue = ((totalRev / count) * 100.0).roundToInt() / 100.0
+                        avgValue = cents(totalRev / count)
                     )
                 }
                 .sortedByDescending { it.revenue }
@@ -202,26 +210,20 @@ object RevenueAnalysisUtils {
                 .mapValues { (_, rows) -> resolveSessionSource(rows) }
                 .values.groupBy { it }.mapValues { it.value.size }
 
-            // Map revenue to sources
-            val revenueBySession = revenueEvents.groupBy { it.first }
-                .mapValues { (_, entries) -> entries.sumOf { it.second } }
+            // Map revenue events to sources; a session with several purchases counts once as a converting session
+            val eventsBySource = revenueEvents.groupBy { (sessionId, _) -> sessionSources[sessionId] ?: "Direct" }
 
-            val attributionMap = mutableMapOf<String, MutableList<Double>>()
-            for ((sessionId, revenue) in revenueBySession) {
-                val source = sessionSources[sessionId] ?: "Direct"
-                attributionMap.getOrPut(source) { mutableListOf() }.add(revenue)
-            }
-
-            attributionMap.map { (source, revenues) ->
-                val totalRev = revenues.sum()
-                val txns = revenues.size.toLong()
+            eventsBySource.map { (source, events) ->
+                val totalRev = events.sumOf { it.second }
+                val txns = events.size.toLong()
+                val buyingSessions = events.map { it.first }.toSet().size
                 val totalSessions = totalSessionsBySource[source] ?: 1
                 RevenueAttribution(
                     source = source,
-                    revenue = (totalRev * 100.0).roundToInt() / 100.0,
+                    revenue = cents(totalRev),
                     transactions = txns,
-                    avgValue = ((totalRev / txns) * 100.0).roundToInt() / 100.0,
-                    conversionRate = ((txns.toDouble() / totalSessions) * 10000.0).roundToInt() / 100.0
+                    avgValue = cents(totalRev / txns),
+                    conversionRate = cents(buyingSessions.toDouble() / totalSessions * 100.0)
                 )
             }.sortedByDescending { it.revenue }
                 .take(20)

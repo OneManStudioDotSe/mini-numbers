@@ -1,6 +1,6 @@
 # Mini Numbers - Testing plan
 
-> Much of this list is automated. `./gradlew test` (370 JVM tests, SQLite locally and PostgreSQL in CI) covers the API,
+> Much of this list is automated. `./gradlew test` (375 JVM tests, SQLite locally and PostgreSQL in CI) covers the API,
 > privacy modes, RBAC, JWT, caching, collection rules, the labs switch and the demo-data limits;
 > `cd e2e && npx playwright test` (28 browser tests) covers login/sign-out, a viewer's dashboard, the setup wizard's
 > Quick Setup on an unconfigured server, project creation, the demo dashboard with the Raw events and privacy dialogs

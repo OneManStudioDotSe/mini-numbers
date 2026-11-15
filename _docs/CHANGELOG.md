@@ -64,6 +64,10 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   numbering ("Step 1, Step 2, Step 4"); a failed delete went unreported; a step with a blank name or match value
   could be saved through the API, and over-long names or match values gave a database error instead of a message.
   One session is now "1 session".
+- Revenue (lab): **totals stopped at 21,474,836.47**, whatever was sold beyond that; an amount written as `1e3`
+  counted as 1, `"12abc"` as 12, and a `revenue` nested inside another property was counted too (only a top-level
+  number or numeric string counts now; negative amounts are still left out); in **revenue by source** two
+  purchases in one visit counted as one transaction, so the column did not add up to the total.
 - CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
   does not run it as a formula.
 - When the wizard's configuration does not start (wrong database password, for example) nothing is saved and

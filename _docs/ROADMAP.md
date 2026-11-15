@@ -52,13 +52,16 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
 ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): webhooks need delivery, signing and retry tests; email reports a scheduler and
-real-send test; revenue endpoint tests; widgets a deliberate
+real-send test; widgets a deliberate
 opt-in per project, because the public tracking key is enough to read them today. **Segments** (2026-11-14) and
 **Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
 once the owner has tried them. Both analyses read every event of the period into memory, which is fine for small
 sites and should become a query before they are advertised; the segment result is shown as a toast only and
 needs a proper panel. Funnel bars show each step as a share of *all* sessions of the period, not of the sessions
-that entered the funnel: decide which before graduating.
+that entered the funnel: decide which before graduating. **Revenue** (2026-11-15) has tests on known amounts
+for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
+`currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of
+its own beyond the CSV export.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 

@@ -40,7 +40,7 @@ MiniNumbers.track("plan_selected", { plan: "pro" });
 MiniNumbers.track("purchase", { revenue: 29.99, currency: "EUR" });
 ```
 
-An event with a numeric `revenue` property counts towards the revenue cards and attribution. Event names and
+An event with a numeric `revenue` property (zero or more, at the top level of the properties) counts towards the revenue cards and attribution. Event names and
 properties are stored as sent — keep personal data out of them.
 
 ---
