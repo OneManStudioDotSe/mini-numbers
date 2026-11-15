@@ -85,7 +85,7 @@ LABS=webhooks,funnels
 | `revenue` | Revenue cards and attribution from events with a `revenue` property, and a revenue section in the CSV report |
 | `webhooks` | Signed HTTP calls when a goal converts or traffic spikes ([details](developers#webhooks)) |
 | `email-reports` | Scheduled email summaries (also needs the SMTP settings below) |
-| `widgets` | Embeddable live numbers ([details](developers#widgets)). Anyone with the project key from your site's HTML can read them |
+| `widgets` | Embeddable live numbers ([details](developers#widgets)). Off for each project until switched on in its settings; while on, anyone with the project key from your site's HTML can read them |
 
 Data collected while a lab is off is kept, so turning it on later shows the history too.
 

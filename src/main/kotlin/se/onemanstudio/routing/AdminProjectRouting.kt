@@ -15,6 +15,9 @@ import se.onemanstudio.api.models.ApiError
 import se.onemanstudio.api.models.dashboard.ProjectStats
 import se.onemanstudio.api.models.dashboard.TopPage
 import se.onemanstudio.api.models.dashboard.VisitSnippet
+import se.onemanstudio.api.models.widget.WidgetAccess
+import se.onemanstudio.core.Lab
+import se.onemanstudio.core.Labs
 import se.onemanstudio.core.models.UserRole
 import se.onemanstudio.core.models.UserSession
 import se.onemanstudio.middleware.getUserRole
@@ -198,6 +201,39 @@ fun Route.adminProjectRoutes() {
         QueryCache.invalidateProject(uuid.toString())
         WidgetCache.invalidateProject(uuid.toString())
         call.respond(buildJsonObject { put("apiKey", newKey) })
+    }
+
+    // Widgets (lab): whether this project's public key may read the /widget endpoints
+    if (Labs.isOn(Lab.WIDGETS)) {
+        get("/projects/{id}/widgets") {
+            val uuid = safeParseUUID(call.parameters["id"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val enabled = transaction {
+                Projects.selectAll().where { Projects.id eq uuid }.singleOrNull()?.get(Projects.widgetsEnabled)
+            } ?: return@get call.respond(HttpStatusCode.NotFound, ApiError.notFound("Project not found"))
+            call.respond(WidgetAccess(enabled))
+        }
+
+        put("/projects/{id}/widgets") {
+            if (!call.requireRole(UserRole.ADMIN)) return@put
+            val uuid = safeParseUUID(call.parameters["id"])
+                ?: return@put call.respond(HttpStatusCode.BadRequest,
+                    ApiError.badRequest("Invalid or missing project ID"))
+            val request = try {
+                call.receive<WidgetAccess>()
+            } catch (_: io.ktor.server.plugins.ContentTransformationException) {
+                return@put call.respond(HttpStatusCode.BadRequest, ApiError.badRequest("Invalid request body"))
+            }
+            val updated = transaction {
+                Projects.update({ Projects.id eq uuid }) { it[widgetsEnabled] = request.enabled } > 0
+            }
+            if (!updated) {
+                return@put call.respond(HttpStatusCode.NotFound, ApiError.notFound("Project not found"))
+            }
+            WidgetCache.invalidateProject(uuid.toString())
+            call.respond(request)
+        }
     }
 
     // Get stats for a specific project

@@ -1,5 +1,5 @@
 // @ts-check
-const { expect } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 
 const ADMIN = { username: 'admin', password: 'E2e-password-123' };
 
@@ -17,7 +17,13 @@ async function loginViaUi(page) {
 
 /** Log in on the API request context shared by the page (same cookie jar). */
 async function loginViaApi(request) {
-  const r = await request.post('/api/login', { data: ADMIN });
+  let r = await request.post('/api/login', { data: ADMIN });
+  if (r.status() === 429) {
+    // The server allows 20 sign-ins per address per minute and the suite makes more: wait the minute out
+    test.info().setTimeout(test.info().timeout + 70_000);
+    await expect.poll(async () => (r = await request.post('/api/login', { data: ADMIN })).status(),
+      { timeout: 65_000, intervals: [5_000] }).not.toBe(429);
+  }
   expect(r.status(), 'API login').toBe(200);
 }
 

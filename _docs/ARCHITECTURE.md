@@ -178,7 +178,8 @@ mini-numbers/
 ### Projects
 
 ```kotlin
-id: UUID (PK), name: String(100), domain: String(255), apiKey: String(64, unique)
+id: UUID (PK), name: String(100), domain: String(255), apiKey: String(64, unique),
+widgetsEnabled: Boolean (default false) - whether /widget/* answers for this project's key
 ```
 
 ### Events
@@ -370,6 +371,7 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 - `GET /admin/projects` (paginated), `POST /admin/projects` (201 with `{id, apiKey}`), `POST /admin/projects/{id}` (update),
   `DELETE /admin/projects/{id}` (cascades events/goals/funnels/segments/webhooks/email-reports)
 - `POST /admin/projects/{id}/rotate-api-key`
+- `GET|PUT /admin/projects/{id}/widgets` — `{enabled}`; whether the project's public key may read `/widget/*` (widgets lab; PUT is admin-only). Off by default, and `/widget/*` answers 404 while it is off
 - `POST /admin/projects/{id}/demo-data` — `count` 1–3000, `timeScope` 1–365 days (400 otherwise)
 - `GET /admin/projects/{id}/retention-preview?days=N`
 

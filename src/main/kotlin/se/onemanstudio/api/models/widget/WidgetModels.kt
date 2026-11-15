@@ -43,3 +43,7 @@ data class SparklinePoint(
     val date: String,
     val views: Long
 )
+
+/** Whether a project lets its public key read the widget endpoints. */
+@Serializable
+data class WidgetAccess(val enabled: Boolean)

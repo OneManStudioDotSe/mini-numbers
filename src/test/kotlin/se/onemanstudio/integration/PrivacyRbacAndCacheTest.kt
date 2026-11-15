@@ -180,14 +180,57 @@ class PrivacyRbacAndCacheTest {
     }
 
     @Test
-    fun `widget endpoints reject unknown keys and serve data for a valid key`() = testApplication {
+    fun `widgets answer only for a project that turned them on, and only an admin can do that`() = testApplication {
         application { module() }
         val admin = createAuthClient(); assertEquals(HttpStatusCode.OK, admin.login().status)
-        val (_, apiKey) = admin.createProject("widget-${System.nanoTime()}")
+        val (projectId, apiKey) = admin.createProject("widget-${System.nanoTime()}")
+        val (_, otherKey) = admin.createProject("widget-other-${System.nanoTime()}")
+        val widgets = listOf("realtime", "pageviews", "toppages", "sparkline")
 
+        suspend fun HttpClient.setWidgets(body: String) = put("/admin/projects/$projectId/widgets") {
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
+
+        // Off for a new project: the public key alone reads nothing
+        assertEquals("""{"enabled":false}""", admin.get("/admin/projects/$projectId/widgets").bodyAsText())
+        for (widget in widgets) {
+            assertEquals(HttpStatusCode.NotFound, client.get("/widget/$widget?key=$apiKey").status, widget)
+        }
+        assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime") { header("X-Widget-Key", apiKey) }.status)
+
+        assertEquals(HttpStatusCode.OK, admin.setWidgets("""{"enabled":true}""").status)
+        assertEquals("""{"enabled":true}""", admin.get("/admin/projects/$projectId/widgets").bodyAsText())
+        for (widget in widgets) {
+            assertEquals(HttpStatusCode.OK, client.get("/widget/$widget?key=$apiKey").status, widget)
+        }
+        assertEquals(HttpStatusCode.OK, client.get("/widget/realtime") { header("X-Widget-Key", apiKey) }.status)
         assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=not-a-real-key").status)
-        assertEquals(HttpStatusCode.OK, client.get("/widget/realtime?key=$apiKey").status)
-        assertEquals(HttpStatusCode.OK, client.get("/widget/sparkline?key=$apiKey").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=$otherKey").status, "another project")
+
+        // Turning it off takes effect at once, although results are cached for a minute
+        assertEquals(HttpStatusCode.OK, admin.setWidgets("""{"enabled":false}""").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=$apiKey").status)
+
+        assertEquals(HttpStatusCode.BadRequest, admin.setWidgets("""{"enabled":"maybe"}""").status)
+        assertEquals(HttpStatusCode.NotFound,
+            admin.put("/admin/projects/${java.util.UUID.randomUUID()}/widgets") {
+                contentType(ContentType.Application.Json)
+                setBody("""{"enabled":true}""")
+            }.status)
+
+        val viewerName = "widget-viewer-${System.nanoTime()}"
+        assertEquals(HttpStatusCode.Created, admin.post("/admin/users") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"username":"$viewerName","password":"viewerpass123","role":"viewer"}""")
+        }.status)
+        val viewer = createAuthClient(); assertEquals(HttpStatusCode.OK, viewer.login(viewerName, "viewerpass123").status)
+        assertEquals(HttpStatusCode.Forbidden, viewer.setWidgets("""{"enabled":true}""").status)
+        assertEquals("""{"enabled":false}""", viewer.get("/admin/projects/$projectId/widgets").bodyAsText())
+        assertEquals(HttpStatusCode.Unauthorized, client.put("/admin/projects/$projectId/widgets") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"enabled":true}""")
+        }.status, "signed out")
     }
 
     @Test

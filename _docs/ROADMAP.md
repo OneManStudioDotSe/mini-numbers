@@ -51,8 +51,10 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Known gaps
 
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
-([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): widgets a deliberate
-opt-in per project, because the public tracking key is enough to read them today. **Segments** (2026-11-14) and
+([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)); all of them now have those tests. **Widgets** (2026-11-15) answer only
+for projects that switched them on in Settings; while a project has them on, its numbers are still readable by
+anyone with its tracking ID, which is what a public counter is, and the widget script itself has no browser
+test. **Segments** (2026-11-14) and
 **Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
 once the owner has tried them. Both analyses read every event of the period into memory, which is fine for small
 sites and should become a query before they are advertised; the segment result is shown as a toast only and

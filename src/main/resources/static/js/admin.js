@@ -2283,6 +2283,18 @@ const Dashboard = {
         document.getElementById('setting-project-domain').value = 'Loading...';
         document.getElementById('setting-project-api-key').textContent = 'Loading...';
 
+        // Widgets lab: show whether this project's tracking ID may read the widget endpoints
+        const widgetsToggle = document.getElementById('setting-project-widgets');
+        if (widgetsToggle) {
+          widgetsToggle.disabled = true;
+          Utils.api.fetch(`/admin/projects/${this.state.currentProjectId}/widgets`, { useCache: false })
+            .then(access => {
+              widgetsToggle.checked = access.enabled;
+              widgetsToggle.disabled = false;
+            })
+            .catch(error => console.error('Failed to load widget access:', error));
+        }
+
         // Load data in background
         Utils.api.fetch('/admin/projects').then(projects => {
           const currentProject = projects.find(p => p.id === this.state.currentProjectId);
@@ -2396,6 +2408,24 @@ const Dashboard = {
         }
       });
     }
+
+    // Widgets on/off for this project: saved at once, put back if the server refuses
+    document.getElementById('setting-project-widgets')?.addEventListener('change', async (e) => {
+      const toggle = e.target;
+      try {
+        const response = await fetch(`/admin/projects/${this.state.currentProjectId}/widgets`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: toggle.checked })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        Utils.toast.success(toggle.checked ? 'Widgets are on for this project' : 'Widgets are off for this project');
+      } catch (error) {
+        console.error('Failed to change widget access:', error);
+        toggle.checked = !toggle.checked;
+        Utils.toast.error('Failed to change widgets');
+      }
+    });
 
     // Rotate project API key handler
     if (rotateProjectKeyBtn) {

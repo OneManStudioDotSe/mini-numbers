@@ -739,6 +739,49 @@ paths:
       responses:
         '200': { description: Segment analysis }
 
+  /admin/projects/{id}/widgets:
+    get:
+      summary: Whether the project's public key may read the widget endpoints (widgets lab)
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Widget access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled: { type: boolean }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { description: No such project, or the widgets lab is off }
+    put:
+      summary: Turn the project's widgets on or off (admin)
+      tags: [Projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled]
+              properties:
+                enabled: { type: boolean }
+      responses:
+        '200': { description: The new setting }
+        '400': { description: Invalid body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: No such project, or the widgets lab is off }
+
   /admin/projects/{id}/rotate-api-key:
     post:
       summary: Rotate project API key

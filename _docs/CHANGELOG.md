@@ -19,7 +19,10 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - **Counts can drop a little:** crawlers that announce themselves are no longer stored.
 - Sites pick up the new tracker by themselves. Referrers and outbound/download addresses are stored without their
   query string from then on.
-- No database changes.
+- **Widgets (lab) are now off for every project until you switch them on**, in Settings → Project information →
+  **Embeddable widgets**. If you have `LABS=widgets` and widgets on your pages, they show nothing after the
+  upgrade until you do.
+- One database change, applied by itself at start: a `widgets_enabled` column on `projects`.
 
 ### Added
 
@@ -29,6 +32,10 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   its name and steps (`PUT /admin/projects/{id}/funnels/{funnelId}`).
 
 ### Security
+
+- **Widgets (lab) no longer answer to the tracking ID alone.** The ID is in every tracked page's HTML, so with the
+  lab on, anyone could read any project's visitor and page-view numbers. Each project now has its own switch, off
+  by default (`GET|PUT /admin/projects/{id}/widgets`); only an admin can change it.
 
 - **Large request bodies could crash the server.** A handful of 60 MB posts to `/collect` or `/api/login` (no login
   needed) exhausted the memory and left the server running but unresponsive. Bodies over 64 KB are now refused

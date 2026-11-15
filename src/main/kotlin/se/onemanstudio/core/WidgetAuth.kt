@@ -11,7 +11,9 @@ import java.util.UUID
 /**
  * Resolve an API key from query param or header to a project UUID.
  * Used by widget endpoints for stateless, key-based authentication.
- * Returns null if the key is missing or does not match any project.
+ * Returns null if the key is missing, does not match any project, or the project has not
+ * turned its widgets on: the key is public (it is in the site's HTML), so it must not be
+ * enough by itself to read a project's numbers.
  */
 fun resolveWidgetProject(call: ApplicationCall): UUID? {
     val apiKey = call.request.queryParameters["key"]
@@ -20,7 +22,7 @@ fun resolveWidgetProject(call: ApplicationCall): UUID? {
 
     return transaction {
         Projects.selectAll()
-            .where { Projects.apiKey eq apiKey }
+            .where { (Projects.apiKey eq apiKey) and (Projects.widgetsEnabled eq true) }
             .singleOrNull()
             ?.get(Projects.id)
     }

@@ -49,7 +49,9 @@ In **Conversions**, each card has a **Manage** button:
 **Settings** in the header holds:
 
 - **Project information** — name, domain, the tracking ID (the project key in your snippet) and **Rotate key**
-  to issue a new one; the old key stops working.
+  to issue a new one; the old key stops working. With the widgets [lab](configuration#labs) on, **Embeddable
+  widgets** lets your pages show this project's numbers (see [Widgets](developers#widgets)); it is off until you
+  switch it on.
 - **Dashboard preferences** — 12/24-hour time, date format and heatmap colours.
 - **Export report** — tick what to include (views, pages, referrers, campaigns, technology, locations, events,
   revenue, raw events) and download one CSV file.

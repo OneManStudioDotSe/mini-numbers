@@ -9,6 +9,8 @@ object Projects : Table("projects") {
     val name = varchar("name", 100)
     val domain = varchar("domain", 255) // e.g., "mysite.com"
     val apiKey = varchar("api_key", 64).uniqueIndex() // The key in the JS script
+    /** Whether /widget/... answers for this project's key (widgets lab). Off until an admin turns it on. */
+    val widgetsEnabled = bool("widgets_enabled").default(false)
 
     override val primaryKey = PrimaryKey(id)
 }

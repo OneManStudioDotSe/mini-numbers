@@ -48,8 +48,9 @@ properties are stored as sent — keep personal data out of them.
 ## Widgets
 
 {: .warning }
-Widgets are a [lab](configuration#labs), off unless `LABS` includes `widgets`. While they are on, anyone who
-copies the project key from your site's HTML can read the numbers below for that site.
+Widgets are a [lab](configuration#labs), off unless `LABS` includes `widgets`, and then off for each project
+until an admin turns on **Settings → Project information → Embeddable widgets**. While a project has them on,
+anyone who copies its project key from your site's HTML can read the numbers below for that site.
 
 Show live numbers on your own pages. Add a placeholder and the widget script:
 

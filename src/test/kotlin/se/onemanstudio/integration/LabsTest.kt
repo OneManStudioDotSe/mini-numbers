@@ -70,6 +70,7 @@ class LabsTest {
             assertEquals(emptyList(), admin.enabledLabs())
             assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=$key").status, "widgets")
             assertEquals(HttpStatusCode.NotFound, client.get("/widget/toppages?key=$key").status, "widgets")
+            assertEquals(HttpStatusCode.NotFound, admin.get("/admin/projects/$id/widgets").status, "widget switch")
             for (path in listOf("funnels", "segments", "webhooks", "email-reports", "revenue")) {
                 assertEquals(HttpStatusCode.NotFound, admin.get("/admin/projects/$id/$path").status, path)
             }
