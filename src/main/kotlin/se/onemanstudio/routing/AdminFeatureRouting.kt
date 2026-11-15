@@ -592,6 +592,9 @@ private suspend fun ApplicationCall.receiveValidSegment(): SegmentRequest? {
     return request
 }
 
+private const val MAX_WEBHOOK_URL_LENGTH = 1024
+private val WEBHOOK_EVENTS = setOf("goal_conversion", "traffic_spike")
+
 private fun Route.webhookRoutes() {
     // ── Webhooks ─────────────────────────────────────────────────
 
@@ -628,9 +631,19 @@ private fun Route.webhookRoutes() {
                 ApiError.badRequest("Invalid request body"))
         }
 
-        if (request.url.isBlank() || !request.url.startsWith("https://")) {
-            return@post call.respond(HttpStatusCode.BadRequest,
-                ApiError.badRequest("Webhook URL must use HTTPS"))
+        val events = request.events.distinct()
+        val problem = when {
+            !request.url.startsWith("https://") -> "Webhook URL must use HTTPS"
+            request.url.length > MAX_WEBHOOK_URL_LENGTH ->
+                "Webhook URL must be at most $MAX_WEBHOOK_URL_LENGTH characters"
+            runCatching { java.net.URI(request.url).host }.getOrNull().isNullOrBlank() ->
+                "Webhook URL is not a valid address"
+            events.isEmpty() || events.any { it !in WEBHOOK_EVENTS } ->
+                "Events must be one or more of: ${WEBHOOK_EVENTS.joinToString()}"
+            else -> null
+        }
+        if (problem != null) {
+            return@post call.respond(HttpStatusCode.BadRequest, ApiError.badRequest(problem))
         }
 
         val webhookId = UUID.randomUUID()
@@ -646,7 +659,7 @@ private fun Route.webhookRoutes() {
                 it[Webhooks.projectId] = pid
                 it[Webhooks.url] = request.url
                 it[Webhooks.secret] = secret
-                it[Webhooks.events] = request.events.joinToString(",")
+                it[Webhooks.events] = events.joinToString(",")
             }
         }
 

@@ -394,7 +394,7 @@ webhook, email-report (including `/smtp/status`), revenue and widget routes belo
 ### Webhooks
 
 - `GET /admin/projects/{id}/webhooks` — list
-- `POST /admin/projects/{id}/webhooks` — create (returns the signing secret once)
+- `POST /admin/projects/{id}/webhooks` — create (returns the signing secret once); the URL must be https, valid and at most 1024 characters, `events` one or more of `goal_conversion`, `traffic_spike`
 - `PUT /admin/projects/{id}/webhooks/{webhookId}` — `{isActive}` pauses or resumes
 - `DELETE /admin/projects/{id}/webhooks/{webhookId}`
 - `GET /admin/projects/{id}/webhooks/{webhookId}/deliveries` — delivery log

@@ -68,6 +68,9 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   counted as 1, `"12abc"` as 12, and a `revenue` nested inside another property was counted too (only a top-level
   number or numeric string counts now; negative amounts are still left out); in **revenue by source** two
   purchases in one visit counted as one transaction, so the column did not add up to the total.
+- Webhooks (lab): a webhook could be created through the API with no events or unknown ones (it then never
+  fired), and an address that was malformed or longer than 1,024 characters was stored or gave a database error.
+  These are now refused with a message.
 - CSV exports: a cell that starts with `=`, `+`, `-` or `@` is now prefixed with an apostrophe, so a spreadsheet
   does not run it as a formula.
 - When the wizard's configuration does not start (wrong database password, for example) nothing is saved and

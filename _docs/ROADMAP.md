@@ -51,7 +51,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ## Known gaps
 
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
-([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): webhooks need delivery, signing and retry tests; email reports a scheduler and
+([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)): email reports a scheduler and
 real-send test; widgets a deliberate
 opt-in per project, because the public tracking key is enough to read them today. **Segments** (2026-11-14) and
 **Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
@@ -61,7 +61,12 @@ needs a proper panel. Funnel bars show each step as a share of *all* sessions of
 that entered the funnel: decide which before graduating. **Revenue** (2026-11-15) has tests on known amounts
 for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
 `currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of
-its own beyond the CSV export.
+its own beyond the CSV export. **Webhooks** (2026-11-15) have tests against a real receiver for delivery, the
+signature on the wire, retries, the delivery log and which events fire them. Before they graduate: traffic-spike
+detection has no test and its window restarts every ten minutes, so it needs a design of its own; a webhook
+address may point at the server's own network (admins only, but worth a decision); a retry already waiting
+still goes out after its webhook is paused or deleted; `webhook_deliveries` is never trimmed; and the dialog has
+no browser test.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 

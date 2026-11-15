@@ -102,11 +102,12 @@ object WebhookService {
     private fun scheduleRetry(webhookId: UUID, url: String, secret: String, eventType: String, payload: String, attempt: Int) {
         executor.schedule(
             { deliver(webhookId, url, secret, eventType, payload, attempt + 1) },
-            attempt * RETRY_STEP_SECONDS, TimeUnit.SECONDS
+            attempt * retryStepMillis, TimeUnit.MILLISECONDS
         )
     }
 
-    private const val RETRY_STEP_SECONDS = 5L
+    /** Wait before the first retry; the second waits twice as long. Tests shorten it. */
+    internal var retryStepMillis = 5_000L
 
     private fun recordDelivery(
         webhookId: UUID,
