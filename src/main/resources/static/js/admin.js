@@ -2339,7 +2339,8 @@ const Dashboard = {
             const titleEl = document.getElementById('active-title');
             if (titleEl) titleEl.textContent = newName;
 
-            // Reload projects list
+            // Reload projects list (the cached copy still has the old name)
+            Utils.cache.clear('/admin/projects');
             await this.loadProjects();
           } catch (error) {
             console.error('Failed to update project name:', error);
@@ -2440,6 +2441,7 @@ const Dashboard = {
           const result = await Utils.api.post(`/admin/projects/${this.state.currentProjectId}/rotate-api-key`, {});
           if (!result?.apiKey) throw new Error('No API key in response');
           document.getElementById('setting-project-api-key').textContent = result.apiKey;
+          Utils.cache.clear('/admin/projects');
           await this.loadProjects();
           Utils.toast.success('API key rotated. Update your tracker script.');
         } catch (error) {

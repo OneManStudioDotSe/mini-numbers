@@ -36,6 +36,34 @@ test.describe('dashboard', () => {
     expect(events.some(x => x.eventType === 'pageview' && x.path === '/welcome')).toBe(true);
   });
 
+  test('renaming a project and rotating its key in Settings show at once, without a reload', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
+    await loginViaApi(page.request);
+    const project = await createProject(page.request, `rename me ${Date.now()}`);
+    const stored = async () => (await (await page.request.get('/admin/projects')).json()).find(p => p.id === project.id);
+    await page.goto('/admin-panel');
+    await page.locator('.project-menu__item', { hasText: project.name }).click();
+
+    await page.click('#open-settings-btn');
+    await expect(page.locator('#setting-project-domain')).toHaveValue('tracked.test');
+    const renamed = `renamed ${Date.now()}`;
+    await page.fill('#setting-project-name', renamed);
+    await page.click('#save-settings');
+    await expect(page.locator('.project-menu__item', { hasText: renamed })).toBeVisible();
+    await expect(page.locator('.project-menu__item', { hasText: project.name })).toHaveCount(0);
+
+    await page.click('#open-settings-btn');
+    page.once('dialog', dialog => dialog.accept());
+    await page.click('#rotate-project-api-key');
+    await expect(page.locator('.toast').last()).toContainText('API key rotated');
+    const rotated = (await stored()).apiKey;
+    expect(rotated).not.toBe(project.apiKey);
+    // Closing and reopening Settings must not bring the old key back
+    await page.click('#close-settings');
+    await page.click('#open-settings-btn');
+    await expect(page.locator('#setting-project-api-key')).toHaveText(rotated);
+  });
+
   test('renders demo data, opens Raw events as an accessible dialog, and works in both themes', async ({ page, request }, testInfo) => {
     await loginViaApi(page.request);
     const project = await createProject(page.request);
