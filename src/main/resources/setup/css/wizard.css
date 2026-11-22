@@ -105,7 +105,7 @@ label { display: block; font-size: var(--font-size-xs-plus); font-weight: var(--
     border-radius: var(--radius-md); font-size: var(--font-size-xs-plus); font-weight: var(--font-weight-semibold); cursor: pointer; color: var(--color-text-secondary);
     font-family: inherit; transition: all var(--duration-quick) ease;
 }
-.btn-generate-salt { background: var(--color-text-primary); color: var(--color-bg-primary); border: none; }
+
 
 .field-tip { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 6px; margin-left: 2px; line-height: var(--line-height-cozy); }
 
@@ -137,8 +137,8 @@ label { display: block; font-size: var(--font-size-xs-plus); font-weight: var(--
     padding: 16px; border: 1.5px solid var(--color-border); border-radius: var(--radius-lg);
     background: var(--glass-bg-input); transition: all var(--duration-quick) ease; height: 100%;
 }
-.radio-card:hover .card-content { border-color: var(--color-primary); background: rgba(var(--rgb-indigo), 0.04); }
-.radio-card input:checked + .card-content { border-color: var(--color-primary); background: rgba(var(--rgb-indigo), 0.06); box-shadow: var(--focus-ring-soft); }
+.radio-card:hover .card-content { border-color: var(--color-primary); background: rgba(var(--rgb-accent), 0.04); }
+.radio-card input:checked + .card-content { border-color: var(--color-primary); background: rgba(var(--rgb-accent), 0.06); box-shadow: var(--focus-ring-soft); }
 .card-title { font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); margin-bottom: 2px; }
 .card-description { font-size: var(--font-size-xs); color: var(--color-text-secondary); line-height: var(--line-height-cozy); }
 
@@ -173,11 +173,11 @@ label { display: block; font-size: var(--font-size-xs-plus); font-weight: var(--
     border-radius: var(--radius-md-plus);
     font-size: var(--font-size-xs-plus);
     margin-bottom: 32px;
-    background: rgba(var(--rgb-indigo), 0.06);
+    background: rgba(var(--rgb-accent), 0.06);
     color: var(--color-primary);
     line-height: var(--line-height-loose);
     text-align: center;
-    border: 1px solid rgba(var(--rgb-indigo), 0.1);
+    border: 1px solid rgba(var(--rgb-accent), 0.1);
 }
 
 .wizard-step h2 { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); margin-bottom: 10px; text-align: center; color: var(--color-text-primary); }
@@ -284,6 +284,6 @@ label { display: block; font-size: var(--font-size-xs-plus); font-weight: var(--
 
 /* Info box dark mode contrast */
 [data-theme="dark"] .info-box {
-    background: rgba(var(--rgb-indigo), 0.12);
-    border-color: rgba(var(--rgb-indigo), 0.2);
+    background: rgba(var(--rgb-accent), 0.12);
+    border-color: rgba(var(--rgb-accent), 0.2);
 }

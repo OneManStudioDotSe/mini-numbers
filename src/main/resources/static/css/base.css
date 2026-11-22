@@ -39,7 +39,7 @@ body {
    ============================================ */
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--title-weight);
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-sm);
@@ -60,7 +60,7 @@ small {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
+  text-transform: var(--label-case);
   letter-spacing: var(--letter-spacing-wider);
 }
 
@@ -179,6 +179,17 @@ a:hover {
   .grid-cols-4 {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* Checkboxes, radios and range inputs take the accent */
+:root {
+  accent-color: var(--color-primary);
+}
+
+/* Placeholder text: the muted text colour at full strength, so it stays readable in both themes */
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
 }
 
 /* ============================================

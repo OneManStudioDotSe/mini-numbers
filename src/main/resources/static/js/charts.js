@@ -450,6 +450,10 @@ const ChartManager = {
     const colors = this.getColors();
     const labels = items.map((item) => item.label.replace(/^https?:\/\//, ''));
     const values = items.map((item) => item.value);
+    // Quiet bars with the largest one in the accent
+    const top = Math.max(...values);
+    const bar = Utils.token('--color-bar');
+    const barColors = values.map((v) => (v === top ? colors.primary : bar));
 
     return this.create(
       id,
@@ -459,7 +463,7 @@ const ChartManager = {
         datasets: [
           {
             data: values,
-            backgroundColor: colors.chart[0],
+            backgroundColor: barColors,
             borderRadius: 6,
             barThickness: 20,
           },

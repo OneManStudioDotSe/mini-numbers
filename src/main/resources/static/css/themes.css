@@ -8,98 +8,117 @@
      COLOR SYSTEM - DARK THEME
      ============================================ */
 
-  /* Backgrounds (Stone Dark) */
-  --color-bg-primary: #1c1917;
-  --color-bg-secondary: #292524;
-  --color-bg-tertiary: #44403c;
-  --color-bg-hover: #57534e;
+  /* Backgrounds (graphite) */
+  --color-bg-primary: #0e0e0f;
+  --color-bg-secondary: #19191b;
+  --color-bg-tertiary: #232326;
+  --color-bg-hover: #2d2d31;
 
   /* Text */
-  --color-text-primary: #fafaf9;
-  --color-text-secondary: #d6d3d1;
-  --color-text-muted: #a8a29e;
-  --color-text-inverse: #1c1917;
+  --color-text-primary: #f5f5f6;
+  --color-text-secondary: #b6b6bd;
+  --color-text-muted: #9797a0;
+  --color-text-inverse: #190a06;
 
   /* Borders */
-  --color-border: #44403c;
-  --color-border-light: #292524;
-  --color-border-dark: #57534e;
+  --color-border: #29292d;
+  --color-border-light: #1f1f22;
+  --color-border-dark: #3a3a40;
 
   /* Sidebar (darker in dark mode) */
-  --color-sidebar-bg: #0c0a09;
-  --color-sidebar-text: #f5f5f4;
-  --color-sidebar-text-muted: #a8a29e;
-  --color-sidebar-hover: #1c1917;
-  --color-sidebar-active: #292524;
+  --color-sidebar-bg: #161617;
+  --color-sidebar-text: #f5f5f6;
+  --color-sidebar-text-muted: #9797a0;
+  --color-sidebar-hover: #202023;
+  --color-sidebar-active: #262629;
 
   /* Status colours readable as text on the dark surfaces */
-  --color-success: #10b981;
-  --color-danger: #f87171;
+  --color-success: #3ecf8e;
+  --color-danger: #ff6b8a;
 
-  /* Adjust primary colors for better contrast (Amber-400) */
-  --color-primary: #fbbf24;
-  --color-primary-hover: #f59e0b;
-  --color-primary-light: #451a03;
+  /* Ember, lighter so it reads as text on the dark surfaces */
+  --color-primary: #ff6e52;
+  --color-primary-hover: #ff8a72;
+  --color-primary-light: #3a1a13;
 
   /* Gradient overrides */
-  --gradient-primary: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  --gradient-primary-subtle: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-  --gradient-accent: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  --gradient-primary: linear-gradient(var(--color-primary), var(--color-primary));
+  --gradient-primary-subtle: linear-gradient(var(--color-primary-light), var(--color-primary-light));
+  --gradient-accent: linear-gradient(var(--color-primary-hover), var(--color-primary-hover));
 
   /* Glassmorphism - dark */
-  --glass-bg: rgba(41, 37, 36, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-bg-strong: rgba(41, 37, 36, 0.85);
-  --glass-border-strong: rgba(255, 255, 255, 0.03);
-  --glass-bg-input: rgba(28, 25, 23, 0.6);
-  --canvas-dot: rgba(251, 191, 36, 0.1);
-  --canvas-line: rgba(251, 191, 36, 0.02);
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  --glass-bg: #19191b;
+  --glass-border: var(--color-border);
+  --glass-bg-strong: #19191b;
+  --glass-border-strong: var(--color-border);
+  --glass-bg-input: #232326;
+  --canvas-dot: rgba(255, 255, 255, 0.07);
+  --canvas-line: rgba(255, 255, 255, 0.025);
+  --color-danger-bg: rgba(255, 107, 138, 0.12);
 
   /* Glow shadows - dark */
-  --shadow-glow-primary: 0 0 20px rgba(251, 191, 36, 0.15);
-  --shadow-glow-success: 0 0 20px rgba(52, 211, 153, 0.15);
-  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(251, 191, 36, 0.05);
+  --shadow-glow-primary: none;
+  --shadow-glow-success: none;
+  --shadow-card-hover: none;
 
   /* Adjust shadows for dark mode (more subtle) */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
 
   /* Chart colors - brighter versions for dark mode */
-  --chart-color-1: #818cf8;   /* Indigo - brighter */
-  --chart-color-2: #a78bfa;   /* Purple - brighter */
-  --chart-color-3: #f472b6;   /* Pink - brighter */
-  --chart-color-4: #fbbf24;   /* Amber - brighter */
-  --chart-color-5: #34d399;   /* Emerald - brighter */
-  --chart-color-6: #22d3ee;   /* Cyan - brighter */
-  --chart-color-7: #818cf8;   /* Indigo - brighter */
-  --chart-color-8: #fb923c;   /* Orange - brighter */
-  --chart-color-9: #2dd4bf;   /* Teal - brighter */
-  --chart-color-10: #c084fc;  /* Violet - brighter */
+  --chart-color-1: #ff6e52;
+  --chart-color-2: #55555d;
+  --chart-color-3: #3ecf8e;
+  --chart-color-4: #5aa7ff;
+  --chart-color-5: #f5a524;
+  --chart-color-6: #a78bfa;
+  --chart-color-7: #2dd4bf;
+  --chart-color-8: #f472b6;
+  --chart-color-9: #9797a0;
+  --chart-color-10: #3a3a40;
 
   /* Chart backgrounds - darker versions */
-  --chart-bg-1: rgba(129, 140, 248, 0.15);
-  --chart-bg-2: rgba(167, 139, 250, 0.15);
-  --chart-bg-3: rgba(244, 114, 182, 0.15);
-  --chart-bg-4: rgba(251, 191, 36, 0.15);
-  --chart-bg-5: rgba(52, 211, 153, 0.15);
+  --chart-bg-1: rgba(255, 110, 82, 0.16);
+  --chart-bg-2: rgba(141, 141, 150, 0.16);
+  --chart-bg-3: rgba(62, 207, 142, 0.16);
+  --chart-bg-4: rgba(90, 167, 255, 0.16);
+  --chart-bg-5: rgba(245, 165, 36, 0.16);
 
   --heatmap-cell-border: rgba(255, 255, 255, 0.06);
-  --heatmap-blue-rgb: 96, 165, 250;
+  --heatmap-blue-rgb: 255, 110, 82;
   --heatmap-green-rgb: 74, 222, 128;
   --heatmap-purple-rgb: 167, 139, 250;
   --heatmap-orange-rgb: 251, 146, 60;
 
   /* Globe */
-  --globe-bg: #0f172a;
-  --globe-atmosphere: #818cf8;
-  --globe-ring-rgb: 129, 140, 248;
-  --globe-point: #a78bfa;
-  --globe-label: #e2e8f0;
+  --globe-bg: #0e0e0f;
+  --globe-atmosphere: #ff6e52;
+  --globe-ring-rgb: 255, 110, 82;
+  --globe-point: #ff6e52;
+  --globe-label: #f5f5f6;
+
+  /* Graphite and ember */
+  --color-on-primary: #190a06;
+  --color-bar: #4a4a52;
+  --badge-tint: 0.16;
+  --rgb-status-warning: 245, 165, 36;
+  --color-warning-text: #f5a524;
+  --rgb-badge-1: 255, 110, 82;
+  --rgb-badge-2: 90, 167, 255;
+  --rgb-badge-3: 62, 207, 142;
+  --rgb-badge-4: 245, 165, 36;
+  --icon-badge-tint: 0.16;
+  --rgb-accent: 255, 110, 82;
+  --rgb-accent-strong: 255, 110, 82;
+  --color-info: #5aa7ff;
+  --gradient-success: linear-gradient(#3ecf8e, #3ecf8e);
+  --gradient-danger: linear-gradient(#e5486a, #e5486a);
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
+  --chart-tooltip-bg: rgba(45, 45, 49, 0.96);
 
   /* Table */
   --table-row-hover: var(--color-bg-hover);

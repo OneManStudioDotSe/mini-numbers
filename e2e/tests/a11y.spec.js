@@ -16,6 +16,8 @@ async function seriousViolations(page) {
 test.describe('accessibility (axe, WCAG 2 A/AA, serious and critical only)', () => {
   test('login page', async ({ page }) => {
     await page.goto('/login');
+    // The card fades in; scanned mid-fade, axe measures blended colours instead of the real ones
+    await page.locator('.login-container').evaluate(el => Promise.all(el.getAnimations({ subtree: true }).map(a => a.finished)));
     expect(await seriousViolations(page)).toEqual([]);
   });
 

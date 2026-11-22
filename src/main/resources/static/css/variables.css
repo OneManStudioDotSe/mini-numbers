@@ -7,86 +7,96 @@
   /* ============================================
      PALETTE - raw colours, the same in both themes
      ============================================
-     As "R, G, B" so a rule can pick its own opacity: rgba(var(--rgb-indigo), 0.1).
+     As "R, G, B" so a rule can pick its own opacity: rgba(var(--rgb-accent), 0.1).
      Components never write a colour themselves; they use these or the semantic tokens below. */
   --rgb-white: 255, 255, 255;
   --rgb-black: 0, 0, 0;
   --rgb-slate: 15, 23, 42;
-  --rgb-indigo: 99, 102, 241;
-  --rgb-indigo-light: 129, 140, 248;
+  --rgb-accent: 201, 52, 15;
+  --rgb-accent-strong: 201, 52, 15;
   --rgb-violet: 139, 92, 246;
   --rgb-green: 34, 197, 94;
   --rgb-emerald: 16, 185, 129;
   --rgb-orange: 249, 115, 22;
-  --rgb-amber: 245, 158, 11;
   --rgb-red: 239, 68, 68;
   --color-white: #fff;
-  --color-amber: #f59e0b;
   --color-error: #ef4444;
-  --gradient-indigo-violet: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-revenue-bar: linear-gradient(90deg, var(--color-primary), rgb(var(--rgb-violet)));
+/* Icon badges: a tinted circle with the icon in the same colour */
+  --rgb-badge-1: 201, 52, 15;
+  --rgb-badge-2: 47, 125, 246;
+  --rgb-badge-3: 18, 163, 109;
+  --rgb-badge-4: 200, 122, 0;
+  --icon-badge-tint: 0.12;
+  --icon-badge-size: 36px;
+  --badge-tint: 0.12;
+  --rgb-status-warning: 200, 122, 0;
+  --color-warning-text: #8a5300;    /* warning colour dark enough to read as text */
+    --gradient-accent-badge: linear-gradient(var(--color-bg-tertiary), var(--color-bg-tertiary));
+  --gradient-revenue-bar: linear-gradient(var(--color-primary), var(--color-primary));
 
   /* ============================================
      COLOR SYSTEM - LIGHT THEME (DEFAULT)
      ============================================ */
 
-  /* Primary Colors (Burnt Amber) */
-  --color-primary: #d97706;
-  --color-primary-hover: #b45309;
-  --color-primary-light: #fef3c7;
-  --color-success: #047857;
+  /* Primary colour (ember): the one accent. Status colours stay apart from it on purpose. */
+  --color-primary: #c9340f;
+  --color-primary-hover: #a82a0b;
+  --color-primary-light: #fff1ed;
+  --color-success: #0b7a53;
   --color-warning: #f59e0b;
-  --color-danger: #dc2626;
-  --color-info: #0ea5e9;
+  --color-danger: #c81e4a;
+  --color-info: #2563eb;
 
   /* Gradient Tokens */
-  --gradient-primary: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-  --gradient-primary-subtle: linear-gradient(135deg, rgba(217, 119, 6, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-  --gradient-accent: linear-gradient(135deg, #78716c 0%, #44403c 100%);
-  --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-primary: linear-gradient(var(--color-primary), var(--color-primary));
+  --gradient-primary-subtle: linear-gradient(var(--color-primary-light), var(--color-primary-light));
+  --gradient-accent: linear-gradient(var(--color-primary-hover), var(--color-primary-hover));
+  --gradient-success: linear-gradient(#12a36d, #12a36d);
+  --gradient-danger: linear-gradient(#c81e4a, #c81e4a);
 
   /* Glassmorphism */
-  --glass-bg: rgba(250, 250, 249, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-blur: 12px;
+  --glass-bg: #ffffff;
+  --glass-border: var(--color-border);
+  --glass-blur: 0px;
 
   /* Glassmorphism — strong variant (used on standalone pages) */
-  --glass-bg-strong: rgba(250, 250, 249, 0.85);
-  --glass-border-strong: rgba(255, 255, 255, 0.6);
-  --glass-bg-input: rgba(255, 255, 255, 0.9);
+  --glass-bg-strong: #ffffff;
+  --glass-border-strong: var(--color-border);
+  --glass-bg-input: #ffffff;
 
   /* Canvas background animation */
-  --canvas-dot: rgba(217, 119, 6, 0.12);
-  --canvas-line: rgba(217, 119, 6, 0.04);
+  --canvas-dot: rgba(21, 21, 23, 0.10);
+  --canvas-line: rgba(21, 21, 23, 0.04);
 
   /* Danger background (for error states) */
-  --color-danger-bg: #fff1f2;
+  --color-danger-bg: #fdecef;
   --color-warning-bg: #fef3c7;
 
-  /* Neutral Colors - Backgrounds (Stone) */
-  --color-bg-primary: #fafaf9;
+  /* Neutral backgrounds (graphite, no colour cast) */
+  --color-bg-primary: #f4f4f5;
   --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f5f5f4;
-  --color-bg-hover: #e7e5e4;
+  --color-bg-tertiary: #eeeef0;
+  --color-bg-hover: #e4e4e8;
 
-  /* Neutral Colors - Text (Stone) */
-  --color-text-primary: #1c1917;
-  --color-text-secondary: #57534e;
-  --color-text-muted: #78716c;
+  /* Neutral text */
+  --color-text-primary: #151517;
+  --color-text-secondary: #4a4a52;
+  --color-text-muted: #6a6a73;
   --color-text-inverse: #ffffff;
+  --color-on-primary: #ffffff;      /* text and icons on a primary-coloured fill */
 
   /* Border Colors */
-  --color-border: #e7e5e4;
-  --color-border-light: #f5f5f4;
-  --color-border-dark: #d6d3d1;
+  --color-border: #e3e3e7;
+  --color-border-light: #eeeef0;
+  --color-border-dark: #cfcfd6;
 
   /* Sidebar Colors */
-  --color-sidebar-bg: #292524;
-  --color-sidebar-text: #fafaf9;
-  --color-sidebar-text-muted: #a8a29e;
-  --color-sidebar-hover: #44403c;
-  --color-sidebar-active: #57534e;
+  --color-sidebar-bg: #161617;
+  --color-sidebar-text: #f5f5f6;
+  --color-sidebar-text-muted: #9a9aa3;
+  --color-sidebar-hover: #222225;
+  --color-sidebar-active: #2a2a2e;
+  --color-sidebar-accent: #ff6e52;  /* the sidebar is dark in both themes */
 
   /* ============================================
      SPACING SYSTEM
@@ -107,7 +117,7 @@
      ============================================ */
 
   /* Font Families */
-  --font-family-base: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
 
   /* Font Sizes */
@@ -140,6 +150,8 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
+  --title-weight: var(--font-weight-medium);   /* headings and card titles */
+  --figure-weight: var(--font-weight-medium);    /* the big numbers */
 
   /* Line Heights */
   --line-height-tight: 1.25;
@@ -157,31 +169,33 @@
   --letter-spacing-snug: -0.02em;
   --letter-spacing-wide: 0.04em;
   --letter-spacing-wider: 0.5px;
+  /* How small labels are cased: none (sentence case) or uppercase */
+  --label-case: none;
 
   /* ============================================
      SHADOWS
      ============================================ */
 
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 40px -12px rgba(0, 0, 0, 0.18);
+  --shadow-2xl: 0 24px 60px -16px rgba(0, 0, 0, 0.25);
 
   /* Glow Shadows */
-  --shadow-glow-primary: 0 0 20px rgba(var(--rgb-indigo), 0.15);
-  --shadow-glow-success: 0 0 20px rgba(var(--rgb-green), 0.15);
-  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(var(--rgb-indigo), 0.05);
-  --shadow-floating: 0 20px 40px -8px rgba(var(--rgb-black), 0.12), 0 8px 16px -4px rgba(var(--rgb-black), 0.06);
-  --shadow-modal: 0 25px 50px -12px rgba(var(--rgb-black), 0.5);
-  --shadow-danger-hover: 0 4px 12px rgba(var(--rgb-red), 0.3);
-  --shadow-glow-accent: 0 0 12px rgba(var(--rgb-indigo), 0.35);
+  --shadow-glow-primary: none;
+  --shadow-glow-success: none;
+  --shadow-card-hover: none;
+  --shadow-floating: 0 16px 40px -12px rgba(var(--rgb-black), 0.18);
+  --shadow-modal: 0 24px 60px -16px rgba(var(--rgb-black), 0.45);
+  --shadow-danger-hover: none;
+  --shadow-glow-accent: none;
 
   /* Focus rings */
-  --focus-ring: 0 0 0 3px rgba(var(--rgb-indigo), 0.12);
-  --focus-ring-soft: 0 0 0 3px rgba(var(--rgb-indigo), 0.1);
-  --focus-ring-primary: 0 0 0 3px var(--color-primary-light);
+  --focus-ring: 0 0 0 3px rgba(var(--rgb-accent), 0.22);
+  --focus-ring-soft: 0 0 0 3px rgba(var(--rgb-accent), 0.16);
+  --focus-ring-primary: 0 0 0 3px rgba(var(--rgb-accent), 0.22);
   --focus-ring-error: 0 0 0 3px rgba(var(--rgb-red), 0.1);
 
   /* Blur */
@@ -193,16 +207,16 @@
      BORDER RADIUS
      ============================================ */
 
-  --radius-sm: 0.375rem;    /* 6px */
-  --radius-md: 0.5rem;      /* 8px */
-  --radius-lg: 0.75rem;     /* 12px */
-  --radius-xl: 1rem;        /* 16px */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --radius-full: 9999px;    /* Fully rounded */
-  --radius-2xs: 0.125rem;      /* 2px */
-  --radius-xs: 0.25rem;        /* 4px */
-  --radius-md-plus: 0.625rem;  /* 10px */
-  --radius-2xl: 1.25rem;       /* 20px */
-  --radius-3xl: 1.5rem;        /* 24px */
+  --radius-2xs: 0.125rem;
+  --radius-xs: 0.375rem;
+  --radius-md-plus: 0.875rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
   --radius-circle: 50%;
 
   /* ============================================
@@ -231,41 +245,43 @@
      CHART COLOR PALETTE
      ============================================ */
 
-  --chart-color-1: #d97706;   /* Amber */
-  --chart-color-2: #78716c;   /* Stone */
-  --chart-color-3: #0d9488;   /* Teal */
-  --chart-color-4: #44403c;   /* Warm Gray */
-  --chart-color-5: #10b981;   /* Emerald */
-  --chart-color-6: #0ea5e9;   /* Sky */
-  --chart-color-7: #f59e0b;   /* Amber-500 */
-  --chart-color-8: #fb923c;   /* Orange */
-  --chart-color-9: #14b8a6;   /* Teal-500 */
-  --chart-color-10: #d6d3d1;  /* Stone-300 */
+  --chart-color-1: #c9340f;
+  --chart-color-2: #9a9aa3;
+  --chart-color-3: #12a36d;
+  --chart-color-4: #2f7df6;
+  --chart-color-5: #e08a00;
+  --chart-color-6: #7c5cff;
+  --chart-color-7: #0e9aa7;
+  --chart-color-8: #d6409f;
+  --chart-color-9: #5b6b7f;
+  --chart-color-10: #c9c9d0;
 
   /* Chart Background Colors (lighter versions) */
-  --chart-bg-1: rgba(217, 119, 6, 0.1);
-  --chart-bg-2: rgba(120, 113, 108, 0.1);
-  --chart-bg-3: rgba(13, 148, 136, 0.1);
-  --chart-bg-4: rgba(68, 64, 60, 0.1);
-  --chart-bg-5: rgba(16, 185, 129, 0.1);
+  --chart-bg-1: rgba(201, 52, 15, 0.12);
+  --chart-bg-2: rgba(154, 154, 163, 0.14);
+  --chart-bg-3: rgba(18, 163, 109, 0.12);
+  --chart-bg-4: rgba(47, 125, 246, 0.12);
+  --chart-bg-5: rgba(224, 138, 0, 0.12);
 
   /* Chart furniture drawn on canvas (read by charts.js) */
-  --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
+  --chart-tooltip-bg: rgba(21, 21, 23, 0.94);
   --chart-tooltip-border: rgba(255, 255, 255, 0.1);
   --chart-segment-icon: rgba(255, 255, 255, 0.85);
+  --color-bar: #cfcfd6;                 /* an ordinary bar */
+  --color-bar-highlight: var(--color-primary);  /* the leading bar */
   --heatmap-cell-border: rgba(0, 0, 0, 0.06);
   /* Heatmap colour schemes as "R, G, B" (Settings -> heatmap colours) */
-  --heatmap-blue-rgb: 37, 99, 235;
+  --heatmap-blue-rgb: 201, 52, 15;
   --heatmap-green-rgb: 34, 197, 94;
   --heatmap-purple-rgb: 139, 92, 246;
   --heatmap-orange-rgb: 249, 115, 22;
 
   /* Globe (read by globe.js) */
-  --globe-bg: #f8fafc;
-  --globe-atmosphere: #6366f1;
-  --globe-ring-rgb: 99, 102, 241;
-  --globe-point: #6366f1;
-  --globe-label: #1e293b;
+  --globe-bg: #f4f4f5;
+  --globe-atmosphere: #c9340f;
+  --globe-ring-rgb: 201, 52, 15;
+  --globe-point: #c9340f;
+  --globe-label: #151517;
 
   /* ============================================
      Z-INDEX SCALE
@@ -314,13 +330,13 @@
   /* Cards */
   --card-padding: var(--spacing-lg);
   --card-radius: var(--radius-lg);
-  --card-shadow: var(--shadow-md);
-  --card-shadow-hover: var(--shadow-lg);
+  --card-shadow: none;
+  --card-shadow-hover: none;
 
   /* Buttons */
   --button-padding-x: var(--spacing-lg);
   --button-padding-y: var(--spacing-sm);
-  --button-radius: var(--radius-md);
+  --button-radius: var(--radius-full);
 
   /* Inputs */
   --input-padding-x: var(--spacing-md);

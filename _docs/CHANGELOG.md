@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A new look for the dashboard, login page and setup wizard.** Neutral graphite surfaces in place of the
+  brown-tinted ones, one coral accent in place of amber mixed with indigo, flat cards with hairline borders and
+  rounder corners, pill-shaped buttons, sentence-case labels, and numbers in the text colour with a small tinted
+  icon badge per card. Sections sit directly on the page instead of being a card around cards. Bars are grey
+  with only the leading one in the accent, badges are tinted pills, and checkboxes take the accent. The
+  dashboard now loads the bundled Inter typeface, as the login page and wizard already did. Both themes are
+  redone and pass the WCAG AA contrast checks. The default heatmap colour is now the accent ("Ember"); green,
+  purple and orange are unchanged.
 - **The dashboard, login page and setup wizard take every colour, size and shadow from one place**
   (`css/variables.css`, with `css/themes.css` for the dark theme), instead of values scattered over the
   stylesheets, the pages and the scripts. Nothing is meant to look different. A few sizes moved by less than a
