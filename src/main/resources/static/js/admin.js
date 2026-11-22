@@ -1216,12 +1216,12 @@ const Dashboard = {
       Utils.dom.showEmptyState(countriesEl.parentElement, { illustration: '/assets/set_3/png/034-web%20optimization.png', message: 'No geographic data', hint: 'Geographic data requires a GeoIP database' });
     }
 
-    // Time Series - Line Chart (uses pre-aggregated time series from comparison report)
+    // Time series - dot-matrix chart (uses pre-aggregated time series from comparison report)
     const timeseriesEl = document.getElementById('chart-timeseries');
     const tsData = this.state.data?.timeSeries;
     if (tsData?.length && timeseriesEl) {
       const timeData = tsData.map(point => ({ timestamp: point.timestamp, count: point.views }));
-      ChartManager.createLineChart('chart-timeseries', timeData);
+      ChartManager.createDotMatrixChart('chart-timeseries', timeData);
     } else if (timeseriesEl) {
       Utils.dom.showEmptyState(timeseriesEl.parentElement, { illustration: '/assets/set_3/png/032-graph%20line.png', message: 'No time series data' });
     }

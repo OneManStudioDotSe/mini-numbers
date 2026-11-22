@@ -3,6 +3,9 @@
  * Centralized chart creation, updates, and theme management
  */
 
+// Axis labels and tooltips are drawn on canvas, so they get the interface typeface from the token here
+Chart.defaults.font.family = Utils.token('--font-family-base');
+
 const ChartManager = {
   // Store chart instances
   instances: {},
@@ -23,7 +26,7 @@ const ChartManager = {
           usePointStyle: true,
           padding: 15,
           font: {
-            family: 'var(--font-family-base)',
+            family: Utils.token('--font-family-base'),
             size: 12,
           },
         },
@@ -417,7 +420,7 @@ const ChartManager = {
               display: true,
               color: colors.text,
               font: {
-                family: 'var(--font-family-base)',
+                family: Utils.token('--font-family-base'),
                 size: 11,
                 weight: '500'
               }
@@ -785,13 +788,14 @@ const ChartManager = {
   },
 
   /**
-   * Create line chart with area fill
+   * Create a dot-matrix chart: one column of dots per point in time, the column's height showing its value.
+   * The tallest column carries the accent, with a dashed guide to the axis; hovering moves the accent.
    * @param {string} id - Canvas element ID
    * @param {Array} data - Array of {timestamp, count} objects
    * @param {Object} options - Additional options
    * @returns {Chart} Chart instance
    */
-  createLineChart(id, data, options = {}) {
+  createDotMatrixChart(id, data, options = {}) {
     const colors = this.getColors();
     const labels = data.map((item) => {
       const date = new Date(item.timestamp);
@@ -802,32 +806,80 @@ const ChartManager = {
       });
     });
     const values = data.map((item) => item.count);
+    const peak = values.indexOf(Math.max(...values));
+    const quiet = Utils.token('--color-bar');
+    const accent = colors.primary;
+
+    // Chart.js lays out invisible bars (axes, tooltips, hover); this draws the dots where the bars would be
+    const dots = {
+      id: 'dotMatrix',
+      afterDatasetsDraw(chart) {
+        const { ctx, chartArea } = chart;
+        const bars = chart.getDatasetMeta(0).data;
+        if (!bars.length) return;
+        const slot = chartArea.width / bars.length;
+        const diameter = Math.max(2, Math.min(16, slot * 0.62));
+        const step = diameter * 1.3;
+        const hovered = chart.getActiveElements()[0]?.index;
+        const lit = hovered ?? peak;
+
+        ctx.save();
+        bars.forEach((bar, i) => {
+          const count = values[i] > 0 ? Math.max(1, Math.round((chartArea.bottom - bar.y) / step)) : 1;
+          ctx.fillStyle = i === lit ? accent : quiet;
+          ctx.globalAlpha = values[i] > 0 ? 1 : 0.4;
+          for (let k = 0; k < count; k++) {
+            ctx.beginPath();
+            ctx.arc(bar.x, chartArea.bottom - diameter / 2 - k * step, diameter / 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        // Dashed guide from the axis to the top of the lit column
+        const litBar = bars[lit];
+        if (litBar && values[lit] > 0) {
+          const count = Math.max(1, Math.round((chartArea.bottom - litBar.y) / step));
+          const y = chartArea.bottom - diameter / 2 - (count - 1) * step;
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = accent;
+          ctx.fillStyle = accent;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(chartArea.left, y);
+          ctx.lineTo(litBar.x - diameter, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.arc(chartArea.left, y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      },
+    };
 
     return this.create(
       id,
-      'line',
+      'bar',
       {
         labels: labels,
         datasets: [
           {
             label: 'Page views',
             data: values,
-            borderColor: colors.chart[0],
-            backgroundColor: colors.chartBg[0],
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            pointBackgroundColor: colors.chart[0],
-            pointBorderColor: colors.bgSecondary,
-            pointBorderWidth: 2,
+            backgroundColor: 'transparent',
+            hoverBackgroundColor: 'transparent',
+            borderWidth: 0,
+            barPercentage: 1,
+            categoryPercentage: 1,
           },
         ],
       },
       {
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { display: false },
+          tooltip: { displayColors: false },
         },
         scales: {
           x: {
@@ -839,7 +891,7 @@ const ChartManager = {
             beginAtZero: true,
             grace: '10%',
             grid: {
-              display: true,
+              display: false,
             },
             ticks: {
               precision: 0,
@@ -850,7 +902,8 @@ const ChartManager = {
           },
         },
         ...options,
-      }
+      },
+      [dots]
     );
   },
 
