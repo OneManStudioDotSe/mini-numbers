@@ -78,4 +78,4 @@ async function waitForEvents(request, projectId, predicate, attempts = 20) {
   return rawEvents(request, projectId);
 }
 
-module.exports = { ADMIN, loginViaUi, loginViaApi, createProject, rawEvents, serveTrackedSite, waitForEvents };
+module.exports = { ADMIN, SERVER, loginViaUi, loginViaApi, createProject, rawEvents, serveTrackedSite, waitForEvents };

@@ -55,7 +55,11 @@
     // ── Resolve container ───────────────────────────────────────────────
     var container;
     if (target) {
-        container = document.querySelector(target);
+        // An element id, as the docs show it, or a CSS selector
+        container = document.getElementById(target);
+        if (!container) {
+            try { container = document.querySelector(target); } catch (e) { container = null; }
+        }
     }
     if (!container) {
         container = document.createElement('div');

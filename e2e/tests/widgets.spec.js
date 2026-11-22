@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { loginViaApi, createProject } = require('../helpers');
+const { loginViaApi, createProject, SERVER } = require('../helpers');
 
 test.describe('widgets (lab)', () => {
   test('widgets stay off until the switch in Settings turns them on for the project', async ({ page }, testInfo) => {
@@ -39,5 +39,19 @@ test.describe('widgets (lab)', () => {
     await slider.click();
     await expect(page.locator('.toast').last()).toContainText('Widgets are off for this project');
     expect((await widget()).status()).toBe(404);
+  });
+
+  test('the embed from the docs fills its placeholder', async ({ page }) => {
+    await loginViaApi(page.request);
+    const project = await createProject(page.request, `widget embed ${Date.now()}`);
+    expect((await page.request.put(`/admin/projects/${project.id}/widgets`, { data: { enabled: true } })).status()).toBe(200);
+    // The snippet as docs/developers.md gives it: the placeholder's id in data-target
+    await page.route('http://tracked.test/**', route => route.fulfill({ status: 200, contentType: 'text/html', body:
+      `<!doctype html><html><body><div id="visitors-now"></div>
+       <script src="${SERVER}/widget/widget.js" data-project-key="${project.apiKey}" data-widget="realtime" data-target="visitors-now"></script>
+       </body></html>` }));
+    await page.goto('http://tracked.test/');
+    await expect(page.locator('#visitors-now .mn-count')).toHaveText(/^\d+$/);
+    await expect(page.locator('.mn-widget')).toHaveCount(1);
   });
 });

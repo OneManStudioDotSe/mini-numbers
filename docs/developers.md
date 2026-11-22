@@ -67,7 +67,8 @@ Show live numbers on your own pages. Add a placeholder and the widget script:
 | `toppages` | The most-viewed pages | `data-filter`, `data-limit` (1–10, default 5), `data-title` |
 | `sparkline` | A small chart of daily views over 7 days | `data-width`, `data-height` |
 
-All widgets accept `data-theme` (`light` or `dark`). `data-filter` is one of `24h`, `3d`, `7d` (default),
+`data-target` is the placeholder's id (a CSS selector also works); without it the widget appears right after the
+script. All widgets accept `data-theme` (`light` or `dark`). `data-filter` is one of `24h`, `3d`, `7d` (default),
 `30d`, `365d`.
 
 The same data is available as JSON, with the key as `?key=` or an `X-Widget-Key` header. Results are cached
