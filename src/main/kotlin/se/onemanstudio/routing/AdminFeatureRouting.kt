@@ -166,8 +166,8 @@ fun Route.adminFeatureRoutes() {
         call.respond(stats)
     }
 
-    if (Labs.isOn(Lab.FUNNELS)) funnelRoutes()
-    if (Labs.isOn(Lab.SEGMENTS)) segmentRoutes()
+    funnelRoutes()
+    segmentRoutes()
     if (Labs.isOn(Lab.WEBHOOKS)) webhookRoutes()
     if (Labs.isOn(Lab.EMAIL_REPORTS)) emailReportRoutes()
     if (Labs.isOn(Lab.REVENUE)) revenueRoutes()

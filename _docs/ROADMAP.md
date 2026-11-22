@@ -54,11 +54,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)); all of them now have those tests. **Widgets** (2026-11-15) answer only
 for projects that switched them on in Settings; while a project has them on, its numbers are still readable by
 anyone with its tracking ID, which is what a public counter is, and the widget script itself has no browser
-test. **Segments** (2026-11-14) and
-**Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
-once the owner has tried them. Both analyses read every event of the period into memory, which is fine for small
-sites and should become a query before they are advertised; the segment result is shown as a toast only and
-needs a proper panel. **Revenue** (2026-11-15) has tests on known amounts
+test. **Revenue** (2026-11-15) has tests on known amounts
 for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
 `currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of
 its own beyond the CSV export. **Webhooks** (2026-11-15) have tests against a real receiver for delivery, the
@@ -72,6 +68,10 @@ offer STARTTLS still gets the login in clear text (requiring it would break such
 call), and port 465 (TLS from the start) is not supported; a report whose hour passes while the server is down or
 the mail server refuses is skipped until its next day, week or month; the subject shows the period as `7d`; and
 the dialog has no browser test.
+
+**Funnels and segments** graduated in 1.0.0 (2026-11-22) and are on for everyone. Still to do: both analyses
+read every event of the period into memory, which is fine for small sites and should become a query; the segment
+result is shown as a toast only and needs a proper panel.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 

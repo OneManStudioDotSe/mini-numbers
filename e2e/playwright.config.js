@@ -48,7 +48,7 @@ module.exports = defineConfig({
       ALLOWED_ORIGINS: '*',
       TRACKER_HEARTBEAT_INTERVAL: '2',
       // Labs are off by default; the suite keeps them on so it can test them (dashboard.spec checks them off)
-      LABS: 'widgets,funnels,segments,revenue,webhooks,email-reports',
+      LABS: 'widgets,revenue,webhooks,email-reports',
     },
   }, {
     // A second, unconfigured instance in an empty directory, for the setup wizard (wizard.spec.js)

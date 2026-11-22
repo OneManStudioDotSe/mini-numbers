@@ -26,7 +26,7 @@ The page is split into eight sections. Each can be collapsed.
 | **Time Patterns** | Busiest day, peak hour, top month, an hour-by-day heatmap and a 365-day activity calendar |
 | **Events** | Your custom events; with the revenue [lab](configuration#labs) also revenue totals, revenue per event and revenue by source and campaign |
 | **Real-Time** | Visitors on the site in the last five minutes, as they arrive |
-| **Conversions** | Conversion goals; funnels and visitor segments with their [labs](configuration#labs) on |
+| **Conversions** | Conversion goals, funnels and visitor segments |
 
 ## Goals, funnels and segments
 
@@ -34,9 +34,9 @@ In **Conversions**, each card has a **Manage** button:
 
 - **Goal** — a page someone reaches (`/thank-you`) or an event they trigger (`signup`). Shows how many
   visitors convert.
-- **Funnel** *(lab)* — a list of steps (pages or events). Shows how many visitors make it through each step and where
+- **Funnel** — a list of steps (pages or events). Shows how many visitors make it through each step and where
   they drop off, as a share of those who reached the first step. **Manage funnels** creates, edits (pencil) and deletes them.
-- **Segment** *(lab)* — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
+- **Segment** — a saved filter, for example "mobile visitors from Germany", combining conditions with AND/OR.
   **Manage segments** creates, edits (pencil) and deletes them; **Analyze** shows the views, visitors and bounce
   rate of the matching visits for the selected period.
 

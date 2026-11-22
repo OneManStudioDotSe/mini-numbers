@@ -22,18 +22,22 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - **Widgets (lab) are now off for every project until you switch them on**, in Settings → Project information →
   **Embeddable widgets**. If you have `LABS=widgets` and widgets on your pages, they show nothing after the
   upgrade until you do.
+- **Funnels and segments are on for everyone.** Remove `funnels` and `segments` from `LABS` if you had them there;
+  left in, they are ignored with a warning in the log.
 - One database change, applied by itself at start: a `widgets_enabled` column on `projects`.
 
 ### Added
 
-- **Segments (lab) can be edited.** The pencil in **Manage segments** loads a segment into the form; saving
+- **Funnels and visitor segments are standard features**, no longer labs: they show in **Conversions** on every
+  server without a `LABS` setting.
+- **Segments can be edited.** The pencil in **Manage segments** loads a segment into the form; saving
   replaces its name, description and filters (`PUT /admin/projects/{id}/segments/{segmentId}`).
-- **Funnels (lab) can be edited.** The pencil in **Manage funnels** loads a funnel into the form; saving replaces
+- **Funnels can be edited.** The pencil in **Manage funnels** loads a funnel into the form; saving replaces
   its name and steps (`PUT /admin/projects/{id}/funnels/{funnelId}`).
 
 ### Changed
 
-- **Funnel bars (lab) now show each step as a share of the visits that entered the funnel**, so the first step
+- **Funnel bars now show each step as a share of the visits that entered the funnel**, so the first step
   is always 100%. Before, they were a share of every visit to the site, which made a funnel starting on a quiet
   page look empty. `conversionRate` in the funnel analysis response changes the same way; `totalSessions` still
   counts every session of the period.
@@ -68,12 +72,12 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - `/collect` accepted any text as a link target or as custom-event properties. The target must be a web address and
   properties a JSON object.
 - Crawlers that announce themselves in their User-Agent were counted as visitors.
-- Segments (lab): **OR between two filters was ignored** (the dialog stored it on the wrong filter, so every
+- Segments: **OR between two filters was ignored** (the dialog stored it on the wrong filter, so every
   segment behaved as AND); a project without segments had no way to create the first one, because the card with
   the **Manage segments** button was hidden; after switching projects one click could create a segment several
   times; a refused save closed the dialog; a failed delete was reported as done. Names over 100 characters now
   get a clear message instead of a database error.
-- Funnels (lab): **the drop-off and average time between two steps were shown one step too early**, so the first
+- Funnels: **the drop-off and average time between two steps were shown one step too early**, so the first
   gap always read "0% drop-off" and the last gap's figures never appeared; removing a step left a hole in the
   numbering ("Step 1, Step 2, Step 4"); a failed delete went unreported; a step with a blank name or match value
   could be saved through the API, and over-long names or match values gave a database error instead of a message.

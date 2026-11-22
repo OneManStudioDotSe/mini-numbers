@@ -75,13 +75,11 @@ the dashboard are hidden and their API answers 404. Turn on the ones you want wi
 restart:
 
 ```bash
-LABS=webhooks,funnels
+LABS=webhooks,revenue
 ```
 
 | Lab | What it adds |
 |-----|--------------|
-| `funnels` | Multi-step funnels in **Conversions** |
-| `segments` | Saved visitor segments in **Conversions** |
 | `revenue` | Revenue cards and attribution from events with a `revenue` property, and a revenue section in the CSV report |
 | `webhooks` | Signed HTTP calls when a goal converts or traffic spikes ([details](developers#webhooks)) |
 | `email-reports` | Scheduled email summaries (also needs the SMTP settings below) |

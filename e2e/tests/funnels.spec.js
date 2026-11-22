@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const { loginViaApi, createProject } = require('../helpers');
 
-test.describe('funnels (lab)', () => {
+test.describe('funnels', () => {
   test('a funnel is created on an empty project, shows its drop-off, is edited and deleted in the dashboard', async ({ page }, testInfo) => {
     await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await loginViaApi(page.request);

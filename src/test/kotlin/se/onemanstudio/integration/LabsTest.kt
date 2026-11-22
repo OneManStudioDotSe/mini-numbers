@@ -54,7 +54,7 @@ class LabsTest {
 
     @Test
     fun `LABS is parsed case-insensitively and unknown names are ignored`() {
-        assertEquals(setOf(Lab.WEBHOOKS, Lab.FUNNELS), Labs.parse(" Webhooks, funnels,bogus,,"))
+        assertEquals(setOf(Lab.WEBHOOKS, Lab.REVENUE), Labs.parse(" Webhooks, revenue,bogus,,"))
         assertEquals(setOf(Lab.EMAIL_REPORTS), Labs.parse("email-reports"))
         assertEquals(emptySet(), Labs.parse(null))
         assertEquals(emptySet(), Labs.parse(""))
@@ -71,24 +71,26 @@ class LabsTest {
             assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=$key").status, "widgets")
             assertEquals(HttpStatusCode.NotFound, client.get("/widget/toppages?key=$key").status, "widgets")
             assertEquals(HttpStatusCode.NotFound, admin.get("/admin/projects/$id/widgets").status, "widget switch")
-            for (path in listOf("funnels", "segments", "webhooks", "email-reports", "revenue")) {
+            for (path in listOf("webhooks", "email-reports", "revenue")) {
                 assertEquals(HttpStatusCode.NotFound, admin.get("/admin/projects/$id/$path").status, path)
             }
             assertEquals(HttpStatusCode.NotFound, admin.get("/admin/smtp/status").status, "smtp status")
-            // Goals are not a lab
-            assertEquals(HttpStatusCode.OK, admin.get("/admin/projects/$id/goals").status, "goals")
+            // Goals, funnels and segments are not labs
+            for (path in listOf("goals", "funnels", "segments")) {
+                assertEquals(HttpStatusCode.OK, admin.get("/admin/projects/$id/$path").status, path)
+            }
         }
     }
 
     @Test
-    fun `a lab named in LABS is mounted and the others stay off`() = withLabs("funnels") {
+    fun `a lab named in LABS is mounted and the others stay off`() = withLabs("revenue") {
         testApplication {
             application { module() }
             val admin = adminClient()
             val (id, key) = admin.loginAndCreateProject()
 
-            assertEquals(listOf("funnels"), admin.enabledLabs())
-            assertEquals(HttpStatusCode.OK, admin.get("/admin/projects/$id/funnels").status, "funnels")
+            assertEquals(listOf("revenue"), admin.enabledLabs())
+            assertEquals(HttpStatusCode.OK, admin.get("/admin/projects/$id/revenue").status, "revenue")
             assertEquals(HttpStatusCode.NotFound, admin.get("/admin/projects/$id/webhooks").status, "webhooks")
             assertEquals(HttpStatusCode.NotFound, client.get("/widget/realtime?key=$key").status, "widgets")
         }

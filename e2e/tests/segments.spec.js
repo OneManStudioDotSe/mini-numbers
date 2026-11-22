@@ -8,7 +8,7 @@ const AGENTS = {
   safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
 };
 
-test.describe('segments (lab)', () => {
+test.describe('segments', () => {
   test('a segment is created on an empty project, analysed, edited and deleted in the dashboard', async ({ page }, testInfo) => {
     await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await loginViaApi(page.request);

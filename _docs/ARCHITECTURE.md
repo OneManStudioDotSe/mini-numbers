@@ -311,7 +311,7 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 | `DATA_RETENTION_DAYS`        | `0`                                         | Auto-delete events older than N days (0 = disabled) |
 | `TRACKER_HEARTBEAT_INTERVAL` | `30`                                        | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
 | `TRACKER_SPA_ENABLED`        | `true`                                      | Served at `/tracker/config`; **no effect** (the tracker doesn't fetch it) |
-| `LABS`                       | *(empty)*                                   | Comma-separated labs to switch on: `widgets`, `funnels`, `segments`, `revenue`, `webhooks`, `email-reports` (see Feature notes → Labs) |
+| `LABS`                       | *(empty)*                                   | Comma-separated labs to switch on: `widgets`, `revenue`, `webhooks`, `email-reports` (see Feature notes → Labs) |
 | `GEOIP_DATABASE_PATH`        | `src/main/resources/geo/geolite2-city.mmdb` | GeoIP database path; the bundled GeoLite2-City copy (MaxMind attribution in README, docs and the Docker image) is from 2026-11-10 |
 
 ### Email reports (SMTP)
@@ -385,8 +385,8 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 
 ### Conversion goals / funnels / segments
 
-Funnels and segments are labs; with their lab off the routes are not mounted (404). The same goes for the
-webhook, email-report (including `/smtp/status`), revenue and widget routes below.
+Funnels and segments are standard since 1.0.0. The webhook, email-report (including `/smtp/status`), revenue
+and widget routes below belong to labs; with their lab off they are not mounted (404).
 
 
 - `GET|POST /admin/projects/{id}/goals`, `PUT|DELETE /admin/projects/{id}/goals/{goalId}`, `GET /admin/projects/{id}/goals/stats?filter=7d`
@@ -434,16 +434,15 @@ All error responses use standardized `ApiError` format: `{ error, code, details[
 `_docs/LAUNCH-AUDIT.md`). `ConfigLoader` parses `LABS` into `AppConfig.labs`; `ServiceManager.initialize` hands it to
 `Labs.init`, so the set is fixed for the life of the process. A lab that is off is switched off at three levels:
 
-- **Routes**: `adminFeatureRoutes()` mounts `funnelRoutes()`, `segmentRoutes()`, `webhookRoutes()`, `emailReportRoutes()`
-  and `revenueRoutes()` only for labs that are on; `configureWidgetRouting` (including `/widget/widget.js`) is only
+- **Routes**: `adminFeatureRoutes()` mounts `webhookRoutes()`, `emailReportRoutes()` and `revenueRoutes()` only for labs
+  that are on; `configureWidgetRouting` (including `/widget/widget.js`) is only
   installed with `widgets` on.
 - **Background work**: the email scheduler does not start and `/collect` does not call `WebhookTrigger`.
 - **Dashboard**: `admin.js` `applyLabs()` reads `/admin/labs` before anything renders and removes every element
-  whose `data-lab` (one or more space-separated keys) names no enabled lab; `refreshReport()` and
-  `loadGoalsAndFunnels()` skip the loaders of labs that are off, so nothing requests a 404.
+  whose `data-lab` (one or more space-separated keys) names no enabled lab; `refreshReport()` skips
+  the loaders of labs that are off, so nothing requests a 404.
 
-Stored rows are untouched, and the demo seeder still creates funnels and segments; they appear when the lab is
-switched on. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
+Stored rows are untouched. The JVM suite (`build.gradle.kts`) and the Playwright server run with every lab on so they keep
 testing them; `LabsTest` and the dashboard spec check the defaults.
 
 ### Dashboard re-renders

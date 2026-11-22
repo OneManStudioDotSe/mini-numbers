@@ -829,7 +829,7 @@ const Dashboard = {
       Promise.allSettled([
         this.loadContributionCalendar(),
         this.loadGoalsAndFunnels(),
-        this.labOn('segments') && this.loadSegments(),
+        this.loadSegments(),
         this.labOn('webhooks') && this.loadWebhooks(),
         this.labOn('email-reports') && this.loadEmailReports(),
         this.labOn('revenue') && this.loadRevenue()
@@ -1913,14 +1913,13 @@ const Dashboard = {
     if (!this.state.currentProjectId) return;
 
     try {
-      const funnelsOn = this.labOn('funnels');
       const [goalStats, funnels] = await Promise.all([
         GoalsManager.loadGoalStats(this.state.currentProjectId, this.state.currentFilter),
-        funnelsOn ? GoalsManager.loadFunnels(this.state.currentProjectId) : null
+        GoalsManager.loadFunnels(this.state.currentProjectId)
       ]);
 
       GoalsManager.renderGoals(goalStats);
-      if (funnelsOn) GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
+      GoalsManager.renderFunnels(funnels, this.state.currentProjectId, this.state.currentFilter);
     } catch (error) {
       console.error('Failed to load goals and funnels:', error);
     }

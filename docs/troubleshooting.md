@@ -95,7 +95,7 @@ if the dashboard doesn't update.
 
 ## A feature from the docs is missing
 
-Funnels, segments, revenue, webhooks, email reports and widgets are [labs](configuration#labs), off by default:
+Revenue, webhooks, email reports and widgets are [labs](configuration#labs), off by default:
 their parts of the dashboard are hidden and their API answers 404. Add them to `LABS` and restart.
 
 Signed in as a **viewer**? Viewers see every number but none of the buttons that change something (new project,

@@ -255,7 +255,7 @@ paths:
       summary: Labs switched on
       description: |
         The experimental features switched on with the LABS setting. A lab that is off has no routes (404) and the
-        dashboard removes its elements. Keys: widgets, funnels, segments, revenue, webhooks, email-reports.
+        dashboard removes its elements. Keys: widgets, revenue, webhooks, email-reports.
       tags: [Authentication]
       security:
         - sessionCookie: []

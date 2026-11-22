@@ -11,7 +11,7 @@
 > checked with `scripts/smoke.sh` (see `_docs/GO-LIVE.md`). The checklist below remains for what still needs a
 > human: visual judgement, other browsers, email rendering, and the items marked *(manual)*.
 >
-> Funnels, segments, webhooks, email reports, revenue and widgets are labs, off by default (`LABS`); test their
+> Webhooks, email reports, revenue and widgets are labs, off by default (`LABS`); test their
 > sections with the lab switched on.
 
 ## Browser matrix
@@ -104,17 +104,19 @@
 - [ ] Delete goal
 - [ ] Goal stats display conversion rates
 
-### Funnels *(lab: `LABS=funnels`)*
+### Funnels
 
 - [ ] Create funnel with 2+ steps
 - [ ] Funnel visualization shows drop-off percentages
+- [ ] Edit funnel
 - [ ] Delete funnel
 
-### User segments *(lab: `LABS=segments`)*
+### User segments
 
 - [ ] Create segment with single filter
 - [ ] Create segment with multiple AND/OR filters
 - [ ] Segment analysis returns filtered data
+- [ ] Edit segment
 - [ ] Delete segment
 
 ### Live feed

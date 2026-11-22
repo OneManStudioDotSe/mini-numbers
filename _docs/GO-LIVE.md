@@ -89,8 +89,8 @@ BASE_URL=https://stats.example.com PROJECT_KEY=$KEY ./smoke.sh
 - [ ] **Privacy signal:** with Global Privacy Control on (Brave, Firefox with the setting, or a GPC extension), a visit
       is *not* counted.
 - [ ] **Every section**, light and dark theme: Overview, Content & Pages, Traffic Sources, Audience & Technology (chart
-      and globe), Time Patterns, Events, Real-Time, Conversions. No section shows funnels, segments, revenue, webhooks
-      or email reports.
+      and globe), Time Patterns, Events, Real-Time, Conversions. Conversions shows goals, funnels and
+      segments; no section shows revenue, webhooks or email reports.
 - [ ] **A goal:** Conversions → Manage goals → a page goal for a path you visit; it counts after the next visit.
 - [ ] **Raw events and CSV:** Raw events lists the visits; the export downloads and opens.
 - [ ] **Phone width:** the dashboard on a phone, sidebar behind the menu button.

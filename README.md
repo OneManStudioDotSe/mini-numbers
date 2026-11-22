@@ -25,8 +25,8 @@ without cookies, without storing IP addresses, and without handing data to anyon
 - **Privacy you can tune.** Three privacy modes and an adjustable "forget visitors after" window (1 hour to
   1 year). The dashboard shows exactly what your server stores, and browsers that send Global Privacy Control or
   Do Not Track aren't counted.
-- **Everything included.** Goals, AI-assistant referrals, CSV export and a REST API — no paid tier, no feature
-  held back from self-hosters. Funnels, segments, revenue, webhooks, email reports and widgets are in
+- **Everything included.** Goals, funnels, visitor segments, AI-assistant referrals, CSV export and a REST API —
+  no paid tier, no feature held back from self-hosters. Revenue, webhooks, email reports and widgets are in
   [labs](docs/configuration.md#labs): switch them on with one setting while they mature.
 - **Small tracker.** About 2 KB gzipped, no cookies, works with single-page apps.
 - **MIT licensed.**

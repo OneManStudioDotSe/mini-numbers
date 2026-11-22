@@ -114,17 +114,18 @@ test.describe('dashboard', () => {
     // The suite's server has every lab on; answer as a default server (LABS unset) would
     await page.route('**/admin/labs', route => route.fulfill({ json: { enabled: [] } }));
     const labCalls = [];
-    page.on('request', r => { if (/\/(funnels|segments|revenue|webhooks|email-reports)(\/|\?|$)/.test(new URL(r.url()).pathname)) labCalls.push(r.url()); });
+    page.on('request', r => { if (/\/(revenue|webhooks|email-reports)(\/|\?|$)/.test(new URL(r.url()).pathname)) labCalls.push(r.url()); });
 
     await page.goto('/admin-panel');
     await page.locator('.project-menu__item', { hasText: project.name }).click();
     await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });
     await expect(page.locator('#goals-section')).toBeAttached();
-    for (const id of ['#funnels-section', '#segments-section', '#revenue-section', '#manage-webhooks-btn', '#manage-email-reports-btn']) {
+    for (const id of ['#revenue-section', '#manage-webhooks-btn', '#manage-email-reports-btn']) {
       await expect(page.locator(id), id).toHaveCount(0);
     }
     await expect(page.locator('[data-section="events"] h2')).toHaveText('Events');
-    await expect(page.locator('[data-section="conversions"] p')).toHaveText('Conversion goals with completion rates.');
+    await expect(page.locator('[data-section="conversions"] p')).toHaveText('Conversion goals with completion rates, multi-step funnels showing drop-off at each stage, custom audience segments for targeted analysis.');
+    for (const id of ['#funnels-section', '#segments-section']) await expect(page.locator(id), id).toBeAttached();
     expect(labCalls, 'no requests to the API of a lab that is off').toEqual([]);
   });
 

@@ -5,15 +5,13 @@ import org.slf4j.LoggerFactory
 /** Features that work but are not verified well enough to be on by default. */
 enum class Lab(val key: String) {
     WIDGETS("widgets"),
-    FUNNELS("funnels"),
-    SEGMENTS("segments"),
     REVENUE("revenue"),
     WEBHOOKS("webhooks"),
     EMAIL_REPORTS("email-reports"),
 }
 
 /**
- * The labs switched on with `LABS` (comma-separated keys, e.g. `LABS=webhooks,funnels`).
+ * The labs switched on with `LABS` (comma-separated keys, e.g. `LABS=webhooks,revenue`).
  * Everything is off by default: the routes of a lab that is off are not mounted (404) and the dashboard hides it.
  */
 object Labs {
