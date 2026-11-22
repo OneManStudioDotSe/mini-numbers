@@ -181,6 +181,14 @@ a:hover {
   }
 }
 
+/* Form controls do not inherit the page's typeface by default */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 /* Checkboxes, radios and range inputs take the accent */
 :root {
   accent-color: var(--color-primary);
