@@ -30,7 +30,7 @@
     <!-- Sidebar -->
     <nav id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-            <img src="/assets/mini_numbers_logo.png" alt="Mini Numbers" class="sidebar-logo" style="height:52px;margin:0 auto 4px;display:block;">
+            <img src="/assets/mini_numbers_logo.png" alt="Mini Numbers" class="sidebar-logo dialog-art">
             <div class="sidebar-subtitle">Privacy-first analytics</div>
         </div>
 
@@ -66,11 +66,11 @@
         <div class="dashboard-header">
             <h1 id="active-title">Select a project</h1>
             <div class="flex items-center gap-md">
-                <button class="btn btn-secondary btn-sm" id="generate-demo-btn" data-admin-only style="display: none; white-space: nowrap; flex-shrink: 0;">
+                <button class="btn btn-secondary btn-sm nowrap shrink-0" id="generate-demo-btn" data-admin-only style="display: none;">
                     <i class="ri-database-2-line"></i>
                     <span>Generate demo data</span>
                 </button>
-                <button class="btn btn-secondary btn-sm" id="view-raw-events-btn" style="display: none; white-space: nowrap; flex-shrink: 0;">
+                <button class="btn btn-secondary btn-sm nowrap shrink-0" id="view-raw-events-btn" style="display: none;">
                     <i class="ri-list-unordered"></i>
                     <span>Raw events</span>
                 </button>
@@ -151,7 +151,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-eye-line"></i></div>
                                 <small>Total page views</small>
                             </div>
-                            <div class="stat-card__value" id="total-views"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="total-views"><span class="skeleton skeleton-text w-skeleton">&nbsp;</span></div>
                             <canvas id="sparkline-views" class="stat-card__sparkline"></canvas>
                             <div class="stat-card__comparison" id="views-comparison">Loading...</div>
                         </div>
@@ -161,7 +161,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-group-line"></i></div>
                                 <small>Unique visitors</small>
                             </div>
-                            <div class="stat-card__value" id="unique-visitors"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="unique-visitors"><span class="skeleton skeleton-text w-skeleton">&nbsp;</span></div>
                             <canvas id="sparkline-visitors" class="stat-card__sparkline"></canvas>
                             <div class="stat-card__comparison" id="visitors-comparison">Loading...</div>
                         </div>
@@ -171,7 +171,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-stack-line"></i></div>
                                 <small>Total sessions</small>
                             </div>
-                            <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="total-sessions"><span class="skeleton skeleton-text w-skeleton">&nbsp;</span></div>
                             <div class="stat-card__comparison" id="sessions-comparison">Loading...</div>
                         </div>
 
@@ -180,7 +180,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-logout-box-r-line"></i></div>
                                 <small>Bounce rate</small>
                             </div>
-                            <div class="stat-card__value" id="bounce-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="bounce-rate"><span class="skeleton skeleton-text w-skeleton-sm">&nbsp;</span></div>
                             <div class="stat-card__comparison" id="bounce-comparison">Loading...</div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-timer-line"></i></div>
                                 <small>Avg. session duration</small>
                             </div>
-                            <div class="stat-card__value" id="avg-session-duration"><span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="avg-session-duration"><span class="skeleton skeleton-text w-skeleton">&nbsp;</span></div>
                             <div class="stat-card__comparison" id="session-duration-comparison">Loading...</div>
                         </div>
 
@@ -201,7 +201,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-exchange-funds-line"></i></div>
                                 <small>Conversion rate</small>
                             </div>
-                            <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="overall-conversion-rate"><span class="skeleton skeleton-text w-skeleton-sm">&nbsp;</span></div>
                             <div class="stat-card__comparison" id="conversion-rate-comparison">Loading...</div>
                         </div>
 
@@ -210,7 +210,7 @@
                                 <div class="stat-card__icon" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
                                 <small>AI assistant referrals</small>
                             </div>
-                            <div class="stat-card__value" id="ai-referrals"><span class="skeleton skeleton-text" style="width: 50px;">&nbsp;</span></div>
+                            <div class="stat-card__value" id="ai-referrals"><span class="skeleton skeleton-text w-skeleton-sm">&nbsp;</span></div>
                             <div class="stat-card__detail" id="ai-referrals-detail"></div>
                             <div class="stat-card__comparison" id="ai-referrals-comparison">Loading...</div>
                         </div>
@@ -347,8 +347,8 @@
                     </div>
 
                     <!-- UTM Campaigns -->
-                    <div id="utm-section" style="display: none; margin-top: var(--spacing-lg);">
-                        <div class="grid grid-cols-3" style="gap: var(--spacing-md);">
+                    <div class="mt-lg" id="utm-section" style="display: none;">
+                        <div class="grid grid-cols-3 gap-md">
                             <!-- UTM Sources -->
                             <div class="card chart-card">
                                 <div class="chart-card__header">
@@ -408,7 +408,7 @@
                     <div class="card chart-card">
                         <div class="chart-card__header">
                             <h3 class="chart-card__title">
-                                <button id="geo-back-btn" class="btn btn-ghost btn-icon" style="display: none; margin-right: 0.5rem;">
+                                <button id="geo-back-btn" class="btn btn-ghost btn-icon mr-sm" style="display: none;">
                                     <i class="ri-arrow-left-line"></i>
                                 </button>
                                 <i class="ri-map-2-line"></i>
@@ -586,7 +586,7 @@
                                         <span class="text-muted text-xs">More</span>
                                     </div>
                                 </div>
-                                <div style="height: 300px;">
+                                <div class="h-chart">
                                     <canvas id="chart-heatmap"></canvas>
                                 </div>
                             </div>
@@ -653,42 +653,42 @@
                         </div>
 
                         <!-- Revenue Guide (collapsible) -->
-                        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
-                            <button id="revenue-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
-                                <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> Revenue tracking guide</span>
+                        <div class="accordion">
+                            <button class="accordion__toggle font-medium text-sm" id="revenue-guide-toggle" aria-expanded="false">
+                                <span><i class="ri-question-line mr-sm text-accent"></i> Revenue tracking guide</span>
                                 <i class="ri-arrow-down-s-line"></i>
                             </button>
-                            <div id="revenue-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
-                                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
-                                    Track monetary value alongside events using the existing <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track()</code> API. Include a <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">revenue</code> property to attribute income to specific actions.
+                            <div class="accordion__body" id="revenue-guide-content" style="display: none;">
+                                <p class="text-secondary mb-md">
+                                    Track monetary value alongside events using the existing <code class="code-chip">MiniNumbers.track()</code> API. Include a <code class="code-chip">revenue</code> property to attribute income to specific actions.
                                 </p>
 
-                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup examples</h4>
-                                <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto; margin-bottom: var(--spacing-md);"><span style="color: var(--color-text-muted);">// E-commerce purchase</span>
+                                <h4 class="subheading">Setup examples</h4>
+                                <pre class="code-block mb-md"><span class="text-muted">// E-commerce purchase</span>
 MiniNumbers.track("purchase", {
   revenue: 49.99, currency: "USD", product: "Pro Plan"
 });
 
-<span style="color: var(--color-text-muted);">// SaaS subscription</span>
+<span class="text-muted">// SaaS subscription</span>
 MiniNumbers.track("subscription", {
   revenue: 9.99, currency: "USD", plan: "monthly"
 });
 
-<span style="color: var(--color-text-muted);">// One-time payment</span>
+<span class="text-muted">// One-time payment</span>
 MiniNumbers.track("donation", {
   revenue: 25.00, currency: "EUR"
 });</pre>
 
-                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Framework integrations</h4>
-                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
-                                    <li><strong>Stripe:</strong> In your checkout success callback, call <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">MiniNumbers.track("purchase", { revenue: amount })</code></li>
-                                    <li><strong>Shopify:</strong> Add the tracking call to your order confirmation page <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">thank_you</code> template</li>
-                                    <li><strong>WooCommerce:</strong> Hook into <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">woocommerce_thankyou</code> and output the tracking call</li>
+                                <h4 class="subheading">Framework integrations</h4>
+                                <ul class="text-secondary pl-md-plus mb-md">
+                                    <li><strong>Stripe:</strong> In your checkout success callback, call <code class="code-chip">MiniNumbers.track("purchase", { revenue: amount })</code></li>
+                                    <li><strong>Shopify:</strong> Add the tracking call to your order confirmation page <code class="code-chip">thank_you</code> template</li>
+                                    <li><strong>WooCommerce:</strong> Hook into <code class="code-chip">woocommerce_thankyou</code> and output the tracking call</li>
                                     <li><strong>Generic forms:</strong> Fire the track call in your payment success handler</li>
                                 </ul>
 
-                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">How to interpret the data</h4>
-                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                                <h4 class="subheading">How to interpret the data</h4>
+                                <ul class="text-secondary pl-md-plus mb-md">
                                     <li><strong>Total Revenue</strong> &mdash; aggregate income in the selected period with comparison to the previous period</li>
                                     <li><strong>Average Order Value (AOV)</strong> &mdash; mean revenue per transaction; use it to spot pricing opportunities</li>
                                     <li><strong>Revenue per Visitor</strong> &mdash; key metric for traffic quality; higher = better-converting traffic</li>
@@ -696,9 +696,9 @@ MiniNumbers.track("donation", {
                                     <li><strong>Revenue by Event</strong> &mdash; which actions (purchases, subscriptions, upgrades) drive the most income</li>
                                 </ul>
 
-                                <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Best practices</h4>
-                                <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
-                                    <li>Always include <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px;">currency</code> for multi-currency support</li>
+                                <h4 class="subheading">Best practices</h4>
+                                <ul class="text-secondary pl-md-plus">
+                                    <li>Always include <code class="code-chip">currency</code> for multi-currency support</li>
                                     <li>Track at the point of confirmed payment, not intent</li>
                                     <li>Use meaningful event names that map to your business model</li>
                                     <li>Combine with UTM parameters for full attribution</li>
@@ -739,18 +739,18 @@ MiniNumbers.track("donation", {
                         </div>
 
                         <!-- Revenue by Event -->
-                        <div class="chart-card__header" style="margin-bottom: var(--spacing-sm);">
-                            <h3 class="chart-card__title" style="font-size: var(--font-size-lg);">
+                        <div class="chart-card__header mb-sm">
+                            <h3 class="chart-card__title text-lg">
                                 <i class="ri-bar-chart-grouped-line"></i> Revenue by event
                             </h3>
                         </div>
-                        <div id="revenue-breakdown" style="margin-bottom: var(--spacing-lg);">
-                            <div style="color: var(--color-text-muted); text-align: center; padding: 1rem;">Loading...</div>
+                        <div class="mb-lg" id="revenue-breakdown">
+                            <div class="text-muted text-center p-md">Loading...</div>
                         </div>
 
                         <!-- Revenue Attribution Table -->
-                        <div class="chart-card__header" style="margin-bottom: var(--spacing-sm);">
-                            <h3 class="chart-card__title" style="font-size: var(--font-size-lg);">
+                        <div class="chart-card__header mb-sm">
+                            <h3 class="chart-card__title text-lg">
                                 <i class="ri-links-line"></i> Revenue attribution
                             </h3>
                         </div>
@@ -766,7 +766,7 @@ MiniNumbers.track("donation", {
                                     </tr>
                                 </thead>
                                 <tbody id="revenue-attribution-body">
-                                    <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                                    <tr><td class="cell-placeholder" colspan="5">Loading...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -966,7 +966,7 @@ MiniNumbers.track("donation", {
                             <i class="ri-file-copy-line"></i>
                         </button>
                     </div>
-                    <div class="form-group" style="margin-top: var(--spacing-md);">
+                    <div class="form-group mt-md">
                         <label>API key</label>
                         <div class="api-key-display">
                             <code id="generated-api-key-final">...</code>
@@ -995,7 +995,7 @@ MiniNumbers.track("donation", {
             <div class="modal-body">
                 <!-- Project Information Section -->
                 <div id="project-settings-section" style="display: none;">
-                    <h3 style="margin-top: 0; margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Project information</h3>
+                    <h3 class="group-heading group-heading--first">Project information</h3>
 
                     <div class="grid-2-cols">
                         <div class="form-group">
@@ -1005,7 +1005,7 @@ MiniNumbers.track("donation", {
 
                         <div class="form-group">
                             <label>Domain (read-only)</label>
-                            <input type="text" id="setting-project-domain" class="input" readonly style="background: var(--color-bg-tertiary); cursor: not-allowed;" />
+                            <input type="text" id="setting-project-domain" class="input input--readonly" readonly />
                         </div>
                     </div>
 
@@ -1024,8 +1024,8 @@ MiniNumbers.track("donation", {
 
                     <div class="form-group" data-lab="widgets" data-admin-only>
                         <label for="setting-project-widgets">Embeddable widgets</label>
-                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                            <label class="toggle-switch" style="flex-shrink: 0;">
+                        <div class="flex items-center gap-sm">
+                            <label class="toggle-switch shrink-0">
                                 <input type="checkbox" id="setting-project-widgets">
                                 <span class="toggle-slider"></span>
                             </label>
@@ -1033,7 +1033,7 @@ MiniNumbers.track("donation", {
                         </div>
                     </div>
 
-                    <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Dashboard preferences</h3>
+                    <h3 class="group-heading">Dashboard preferences</h3>
                 </div>
 
                 <!-- Dashboard Settings Section -->
@@ -1065,34 +1065,34 @@ MiniNumbers.track("donation", {
                 </div>
 
                 <!-- Export Report Section -->
-                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Export report</h3>
-                <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">Select which data to include in the downloadable CSV report.</p>
-                <div class="grid-2-cols settings-section-content" style="margin-bottom: var(--spacing-md);">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <h3 class="group-heading">Export report</h3>
+                <p class="text-secondary text-sm mb-md">Select which data to include in the downloadable CSV report.</p>
+                <div class="grid-2-cols settings-section-content mb-md">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="views-visitors" checked> Page views & visitors
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="top-pages" checked> Top pages
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="referrers" checked> Referrers
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="utm-campaigns"> UTM campaigns
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="tech" checked> Browsers / OS / Devices
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="countries" checked> Countries & regions
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="custom-events"> Custom events
                     </label>
-                    <label data-lab="revenue" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label" data-lab="revenue">
                         <input type="checkbox" class="export-section-cb" value="revenue"> Revenue attribution
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <label class="check-label">
                         <input type="checkbox" class="export-section-cb" value="raw-events"> Raw events <span class="text-muted">(large file)</span>
                     </label>
                 </div>
@@ -1102,8 +1102,8 @@ MiniNumbers.track("donation", {
 
                 <!-- Automations Section -->
                 <div data-lab="webhooks email-reports" data-admin-only>
-                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Automations</h3>
-                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                <h3 class="group-heading">Automations</h3>
+                <div class="flex gap-sm flex-wrap">
                     <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn" data-lab="webhooks">
                         <i class="ri-webhook-line"></i>
                         <span>Manage webhooks</span>
@@ -1116,9 +1116,9 @@ MiniNumbers.track("donation", {
                 </div>
 
                 <!-- Account Section -->
-                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-sm);">Account</h3>
+                <h3 class="group-heading">Account</h3>
                 <p class="account-summary">Signed in as <strong id="account-username">…</strong> <span class="badge badge-secondary" id="account-role"></span></p>
-                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                <div class="flex gap-sm flex-wrap">
                     <button class="btn btn-ghost btn-sm" id="change-password-btn">
                         <i class="ri-lock-password-line"></i>
                         <span>Change password</span>
@@ -1142,7 +1142,7 @@ MiniNumbers.track("donation", {
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
                 <h2 id="raw-events-modal-title">Raw events</h2>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="flex items-center gap-sm">
                     <button class="btn btn-ghost btn-icon" id="export-raw-events" title="Export to CSV">
                         <i class="ri-download-line"></i>
                     </button>
@@ -1150,7 +1150,7 @@ MiniNumbers.track("donation", {
                 </div>
             </div>
             <div class="modal-body">
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <div class="flex gap-sm mb-md">
                     <select id="raw-events-type" class="select">
                         <option value="">All event types</option>
                         <option value="pageview">Pageviews</option>
@@ -1168,13 +1168,13 @@ MiniNumbers.track("donation", {
                 <div class="table-container">
                     <table id="raw-events-table">
                         <colgroup>
-                            <col style="width: 14%">
-                            <col style="width: 9%">
-                            <col style="width: 31%">
-                            <col style="width: 18%">
-                            <col style="width: 11%">
-                            <col style="width: 9%">
-                            <col style="width: 8%">
+                            <col class="w-14pc">
+                            <col class="w-9pc">
+                            <col class="w-31pc">
+                            <col class="w-18pc">
+                            <col class="w-11pc">
+                            <col class="w-9pc">
+                            <col class="w-8pc">
                         </colgroup>
                         <thead>
                             <tr>
@@ -1188,14 +1188,14 @@ MiniNumbers.track("donation", {
                             </tr>
                         </thead>
                         <tbody id="raw-events-tbody">
-                            <tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="7">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem;">
-                    <div id="raw-events-info" style="font-size: 0.875rem; color: var(--color-text-muted);">Showing 0-0 of 0</div>
-                    <div style="display: flex; gap: 0.5rem;">
+                <div class="flex items-center justify-between mt-md">
+                    <div class="text-sm text-muted" id="raw-events-info">Showing 0-0 of 0</div>
+                    <div class="flex gap-sm">
                         <button class="btn btn-ghost btn-sm" id="raw-events-prev" disabled>Previous</button>
                         <button class="btn btn-ghost btn-sm" id="raw-events-next">Next</button>
                     </div>
@@ -1214,24 +1214,24 @@ MiniNumbers.track("donation", {
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Create new goal</h3>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <h3 class="mt-0">Create new goal</h3>
+                    <div class="flex gap-sm flex-wrap items-end">
+                        <div class="form-group flex-1 min-w-field">
                             <label for="goal-name">Name</label>
                             <input type="text" id="goal-name" class="input" placeholder="e.g. Visited Pricing">
                         </div>
-                        <div class="form-group" style="min-width: 120px;">
+                        <div class="form-group min-w-field-sm">
                             <label for="goal-type">Type</label>
                             <select id="goal-type" class="select">
                                 <option value="url">URL path</option>
                                 <option value="event">Custom event</option>
                             </select>
                         </div>
-                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                        <div class="form-group flex-1 min-w-field">
                             <label for="goal-match-value">Match value</label>
                             <input type="text" id="goal-match-value" class="input" placeholder="e.g. /pricing or signup">
                         </div>
-                        <button class="btn btn-primary" id="create-goal-btn" style="margin-bottom: var(--spacing-md);">Create</button>
+                        <button class="btn btn-primary mb-md" id="create-goal-btn">Create</button>
                     </div>
                 </div>
 
@@ -1248,7 +1248,7 @@ MiniNumbers.track("donation", {
                             </tr>
                         </thead>
                         <tbody id="goals-table-body">
-                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="5">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1266,18 +1266,18 @@ MiniNumbers.track("donation", {
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;" id="funnel-form-title">Create new funnel</h3>
+                    <h3 class="mt-0" id="funnel-form-title">Create new funnel</h3>
                     <div class="form-group">
                         <label for="funnel-name">Funnel name</label>
                         <input type="text" id="funnel-name" class="input" placeholder="e.g. Purchase Flow">
                     </div>
 
-                    <label style="display: block; margin-bottom: var(--spacing-sm); font-weight: var(--font-weight-medium);">Steps</label>
+                    <label class="block mb-sm font-medium">Steps</label>
                     <div id="funnel-steps-container">
                         <!-- Steps are dynamically rendered -->
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
+                    <div class="flex gap-sm mt-sm">
                         <button class="btn btn-ghost btn-sm" id="add-funnel-step-btn">
                             <i class="ri-add-line"></i> Add step
                         </button>
@@ -1298,7 +1298,7 @@ MiniNumbers.track("donation", {
                             </tr>
                         </thead>
                         <tbody id="funnels-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="4">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1316,7 +1316,7 @@ MiniNumbers.track("donation", {
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3 style="margin-top: 0;" id="segment-form-title">Create new segment</h3>
+                    <h3 class="mt-0" id="segment-form-title">Create new segment</h3>
                     <div class="form-group">
                         <label for="segment-name">Segment name</label>
                         <input type="text" id="segment-name" class="input" placeholder="e.g. Mobile Chrome Users" aria-required="true">
@@ -1326,12 +1326,12 @@ MiniNumbers.track("donation", {
                         <input type="text" id="segment-description" class="input" placeholder="e.g. Users on Chrome mobile browser">
                     </div>
 
-                    <label style="display: block; margin-bottom: var(--spacing-sm); font-weight: var(--font-weight-medium);">Filters</label>
+                    <label class="block mb-sm font-medium">Filters</label>
                     <div id="segment-filters-container" role="list" aria-label="Segment filters">
                         <!-- Filters rendered dynamically -->
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem; margin-top: var(--spacing-sm);">
+                    <div class="flex gap-sm mt-sm">
                         <button class="btn btn-ghost btn-sm" id="add-segment-filter-btn" aria-label="Add filter condition">
                             <i class="ri-add-line"></i> Add filter
                         </button>
@@ -1352,7 +1352,7 @@ MiniNumbers.track("donation", {
                             </tr>
                         </thead>
                         <tbody id="segments-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="4">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1371,24 +1371,24 @@ MiniNumbers.track("donation", {
             <div class="modal-body">
 
                 <!-- Setup Guide (collapsible) -->
-                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
-                    <button id="webhook-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
-                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> How to set up webhooks</span>
+                <div class="accordion">
+                    <button class="accordion__toggle font-medium text-sm" id="webhook-guide-toggle" aria-expanded="false">
+                        <span><i class="ri-question-line mr-sm text-accent"></i> How to set up webhooks</span>
                         <i class="ri-arrow-down-s-line"></i>
                     </button>
-                    <div id="webhook-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                    <div class="accordion__body" id="webhook-guide-content" style="display: none;">
+                        <p class="text-secondary mb-md">
                             Webhooks let Mini Numbers send real-time HTTP POST notifications to your server when important events occur. You can use them to trigger Slack alerts, update dashboards, or integrate with any external service.
                         </p>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Supported event types</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                        <h4 class="subheading">Supported event types</h4>
+                        <ul class="text-secondary pl-md-plus mb-md">
                             <li><strong>goal_conversion</strong> &mdash; Fires when a visitor triggers one of your active conversion goals (URL visit or custom event match).</li>
                             <li><strong>traffic_spike</strong> &mdash; Fires when incoming traffic exceeds 2&times; the rolling average rate, indicating an unusual surge.</li>
                         </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Payload format</h4>
-                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;">{
+                        <h4 class="subheading">Payload format</h4>
+                        <pre class="code-block">{
   "event": "goal_conversion",
   "projectId": "uuid-here",
   "goalName": "Signup",
@@ -1399,9 +1399,9 @@ MiniNumbers.track("donation", {
   "eventName": "signup"
 }</pre>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">HMAC signature verification</h4>
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">Every delivery includes an <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em;">X-MiniNumbers-Signature</code> header. Verify it to ensure the request is authentic:</p>
-                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;"><span style="color: var(--color-text-muted);">// Node.js</span>
+                        <h4 class="subheading">HMAC signature verification</h4>
+                        <p class="text-secondary mb-sm">Every delivery includes an <code class="code-chip code-chip--sm">X-MiniNumbers-Signature</code> header. Verify it to ensure the request is authentic:</p>
+                        <pre class="code-block"><span class="text-muted">// Node.js</span>
 const crypto = require('crypto');
 const signature = req.headers['x-mininumbers-signature'];
 const expected = 'sha256=' + crypto
@@ -1412,7 +1412,7 @@ const valid = crypto.timingSafeEqual(
   Buffer.from(signature), Buffer.from(expected)
 );
 
-<span style="color: var(--color-text-muted);"># Python</span>
+<span class="text-muted"># Python</span>
 import hmac, hashlib
 signature = request.headers['X-MiniNumbers-Signature']
 expected = 'sha256=' + hmac.new(
@@ -1420,8 +1420,8 @@ expected = 'sha256=' + hmac.new(
 ).hexdigest()
 valid = hmac.compare_digest(signature, expected)</pre>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Setup steps</h4>
-                        <ol style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                        <h4 class="subheading">Setup steps</h4>
+                        <ol class="text-secondary pl-md-plus mb-md">
                             <li>Create an HTTPS endpoint on your server that accepts POST requests.</li>
                             <li>Add the webhook URL below and select which events to subscribe to.</li>
                             <li>Save the HMAC secret shown after creation &mdash; it&rsquo;s only displayed once.</li>
@@ -1429,16 +1429,16 @@ valid = hmac.compare_digest(signature, expected)</pre>
                             <li>Check the <strong>Delivery log</strong> to monitor success/failure status.</li>
                         </ol>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Integration recipes</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                        <h4 class="subheading">Integration recipes</h4>
+                        <ul class="text-secondary pl-md-plus mb-md">
                             <li><strong>Slack:</strong> Use an <a href="https://api.slack.com/messaging/webhooks" target="_blank" rel="noopener">Incoming Webhook URL</a> &mdash; paste the Slack webhook URL directly.</li>
-                            <li><strong>Discord:</strong> Create a webhook in Channel Settings &rarr; Integrations &rarr; use the <code style="background: var(--color-bg-primary); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em;">/slack</code> suffix for Slack-compatible format.</li>
+                            <li><strong>Discord:</strong> Create a webhook in Channel Settings &rarr; Integrations &rarr; use the <code class="code-chip code-chip--sm">/slack</code> suffix for Slack-compatible format.</li>
                             <li><strong>Zapier:</strong> Create a &ldquo;Catch Hook&rdquo; trigger and paste the Zapier webhook URL.</li>
                             <li><strong>Custom server:</strong> Any HTTPS endpoint that returns 2xx on success.</li>
                         </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Troubleshooting</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                        <h4 class="subheading">Troubleshooting</h4>
+                        <ul class="text-secondary pl-md-plus">
                             <li>URLs must use <strong>HTTPS</strong> &mdash; HTTP is rejected for security.</li>
                             <li>Your endpoint must respond within <strong>10 seconds</strong> or the delivery is marked as failed.</li>
                             <li>Failed deliveries are <strong>retried up to 3 times</strong> with exponential backoff (5s, 10s, 15s).</li>
@@ -1449,7 +1449,7 @@ valid = hmac.compare_digest(signature, expected)</pre>
 
                 <!-- Create Form -->
                 <div class="form-section">
-                    <h3 style="margin-top: 0;">Add new webhook</h3>
+                    <h3 class="mt-0">Add new webhook</h3>
                     <div class="grid-2-cols settings-section-content">
                         <div class="form-group">
                             <label for="webhook-url">Webhook URL (HTTPS)</label>
@@ -1457,27 +1457,27 @@ valid = hmac.compare_digest(signature, expected)</pre>
                         </div>
                         <div class="form-group">
                             <label>Events</label>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <div class="flex gap-md flex-wrap">
+                                <label class="check-label check-label--tight">
                                     <input type="checkbox" class="webhook-event-cb" value="goal_conversion" checked> goal_conversion
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                                <label class="check-label check-label--tight">
                                     <input type="checkbox" class="webhook-event-cb" value="traffic_spike" checked> traffic_spike
                                 </label>
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary" id="create-webhook-btn" style="margin-top: var(--spacing-sm);">Add webhook</button>
+                    <button class="btn btn-primary mt-sm" id="create-webhook-btn">Add webhook</button>
                 </div>
 
                 <!-- Secret Display (shown once after creation) -->
-                <div id="webhook-secret-display" style="display: none; background: var(--color-warning-bg, #fef3c7); border: 1px solid var(--color-warning, #f59e0b); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
-                    <p style="font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
-                        <i class="ri-key-line" style="color: var(--color-warning, #f59e0b);"></i>
+                <div class="notice-warning" id="webhook-secret-display" style="display: none;">
+                    <p class="font-medium mb-xs">
+                        <i class="ri-key-line text-warning"></i>
                         Webhook secret (save it now &mdash; it won&rsquo;t be shown again):
                     </p>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <code class="webhook-secret-value" style="flex: 1; background: var(--color-bg-primary); padding: var(--spacing-sm); border-radius: var(--radius-sm); font-size: var(--font-size-sm); word-break: break-all;"></code>
+                    <div class="flex gap-sm items-center">
+                        <code class="webhook-secret-value code-value"></code>
                         <button class="btn btn-ghost btn-sm copy-secret-btn" onclick="WebhooksManager.copySecret()">Copy</button>
                     </div>
                 </div>
@@ -1495,13 +1495,13 @@ valid = hmac.compare_digest(signature, expected)</pre>
                             </tr>
                         </thead>
                         <tbody id="webhooks-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="4">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Delivery Log (shown when viewing a webhook's deliveries) -->
-                <div id="webhook-deliveries-section" style="display: none; margin-top: var(--spacing-lg);">
+                <div class="mt-lg" id="webhook-deliveries-section" style="display: none;">
                     <h3><i class="ri-file-list-line"></i> Delivery log</h3>
                     <div id="webhook-deliveries-log"></div>
                 </div>
@@ -1520,27 +1520,27 @@ valid = hmac.compare_digest(signature, expected)</pre>
             <div class="modal-body">
 
                 <!-- SMTP Status -->
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: var(--spacing-lg); padding: var(--spacing-sm) var(--spacing-md); background: var(--color-bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                    <span style="font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">SMTP Status:</span>
-                    <span id="smtp-status-indicator" style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Checking...</span>
+                <div class="callout-row">
+                    <span class="font-medium text-sm">SMTP Status:</span>
+                    <span class="text-sm text-muted" id="smtp-status-indicator">Checking...</span>
                 </div>
 
                 <!-- SMTP Setup Guide (collapsible) -->
-                <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg); overflow: hidden;">
-                    <button id="email-guide-toggle" aria-expanded="false" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); background: none; border: none; cursor: pointer; color: var(--color-text-primary); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);">
-                        <span><i class="ri-question-line" style="margin-right: 0.5rem; color: var(--color-primary);"></i> SMTP setup guide &amp; email report configuration</span>
+                <div class="accordion">
+                    <button class="accordion__toggle font-medium text-sm" id="email-guide-toggle" aria-expanded="false">
+                        <span><i class="ri-question-line mr-sm text-accent"></i> SMTP setup guide &amp; email report configuration</span>
                         <i class="ri-arrow-down-s-line"></i>
                     </button>
-                    <div id="email-guide-content" style="display: none; padding: 0 var(--spacing-lg) var(--spacing-lg); font-size: var(--font-size-sm); line-height: 1.6;">
+                    <div class="accordion__body" id="email-guide-content" style="display: none;">
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">What is SMTP?</h4>
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        <h4 class="subheading">What is SMTP?</h4>
+                        <p class="text-secondary mb-md">
                             SMTP (Simple Mail Transfer Protocol) is needed to send emails from Mini Numbers. You need access to an SMTP server &mdash; either from your email provider or a transactional email service. Configure it via environment variables before starting the server.
                         </p>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Environment variables</h4>
-                        <div class="table-container" style="margin-bottom: var(--spacing-md);">
-                            <table style="font-size: 0.8rem;">
+                        <h4 class="subheading">Environment variables</h4>
+                        <div class="table-container mb-md">
+                            <table class="text-xs-plus">
                                 <thead>
                                     <tr><th>Variable</th><th>Required</th><th>Default</th><th>Description</th></tr>
                                 </thead>
@@ -1555,8 +1555,8 @@ valid = hmac.compare_digest(signature, expected)</pre>
                             </table>
                         </div>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Provider setup examples</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                        <h4 class="subheading">Provider setup examples</h4>
+                        <ul class="text-secondary pl-md-plus mb-md">
                             <li><strong>Gmail:</strong> Use <code>smtp.gmail.com</code> port 587. You must create an <a href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noopener">App Password</a> (2FA required).</li>
                             <li><strong>SendGrid:</strong> Use <code>smtp.sendgrid.net</code> port 587, username <code>apikey</code>, password is your API key.</li>
                             <li><strong>Mailgun:</strong> Use <code>smtp.mailgun.org</code> port 587 with your domain credentials.</li>
@@ -1564,19 +1564,19 @@ valid = hmac.compare_digest(signature, expected)</pre>
                             <li><strong>Self-hosted (Postfix, etc.):</strong> Use <code>localhost</code> port 25 or 587. You may skip username/password if relay is configured.</li>
                         </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Example <code>.env</code> configuration</h4>
-                        <pre style="background: var(--color-bg-primary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-sm) var(--spacing-md); font-size: 0.8rem; overflow-x: auto;">SMTP_HOST=smtp.gmail.com
+                        <h4 class="subheading">Example <code>.env</code> configuration</h4>
+                        <pre class="code-block">SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=you@gmail.com
 SMTP_PASSWORD=your-app-password
 SMTP_FROM=analytics@yourdomain.com
 SMTP_STARTTLS=true</pre>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Report contents</h4>
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
+                        <h4 class="subheading">Report contents</h4>
+                        <p class="text-secondary mb-sm">
                             Each email report includes a professional HTML summary of your analytics for the selected period. Use the section checkboxes below to control what&rsquo;s included:
                         </p>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem; margin-bottom: var(--spacing-md);">
+                        <ul class="text-secondary pl-md-plus mb-md">
                             <li><strong>Overview</strong> &mdash; total views, unique visitors, bounce rate with period comparison</li>
                             <li><strong>Top pages</strong> &mdash; your most-visited pages ranked by traffic</li>
                             <li><strong>Referrers</strong> &mdash; where your visitors are coming from</li>
@@ -1584,8 +1584,8 @@ SMTP_STARTTLS=true</pre>
                             <li><strong>Custom events</strong> &mdash; tracked events by name and count</li>
                         </ul>
 
-                        <h4 style="margin: var(--spacing-md) 0 var(--spacing-sm);">Troubleshooting</h4>
-                        <ul style="color: var(--color-text-secondary); padding-left: 1.25rem;">
+                        <h4 class="subheading">Troubleshooting</h4>
+                        <ul class="text-secondary pl-md-plus">
                             <li>If SMTP status shows &ldquo;Not configured&rdquo;, verify your environment variables and restart the server.</li>
                             <li>Gmail requires an App Password &mdash; regular passwords are blocked for SMTP.</li>
                             <li>Check your spam/junk folder if test emails don&rsquo;t arrive.</li>
@@ -1596,8 +1596,8 @@ SMTP_STARTTLS=true</pre>
                 </div>
 
                 <!-- Create New Report Form -->
-                <div class="form-section" style="margin-bottom: var(--spacing-lg);">
-                    <h3 style="margin-top: 0;">Add new email report</h3>
+                <div class="form-section mb-lg">
+                    <h3 class="mt-0">Add new email report</h3>
 
                     <!-- Basic settings -->
                     <div class="grid-2-cols settings-section-content">
@@ -1605,7 +1605,7 @@ SMTP_STARTTLS=true</pre>
                             <label for="email-report-recipient">Recipient email</label>
                             <input type="email" id="email-report-recipient" class="input" placeholder="you@example.com">
                         </div>
-                        <div class="grid-2-cols" style="gap: var(--spacing-sm);">
+                        <div class="grid-2-cols gap-sm">
                             <div class="form-group">
                                 <label for="email-report-schedule">Frequency</label>
                                 <select id="email-report-schedule" class="select">
@@ -1630,34 +1630,34 @@ SMTP_STARTTLS=true</pre>
                     </div>
 
                     <!-- Report sections -->
-                    <div style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
-                        <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); display: block; margin-bottom: var(--spacing-xs);">Include sections:</label>
+                    <div class="mt-sm mb-md">
+                        <label class="text-sm font-medium block mb-xs">Include sections:</label>
                         <div class="grid-2-cols settings-section-content">
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <label class="check-label check-label--tight">
                                 <input type="checkbox" class="email-section-cb" value="overview" checked> Overview
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <label class="check-label check-label--tight">
                                 <input type="checkbox" class="email-section-cb" value="pages" checked> Top pages
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <label class="check-label check-label--tight">
                                 <input type="checkbox" class="email-section-cb" value="referrers" checked> Referrers
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <label class="check-label check-label--tight">
                                 <input type="checkbox" class="email-section-cb" value="geo" checked> Geographic
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            <label class="check-label check-label--tight">
                                 <input type="checkbox" class="email-section-cb" value="events" checked> Custom events
                             </label>
                         </div>
                     </div>
 
                     <!-- Template customization (collapsible) -->
-                    <details style="margin-bottom: var(--spacing-md);">
-                        <summary style="cursor: pointer; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin-bottom: var(--spacing-sm);">
-                            <i class="ri-palette-line" style="margin-right: 0.25rem;"></i> Customize template (optional)
+                    <details class="mb-md">
+                        <summary class="cursor-pointer text-sm font-medium text-secondary mb-sm">
+                            <i class="ri-palette-line mr-xs"></i> Customize template (optional)
                         </summary>
-                        <div style="padding-top: var(--spacing-sm);" class="grid-2-cols settings-section-content">
-                            <div class="form-group" style="grid-column: span 2;">
+                        <div class="grid-2-cols settings-section-content pt-sm">
+                            <div class="form-group col-span-2">
                                 <label for="email-report-subject">Subject line</label>
                                 <input type="text" id="email-report-subject" class="input" placeholder="{project_name} Analytics &#8212; {period}">
                                 <small class="help-text">Variables: {project_name}, {period}, {date}</small>
@@ -1692,7 +1692,7 @@ SMTP_STARTTLS=true</pre>
                             </tr>
                         </thead>
                         <tbody id="email-reports-table-body">
-                            <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">Loading...</td></tr>
+                            <tr><td class="cell-placeholder" colspan="5">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1709,7 +1709,7 @@ SMTP_STARTTLS=true</pre>
                 <button class="modal-close" id="close-onboarding">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-lg);">
+                <p class="text-secondary mb-lg">
                     Get started with privacy-first analytics in a few simple steps.
                 </p>
                 <div class="onboarding-checklist" id="onboarding-checklist">
@@ -1847,7 +1847,7 @@ SMTP_STARTTLS=true</pre>
                     </table>
                 </div>
 
-                <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md); font-size: var(--font-size-lg);">Add a user</h3>
+                <h3 class="group-heading group-heading--plain">Add a user</h3>
                 <form id="add-user-form" class="add-user-form" novalidate>
                     <div class="form-group">
                         <label for="new-user-name">Username</label>
@@ -1882,7 +1882,7 @@ SMTP_STARTTLS=true</pre>
         <div class="modal-backdrop" onclick="document.getElementById('delete-project-modal').classList.remove('show')"></div>
         <div class="modal-content modal-content--compact">
             <div class="logout-dialog">
-                <div class="logout-dialog__icon" style="color: var(--color-danger);">
+                <div class="logout-dialog__icon text-danger">
                     <i class="ri-delete-bin-line"></i>
                 </div>
                 <h2 class="logout-dialog__title" id="delete-project-title">Delete project</h2>

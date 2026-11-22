@@ -121,9 +121,9 @@ const EmailReportsManager = {
     const smtpIndicator = document.getElementById('smtp-status-indicator');
     if (smtpIndicator && smtpStatus) {
       if (smtpStatus.configured) {
-        smtpIndicator.innerHTML = `<span style="color: var(--color-success);"><i class="ri-check-line"></i> Connected (${smtpStatus.host})</span>`;
+        smtpIndicator.innerHTML = `<span class="text-success"><i class="ri-check-line"></i> Connected (${smtpStatus.host})</span>`;
       } else {
-        smtpIndicator.innerHTML = `<span style="color: var(--color-warning);"><i class="ri-alert-line"></i> Not configured</span>`;
+        smtpIndicator.innerHTML = `<span class="text-warning"><i class="ri-alert-line"></i> Not configured</span>`;
       }
     }
 
@@ -135,7 +135,7 @@ const EmailReportsManager = {
     if (!tbody) return;
 
     if (!this.state.reports.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">No email reports yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="cell-placeholder">No email reports yet</td></tr>';
       return;
     }
 
@@ -143,8 +143,8 @@ const EmailReportsManager = {
       <tr>
         <td>${Utils.escapeHtml(r.recipientEmail)}</td>
         <td><span class="badge badge-sm">${Utils.escapeHtml(r.schedule)}</span></td>
-        <td>${r.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Inactive'}</td>
-        <td style="font-size: 0.85em;">${r.lastSentAt ? new Date(r.lastSentAt).toLocaleString() : 'Never'}</td>
+        <td>${r.isActive ? '<span class="text-success">Active</span>' : 'Inactive'}</td>
+        <td class="text-em-sm">${r.lastSentAt ? new Date(r.lastSentAt).toLocaleString() : 'Never'}</td>
         <td>
           <button class="btn btn-ghost btn-sm" onclick="EmailReportsManager.onToggle('${projectId}', '${r.id}', ${!r.isActive})" title="${r.isActive ? 'Pause' : 'Activate'}">
             <i class="${r.isActive ? 'ri-pause-line' : 'ri-play-line'}"></i>
@@ -152,7 +152,7 @@ const EmailReportsManager = {
           <button class="btn btn-ghost btn-sm" onclick="EmailReportsManager.onTest('${projectId}', '${r.id}')" title="Test">
             <i class="ri-send-plane-line"></i>
           </button>
-          <button class="btn btn-ghost btn-sm" style="color: var(--color-danger);" onclick="EmailReportsManager.onDelete('${projectId}', '${r.id}')" title="Delete">
+          <button class="btn btn-ghost btn-sm text-danger" onclick="EmailReportsManager.onDelete('${projectId}', '${r.id}')" title="Delete">
             <i class="ri-delete-bin-line"></i>
           </button>
         </td>

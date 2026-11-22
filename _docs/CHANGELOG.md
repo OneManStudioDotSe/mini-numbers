@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The dashboard, login page and setup wizard take every colour, size and shadow from one place**
+  (`css/variables.css`, with `css/themes.css` for the dark theme), instead of values scattered over the
+  stylesheets, the pages and the scripts. Nothing is meant to look different. A few sizes moved by less than a
+  pixel onto the common scale (13.6px and 14.4px text is now 14px, 12.8px is 13px, 17.6px is 18px), and all code
+  and keys use the same monospace font.
+
 ## [1.0.0] - 2026-11-22
 
 The first public release of Mini Numbers. It follows the development versions listed at the end of this file

@@ -97,17 +97,15 @@ const GlobeManager = {
       .globeImageUrl(isDark
         ? 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-night.jpg'
         : 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-blue-marble.jpg')
-      .backgroundColor(isDark ? '#0f172a' : '#f8fafc')
+      .backgroundColor(Utils.token('--globe-bg'))
       .showAtmosphere(true)
-      .atmosphereColor(isDark ? '#818cf8' : '#6366f1')
+      .atmosphereColor(Utils.token('--globe-atmosphere'))
       .atmosphereAltitude(0.2)
       // Rings layer — pulsing ripple animations at visitor locations
       .ringsData(data || [])
       .ringLat(d => d.lat)
       .ringLng(d => d.lng)
-      .ringColor(() => isDark
-        ? (t) => `rgba(129, 140, 248, ${1 - t})`
-        : (t) => `rgba(99, 102, 241, ${1 - t})`)
+      .ringColor(() => (t) => `rgba(${Utils.token('--globe-ring-rgb')}, ${1 - t})`)
       .ringMaxRadius(d => 2 + Math.min(d.count, 10) * 0.3)
       .ringPropagationSpeed(2)
       .ringRepeatPeriod(1500)
@@ -117,14 +115,14 @@ const GlobeManager = {
       .pointLng(d => d.lng)
       .pointAltitude(d => Math.min(d.count * 0.008, 0.25))
       .pointRadius(d => 0.25 + Math.min(d.count * 0.04, 0.6))
-      .pointColor(() => isDark ? '#a78bfa' : '#6366f1')
+      .pointColor(() => Utils.token('--globe-point'))
       // Labels layer — city/country name floating above each bar
       .labelsData(data || [])
       .labelLat(d => d.lat)
       .labelLng(d => d.lng)
       .labelText(d => `${d.city || d.country || 'Unknown'} (${d.count})`)
       .labelSize(d => 0.4 + Math.min(d.count * 0.05, 0.4))
-      .labelColor(() => isDark ? '#e2e8f0' : '#1e293b')
+      .labelColor(() => Utils.token('--globe-label'))
       .labelDotRadius(0)
       .labelAltitude(d => Math.min(d.count * 0.008, 0.25) + 0.02)
       .labelResolution(2);
@@ -237,13 +235,11 @@ const GlobeManager = {
       .globeImageUrl(isDark
         ? 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-night.jpg'
         : 'https://cdn.jsdelivr.net/npm/three-globe@2.45.6/example/img/earth-blue-marble.jpg')
-      .backgroundColor(isDark ? '#0f172a' : '#f8fafc')
-      .atmosphereColor(isDark ? '#818cf8' : '#6366f1')
-      .ringColor(() => isDark
-        ? (t) => `rgba(129, 140, 248, ${1 - t})`
-        : (t) => `rgba(99, 102, 241, ${1 - t})`)
-      .pointColor(() => isDark ? '#a78bfa' : '#6366f1')
-      .labelColor(() => isDark ? '#e2e8f0' : '#1e293b');
+      .backgroundColor(Utils.token('--globe-bg'))
+      .atmosphereColor(Utils.token('--globe-atmosphere'))
+      .ringColor(() => (t) => `rgba(${Utils.token('--globe-ring-rgb')}, ${1 - t})`)
+      .pointColor(() => Utils.token('--globe-point'))
+      .labelColor(() => Utils.token('--globe-label'));
   },
 
   /**

@@ -97,8 +97,7 @@ const RevenueManager = {
       const change = ((current - previous) / previous) * 100;
       const isUp = change >= 0;
       badge = document.createElement('span');
-      badge.className = 'revenue-comparison';
-      badge.style.cssText = `font-size: 0.75rem; font-weight: 500; margin-left: 0.5rem; color: var(--color-${isUp ? 'success' : 'danger'});`;
+      badge.className = `revenue-comparison revenue-comparison--${isUp ? 'up' : 'down'}`;
       badge.innerHTML = `<i class="ri-arrow-${isUp ? 'up' : 'down'}-s-line"></i>${Math.abs(change).toFixed(1)}%`;
       el.parentElement.appendChild(badge);
     }
@@ -109,7 +108,7 @@ const RevenueManager = {
     if (!container) return;
 
     if (!breakdown.length) {
-      container.innerHTML = '<div style="color: var(--color-text-muted); text-align: center; padding: 1rem;">No revenue events yet</div>';
+      container.innerHTML = '<div class="text-muted text-center p-md">No revenue events yet</div>';
       return;
     }
 
@@ -117,15 +116,15 @@ const RevenueManager = {
     container.innerHTML = breakdown.map(b => {
       const pct = maxRev > 0 ? (b.revenue / maxRev) * 100 : 0;
       return `
-        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--color-border);">
-          <div style="flex: 1; min-width: 0;">
-            <div style="font-weight: 500; font-size: 0.9rem;">${Utils.escapeHtml(b.eventName)}</div>
-            <div style="font-size: 0.75rem; color: var(--color-text-muted);">${b.transactions} txn &middot; avg $${b.avgValue.toFixed(2)}</div>
+        <div class="revenue-row">
+          <div class="revenue-row__main">
+            <div class="revenue-row__name">${Utils.escapeHtml(b.eventName)}</div>
+            <div class="revenue-row__meta">${b.transactions} txn &middot; avg $${b.avgValue.toFixed(2)}</div>
           </div>
-          <div style="width: 40%; position: relative; height: 20px; background: var(--color-bg-secondary); border-radius: 4px; overflow: hidden;">
-            <div style="height: 100%; width: ${pct}%; background: linear-gradient(90deg, var(--color-primary), #8b5cf6); border-radius: 4px; transition: width 0.6s ease;"></div>
+          <div class="revenue-row__track">
+            <div class="revenue-row__fill" style="width: ${pct}%"></div>
           </div>
-          <div style="min-width: 80px; text-align: right; font-weight: 600; font-size: 0.9rem;">$${b.revenue.toFixed(2)}</div>
+          <div class="revenue-row__amount">$${b.revenue.toFixed(2)}</div>
         </div>`;
     }).join('');
   },
@@ -135,14 +134,14 @@ const RevenueManager = {
     if (!tbody) return;
 
     if (!attribution.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">No attribution data</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="cell-placeholder">No attribution data</td></tr>';
       return;
     }
 
     tbody.innerHTML = attribution.map(a => `
       <tr>
-        <td style="font-weight: 500;">${Utils.escapeHtml(a.source)}</td>
-        <td style="font-weight: 600; color: var(--color-primary);">$${a.revenue.toFixed(2)}</td>
+        <td class="font-medium">${Utils.escapeHtml(a.source)}</td>
+        <td class="font-semibold text-accent">$${a.revenue.toFixed(2)}</td>
         <td>${a.transactions}</td>
         <td>$${a.avgValue.toFixed(2)}</td>
         <td>${a.conversionRate.toFixed(1)}%</td>

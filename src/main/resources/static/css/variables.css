@@ -5,6 +5,28 @@
 
 :root {
   /* ============================================
+     PALETTE - raw colours, the same in both themes
+     ============================================
+     As "R, G, B" so a rule can pick its own opacity: rgba(var(--rgb-indigo), 0.1).
+     Components never write a colour themselves; they use these or the semantic tokens below. */
+  --rgb-white: 255, 255, 255;
+  --rgb-black: 0, 0, 0;
+  --rgb-slate: 15, 23, 42;
+  --rgb-indigo: 99, 102, 241;
+  --rgb-indigo-light: 129, 140, 248;
+  --rgb-violet: 139, 92, 246;
+  --rgb-green: 34, 197, 94;
+  --rgb-emerald: 16, 185, 129;
+  --rgb-orange: 249, 115, 22;
+  --rgb-amber: 245, 158, 11;
+  --rgb-red: 239, 68, 68;
+  --color-white: #fff;
+  --color-amber: #f59e0b;
+  --color-error: #ef4444;
+  --gradient-indigo-violet: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-revenue-bar: linear-gradient(90deg, var(--color-primary), rgb(var(--rgb-violet)));
+
+  /* ============================================
      COLOR SYSTEM - LIGHT THEME (DEFAULT)
      ============================================ */
 
@@ -40,6 +62,7 @@
 
   /* Danger background (for error states) */
   --color-danger-bg: #fff1f2;
+  --color-warning-bg: #fef3c7;
 
   /* Neutral Colors - Backgrounds (Stone) */
   --color-bg-primary: #fafaf9;
@@ -71,7 +94,9 @@
 
   --spacing-xs: 0.25rem;    /* 4px */
   --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-sm-plus: 0.75rem; /* 12px */
   --spacing-md: 1rem;       /* 16px */
+  --spacing-md-plus: 1.25rem; /* 20px */
   --spacing-lg: 1.5rem;     /* 24px */
   --spacing-xl: 2rem;       /* 32px */
   --spacing-2xl: 3rem;      /* 48px */
@@ -94,17 +119,44 @@
   --font-size-2xl: 1.5rem;      /* 24px */
   --font-size-3xl: 2rem;        /* 32px */
   --font-size-4xl: 2.5rem;      /* 40px */
+  /* Steps between and beyond the main scale */
+  --font-size-3xs: 0.625rem;        /* 10px */
+  --font-size-2xs: 0.6875rem;       /* 11px */
+  --font-size-xs-plus: 0.8125rem;   /* 13px */
+  --font-size-sm-plus: 0.9375rem;   /* 15px */
+  --font-size-xl-plus: 1.375rem;    /* 22px */
+  --font-size-2xl-plus: 1.75rem;    /* 28px */
+  --font-size-display-sm: 2.75rem;  /* 44px */
+  --font-size-display-md: 3rem;     /* 48px */
+  --font-size-display-lg: 4rem;     /* 64px */
+  --font-size-code-inline: 0.85em;  /* inline code inside running text */
+  --font-size-code-path: 0.9em;
+  --font-size-emoji: 1.2em;
 
   /* Font Weights */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
 
   /* Line Heights */
   --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
+  --line-height-none: 1;
+  --line-height-compact: 1.2;
+  --line-height-snug: 1.3;
+  --line-height-cozy: 1.4;
+  --line-height-loose: 1.6;
+
+  /* Letter spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-snug: -0.02em;
+  --letter-spacing-wide: 0.04em;
+  --letter-spacing-wider: 0.5px;
 
   /* ============================================
      SHADOWS
@@ -118,9 +170,24 @@
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
   /* Glow Shadows */
-  --shadow-glow-primary: 0 0 20px rgba(99, 102, 241, 0.15);
-  --shadow-glow-success: 0 0 20px rgba(34, 197, 94, 0.15);
-  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(99, 102, 241, 0.05);
+  --shadow-glow-primary: 0 0 20px rgba(var(--rgb-indigo), 0.15);
+  --shadow-glow-success: 0 0 20px rgba(var(--rgb-green), 0.15);
+  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(var(--rgb-indigo), 0.05);
+  --shadow-floating: 0 20px 40px -8px rgba(var(--rgb-black), 0.12), 0 8px 16px -4px rgba(var(--rgb-black), 0.06);
+  --shadow-modal: 0 25px 50px -12px rgba(var(--rgb-black), 0.5);
+  --shadow-danger-hover: 0 4px 12px rgba(var(--rgb-red), 0.3);
+  --shadow-glow-accent: 0 0 12px rgba(var(--rgb-indigo), 0.35);
+
+  /* Focus rings */
+  --focus-ring: 0 0 0 3px rgba(var(--rgb-indigo), 0.12);
+  --focus-ring-soft: 0 0 0 3px rgba(var(--rgb-indigo), 0.1);
+  --focus-ring-primary: 0 0 0 3px var(--color-primary-light);
+  --focus-ring-error: 0 0 0 3px rgba(var(--rgb-red), 0.1);
+
+  /* Blur */
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-xl: 24px;
 
   /* ============================================
      BORDER RADIUS
@@ -131,6 +198,12 @@
   --radius-lg: 0.75rem;     /* 12px */
   --radius-xl: 1rem;        /* 16px */
   --radius-full: 9999px;    /* Fully rounded */
+  --radius-2xs: 0.125rem;      /* 2px */
+  --radius-xs: 0.25rem;        /* 4px */
+  --radius-md-plus: 0.625rem;  /* 10px */
+  --radius-2xl: 1.25rem;       /* 20px */
+  --radius-3xl: 1.5rem;        /* 24px */
+  --radius-circle: 50%;
 
   /* ============================================
      TRANSITIONS
@@ -141,6 +214,13 @@
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slowest: 500ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Bare durations, for transitions that name their own property and easing */
+  --duration-instant: 0.15s;
+  --duration-quick: 0.2s;
+  --duration-moderate: 0.3s;
+  --duration-slow: 0.4s;
+  --duration-slower: 0.5s;
+  --duration-long: 1s;
 
   /* Easing Functions */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -169,6 +249,24 @@
   --chart-bg-4: rgba(68, 64, 60, 0.1);
   --chart-bg-5: rgba(16, 185, 129, 0.1);
 
+  /* Chart furniture drawn on canvas (read by charts.js) */
+  --chart-tooltip-bg: rgba(0, 0, 0, 0.8);
+  --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+  --chart-segment-icon: rgba(255, 255, 255, 0.85);
+  --heatmap-cell-border: rgba(0, 0, 0, 0.06);
+  /* Heatmap colour schemes as "R, G, B" (Settings -> heatmap colours) */
+  --heatmap-blue-rgb: 37, 99, 235;
+  --heatmap-green-rgb: 34, 197, 94;
+  --heatmap-purple-rgb: 139, 92, 246;
+  --heatmap-orange-rgb: 249, 115, 22;
+
+  /* Globe (read by globe.js) */
+  --globe-bg: #f8fafc;
+  --globe-atmosphere: #6366f1;
+  --globe-ring-rgb: 99, 102, 241;
+  --globe-point: #6366f1;
+  --globe-label: #1e293b;
+
   /* ============================================
      Z-INDEX SCALE
      ============================================ */
@@ -180,6 +278,12 @@
   --z-index-modal: 400;
   --z-index-toast: 500;
   --z-index-tooltip: 600;
+  --z-index-behind: -1;
+  --z-index-raised: 10;
+  --z-index-overlay: 1000;
+  --z-index-overlay-top: 1001;
+  --z-index-max: 9999;
+  --z-index-skip-link: 10000;
 
   /* ============================================
      LAYOUT
@@ -188,6 +292,20 @@
   --sidebar-width: 250px;
   --header-height: 60px;
   --max-content-width: 1400px;
+  --skeleton-width: 60px;           /* placeholder bar while a number loads */
+  --skeleton-width-sm: 50px;
+  --skeleton-width-lg: 80px;
+  --cell-max-width: 120px;          /* a table cell that cuts long text with an ellipsis */
+  --cell-max-width-wide: 200px;
+  --cell-path-max-width: 400px;
+  --field-min-width: 150px;
+  --field-min-width-sm: 120px;
+  --chart-height: 300px;
+  --dialog-art-height: 52px;
+  --wizard-logo-height: 56px;
+  --step-art-size: 80px;
+  --step-art-offset: -8px;
+  --step-art-opacity: 0.12;
 
   /* ============================================
      COMPONENT-SPECIFIC

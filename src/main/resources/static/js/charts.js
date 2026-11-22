@@ -29,7 +29,7 @@ const ChartManager = {
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: Utils.token('--chart-tooltip-bg'),
         padding: 12,
         titleFont: {
           size: 13,
@@ -38,7 +38,7 @@ const ChartManager = {
         bodyFont: {
           size: 12,
         },
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: Utils.token('--chart-tooltip-border'),
         borderWidth: 1,
         displayColors: true,
         callbacks: {
@@ -222,7 +222,6 @@ const ChartManager = {
    */
   createHeatmap(id, heatmapData, peakHour = null, peakDay = null, dateLabels = null) {
     const colors = this.getColors();
-    const isDark = ThemeManager.isDark();
 
     // Transform to matrix format
     const dataPoints = [];
@@ -241,15 +240,9 @@ const ChartManager = {
       ? SettingsManager.get('heatmapColors') || 'blue'
       : 'blue';
 
-    const colorMap = {
-      blue:   { light: [37, 99, 235],   dark: [96, 165, 250] },
-      green:  { light: [34, 197, 94],   dark: [74, 222, 128] },
-      purple: { light: [139, 92, 246],  dark: [167, 139, 250] },
-      orange: { light: [249, 115, 22],  dark: [251, 146, 60] },
-    };
-
-    const scheme = colorMap[heatmapColor] || colorMap.blue;
-    const baseColor = isDark ? scheme.dark : scheme.light;
+    // The scheme's colour for the current theme, from the --heatmap-<scheme>-rgb token
+    const scheme = ['blue', 'green', 'purple', 'orange'].includes(heatmapColor) ? heatmapColor : 'blue';
+    const baseColor = Utils.token(`--heatmap-${scheme}-rgb`).split(',').map(Number);
 
     // Update legend gradient to match selected color
     const legendEl = document.querySelector('.legend-gradient');
@@ -276,7 +269,7 @@ const ChartManager = {
             const alpha = value / maxValue;
             return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${Math.max(alpha, 0.08)})`;
           },
-          borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+          borderColor: Utils.token('--heatmap-cell-border'),
           borderWidth: 1,
           borderRadius: 3,
           width: (ctx) => {
@@ -659,7 +652,7 @@ const ChartManager = {
           const fontSize = Math.max(12, Math.min(18, (outerRadius - innerRadius) * 0.5));
           ctx.save();
           ctx.font = `${fontSize}px remixicon`;
-          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.fillStyle = Utils.token('--chart-segment-icon');
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(char, x, y);

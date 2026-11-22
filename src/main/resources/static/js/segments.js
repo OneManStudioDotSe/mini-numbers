@@ -192,7 +192,7 @@ const SegmentsManager = {
         <option value="contains">contains</option>
         <option value="starts_with">starts with</option>
       </select>
-      <input type="text" class="input" data-filter="value" placeholder="Value..." style="flex: 1;" aria-label="Filter value">
+      <input type="text" class="input flex-1" data-filter="value" placeholder="Value..." aria-label="Filter value">
       <button type="button" class="btn btn-ghost btn-icon" data-action="remove-segment-filter" aria-label="Remove filter">
         <i class="ri-close-line"></i>
       </button>
@@ -277,7 +277,7 @@ const SegmentsManager = {
       this.segments = Object.fromEntries((segments || []).map(s => [s.id, s]));
 
       if (!segments || segments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">No segments yet</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="cell-placeholder">No segments yet</td></tr>';
         return;
       }
 
@@ -286,7 +286,7 @@ const SegmentsManager = {
           <td>${Utils.escapeHtml(s.name)}</td>
           <td>${s.description ? Utils.escapeHtml(s.description) : '<span class="text-muted">-</span>'}</td>
           <td>${this.filterBadges(s.filters)}</td>
-          <td><div style="display: flex; justify-content: flex-end;">
+          <td><div class="flex justify-end">
             <button class="btn btn-ghost btn-icon" data-action="edit-segment" data-id="${s.id}" aria-label="Edit segment ${Utils.escapeHtml(s.name)}">
               <i class="ri-pencil-line"></i>
             </button>

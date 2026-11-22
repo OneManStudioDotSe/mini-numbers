@@ -428,6 +428,26 @@ All error responses use standardized `ApiError` format: `{ error, code, details[
 
 ## Feature notes
 
+### Styling
+
+The admin panel, login page and setup wizard share `static/css/`. **Every design value lives in two files**:
+`variables.css` (light theme) and `themes.css` (the dark overrides). Changing the look means editing those two.
+
+- `base.css`, `components.css`, `login/login.css` and `setup/css/wizard.css` hold rules only. They write no colour,
+  font size, weight, radius, shadow, blur, z-index or transition duration of their own: a rule uses a semantic
+  token (`--color-primary`, `--font-size-sm`, `--radius-md`) or a palette colour with its own opacity
+  (`rgba(var(--rgb-indigo), 0.1)`).
+- The pages carry no `style` attribute except `display: none` for something that starts hidden. Markup written
+  by `static/js/*.js` is the same, except for values computed from data (a bar's width, a grid position).
+  One-off looks are classes at the end of `components.css` ("Shared pieces", then utilities such as `.mb-md`
+  and `.text-muted`, placed last so they win over a component's own value).
+- Canvas and WebGL code cannot use `var()`, so `charts.js` and `globe.js` read tokens with `Utils.token(name)`
+  (chart palette, tooltip, heatmap schemes `--heatmap-<scheme>-rgb`, `--globe-*`).
+
+Checks (expected: 0 each): `grep -cE '#[0-9a-fA-F]{3,8}\b|rgba?\(\s*[0-9]'` on the four rule files, and
+`grep -o 'style="[^"]*"' admin.html | grep -vc 'display: none'`. Spacing (padding, margin, gap) inside component
+rules still uses literal values in places; that is the remaining gap.
+
 ### Labs
 
 `core/Labs.kt` lists the features that work but are not verified well enough to be on by default (see

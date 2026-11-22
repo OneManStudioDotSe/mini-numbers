@@ -125,9 +125,9 @@ const GoalsManager = {
 
     if (!goalStats || goalStats.length === 0) {
       container.innerHTML = `
-        <div style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-muted);">
+        <div class="text-center p-lg text-muted">
           <p>No conversion goals configured yet.</p>
-          <p style="font-size: var(--font-size-sm);">Click "Manage goals" to create your first goal.</p>
+          <p class="text-sm">Click "Manage goals" to create your first goal.</p>
         </div>`;
       return;
     }
@@ -176,9 +176,9 @@ const GoalsManager = {
 
     if (!funnels || funnels.length === 0) {
       container.innerHTML = `
-        <div style="text-align: center; padding: var(--spacing-lg); color: var(--color-text-muted);">
+        <div class="text-center p-lg text-muted">
           <p>No funnels configured yet.</p>
-          <p style="font-size: var(--font-size-sm);">Click "Manage funnels" to create your first funnel.</p>
+          <p class="text-sm">Click "Manage funnels" to create your first funnel.</p>
         </div>`;
       return;
     }
@@ -190,7 +190,7 @@ const GoalsManager = {
           <span class="text-muted text-xs">${funnel.steps.length} steps</span>
         </div>
         <div class="funnel-visualization" id="funnel-viz-${funnel.id}">
-          <div style="text-align: center; padding: var(--spacing-md); color: var(--color-text-muted);">Loading analysis...</div>
+          <div class="text-center p-md text-muted">Loading analysis...</div>
         </div>
       </div>
     `).join('');
@@ -208,7 +208,7 @@ const GoalsManager = {
     if (!container) return;
 
     if (!analysis.steps || analysis.steps.length === 0) {
-      container.innerHTML = '<div style="text-align: center; color: var(--color-text-muted);">No data available</div>';
+      container.innerHTML = '<div class="cell-placeholder">No data available</div>';
       return;
     }
 
@@ -281,7 +281,7 @@ const GoalsManager = {
     if (!tbody) return;
 
     if (goals.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">No goals yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="cell-placeholder">No goals yet</td></tr>';
       return;
     }
 
@@ -312,7 +312,7 @@ const GoalsManager = {
     if (!container) return;
 
     if (funnels.length === 0) {
-      container.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">No funnels yet</td></tr>';
+      container.innerHTML = '<tr><td colspan="4" class="cell-placeholder">No funnels yet</td></tr>';
       return;
     }
 
@@ -321,7 +321,7 @@ const GoalsManager = {
         <td>${Utils.escapeHtml(funnel.name)}</td>
         <td>${funnel.steps.length}</td>
         <td>${funnel.steps.map(s => Utils.escapeHtml(s.name)).join(' &rarr; ')}</td>
-        <td><div style="display: flex; justify-content: flex-end;">
+        <td><div class="flex justify-end">
           <button class="btn btn-ghost btn-icon btn-sm" data-action="edit-funnel" data-id="${funnel.id}" aria-label="Edit funnel ${Utils.escapeHtml(funnel.name)}">
             <i class="ri-pencil-line"></i>
           </button>

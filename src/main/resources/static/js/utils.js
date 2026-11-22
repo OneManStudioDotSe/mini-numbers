@@ -4,6 +4,14 @@
  */
 
 const Utils = {
+  /**
+   * Read a design token from css/variables.css (or its dark override), e.g. Utils.token('--globe-bg').
+   * Canvas and WebGL code cannot use var(), so it asks here instead of keeping its own colours.
+   */
+  token(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  },
+
   // Cache management
   cache: {
     data: {},

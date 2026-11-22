@@ -142,15 +142,15 @@ const WebhooksManager = {
     if (!tbody) return;
 
     if (!this.state.webhooks.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">No webhooks yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="cell-placeholder">No webhooks yet</td></tr>';
       return;
     }
 
     tbody.innerHTML = this.state.webhooks.map(wh => `
       <tr>
-        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(wh.url)}">${Utils.escapeHtml(wh.url)}</td>
+        <td class="cell-truncate cell-truncate--wide" title="${Utils.escapeHtml(wh.url)}">${Utils.escapeHtml(wh.url)}</td>
         <td>${wh.events.map(e => `<span class="badge badge-sm">${Utils.escapeHtml(e)}</span>`).join(' ')}</td>
-        <td>${wh.isActive ? '<span style="color: var(--color-success);">Active</span>' : 'Paused'}</td>
+        <td>${wh.isActive ? '<span class="text-success">Active</span>' : 'Paused'}</td>
         <td>
           <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onToggle('${projectId}', '${wh.id}', ${!wh.isActive})" title="${wh.isActive ? 'Pause' : 'Resume'}">
             <i class="${wh.isActive ? 'ri-pause-line' : 'ri-play-line'}"></i>
@@ -161,7 +161,7 @@ const WebhooksManager = {
           <button class="btn btn-ghost btn-sm" onclick="WebhooksManager.onViewDeliveries('${projectId}', '${wh.id}')" title="Deliveries">
             <i class="ri-file-list-line"></i>
           </button>
-          <button class="btn btn-ghost btn-sm" style="color: var(--color-danger);" onclick="WebhooksManager.onDelete('${projectId}', '${wh.id}')" title="Delete">
+          <button class="btn btn-ghost btn-sm text-danger" onclick="WebhooksManager.onDelete('${projectId}', '${wh.id}')" title="Delete">
             <i class="ri-delete-bin-line"></i>
           </button>
         </td>
@@ -254,7 +254,7 @@ const WebhooksManager = {
     document.getElementById('webhook-deliveries-section').style.display = 'block';
 
     if (!deliveries.length) {
-      container.innerHTML = '<p style="color: var(--color-text-muted); text-align: center;">No deliveries yet</p>';
+      container.innerHTML = '<p class="text-muted text-center">No deliveries yet</p>';
       return;
     }
 
@@ -275,7 +275,7 @@ const WebhooksManager = {
                 </td>
                 <td>${d.responseCode || '—'}</td>
                 <td>${d.attempt}/3</td>
-                <td style="font-size: 0.8rem;">${new Date(d.createdAt).toLocaleString()}</td>
+                <td class="text-xs-plus">${new Date(d.createdAt).toLocaleString()}</td>
               </tr>
             `).join('')}
           </tbody>

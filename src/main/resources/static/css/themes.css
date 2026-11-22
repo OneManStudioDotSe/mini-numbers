@@ -88,6 +88,19 @@
   --chart-bg-4: rgba(251, 191, 36, 0.15);
   --chart-bg-5: rgba(52, 211, 153, 0.15);
 
+  --heatmap-cell-border: rgba(255, 255, 255, 0.06);
+  --heatmap-blue-rgb: 96, 165, 250;
+  --heatmap-green-rgb: 74, 222, 128;
+  --heatmap-purple-rgb: 167, 139, 250;
+  --heatmap-orange-rgb: 251, 146, 60;
+
+  /* Globe */
+  --globe-bg: #0f172a;
+  --globe-atmosphere: #818cf8;
+  --globe-ring-rgb: 129, 140, 248;
+  --globe-point: #a78bfa;
+  --globe-label: #e2e8f0;
+
   /* Table */
   --table-row-hover: var(--color-bg-hover);
 

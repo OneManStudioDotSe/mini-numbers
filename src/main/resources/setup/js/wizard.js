@@ -9,8 +9,9 @@ const SetupWizard = {
     particles: [],
     ctx: null,
     canvas: null,
-    dotColor: 'rgba(99, 102, 241, 0.15)',
-    lineColor: 'rgba(99, 102, 241, 0.05)',
+    // Set from the --canvas-dot and --canvas-line tokens in updateAnimationColors()
+    dotColor: '',
+    lineColor: '',
 
     init() {
         this.updateAnimationColors();

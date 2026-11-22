@@ -847,7 +847,7 @@ const Dashboard = {
   showLoadingState() {
     // Show skeletons on stat card values
     document.querySelectorAll('.stat-card__value').forEach(el => {
-      el.innerHTML = '<span class="skeleton skeleton-text" style="width: 80px; display: inline-block;">&nbsp;</span>';
+      el.innerHTML = '<span class="skeleton skeleton-text w-skeleton-lg inline-block">&nbsp;</span>';
     });
 
     // Show skeletons on main charts
@@ -858,8 +858,7 @@ const Dashboard = {
         const container = el.parentElement;
         if (container && !container.querySelector('.skeleton-chart')) {
           const skeleton = document.createElement('div');
-          skeleton.className = 'skeleton skeleton-chart';
-          skeleton.style.cssText = 'position:absolute; inset:0; z-index:5; border-radius:inherit;';
+          skeleton.className = 'skeleton skeleton-chart skeleton-overlay skeleton-overlay--rounded';
           container.appendChild(skeleton);
         }
       }
@@ -2532,7 +2531,7 @@ const Dashboard = {
       );
 
       if (!data.events || data.events.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">No events found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="cell-placeholder">No events found</td></tr>';
       } else {
         const today = new Date().toDateString();
         tbody.innerHTML = data.events.map(e => {
@@ -2544,31 +2543,31 @@ const Dashboard = {
           const isToday = dateDate.toDateString() === today;
           const timestampDisplay = isToday 
             ? Utils.time.formatTime(e.timestamp)
-            : `<div style="display: flex; flex-direction: column; line-height: 1.2;"><span style="font-size: 0.85em; color: var(--color-text-muted);">${Utils.time.formatDate(e.timestamp)}</span><span>${Utils.time.formatTime(e.timestamp)}</span></div>`;
+            : `<div class="stack-tight"><span class="text-em-sm text-muted">${Utils.time.formatDate(e.timestamp)}</span><span>${Utils.time.formatTime(e.timestamp)}</span></div>`;
 
           // Location logic
           const flag = e.country ? Utils.icons.countryFlag(e.country) : '';
           const countryName = e.country || 'Unknown';
           const regionName = e.city || e.region || '';
-          const locationDisplay = `<div style="display: flex; align-items: center; gap: 6px;">
-            ${flag ? `<span style="font-size: 1.2em; line-height: 1;">${flag}</span>` : ''}
-            <div style="display: flex; flex-direction: column; line-height: 1.2;">
+          const locationDisplay = `<div class="event-location">
+            ${flag ? `<span class="flag-emoji">${flag}</span>` : ''}
+            <div class="stack-tight">
                 <span>${Utils.escapeHtml(countryName)}</span>
-                ${regionName ? `<span style="font-size: 0.85em; color: var(--color-text-muted);">${Utils.escapeHtml(regionName)}</span>` : ''}
+                ${regionName ? `<span class="text-em-sm text-muted">${Utils.escapeHtml(regionName)}</span>` : ''}
             </div>
           </div>`;
 
           // Path logic
-          const pathDisplay = `<code style="font-family: monospace; font-size: 0.9em; color: var(--color-primary); background: var(--color-bg-tertiary); padding: 2px 4px; border-radius: 4px; word-break: break-all; display: inline-block;">${Utils.escapeHtml(e.path)}</code>`;
+          const pathDisplay = `<code class="event-path">${Utils.escapeHtml(e.path)}</code>`;
 
           return `
           <tr>
-            <td style="white-space: nowrap;">${timestampDisplay}</td>
+            <td class="nowrap">${timestampDisplay}</td>
             <td><span class="badge badge-${badgeClass}">${typeLabel}</span></td>
-            <td style="min-width: 200px; max-width: 400px; word-break: break-word;">${pathDisplay}</td>
+            <td class="cell-path">${pathDisplay}</td>
             <td>${locationDisplay}</td>
-            <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(e.browser)}">${Utils.escapeHtml(e.browser || 'Unknown')}</td>
-            <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${Utils.escapeHtml(e.device)}">${Utils.escapeHtml(e.device || 'Unknown')}</td>
+            <td class="cell-truncate" title="${Utils.escapeHtml(e.browser)}">${Utils.escapeHtml(e.browser || 'Unknown')}</td>
+            <td class="cell-truncate" title="${Utils.escapeHtml(e.device)}">${Utils.escapeHtml(e.device || 'Unknown')}</td>
             <td>${e.duration || 0}s</td>
           </tr>
         `}).join('');
@@ -2586,7 +2585,7 @@ const Dashboard = {
     } catch (error) {
       console.error('Failed to load raw events:', error);
       Utils.toast.error('Failed to load events');
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-error);">Error loading events</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="cell-placeholder cell-placeholder--error">Error loading events</td></tr>';
     }
   },
 
@@ -2759,7 +2758,7 @@ const Dashboard = {
     const statCards = ['total-views', 'unique-visitors', 'total-sessions', 'bounce-rate', 'avg-session-duration', 'overall-conversion-rate', 'ai-referrals'];
     statCards.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.innerHTML = '<span class="skeleton skeleton-text" style="width: 60px;">&nbsp;</span>';
+      if (el) el.innerHTML = '<span class="skeleton skeleton-text w-skeleton">&nbsp;</span>';
     });
 
     // Charts
@@ -2771,13 +2770,7 @@ const Dashboard = {
         // Don't show skeleton if it's already there or if we are in map/globe view
         if (container && !container.querySelector('.skeleton')) {
           const skeleton = document.createElement('div');
-          skeleton.className = 'skeleton skeleton-chart';
-          skeleton.style.height = '100%';
-          skeleton.style.width = '100%';
-          skeleton.style.position = 'absolute';
-          skeleton.style.top = '0';
-          skeleton.style.left = '0';
-          skeleton.style.zIndex = '5';
+          skeleton.className = 'skeleton skeleton-chart skeleton-overlay';
           container.appendChild(skeleton);
         }
       }

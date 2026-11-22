@@ -16,7 +16,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -61,7 +61,7 @@ small {
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--letter-spacing-wider);
 }
 
 strong {
@@ -281,12 +281,12 @@ a:hover {
   top: -100%;
   left: 0;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
   padding: var(--spacing-sm) var(--spacing-md);
-  z-index: 9999;
+  z-index: var(--z-index-max);
   font-weight: var(--font-weight-semibold);
   border-radius: 0 0 var(--radius-md) 0;
-  transition: top 0.2s;
+  transition: top var(--duration-quick);
 }
 
 .skip-link:focus {
