@@ -115,9 +115,10 @@ jobs:
       - name: Test that setup survives recreating the container
         run: |
           docker volume create mn-data
-          docker run -d --name mn-persist -p 18081:8080 -v mn-data:/app/data mini-numbers:ci-test
+          # A fixed setup token, so the save does not have to read it from the container log
+          docker run -d --name mn-persist -p 18081:8080 -e SETUP_TOKEN=ci-setup-token -v mn-data:/app/data mini-numbers:ci-test
           sleep 20
-          curl --fail --retry 3 --retry-delay 5 -H 'Content-Type: application/json' \
+          curl --fail --retry 3 --retry-delay 5 -H 'Content-Type: application/json' -H 'X-Setup-Token: ci-setup-token' \
             -d "{\"adminUsername\":\"admin\",\"adminPassword\":\"ci-persist-password\",\"serverSalt\":\"$(openssl rand -hex 64)\",\"privacyMode\":\"STANDARD\",\"allowedOrigins\":\"\",\"database\":{\"type\":\"sqlite\",\"sqlitePath\":\"./stats.db\"},\"server\":{\"port\":9999,\"isDevelopment\":false},\"geoip\":{\"databasePath\":\"./geo.mmdb\"},\"rateLimit\":{\"perIp\":1000,\"perApiKey\":10000}}" \
             http://localhost:18081/setup/api/save
           docker rm -f mn-persist
