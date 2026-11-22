@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Browsers, operating systems and devices are gauges**: the shares as rounded segments of an open arc, the
+  total in its opening, and a centred legend with each item's icon and percentage. They replace the doughnuts;
+  the bar and radar views of those cards are unchanged.
 - **A tidier top bar.** Raw events and the time range are pills, the theme switch and Settings are round icon
   buttons of the same height (the theme switch shows the current theme's icon instead of a sliding knob), and
   the date range and filter sit under it as a plain row instead of a boxed bar. On a phone the controls wrap

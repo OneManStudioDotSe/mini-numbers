@@ -609,14 +609,15 @@ const ChartManager = {
   },
 
   /**
-   * Create doughnut chart with custom HTML icon legend
+   * Create a gauge: the shares as segments of an open arc, the total in its opening, and an HTML legend
+   * with each item's icon and percentage
    * @param {string} id - Canvas element ID
    * @param {Array} items - Array of {label, value} objects
    * @param {string} iconType - Icon category for legend: 'browser', 'os', 'device'
    * @param {Object} options - Additional options
    * @returns {Chart} Chart instance
    */
-  createIconDoughnutChart(id, items, iconType, options = {}) {
+  createGaugeChart(id, items, iconType, options = {}) {
     const colors = this.getColors();
     const labels = items.map(item => item.label);
     const values = items.map(item => item.value);
@@ -626,46 +627,26 @@ const ChartManager = {
       (_, index) => colors.chart[index % colors.chart.length]
     );
 
-    // Resolve Remix Icon class → Unicode character for each slice
-    const iconChars = labels.map(label => {
-      const iconClass = Utils.icons[iconType] ? Utils.icons[iconType](label) : '';
-      if (!iconClass) return '';
-      return this._getRemixIconChar(iconClass);
-    });
-
-    // Plugin to draw icons on each doughnut slice
-    const sliceIconPlugin = {
-      id: 'sliceIcons',
+    // The total sits in the opening of the arc
+    const centre = {
+      id: 'gaugeCentre',
       afterDraw(chart) {
+        const arc = chart.getDatasetMeta(0).data[0];
+        if (!arc) return;
         const { ctx } = chart;
-        const meta = chart.getDatasetMeta(0);
-        if (!meta || !meta.data) return;
-
-        meta.data.forEach((arc, i) => {
-          const char = iconChars[i];
-          if (!char) return;
-          // Only draw on slices large enough (> 5% of total)
-          const pct = values[i] / total;
-          if (pct < 0.05) return;
-
-          const { startAngle, endAngle, innerRadius, outerRadius } = arc.getProps(
-            ['startAngle', 'endAngle', 'innerRadius', 'outerRadius'], true
-          );
-          const midAngle = (startAngle + endAngle) / 2;
-          const midRadius = (innerRadius + outerRadius) / 2;
-          const x = arc.x + Math.cos(midAngle) * midRadius;
-          const y = arc.y + Math.sin(midAngle) * midRadius;
-
-          const fontSize = Math.max(12, Math.min(18, (outerRadius - innerRadius) * 0.5));
-          ctx.save();
-          ctx.font = `${fontSize}px remixicon`;
-          ctx.fillStyle = Utils.token('--chart-segment-icon');
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(char, x, y);
-          ctx.restore();
-        });
-      }
+        const family = Utils.token('--font-family-base');
+        const size = Math.max(20, Math.min(34, arc.outerRadius * 0.34));
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = Utils.token('--color-text-primary');
+        ctx.font = `600 ${size}px ${family}`;
+        ctx.fillText(Utils.format.number(total), arc.x, arc.y - size * 0.1);
+        ctx.fillStyle = Utils.token('--color-text-muted');
+        ctx.font = `400 ${Math.round(size * 0.42)}px ${family}`;
+        ctx.fillText('Total', arc.x, arc.y + size * 0.75);
+        ctx.restore();
+      },
     };
 
     const chart = this.create(
@@ -676,11 +657,16 @@ const ChartManager = {
         datasets: [{
           data: values,
           backgroundColor: backgroundColors,
-          borderWidth: 2,
-          borderColor: colors.bgSecondary,
+          borderWidth: 0,
+          borderRadius: 999,
+          spacing: 4,
         }],
       },
       {
+        // An open arc: 240 degrees, starting at the lower left
+        rotation: -120,
+        circumference: 240,
+        cutout: '88%',
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -696,7 +682,7 @@ const ChartManager = {
         },
         ...options,
       },
-      [sliceIconPlugin]
+      [centre]
     );
 
     // Build custom HTML legend with icons — placed outside the chart container
@@ -1003,25 +989,6 @@ const ChartManager = {
     return item && typeof item === 'object' && !Array.isArray(item);
   },
 
-  /**
-   * Resolve a Remix Icon CSS class to its Unicode character.
-   * Uses a temporary DOM element to read the ::before content.
-   * Results are cached for performance.
-   */
-  _iconCharCache: {},
-  _getRemixIconChar(iconClass) {
-    if (this._iconCharCache[iconClass]) return this._iconCharCache[iconClass];
-    const el = document.createElement('i');
-    el.className = iconClass;
-    el.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden';
-    document.body.appendChild(el);
-    const content = getComputedStyle(el, '::before').content;
-    document.body.removeChild(el);
-    // content is like '"\\ea12"' — strip surrounding quotes
-    const char = content && content !== 'none' ? content.replace(/"/g, '') : '';
-    this._iconCharCache[iconClass] = char;
-    return char;
-  },
 };
 
 // Listen for theme changes and update all charts

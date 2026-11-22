@@ -266,7 +266,6 @@
   /* Chart furniture drawn on canvas (read by charts.js) */
   --chart-tooltip-bg: rgba(21, 21, 23, 0.94);
   --chart-tooltip-border: rgba(255, 255, 255, 0.1);
-  --chart-segment-icon: rgba(255, 255, 255, 0.85);
   --color-bar: #cfcfd6;                 /* an ordinary bar */
   --color-bar-highlight: var(--color-primary);  /* the leading bar */
   --heatmap-cell-border: rgba(0, 0, 0, 0.06);

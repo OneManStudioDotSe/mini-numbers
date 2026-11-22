@@ -1568,7 +1568,7 @@ const Dashboard = {
       ChartManager.createRadarChart(chartId, items);
     } else {
       container.classList.remove('chart-card__container--radar');
-      ChartManager.createIconDoughnutChart(chartId, items, iconType);
+      ChartManager.createGaugeChart(chartId, items, iconType);
     }
   },
 

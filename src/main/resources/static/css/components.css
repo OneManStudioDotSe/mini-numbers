@@ -2983,6 +2983,10 @@ tbody tr {
   margin-bottom: var(--spacing-sm);
 }
 
+/* Gauge legend: centred under the arc, round colour dots */
+.icon-legend { justify-content: center; gap: var(--spacing-sm) var(--spacing-lg); }
+.icon-legend__color { border-radius: var(--radius-circle); }
+
 /* ============================================
    TOP BAR
    The project title on the left; on the right a row of controls of one height: pills for the
