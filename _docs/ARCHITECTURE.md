@@ -442,7 +442,9 @@ The admin panel, login page and setup wizard share `static/css/`. **Every design
   One-off looks are classes at the end of `components.css` ("Shared pieces", then utilities such as `.mb-md`
   and `.text-muted`, placed last so they win over a component's own value).
 - Canvas and WebGL code cannot use `var()`, so `charts.js` and `globe.js` read tokens with `Utils.token(name)`
-  (chart palette, tooltip, heatmap schemes `--heatmap-<scheme>-rgb`, `--globe-*`).
+  (chart palette, tooltip, heatmap schemes `--heatmap-<scheme>-rgb`, `--globe-*`). The canvas font is set once from
+  `--font-family-base`. "Views over time" is `ChartManager.createDotMatrixChart`: a Chart.js bar chart with
+  invisible bars and a plugin that draws the dots.
 
 Checks (expected: 0 each): `grep -cE '#[0-9a-fA-F]{3,8}\b|rgba?\(\s*[0-9]'` on the four rule files, and
 `grep -o 'style="[^"]*"' admin.html | grep -vc 'display: none'`. Spacing (padding, margin, gap) inside component
@@ -452,7 +454,8 @@ The landing site (`landing/`, a separate static site) follows the same rule with
 `landing/variables.css` holds every value for both themes, `landing/landing.css` holds rules only, the pages
 carry no `style` attribute except data values (`--bar-width`), and `landing.js` reads canvas colours with its
 `token()` helper. Its tokens use the same names and values as the admin's, so a change of look means editing
-`static/css/variables.css` + `themes.css` and `landing/variables.css`. Inter is bundled in `landing/assets/fonts/`.
+`static/css/variables.css` + `themes.css` and `landing/variables.css`. Plus Jakarta Sans (the interface typeface) and Inter (its fallback) are bundled in `landing/assets/fonts/`;
+the dashboard screenshots the home page shows are in `landing/assets/screens/` (one per theme).
 
 ### Labs
 
@@ -586,7 +589,7 @@ initial setup steps (e.g. create a project, install the tracker). Driven client-
   development mode. CORS is `anyHost()` without credentials; `/admin` and `/api` additionally check
   `ALLOWED_ORIGINS` (`middleware/AdminCorsGuard.kt`).
   Third-party sources are limited to `cdn.jsdelivr.net` (Chart.js, chartjs-chart-matrix, Remixicon, globe.gl, all
-  pinned); Inter is self-hosted in `assets/fonts/` (OFL) and declared in `static/css/fonts.css` for the login page and wizard.
+  pinned); Plus Jakarta Sans (the interface typeface) and Inter (its fallback) are self-hosted in `assets/fonts/` (both OFL) and declared in `static/css/fonts.css`, which the dashboard, login page and wizard all load.
 - **Input**: every `/collect` field is validated and sanitised (`middleware/InputValidator.kt`); the referrer and the
   target URL must be `http(s)` URLs with no whitespace, quotes, angle brackets or backticks, and `properties` must be
   a JSON object. All SQL goes through Exposed.

@@ -96,36 +96,9 @@
         <span class="landing-mockup-dot"></span>
         <span class="landing-mockup-url">your-domain.com/admin-panel</span>
       </div>
-      <div class="landing-mockup-body">
-        <div class="landing-mock-stats">
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Total Views</div>
-            <div class="landing-mock-stat-value">12,847</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +14.2%</div>
-          </div>
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Unique Visitors</div>
-            <div class="landing-mock-stat-value">3,291</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +8.7%</div>
-          </div>
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Bounce Rate</div>
-            <div class="landing-mock-stat-value">42.1%</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-down-s-line"></i> -3.1%</div>
-          </div>
-        </div>
-        <div class="landing-mock-chart">
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <polygon points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10 400,100 0,100" fill="url(#chart-grad)"/>
-            <polyline points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
-          </svg>
-        </div>
+      <div class="landing-shot landing-mockup-body">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/overview-light.png" alt="The Mini Numbers dashboard overview with a dot-matrix chart of views over time" width="1449" height="1478" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/overview-dark.png" alt="The Mini Numbers dashboard overview with a dot-matrix chart of views over time" width="1449" height="1496" loading="lazy">
       </div>
     </div>
   </div>
@@ -201,7 +174,6 @@
 
     <!-- Dashboard tab -->
     <div class="landing-tab-content active relative" data-tab="dashboard" role="tabpanel">
-      <img src="assets/set_3/png/003-bar%20graph.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Beautiful, actionable insights</h3>
         <p>See your traffic at a glance with stat cards, comparison reports, and time series charts. Filter by time range and watch trends emerge.</p>
@@ -213,30 +185,14 @@
           <li><i class="ri-check-line"></i> Light and dark theme support</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <div class="landing-mock-stats">
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Views</div>
-            <div class="landing-mock-stat-value text-xl">8,412</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +12%</div>
-          </div>
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Visitors</div>
-            <div class="landing-mock-stat-value text-xl">2,103</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +8%</div>
-          </div>
-          <div class="landing-mock-stat">
-            <div class="landing-mock-stat-label">Bounce</div>
-            <div class="landing-mock-stat-value text-xl">38%</div>
-            <div class="landing-mock-stat-change"><i class="ri-arrow-down-s-line"></i> -5%</div>
-          </div>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/stats-light.png" alt="The overview: page views, visitors, sessions, bounce rate, session length, conversion rate and AI referrals, each with its change from the previous period" width="1449" height="797" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/stats-dark.png" alt="The overview: page views, visitors, sessions, bounce rate, session length, conversion rate and AI referrals, each with its change from the previous period" width="1449" height="815" loading="lazy">
       </div>
     </div>
 
     <!-- Custom Events tab -->
     <div class="landing-tab-content relative" data-tab="events" role="tabpanel">
-      <img src="assets/set_3/png/019-idea.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Track what matters</h3>
         <p>Go beyond page views. Track signups, purchases, and any custom interaction with a single line of code.</p>
@@ -248,30 +204,14 @@
           <li><i class="ri-check-line"></i> Auto-detect downloads and outbound links</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <div class="landing-code-block">
-          <div class="landing-code-bar">
-            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-            <span class="landing-code-title">script.js</span>
-            <button class="landing-copy-btn" data-code='MiniNumbers.track("signup");'><i class="ri-file-copy-line"></i> Copy</button>
-          </div>
-          <div class="landing-code-body">
-<pre><span class="hl-comment">// Track a signup event</span>
-<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"signup"</span>);
-
-<span class="hl-comment">// Track a purchase</span>
-<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"purchase"</span>);
-
-<span class="hl-comment">// Track any interaction</span>
-<span class="hl-fn">MiniNumbers</span>.<span class="hl-fn">track</span>(<span class="hl-str">"cta_click"</span>);</pre>
-          </div>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/events-light.png" alt="Custom events ranked by how often they fired" width="1449" height="561" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/events-dark.png" alt="Custom events ranked by how often they fired" width="1449" height="561" loading="lazy">
       </div>
     </div>
 
     <!-- Visualizations tab -->
     <div class="landing-tab-content relative" data-tab="viz" role="tabpanel">
-      <img src="assets/set_3/png/025-pie%20chart.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Data that tells a story</h3>
         <p>Go beyond bar charts. See your data come alive with unique visualizations that help you spot patterns at a glance.</p>
@@ -283,45 +223,14 @@
           <li><i class="ri-check-line"></i> Line, doughnut, bar, and radar charts</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <!-- Mini heatmap illustration -->
-        <div class="mock-heat">
-          <div class="mock-heat__cell mock-heat__cell--1"></div>
-          <div class="mock-heat__cell mock-heat__cell--3"></div>
-          <div class="mock-heat__cell mock-heat__cell--6"></div>
-          <div class="mock-heat__cell mock-heat__cell--2"></div>
-          <div class="mock-heat__cell mock-heat__cell--8"></div>
-          <div class="mock-heat__cell mock-heat__cell--4"></div>
-          <div class="mock-heat__cell mock-heat__cell--1"></div>
-          <div class="mock-heat__cell mock-heat__cell--5"></div>
-          <div class="mock-heat__cell mock-heat__cell--9"></div>
-          <div class="mock-heat__cell mock-heat__cell--3"></div>
-          <div class="mock-heat__cell mock-heat__cell--7"></div>
-          <div class="mock-heat__cell mock-heat__cell--1"></div>
-          <div class="mock-heat__cell mock-heat__cell--5"></div>
-          <div class="mock-heat__cell mock-heat__cell--2"></div>
-          <div class="mock-heat__cell mock-heat__cell--4"></div>
-          <div class="mock-heat__cell mock-heat__cell--2"></div>
-          <div class="mock-heat__cell mock-heat__cell--6"></div>
-          <div class="mock-heat__cell mock-heat__cell--10"></div>
-          <div class="mock-heat__cell mock-heat__cell--3"></div>
-          <div class="mock-heat__cell mock-heat__cell--5"></div>
-          <div class="mock-heat__cell mock-heat__cell--7"></div>
-          <div class="mock-heat__cell mock-heat__cell--1"></div>
-          <div class="mock-heat__cell mock-heat__cell--8"></div>
-          <div class="mock-heat__cell mock-heat__cell--4"></div>
-          <div class="mock-heat__cell mock-heat__cell--3"></div>
-          <div class="mock-heat__cell mock-heat__cell--6"></div>
-          <div class="mock-heat__cell mock-heat__cell--2"></div>
-          <div class="mock-heat__cell mock-heat__cell--9"></div>
-        </div>
-        <p class="text-center text-xs text-muted mt-md">Activity heatmap — spot your peak hours</p>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/charts-light.png" alt="Browsers, operating systems and devices as doughnut charts" width="1449" height="824" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/charts-dark.png" alt="Browsers, operating systems and devices as doughnut charts" width="1449" height="824" loading="lazy">
       </div>
     </div>
 
     <!-- Live Monitoring tab -->
     <div class="landing-tab-content relative" data-tab="live" role="tabpanel">
-      <img src="assets/set_3/png/021-online%20data.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>See your visitors in real-time</h3>
         <p>Watch visitors arrive as they browse your site. See where they come from and what pages they view — all live.</p>
@@ -333,33 +242,14 @@
           <li><i class="ri-check-line"></i> Heartbeat-based time-on-page tracking</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <div class="stack">
-          <div class="mock-row">
-            <span class="landing-w-dot"></span>
-            <span class="mock-row__label">/blog/getting-started</span>
-            <span class="text-xs text-muted">Berlin, DE</span>
-            <span class="text-xs text-muted">2s ago</span>
-          </div>
-          <div class="mock-row">
-            <span class="landing-w-dot"></span>
-            <span class="mock-row__label">/pricing</span>
-            <span class="text-xs text-muted">Tokyo, JP</span>
-            <span class="text-xs text-muted">15s ago</span>
-          </div>
-          <div class="mock-row">
-            <span class="landing-w-dot"></span>
-            <span class="mock-row__label">/docs/api</span>
-            <span class="text-xs text-muted">NYC, US</span>
-            <span class="text-xs text-muted">28s ago</span>
-          </div>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/live-light.png" alt="The live feed: pages being viewed in the last five minutes" width="1449" height="795" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/live-dark.png" alt="The live feed: pages being viewed in the last five minutes" width="1449" height="795" loading="lazy">
       </div>
     </div>
 
     <!-- Segmentation tab -->
     <div class="landing-tab-content relative" data-tab="segments" role="tabpanel">
-      <img src="assets/set_3/png/031-seo.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Slice your data any way you want</h3>
         <p>Build segments with a visual filter builder, define conversion goals, and track multi-step funnels with drop-off analysis.</p>
@@ -371,23 +261,14 @@
           <li><i class="ri-check-line"></i> Filter by country, browser, OS, device, path</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <!-- Funnel illustration -->
-        <div class="stack stack--center">
-          <div class="mock-funnel__step mock-funnel__step--w100">Homepage — 1,000 visitors</div>
-          <i class="ri-arrow-down-line text-muted"></i>
-          <div class="mock-funnel__step mock-funnel__step--w85">Pricing — 620 <span class="note-soft">(62%)</span></div>
-          <i class="ri-arrow-down-line text-muted"></i>
-          <div class="mock-funnel__step mock-funnel__step--w65">Signup — 340 <span class="note-soft">(34%)</span></div>
-          <i class="ri-arrow-down-line text-muted"></i>
-          <div class="mock-funnel__step mock-funnel__step--w40 mock-funnel__step--done">Converted — 180 <span class="note-soft">(18%)</span></div>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/segments-light.png" alt="A funnel with the drop-off at each step, and saved visitor segments" width="1449" height="1586" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/segments-dark.png" alt="A funnel with the drop-off at each step, and saved visitor segments" width="1449" height="1586" loading="lazy">
       </div>
     </div>
 
     <!-- Export & API tab -->
     <div class="landing-tab-content relative" data-tab="api" role="tabpanel">
-      <img src="assets/set_3/png/023-page.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Your data, your way</h3>
         <p>Export any report as CSV, integrate with your tools via the REST API, or explore with the built-in OpenAPI documentation.</p>
@@ -399,33 +280,14 @@
           <li><i class="ri-check-line"></i> Raw event access with filtering and sorting</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <div class="landing-code-block">
-          <div class="landing-code-bar">
-            <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-            <span class="landing-code-title">API Example</span>
-            <button class="landing-copy-btn" data-code="GET /admin/projects/{id}/report?filter=7d"><i class="ri-file-copy-line"></i> Copy</button>
-          </div>
-          <div class="landing-code-body">
-<pre><span class="hl-comment"># Get analytics report</span>
-<span class="hl-keyword">GET</span> /admin/projects/{id}/report?filter=<span class="hl-str">7d</span>
-
-<span class="hl-comment"># Comparison with previous period</span>
-<span class="hl-keyword">GET</span> /admin/projects/{id}/report/comparison?filter=<span class="hl-str">30d</span>
-
-<span class="hl-comment"># Live visitor feed</span>
-<span class="hl-keyword">GET</span> /admin/projects/{id}/live
-
-<span class="hl-comment"># Goal statistics</span>
-<span class="hl-keyword">GET</span> /admin/projects/{id}/goals/stats?filter=<span class="hl-str">7d</span></pre>
-          </div>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/raw-events-light.png" alt="The raw events table with type, path, location, browser and device" width="1350" height="1215" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/raw-events-dark.png" alt="The raw events table with type, path, location, browser and device" width="1350" height="1215" loading="lazy">
       </div>
     </div>
 
     <!-- Widgets tab -->
     <div class="landing-tab-content relative" data-tab="widgets" role="tabpanel">
-      <img src="assets/set_3/png/032-graph%20line.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Embeddable widgets for your site</h3>
         <p>Show real-time stats on your website with lightweight, self-updating widgets. Drop in a script tag and you're done. Widgets are a lab: off by default, because anyone with your site's tracking key can read them.</p>
@@ -437,22 +299,9 @@
           <li><i class="ri-check-line"></i> Auto-polls every 12 seconds</li>
         </ul>
       </div>
-      <div class="landing-feature-visual">
-        <div class="stack stack--center stack--loose">
-          <div class="landing-w-realtime">
-            <span class="landing-w-dot"></span>
-            <span class="landing-w-count" id="widget-demo-count">3</span>
-            <span class="landing-w-label">visitors online</span>
-          </div>
-          <div class="landing-w-pageviews">
-            <span class="landing-w-pv-count">1,234</span>
-            <span class="landing-w-pv-label">views this week</span>
-          </div>
-          <svg width="120" height="32" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6 118,30 2,30" fill="var(--color-primary)" fill-opacity="0.15"/>
-            <polyline points="2,26 19,20 36,22 53,14 70,16 87,8 104,12 118,6" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+      <div class="landing-shot landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/settings-light.png" alt="Project settings with the tracking ID and the embeddable widgets switch" width="900" height="840" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/settings-dark.png" alt="Project settings with the tracking ID and the embeddable widgets switch" width="900" height="840" loading="lazy">
       </div>
     </div>
   </div>

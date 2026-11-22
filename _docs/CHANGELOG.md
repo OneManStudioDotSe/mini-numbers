@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A new typeface, Plus Jakarta Sans**, across the dashboard, login page, setup wizard and landing site, bundled
+  with the app (SIL Open Font License) so no page calls a font service. Chart labels and tooltips use it too.
+- **"Views over time" is a dot-matrix chart**: one column of dots per day or hour, the tallest in the accent
+  with a dashed guide to the axis; hovering a column moves the accent and shows its value.
+- **The landing page shows real screenshots of the dashboard** in its hero and in each of the seven feature
+  tabs, in the light or dark version to match the page's theme. They replace hand-drawn mock-ups and seven
+  illustrations that were missing from the site.
 - **The landing pages share the dashboard's new look.** Same graphite surfaces and coral accent in both themes,
   a dark hero in place of the amber band, pill buttons, and the bundled Inter typeface. Their colours and sizes
   now come from one file (`landing/variables.css`) and the pages carry no inline styles. The text is unchanged.
