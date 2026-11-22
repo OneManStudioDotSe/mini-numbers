@@ -1,5 +1,8 @@
 # Launch audit — 2026-11-11
 
+> **Version numbers in this document** (1.3.0 to 1.6.1) are development versions from before the first public
+> release, 1.0.0 of 2026-11-22. Their tags and images were withdrawn; see the CHANGELOG.
+
 What works, what gets fixed first, what is hidden for launch and what does not exist. It decides the scope of 1.6.0,
 the first release meant for the public. Every **Ship** row has a passing test or a check that was driven by hand
 on 2026-11-11 against the fat JAR built from `2d02626`.

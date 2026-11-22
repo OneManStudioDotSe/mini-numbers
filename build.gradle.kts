@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "se.onemanstudio"
-version = "1.6.1"
+version = "1.0.0"
 
 application {
     mainClass = "se.onemanstudio.ApplicationKt"

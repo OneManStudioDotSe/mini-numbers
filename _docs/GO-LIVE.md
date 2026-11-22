@@ -4,6 +4,11 @@ The steps for putting a release on a production server and proving it works: Doc
 as in `docs/deployment.md` Option 1. Work top to bottom and tick as you go; each section says how to tell it worked.
 What is in scope and verified is in [LAUNCH-AUDIT.md](LAUNCH-AUDIT.md).
 
+**Short path** (about 30 minutes, for a first deployment): DNS and firewall (§3), the two downloads and `.env` (§3),
+start (§3), sign in and create the Smoke test and real projects (§4), `smoke.sh` (§5), snippet on the site and a
+first visit (§6), restart (§7), backup (§8), uptime monitor (§11). Sections 1 and 2 are for cutting a release;
+the rest of §6 is the thorough hand check.
+
 Placeholders: `stats.example.com` is your analytics domain, `$KEY` the key of the "Smoke test" project.
 
 ---

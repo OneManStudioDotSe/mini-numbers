@@ -1,7 +1,10 @@
 # Mini Numbers — Roadmap
 
 The one place for what's next: owner actions, milestones, known gaps and feature ideas. What already shipped
-is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-14.
+is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-22.
+
+**Versions:** 1.0.0 (2026-11-22) is the first public release. The numbers 1.5.0 to 1.6.1 below are the development
+versions before it; their tags, release files and Docker images were withdrawn that day.
 
 **Positioning:** the easiest and most private analytics you can self-host — one program, SQLite built in, every
 feature included. Not a race for feature parity with Plausible, Umami or PostHog.
@@ -27,9 +30,9 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 - [ ] **Enable GitHub Discussions** (the issue templates link to it).
 - [ ] **Enable private vulnerability reporting** (repository Settings → Security): `SECURITY.md` sends reporters to
       a form that is switched off today.
-- [ ] **Enable Dependabot alerts and security updates**, and merge or close the ten open Dependabot branches (Ktor,
+- [ ] **Enable Dependabot alerts and security updates**, and merge or close the nine open Dependabot pull requests (Ktor,
       Exposed, sqlite-jdbc, Caffeine, the Gradle wrapper, five Actions).
-- [ ] **Release the security fixes** of the 2026-11-14 audit (CHANGELOG, Unreleased) as 1.6.2 before announcing.
+- [x] **Release the security fixes** of the 2026-11-14 audit: part of 1.0.0 (2026-11-22).
 - [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
 - [x] **Refresh GeoLite2** (2026-11-12): the bundled copy is now the 2026-11-10 build, for the next release.
 - [x] **Tag `v1.6.0`** (2026-11-12): the release JAR and the `1.6.0`, `1.6` and `latest` images are published.
@@ -43,7 +46,8 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 | M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
 | M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
 | L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Released as 1.6.0 (2026-11-12) |
-| S | Security audit of 2026-11-14: request size limit, setup token and closed setup after a failed start, lockout per address, tokens ended by sign-out, no addresses in logs, trimmed tracker addresses, crawlers not stored | Fixed, unreleased (1.6.2) |
+| S | Security audit of 2026-11-14: request size limit, setup token and closed setup after a failed start, lockout per address, tokens ended by sign-out, no addresses in logs, trimmed tracker addresses, crawlers not stored | Released in 1.0.0 |
+| 1.0 | First public release: funnels and segments standard, widgets opt-in per project, version reset to 1.0.0 | Released as 1.0.0 (2026-11-22) |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
@@ -53,7 +57,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 **Labs to graduate.** Each lab is off by default until it has the tests it lacks
 ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)); all of them now have those tests. **Widgets** (2026-11-15) answer only
 for projects that switched them on in Settings; while a project has them on, its numbers are still readable by
-anyone with its tracking ID, which is what a public counter is, and the widget script itself has no browser
+anyone with its tracking ID, which is what a public counter is; only the realtime widget's embed has a browser
 test. **Revenue** (2026-11-15) has tests on known amounts
 for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
 `currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of

@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable from the internet.
+## [1.0.0] - 2026-11-22
 
-**Upgrading**
+The first public release of Mini Numbers. It follows the development versions listed at the end of this file
+(numbered up to 1.6.1), whose tags, release files and Docker images are withdrawn. It includes the security fixes
+from the audit of 2026-11-14.
 
+**Upgrading from a development version**
+
+- **Docker image tags `1.5`, `1.5.0`, `1.6`, `1.6.0` and `1.6.1` no longer exist.** If your `docker-compose.yml`
+  pins one of them, change it to `1.0.0` (or `latest`). The database of a 1.5 or 1.6 server is upgraded by itself
+  at start.
 - **The setup wizard now asks for a setup token** on a fresh install. It is printed in the server log at start
   (`docker compose logs mini-numbers | grep "Setup token"`), or set your own with `SETUP_TOKEN`. Installs that are
   already configured are not affected.
@@ -86,6 +93,11 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   counted as 1, `"12abc"` as 12, and a `revenue` nested inside another property was counted too (only a top-level
   number or numeric string counts now; negative amounts are still left out); in **revenue by source** two
   purchases in one visit counted as one transaction, so the column did not add up to the total.
+- **After renaming a project the sidebar kept the old name, and after rotating its key Settings could show the
+  old key again**, until the page was reloaded. Both now show at once.
+- Widgets (lab): **the embed from the docs left its placeholder empty.** `data-target` was read as a CSS selector,
+  so the documented `data-target="visitors-now"` matched nothing and the widget was added after the script
+  instead. It now takes an element id or a selector.
 - Webhooks (lab): a webhook could be created through the API with no events or unknown ones (it then never
   fired), and an address that was malformed or longer than 1,024 characters was stored or gave a database error.
   These are now refused with a message.
@@ -99,14 +111,19 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
   the wizard can be submitted again; before, the half-working configuration stayed.
 - `src/main/.claude/settings.local.json` (local tool settings) is no longer tracked.
 
-## [1.6.1] - 2026-11-12
+## Development versions before 1.0.0
 
-### Changed
+Kept as history. These versions were numbered ahead of the first public release; their tags, release files and
+Docker images were withdrawn on 2026-11-22.
+
+### 1.6.1 (2026-11-12)
+
+#### Changed
 
 - The bundled MaxMind GeoLite2 City database is refreshed to the 2026-11-10 build (was 2026-01-30), so
   countries and cities are placed correctly for addresses reassigned since January.
 
-## [1.6.0] - 2026-11-11
+### 1.6.0 (2026-11-11)
 
 The launch release: what isn't verified yet is switched off, the setup wizard can no longer leave a known
 password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` checks a live server.
@@ -120,7 +137,7 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
   counted. Add `data-respect-privacy-signals="false"` to the snippet to keep counting them.
 - No database changes.
 
-### Added
+#### Added
 
 - **`scripts/smoke.sh`** checks a live server in about 30 seconds (health, HTTPS headers, tracker, a page view
   collected and stored, wrong passwords refused, widgets off) and exits non-zero on any failure. See "Verify your
@@ -141,7 +158,7 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
   by default: their dashboard parts are hidden and their API answers 404. Turn any of them on with
   `LABS=funnels,webhooks,…` (see the configuration page). Nothing stored is removed.
 
-### Security
+#### Security
 
 - **Widgets are off by default.** With them on, anyone who copied the project key from a site's HTML could read
   that site's top pages and visitor counts. They now need `LABS=widgets`.
@@ -152,7 +169,7 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
 - The dashboard no longer loads Leaflet and chartjs-chart-geo, which nothing used, and the login page and wizard
   serve Inter themselves instead of loading it from Google Fonts. unpkg.com and Google are gone from the CSP.
 
-### Fixed
+#### Fixed
 
 - Switching project (or period) could leave the previous project's numbers on screen: the browser, OS and device
   legends, "Show more" buttons, the stat-card sparklines, the peak-time cards and charts in hidden cards. Every chart
@@ -172,7 +189,7 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
   and marks lab features as labs.
 - The Railway instructions now say what `railway.json` does when deploying a fork.
 
-### Changed
+#### Changed
 
 - The documentation matches 1.6.0: labs are marked as labs everywhere (README, docs site, comparison page, landing),
   "Filter by" is described as what it does, troubleshooting covers labs, viewers, privacy signals and demo data, the
@@ -186,7 +203,7 @@ password, the tracker respects "don't track me" signals, and `scripts/smoke.sh` 
 - The MaxMind GeoLite2 attribution is now also on the Docker image labels and the configuration page, with the
   build date of the bundled database (2026-01-30).
 
-## [1.5.0] - 2026-11-03
+### 1.5.0 (2026-11-03)
 
 The first tagged release (1.3.0 was published as source only), and the result of the November audit of
 the working base: three critical, five high and six medium findings fixed, with the suite grown to
@@ -201,13 +218,13 @@ the working base: three critical, five high and six medium findings fixed, with 
   08:00 UTC. Recreate it from the dialog to use your own zone.
 - The users table gains a `sessions_valid_from` column, added automatically on first start.
 
-### Security
+#### Security
 
 - **Exposed 1.5.0 → 1.5.1**: fixes CVE-2026-108474 (SQL injection through string arguments).
 - **PostgreSQL driver 42.7.13 → 42.7.14**: fixes CVE-2026-107314 (`requireAuth` silently not enforced) and a second advisory in the same release.
 - Kotlin 2.4.20 → 2.4.21 (compiler, serialization plugin, test library).
 
-### Added
+#### Added
 
 - **Webhooks can be paused and resumed** from the webhooks dialog (`PUT /admin/projects/{id}/webhooks/{webhookId}` with `{"isActive": false}`); a paused webhook receives nothing until resumed. The flag existed but nothing could set it.
 - **Users can be deactivated and reactivated** with `PUT /admin/users/{id}/active`. A deactivated user's session and tokens stop working on the next request, their refresh tokens are revoked, and they cannot sign in until reactivated. Deleting a user now revokes their refresh tokens too. An admin cannot demote, deactivate or delete their own account, so there is always an active admin left.
@@ -217,7 +234,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **systemd unit** in `deploy/mini-numbers.service` for running the JAR without Docker.
 - **Install guide rewritten** in plain language (`docs/deployment.md`), with one path each for a VPS with Docker, server panels (Coolify, Dokploy, CapRover, Easypanel), Railway/Render/Fly.io, cPanel hosting, and plain Java. `_docs/DEPLOYMENT.md` now points to it instead of repeating it.
 
-### Changed
+#### Changed
 
 - **Documentation rewritten and cut down.** The public docs are now eight short pages in plain language (install, getting started, dashboard, configuration, privacy, developers, troubleshooting, plus the comparison), checked line by line against the code. Wrong claims were removed or corrected: what Paranoid and Standard mode store, the session ID, `KTOR_DEVELOPMENT` and `ALLOWED_ORIGINS`, widget parameters and responses, Slack/Discord, "zero-restart config", SQLite WAL and test counts. Duplicated or historical files (`GOING_LIVE.md`, `GEMINI.md`, `_docs/TODO.md`, `EVALUATION.md`, `PRIVACY.md`, `DASHBOARD_GUIDE.md`, `SECURITY.md`, `DEPLOYMENT.md`, and six old docs pages) are gone; their open items live in `_docs/ROADMAP.md`, which now also ranks feature ideas. A short root `SECURITY.md` explains how to report vulnerabilities.
 - **Comparison page refreshed** (`docs/comparison.html`, checked 2 Nov 2026): adds Liwan, Medama and Counterscale, shows Plausible as its self-hosted CE with cloud-only features marked, and lists what each tool needs to self-host and when it last released.
@@ -226,7 +243,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - `server.log` is no longer tracked in the repository and `*.log` files are ignored.
 - **SQLite runs in WAL mode with a five-second busy timeout**, so dashboard reads no longer block incoming events and a brief lock waits instead of failing with "database is locked". Two companion files (`stats.db-wal`, `stats.db-shm`) now sit next to the database; the install guide's backup section says how to copy them safely.
 
-### Fixed
+#### Fixed
 
 - **Timestamps were off by hours when the server and the viewer were in different time zones.** The API sent bare wall-clock times that the browser read as its own local time. Every timestamp now carries the server's UTC offset, so the dashboard, Raw events and exports show the right instant anywhere. Hour and day buckets (charts, heatmap, calendar) stay in the server's zone, which the compose files now expose as `TZ`; the contribution calendar no longer mixes UTC and local dates when drawing its grid.
 - **A goal-conversion webhook fired on every matching event**, so a visitor reloading the thank-you page produced a call each time. It now fires once per goal per session, which is how the conversion stats count it.
@@ -260,9 +277,9 @@ the working base: three critical, five high and six medium findings fixed, with 
 
 ---
 
-## [1.3.0] - 2026-10-08
+### 1.3.0 (2026-10-08)
 
-### Added
+#### Added
 
 - **AI assistant referrals card**: the Overview now has a stat card counting page views referred by AI assistants (ChatGPT, Claude, Perplexity, Gemini, Copilot, Grok, Meta AI, Mistral, DeepSeek, You.com, Poe, Phind, Duck.ai), with the share of all referred visits, the top assistants, and the usual previous-period comparison. Classification happens at report time from the stored referrer host (`utils/AiTrafficUtils.kt`), so nothing new is stored and historical data is covered. Report JSON gains `aiReferrals`, `aiReferralVisits` and `referredVisits`. The demo generator now includes assistant referrers. Only referrals are covered: AI crawlers never execute the tracker, so a crawler view would be empty by construction.
 - **Privacy posture chip**: a chip next to the date range reads "Standard · visitors forgotten after 1 day" (mode and rotation window from the new read-only `GET /admin/privacy`) and opens a dialog listing, in plain words, what this instance stores per page view, what it never stores, and when it forgets (hash rotation, retention). Adapts to STRICT and PARANOID.
@@ -276,7 +293,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **Comparison page** (`docs/comparison.html`): a standalone, interactive feature-by-feature comparison against seven competitors with the full feature list and the 1.3.0 notes, linked from the README and the docs index. `_docs/TODO.md` lists every open item with its blocker.
 - **PostgreSQL CI job**: `Build & Test` now also runs the whole suite against a PostgreSQL 16 service container (`test-postgres` job), so the second supported database is exercised on every push for the first time.
 
-### Changed
+#### Changed
 
 - **Dependencies brought up to date** (minor/patch): Kotlin 2.3.0 → 2.4.20, Ktor 3.4.0 → 3.6.0, Gradle 9.3.0 → 9.8.0, kotlin-asyncapi-ktor 3.1.3 → 3.2.4, logback 1.5.32 → 1.6.5, PostgreSQL driver 42.7.10 → 42.7.13, geoip2 5.0.2 → 5.2.0, Caffeine 3.2.3 → 3.3.0, Jakarta Mail 2.1.3 → 2.1.5, Angus Mail 2.0.3 → 2.0.5. **Held back on purpose**: `sqlite-jdbc` stays at 3.47.2.0 because with 3.53.x the driver's JDBC metadata no longer reports SQLite primary keys the way Exposed 0.56 expects, so `createMissingTablesAndColumns()` emits `ALTER TABLE … ADD PRIMARY KEY`, which SQLite rejects and which makes service initialisation fail on every database, new or existing. It will move together with the Exposed 1.x upgrade. Exposed and jBCrypt are deliberately left for their own changes.
 - **Exposed 0.56.0 → 1.5.0** and **sqlite-jdbc 3.47.2.0 → 3.53.4.0** (the driver bump that had to wait for this). Mechanical migration: imports move from `org.jetbrains.exposed.sql.*` to `org.jetbrains.exposed.v1.core.*` (tables, column types, operators) and `org.jetbrains.exposed.v1.jdbc.*` (`Database`, `SchemaUtils`, `transaction`, `selectAll`/`insert`/`update`/`delete`); the comparison operators are top-level functions now, so every file that builds a `where` clause imports the core package; `ExposedSQLException` lives in `org.jetbrains.exposed.v1.exceptions`. Table columns switch from `uuid()` to `javaUUID()` because `uuid()` now yields Kotlin's `Uuid` type; the SQL type is unchanged, so existing databases open as before. Verified by booting the upgraded JAR against a database created by the old version (7,004 events intact).
@@ -291,7 +308,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **Tracker size claim corrected**: README, docs and landing page said 1.3 KB; the script is 4.9 KB minified and 1.9 KB gzipped, so they now say 1.9 KB (gzipped). The build's "minifier" only strips comments and whitespace.
 - **Public docs**: `docs/configuration.md` now lists the real PostgreSQL variables (`DB_PG_HOST`, `DB_PG_PORT`, `DB_PG_NAME`, `DB_PG_USERNAME`, `DB_PG_PASSWORD`) and documents the SMTP variables for email reports.
 
-### Fixed
+#### Fixed
 
 - **Page views were counted as every event**: the dashboard's total page views, top pages, referrers, browsers, countries, time series, activity heatmap and contribution calendar counted heartbeats (one per 30 s while a tab is open), custom, scroll, outbound and download events as page views, so a five-minute visit showed as about ten views and the dashboard disagreed with the embeddable widgets, which filtered correctly. View-based metrics now count `pageview` events only; sessions, duration and bounce still use every event. Expect lower, correct numbers after upgrading.
 - **Startup-time column defaults**: five `datetime` columns were declared with a literal default evaluated when the server started, which Exposed 1.5 then tried to alter on every boot (a warning on SQLite, an `ALTER COLUMN` on PostgreSQL). They use `clientDefault` now; every insert already sets them explicitly.
@@ -307,16 +324,16 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **Time-of-day dependent test**: `DataAnalysisUtilsTest."generateContributionCalendar assigns intensity levels correctly"` inserted 40 events starting at "now minus one day", so a run after 23:20 spilled 8 of them past midnight into the next day. Timestamps are now anchored to midday.
 - **HTML escaping of visitor-supplied strings (defense in depth)**: custom event names in the Raw Events modal and event names / traffic sources in the Revenue section are now passed through `Utils.escapeHtml()` like every other rendered field. Note: `/collect` already rejects `<` and `>` in event names and UTM fields (`InputValidator`), so this path was not exploitable through the tracker; the escaping protects against values that reach the database by other means.
 
-### Changed
+#### Changed
 
 - **Docker image publishing is gated on tests**: the `Docker Publish` workflow now runs `./gradlew test detekt` in a `test` job that the `docker` job depends on. Previously a red test run still published an image to GHCR.
 - **`stats.db` removed from version control**: the development database is no longer tracked (it remains gitignored and on disk). It still exists in earlier commits; see `GOING_LIVE.md` item 1 for the rotation and history-purge steps.
 
 ---
 
-## [1.2.1] - 2026-03-15
+### 1.2.1 (2026-03-15)
 
-### Changed
+#### Changed
 
 - **Landing page design alignment**: Replaced the indigo/slate color scheme with the burnt amber/stone palette used by the admin panel, login page, and setup wizard — the entire application now shares a single consistent design system.
 - **Landing page nav cleanup**: Removed the theme toggle button and login/dashboard button from the navigation bar on the main landing page and all sub-pages (contact, how-it-works, privacy-policy, setup-guide, terms).
@@ -325,9 +342,9 @@ the working base: three critical, five high and six medium findings fixed, with 
 
 ---
 
-## [1.2.0] - 2026-03-08
+### 1.2.0 (2026-03-08)
 
-### Added
+#### Added
 
 - **API key rotation**: New `POST /admin/projects/{id}/rotate-api-key` endpoint generates a fresh 64-character hex key, invalidates all related caches, and returns the new key immediately. A **Rotate key** button in the Settings modal surfaces this to the UI — the old key stops working the moment the rotation completes.
 - **Retention preview**: New `GET /admin/projects/{id}/retention-preview?days=N` read-only endpoint returns the number of events that would be deleted and the date of the oldest event, so users can preview the impact before enabling auto-retention.
@@ -338,7 +355,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **8 cross-project isolation tests**: New tests verify that analytics, goals, live feed, and segment endpoints for unknown project IDs return correct status codes; that `POST /collect` rejects API keys belonging to deleted projects; and that the rotate-key endpoint enforces authentication.
 - **4 new documentation pages**: `docs/tracker-reference.md` (complete `tracker.js` API — all `data-*` attributes, `MiniNumbers.track()`, offline queue, SPA behavior), `docs/widgets.md` (widget embed reference with all configuration attributes), `docs/troubleshooting.md` (common issues guide — GeoIP, CORS, 401 loop, SQLite lock, Docker volume permissions), `docs/upgrading.md` (upgrade / migration guide for Docker and JAR deployments). All four pages added to the Jekyll navigation.
 
-### Changed
+#### Changed
 
 - **Dark mode WCAG contrast**: `--color-text-muted` in the `[data-theme="dark"]` block changed from `#94a3b8` to `#a8b8cc`, raising the contrast ratio above the WCAG AA minimum of 4.5:1 on dark-themed backgrounds.
 - **Filter warning visible state**: `.filter-warning` now renders with a translucent warning-coloured background, a matching border, `border-radius`, and padding. Previously it was styled with text colour and flex layout only, making it nearly invisible against the dashboard background.
@@ -349,9 +366,9 @@ the working base: three critical, five high and six medium findings fixed, with 
 
 ---
 
-## [1.1.1] - 2026-03-08
+### 1.1.1 (2026-03-08)
 
-### Changed
+#### Changed
 
 - **Filter bar redesign**: The date range text is now displayed in a large, bold, primary-coloured style to make the selected period immediately prominent. The "Filter by" dropdown group is pushed to the far right end of the bar via `margin-left: auto`. The vertical divider between the two sections has been removed.
 - **Raw Events modal**: The Path column is now 20% wider and the Location column is 15% wider to reduce truncation. The event-type and sort dropdowns are always displayed side-by-side (removed `flex-wrap: wrap`). Column widths are now defined with a `<colgroup>` for consistent layout.
@@ -365,15 +382,15 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **App icon**: Logo in the sidebar header is 20% larger (52 px) and horizontally centered. The sidebar header now uses `text-align: center` to align the subtitle text as well.
 - **Demo project button**: The "Demo project" button in the sidebar footer is automatically hidden after `loadProjects()` detects a project named "Demo project" already exists. It reappears when the list is empty.
 
-### Fixed
+#### Fixed
 
 - **Demo data generation (500 error)**: `seedDemoGoalsFunnelsSegments` was executing all database operations (three `selectAll`/`count` queries and three sets of `insert` statements) outside any Exposed `transaction {}` block. This caused an `IllegalStateException: No transaction in context` at runtime, which the route handler surfaced as a 500. Fixed by converting the function to an expression body using `= transaction { … }`.
 
 ---
 
-## [1.1.0] - 2026-03-05
+### 1.1.0 (2026-03-05)
 
-### Added
+#### Added
 - **Premium Setup Flow**: Animated "Constellation" background using HTML5 Canvas, glassmorphism UI, and streamlined step-by-step configuration.
 - **Privacy Modes**: Introduced STANDARD, STRICT, and PARANOID modes to control data collection granularity.
 - **Unified State Management**: Dashboard-wide handling for Loading (skeletons), Empty (helpful hints), and Error (retry mechanisms) states.
@@ -382,7 +399,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **Dark Mode Support**: Full theme-awareness for the setup flow, login page, and background animations.
 - **JWT Authentication**: Programmatic API access now supported alongside traditional session-based auth.
 
-### Changed
+#### Changed
 - **Modular Routing Architecture**: Massive `Routing.kt` refactored into 7 feature-based modules under `se.onemanstudio.routing`.
 - **Package Restructuring**: Unified project structure under the `se.onemanstudio` package for better convention compliance.
 - **Dashboard Grid**: Standardized all primary and revenue stat cards into a consistent 4-column layout.
@@ -390,7 +407,7 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **Raw Events Viewer**: Improved data formatting with monospace paths, country flags, and intelligent timestamping.
 - **Landing Page Separation**: Moved the landing page outside the main source code for easier standalone deployment. Sub-page links use relative paths for portability.
 
-### Fixed
+#### Fixed
 - **Tracker Leak**: Fixed a memory/network leak in `tracker.js` related to visibility change heartbeats.
 - **401 Fallback**: Corrected authentication logic to properly fall back to `.env` credentials when the database is empty.
 - **Config Sync**: Ensured `.env` changes are picked up immediately by the application without a restart.
@@ -398,9 +415,9 @@ the working base: three critical, five high and six medium findings fixed, with 
 - **CSP Headers**: Updated Content Security Policy to allow Google Fonts and trusted CDNs.
 - **Static Analysis**: Resolved all `detekt` warnings, including line lengths, generic exceptions, and unused parameters.
 
-## [1.0.0-beta] - 2026-02-27
+### 1.0.0-beta (2026-02-27)
 
-### Added
+#### Added
 
 - **Webhooks System**
   - Real-time HTTP POST notifications for goal conversions and traffic spikes
@@ -434,7 +451,7 @@ the working base: three critical, five high and six medium findings fixed, with 
   - Revenue Intelligence showcase section with animated mockup
   - Updated content: 288 tests, v1.0.0-beta version, 2026 copyright
 
-### Changed
+#### Changed
 
 - Test suite expanded from 250 to 288 tests (18 new for webhooks, email, revenue)
 - Demo data generator now produces revenue-bearing purchase events
