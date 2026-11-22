@@ -373,7 +373,7 @@ img { max-width: 100%; display: block; }
 
 .landing-btn-primary {
   background: var(--gradient-primary);
-  color: var(--color-white);
+  color: var(--color-on-primary);
   box-shadow: var(--shadow-sm), var(--shadow-glow-primary);
 }
 
@@ -395,6 +395,30 @@ img { max-width: 100%; display: block; }
   color: var(--color-text-primary);
 }
 
+.landing-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  border-radius: var(--radius-circle);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.landing-theme-toggle:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.landing-nav-links a[aria-current="page"] {
+  color: var(--color-text-primary);
+}
+
 .landing-btn-ghost {
   background: transparent;
   color: var(--color-text-secondary);
@@ -410,7 +434,7 @@ img { max-width: 100%; display: block; }
 .landing-btn-lg {
   padding: 0.875rem 2rem;
   font-size: var(--font-size-base);
-  border-radius: var(--radius-lg);
+  border-radius: var(--button-radius);
 }
 
 /* ============================================
@@ -697,8 +721,8 @@ img { max-width: 100%; display: block; }
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-lg);
-  background: var(--gradient-primary-subtle);
+  border-radius: var(--radius-circle);
+  background: rgba(var(--rgb-accent), var(--badge-tint));
   color: var(--color-primary);
   font-size: var(--font-size-xl);
   margin-bottom: var(--spacing-md);
@@ -949,44 +973,12 @@ img { max-width: 100%; display: block; }
 .landing-modes-table .cross { color: var(--color-danger); opacity: 0.5; }
 
 /* ============================================
-   6. TRACKER INTEGRATION
-   ============================================ */
-
-.landing-tracker-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-3xl);
-  align-items: start;
-}
 
 .landing-size-bars {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   margin-top: var(--spacing-xl);
-}
-
-.landing-size-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.landing-size-bar-label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  width: 100px;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.landing-size-bar-track {
-  flex: 1;
-  height: 28px;
-  background: var(--color-bg-tertiary);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  position: relative;
 }
 
 .landing-size-bar-fill {
@@ -1011,40 +1003,6 @@ img { max-width: 100%; display: block; }
 .landing-size-bar-fill.muted {
   background: var(--color-bg-hover);
   color: var(--color-text-muted);
-}
-
-.landing-tracker-features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-}
-
-.landing-tracker-feature {
-  padding: var(--spacing-lg);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  text-align: center;
-}
-
-.landing-tracker-feature i {
-  font-size: var(--font-size-2xl);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
-  display: block;
-}
-
-.landing-tracker-feature h4 {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
-}
-
-.landing-tracker-feature p {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
 }
 
 /* ============================================
@@ -1142,52 +1100,6 @@ img { max-width: 100%; display: block; }
 .hl-keyword { color: var(--code-keyword); }
 
 /* ============================================
-   7. WIDGETS
-   ============================================ */
-
-.landing-widgets-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-xl);
-}
-
-.landing-widget-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.landing-widget-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-glow-primary);
-  transform: translateY(var(--hover-lift));
-}
-
-.landing-widget-preview {
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: var(--color-bg-tertiary);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80px;
-}
-
-.landing-widget-card h4 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
-}
-
-.landing-widget-card > p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
-}
 
 .landing-widget-toggle {
   display: inline-flex;
@@ -1225,46 +1137,6 @@ img { max-width: 100%; display: block; }
 }
 
 /* Top pages mockup */
-.landing-w-toppages {
-  width: 100%;
-  max-width: 280px;
-}
-
-.landing-w-toppages-title {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
-  margin-bottom: var(--spacing-sm);
-}
-
-.landing-w-tp-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: 6px;
-  font-size: var(--font-size-sm);
-}
-
-.landing-w-tp-name {
-  flex: 1;
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.landing-w-tp-bar {
-  height: 4px;
-  border-radius: var(--radius-2xs);
-  background: var(--color-primary);
-}
-
-.landing-w-tp-views {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  min-width: 30px;
-  text-align: right;
-}
 
 /* ============================================
    8. INSTALLATION TABS
@@ -1359,64 +1231,6 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================
-   9. SETUP WIZARD PREVIEW
-   ============================================ */
-
-.landing-wizard-stepper {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  margin-bottom: var(--spacing-2xl);
-  position: relative;
-}
-
-.landing-wizard-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex: 1;
-  max-width: 180px;
-  position: relative;
-}
-
-.landing-wizard-step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: calc(50% + 24px);
-  width: calc(100% - 48px);
-  height: 2px;
-  background: var(--color-border);
-}
-
-.landing-wizard-step-num {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-circle);
-  background: var(--gradient-primary);
-  color: var(--color-white);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  position: relative;
-  z-index: 1;
-}
-
-.landing-wizard-step-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  text-align: center;
-}
-
-.landing-wizard-step-desc {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-align: center;
-}
 
 /* ============================================
    10. COMPARISON TABLE
@@ -1463,14 +1277,14 @@ img { max-width: 100%; display: block; }
 
 /* Highlight Mini Numbers column */
 .landing-comparison .hl-col {
-  background: var(--gradient-primary-subtle);
+  background: rgba(var(--rgb-accent), 0.06);
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
 }
 
 .landing-comparison th.hl-col {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: rgba(var(--rgb-accent), var(--badge-tint));
+  color: var(--color-primary-hover);
 }
 
 .landing-comparison tr:hover td {
@@ -1528,7 +1342,7 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 
-.landing-github-cta i {
+.landing-github-cta > i {
   font-size: var(--font-size-display-md);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
@@ -1629,8 +1443,16 @@ img { max-width: 100%; display: block; }
    HERO ENHANCEMENTS
    ============================================ */
 
-.landing-gradient-text {
+/* A highlighted word in a heading: a run of the accent on the page; in the hero, which is always
+   dark, from white into the accent. */
+.landing-hero .landing-gradient-text {
   background: var(--gradient-hero-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.landing-gradient-text {
+  background: var(--gradient-accent-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1689,10 +1511,10 @@ img { max-width: 100%; display: block; }
   width: 48px;
   height: 48px;
   border-radius: var(--radius-circle);
-  background: var(--gradient-primary);
-  color: var(--color-white);
+  background: rgba(var(--rgb-accent), var(--badge-tint));
+  color: var(--color-primary);
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
   margin-bottom: var(--spacing-lg);
 }
 
@@ -1805,6 +1627,21 @@ img { max-width: 100%; display: block; }
 
 .landing-page-content a:hover {
   color: var(--color-primary-hover);
+}
+
+/* Buttons and card links inside page text keep their own look, not the text-link colour and underline */
+.landing-page-content a.landing-btn,
+.landing-page-content a.no-underline {
+  text-decoration: none;
+}
+
+.landing-page-content a.landing-btn-primary {
+  color: var(--color-on-primary);
+}
+
+.landing-page-content a.landing-btn-secondary,
+.landing-page-content a.text-inherit {
+  color: inherit;
 }
 
 .landing-page-meta {
@@ -1923,77 +1760,6 @@ img { max-width: 100%; display: block; }
   box-shadow: var(--shadow-lg);
 }
 
-.landing-revenue-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.landing-revenue-card {
-  text-align: center;
-  padding: var(--spacing-md);
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-}
-
-.landing-revenue-card-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  margin-bottom: 4px;
-}
-
-.landing-revenue-card-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-}
-
-.landing-revenue-card-change {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-success);
-  margin-top: 2px;
-}
-
-.landing-revenue-attribution {
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.landing-revenue-bar-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-primary);
-}
-
-.landing-revenue-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.5rem;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(var(--rgb-accent), 0.12) 0%, transparent var(--bar-width, 50%));
-  border-left: 3px solid var(--color-primary);
-  font-size: var(--font-size-sm);
-  transition: background var(--duration-slower) ease;
-}
-
-.landing-revenue-bar-name {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-.landing-revenue-bar-amount {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-bold);
-}
-
 .landing-revenue-features {
   display: grid;
   grid-template-columns: 1fr;
@@ -2001,12 +1767,15 @@ img { max-width: 100%; display: block; }
 }
 
 .landing-revenue-feature {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--spacing-md);
+  row-gap: var(--spacing-xs);
+  align-items: start;
 }
 
 .landing-revenue-feature i {
+  grid-row: span 2;
   font-size: var(--font-size-2xl);
   color: var(--color-primary);
   flex-shrink: 0;
@@ -2076,24 +1845,12 @@ img { max-width: 100%; display: block; }
     grid-template-columns: 1fr;
   }
 
-  .landing-revenue-stats {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .landing-tab-content.active {
     grid-template-columns: 1fr;
   }
 
   .landing-privacy-grid {
     grid-template-columns: 1fr;
-  }
-
-  .landing-tracker-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-tracker-features {
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .landing-tech-layout {
@@ -2103,10 +1860,6 @@ img { max-width: 100%; display: block; }
 
   .landing-footer-grid {
     grid-template-columns: 1fr 1fr;
-  }
-
-  .landing-wizard-step-desc {
-    display: none;
   }
 
   .landing-how-steps {
@@ -2197,23 +1950,6 @@ img { max-width: 100%; display: block; }
   .landing-tab-btn {
     padding: var(--spacing-xs) var(--spacing-md);
     font-size: var(--font-size-xs);
-  }
-
-  .landing-widgets-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-tracker-features {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-wizard-stepper {
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-  }
-
-  .landing-wizard-step:not(:last-child)::after {
-    display: none;
   }
 
   .landing-footer-grid {

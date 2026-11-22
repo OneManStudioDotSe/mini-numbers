@@ -370,25 +370,6 @@
   };
 
   /* ============================================
-     WIDGET DEMO
-     Simulated real-time visitor count
-     ============================================ */
-  const WidgetDemo = {
-    init() {
-      const countEl = document.getElementById('widget-demo-count');
-      if (!countEl) return;
-
-      setInterval(() => {
-        const current = parseInt(countEl.textContent) || 3;
-        // Random walk: -1, 0, or +1
-        const delta = Math.floor(Math.random() * 3) - 1;
-        const next = Math.max(1, Math.min(12, current + delta));
-        countEl.textContent = next;
-      }, 3000);
-    }
-  };
-
-  /* ============================================
      NUMBERS BACKGROUND (Hero Canvas)
      Floating digits 0-9 as hero background
      ============================================ */
@@ -570,7 +551,6 @@
     NavManager.init();
     WidgetToggles.init();
     SizeBarAnimator.init();
-    WidgetDemo.init();
     NumbersBackground.init();
     ButtonRipple.init();
     SectionHeaderReveal.init();

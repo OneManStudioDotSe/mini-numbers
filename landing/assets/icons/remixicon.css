@@ -1,0 +1,61 @@
+/* Remix Icon 4.6.0 (Apache License 2.0, see LICENSE-RemixIcon.txt), served from this site so no page
+   calls an icon CDN. Only the 45 icons the landing pages use are listed here; to use another one, copy
+   its rule from the full remixicon.css of the same version. */
+@font-face {
+  font-family: "remixicon";
+  src: url("remixicon.woff2") format("woff2");
+  font-display: swap;
+}
+
+[class^="ri-"], [class*=" ri-"] {
+  font-family: 'remixicon' !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ri-arrow-down-line:before { content: "\ea4c"; }
+.ri-arrow-right-up-line:before { content: "\ea70"; }
+.ri-bar-chart-2-line:before { content: "\ea96"; }
+.ri-bar-chart-grouped-line:before { content: "\ea9b"; }
+.ri-book-open-line:before { content: "\eadb"; }
+.ri-bug-line:before { content: "\eb07"; }
+.ri-check-line:before { content: "\eb7b"; }
+.ri-close-line:before { content: "\eb99"; }
+.ri-code-box-line:before { content: "\eba7"; }
+.ri-code-line:before { content: "\eba9"; }
+.ri-code-s-slash-line:before { content: "\ebad"; }
+.ri-dashboard-line:before { content: "\ec14"; }
+.ri-discuss-line:before { content: "\ec3a"; }
+.ri-eye-off-line:before { content: "\ecb7"; }
+.ri-file-copy-line:before { content: "\ecd5"; }
+.ri-filter-3-line:before { content: "\ed25"; }
+.ri-flashlight-line:before { content: "\ed3d"; }
+.ri-forbid-line:before { content: "\ed95"; }
+.ri-git-pull-request-line:before { content: "\edc3"; }
+.ri-github-fill:before { content: "\edca"; }
+.ri-github-line:before { content: "\edcb"; }
+.ri-install-line:before { content: "\ee68"; }
+.ri-instance-line:before { content: "\f383"; }
+.ri-layout-grid-line:before { content: "\ee90"; }
+.ri-line-chart-line:before { content: "\eeab"; }
+.ri-live-line:before { content: "\eec0"; }
+.ri-lock-line:before { content: "\eece"; }
+.ri-magic-line:before { content: "\eeea"; }
+.ri-mail-send-line:before { content: "\eefc"; }
+.ri-menu-line:before { content: "\ef3e"; }
+.ri-money-dollar-circle-line:before { content: "\ef65"; }
+.ri-moon-line:before { content: "\ef75"; }
+.ri-open-source-line:before { content: "\efb3"; }
+.ri-rocket-line:before { content: "\f096"; }
+.ri-route-line:before { content: "\f09b"; }
+.ri-server-line:before { content: "\f0e0"; }
+.ri-settings-3-line:before { content: "\f0e6"; }
+.ri-shield-check-line:before { content: "\f100"; }
+.ri-ship-line:before { content: "\f110"; }
+.ri-star-line:before { content: "\f18b"; }
+.ri-sun-line:before { content: "\f1bf"; }
+.ri-terminal-box-line:before { content: "\f1f6"; }
+.ri-test-tube-line:before { content: "\f1fc"; }
+.ri-timer-line:before { content: "\f215"; }
+.ri-webhook-line:before { content: "\f520"; }

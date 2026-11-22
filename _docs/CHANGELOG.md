@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The landing site speaks plainly.** Every page is rewritten: shorter, casual, and open about the tool being
+  built by one human with an AI. The setup guide and the home page's install tabs now give the real install
+  commands (the compose file and domain on a server, one `docker run` on your own computer, or the release
+  JAR), and the privacy policy and terms are in plain words with the MIT licence as the formal version.
+- **The landing site makes no third-party requests.** Its icons (Remix Icon 4.6.0, Apache 2.0) are bundled, as
+  its fonts already were. Only the 45 icons the pages use are listed in its stylesheet.
+- **The landing site can be hosted anywhere by itself**: every path is relative, so it works at a domain's root,
+  in a sub-folder or opened from disk, and it needs nothing from the app (`landing/README.md`).
+- **One menu on every landing page**, with a light/dark switch that is remembered, instead of a lone "Back to
+  home" button on the sub-pages.
+- **Landing site, second pass.** The revenue section shows a real screenshot of the dashboard instead of a
+  drawn mock-up; step numbers, metric icons and the comparison table's highlighted column use the same tinted
+  style as the dashboard; all buttons are pills. About 300 lines of unused styles are removed.
 - **Browsers, operating systems and devices are gauges**: the shares as rounded segments of an open arc, the
   total in its opening, and a centred legend with each item's icon and percentage. They replace the doughnuts;
   the bar and radar views of those cards are unchanged.
@@ -39,6 +52,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stylesheets, the pages and the scripts. Nothing is meant to look different. A few sizes moved by less than a
   pixel onto the common scale (13.6px and 14.4px text is now 14px, 12.8px is 13px, 17.6px is 18px), and all code
   and keys use the same monospace font.
+
+### Fixed
+
+- Landing site: the contact page linked to GitHub Discussions, which is not enabled (404); questions now go
+  to a new issue. The script for a widget demo that no longer exists is removed.
+- Landing site: the home page said the tracker is 1.3 KB minified and that there are 417 tests; it now says
+  2 KB gzipped and 419. The "Star on GitHub" button had an oversized icon; the highlighted word in a section
+  heading was invisible in the light theme; the button at the end of "How it works" had text in the button's
+  own colour; and the cards on the contact page were underlined like text links.
 
 ## [1.0.0] - 2026-11-22
 

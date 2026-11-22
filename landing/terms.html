@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service — Mini Numbers</title>
-  <meta name="description" content="Terms of Service for Mini Numbers, the privacy-first web analytics platform.">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+  <title>Terms — Mini Numbers</title>
+  <meta name="description" content="The terms for using Mini Numbers, in plain words. It is free, it is yours to run, and it comes without a warranty.">
+  <link rel="icon" type="image/png" href="assets/mini_numbers_logo.png">
+  <link rel="stylesheet" href="assets/icons/remixicon.css">
   <link rel="stylesheet" href="landing.css">
 </head>
 <body>
@@ -15,61 +16,66 @@
 <nav class="landing-nav" role="navigation" aria-label="Main navigation">
   <div class="landing-nav-inner">
     <a href="index.html" class="landing-nav-brand" aria-label="Mini Numbers home">
-      <i class="ri-bar-chart-grouped-line"></i>
-      Mini Numbers
+      <img src="assets/mini_numbers_logo.png" alt="Mini Numbers" class="landing-logo-img">
     </a>
+
+    <ul class="landing-nav-links" id="nav-links" role="list">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="how-it-works.html">How it works</a></li>
+      <li><a href="setup-guide.html">Setup guide</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
     <div class="landing-nav-actions">
-      <a href="index.html" class="landing-btn landing-btn-primary">Back to Home</a>
+      <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn-ghost" aria-label="View on GitHub">
+        <i class="ri-github-fill"></i>
+      </a>
+      <button class="landing-theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark">
+        <i class="ri-moon-line" id="theme-icon"></i>
+      </button>
+      <a href="index.html#installation" class="landing-btn landing-btn-primary">Get started</a>
+      <button class="landing-nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <i class="ri-menu-line" id="hamburger-icon"></i>
+      </button>
     </div>
   </div>
 </nav>
 
 <main id="content" class="landing-page-content">
-  <h1>Terms of Service</h1>
-  <p class="landing-page-meta">Last updated: February 2026</p>
+  <h1>Terms</h1>
+  <p class="landing-page-meta">Last updated: November 2026</p>
+  <p>Plain words first. The formal version is the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">MIT licence</a>, and if the two ever disagree, the licence wins.</p>
 
-  <h2>1. Acceptance of Terms</h2>
-  <p>By accessing, downloading, or using the Mini Numbers software ("Software"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Software.</p>
+  <h2>What you get</h2>
+  <p>Mini Numbers is free, open-source software that you run yourself. There's no hosted service, no account with us and no bill.</p>
 
-  <h2>2. Service Description</h2>
-  <p>Mini Numbers is an open-source, self-hosted web analytics platform. The Software is designed to be deployed and operated on your own infrastructure. We do not provide a hosted service — you are solely responsible for the deployment, operation, and maintenance of your Mini Numbers instance.</p>
-
-  <h2>3. MIT License</h2>
-  <p>Mini Numbers is distributed under the MIT License. You are free to:</p>
+  <h2>What you can do with it</h2>
   <ul>
-    <li>Use the Software for any purpose, including commercial use</li>
-    <li>Modify and distribute the Software</li>
-    <li>Include the Software in proprietary projects</li>
+    <li>Use it for anything, commercial work included.</li>
+    <li>Change it and share your version.</li>
+    <li>Build it into your own product.</li>
   </ul>
-  <p>The full license text is available in the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a> file in the repository.</p>
+  <p>Just keep the licence notice with it.</p>
 
-  <h2>4. Self-Hosted Nature</h2>
-  <p>As a self-hosted solution:</p>
+  <h2>What's on you</h2>
   <ul>
-    <li>You are responsible for your server's security, uptime, and maintenance</li>
-    <li>You are responsible for complying with data protection regulations applicable in your jurisdiction (e.g., GDPR, CCPA)</li>
-    <li>You are responsible for configuring privacy modes and data retention settings appropriate for your use case</li>
-    <li>We do not have access to your data, your visitors' data, or your server</li>
+    <li><strong>Your server:</strong> keeping it running, updated and secure.</li>
+    <li><strong>Your visitors:</strong> following the privacy laws that apply to you, and choosing the privacy mode and retention that fit.</li>
+    <li><strong>Your data:</strong> it lives on your server. We can't see it, and we can't restore it. Make backups.</li>
   </ul>
 
-  <h2>5. No Warranty</h2>
-  <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</p>
+  <h2>No warranty</h2>
+  <p>The software comes as it is, with no warranty of any kind, and its authors aren't liable for what happens when you use it. A fair amount of it was written with an AI and checked by one human and 419 tests. Read the code, test it, and decide for yourself.</p>
 
-  <h2>6. Limitation of Liability</h2>
-  <p>IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
-
-  <h2>7. Modifications</h2>
-  <p>We reserve the right to modify these Terms at any time. Changes will be reflected in the "Last updated" date above. Continued use of the Software after changes constitutes acceptance of the updated Terms.</p>
-
-  <h2>8. Contact</h2>
-  <p>For questions about these Terms, please <a href="contact.html">contact us</a> or open an issue on <a href="https://github.com/OneManStudioDotSe/mini-numbers/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+  <h2>Changes and questions</h2>
+  <p>If these terms change, the date at the top changes with it. Questions go to <a href="contact.html">the contact page</a>.</p>
 </main>
 
 <footer class="landing-footer" role="contentinfo">
   <div class="landing-container">
     <div class="landing-footer-bottom">
-      <span><a class="text-inherit" href="index.html">Mini Numbers</a> — Privacy-first web analytics</span>
-      <span>&copy; 2026 Mini Numbers. MIT License.</span>
+      <span><a class="text-inherit" href="index.html">Mini Numbers</a>. Made by a human and an AI. The human takes the blame.</span>
+      <span>&copy; 2026 Mini Numbers. MIT licence.</span>
     </div>
   </div>
 </footer>

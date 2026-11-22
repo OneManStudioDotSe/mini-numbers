@@ -45,7 +45,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 | L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Done |
 | S | Security audit of 2026-11-14: request size limit, setup token and closed setup after a failed start, lockout per address, tokens ended by sign-out, no addresses in logs, trimmed tracker addresses, crawlers not stored | Released in 1.0.0 |
 | 1.0 | First public release: funnels and segments standard, widgets opt-in per project, version reset to 1.0.0 | Released as 1.0.0 (2026-11-22) |
-| M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
+| M3 | Landing page: short plain text, real dashboard screenshots, the dashboard's look, nothing loaded from other sites | Done 2026-11-22 (not deployed anywhere yet) |
 | M4 | Public demo: nightly reset at 23:59 UTC; M4a viewer account, M4b sandbox role (goals, funnels, segments only) | Planned |
 | M5 | Feature ideas below, one per minor release | Planned |
 
@@ -105,8 +105,8 @@ and medium item in it is fixed. Still open from it:
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
 - Users get no email (no invitation, no reset link): an admin hands a new user their generated password, and a
   forgotten password is reset on the server with `reset-password`. Email needs SMTP, which is still a lab.
-- The landing page (`landing/`) states only true things since 2026-11-11 and shares the dashboard's look since
-  2026-11-22, but still loads Remixicon from a CDN, and its text is still the long version — rewritten in M3.
+- The landing page (`landing/`) shares the dashboard's look, bundles its fonts and icons and has its short text
+  since 2026-11-22. Its contact page sends questions to issues until GitHub Discussions is enabled.
 
 ---
 

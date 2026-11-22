@@ -16,10 +16,12 @@
   --rgb-neutral: 106, 106, 115;
   --color-white: #fff;
   --color-on-primary: #ffffff;    /* text on a primary-coloured fill */
+  --badge-tint: 0.12;             /* strength of a tinted badge's wash */
 
   /* Hero: the band at the top of the page, in the primary colour */
   --gradient-hero-text: linear-gradient(135deg, #ffffff, rgba(255, 255, 255, 0.78), #ff8a72);
-  --hero-bg: radial-gradient(60% 55% at 50% 0%, rgba(255, 110, 82, 0.20), transparent 70%), #0e0e0f;  /* dark in both themes */
+--gradient-accent-text: linear-gradient(135deg, var(--color-primary), #ff8a72);  /* a highlighted word in a heading */
+    --hero-bg: radial-gradient(60% 55% at 50% 0%, rgba(255, 110, 82, 0.20), transparent 70%), #0e0e0f;  /* dark in both themes */
   --hero-button-bg: #ff6e52;
   --hero-button-text: #190a06;
   --hero-button-text-hover: #190a06;
@@ -166,6 +168,7 @@
   --radius-xl: 1.25rem;
   --radius-full: 9999px;
   --button-radius: var(--radius-full);
+  --control-height: 40px;
   --radius-2xs: 0.125rem;
   --radius-xs: 0.1875rem;      /* 3px */
   --radius-circle: 50%;
@@ -206,6 +209,8 @@
    ============================================ */
 
 [data-theme="dark"] {
+  --gradient-accent-text: linear-gradient(135deg, #ff6e52, #ffb09f);
+  --badge-tint: 0.16;
   --color-on-primary: #190a06;
   --rgb-accent: 255, 110, 82;
   --rgb-warning: 245, 165, 36;

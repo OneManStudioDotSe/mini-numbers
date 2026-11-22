@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>How It Works — Mini Numbers</title>
-  <meta name="description" content="Learn how Mini Numbers works — from installation to tracking. A step-by-step overview of the privacy-first analytics platform.">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css">
+  <title>How it works — Mini Numbers</title>
+  <meta name="description" content="How Mini Numbers works: install it, answer six questions, paste one script tag. That is the whole trick.">
+  <link rel="icon" type="image/png" href="assets/mini_numbers_logo.png">
+  <link rel="stylesheet" href="assets/icons/remixicon.css">
   <link rel="stylesheet" href="landing.css">
 </head>
 <body>
@@ -15,143 +16,111 @@
 <nav class="landing-nav" role="navigation" aria-label="Main navigation">
   <div class="landing-nav-inner">
     <a href="index.html" class="landing-nav-brand" aria-label="Mini Numbers home">
-      <i class="ri-bar-chart-grouped-line"></i>
-      Mini Numbers
+      <img src="assets/mini_numbers_logo.png" alt="Mini Numbers" class="landing-logo-img">
     </a>
+
+    <ul class="landing-nav-links" id="nav-links" role="list">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="how-it-works.html" aria-current="page">How it works</a></li>
+      <li><a href="setup-guide.html">Setup guide</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
     <div class="landing-nav-actions">
-      <a href="index.html" class="landing-btn landing-btn-primary">Back to Home</a>
+      <a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener" class="landing-btn-ghost" aria-label="View on GitHub">
+        <i class="ri-github-fill"></i>
+      </a>
+      <button class="landing-theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark">
+        <i class="ri-moon-line" id="theme-icon"></i>
+      </button>
+      <a href="index.html#installation" class="landing-btn landing-btn-primary">Get started</a>
+      <button class="landing-nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <i class="ri-menu-line" id="hamburger-icon"></i>
+      </button>
     </div>
   </div>
 </nav>
 
 <main id="content" class="landing-page-content">
-  <h1>How It Works</h1>
-  <p>Mini Numbers is a self-hosted web analytics platform. You deploy it on your own server, configure it through a browser-based wizard, and add a tiny script to your website. Here's how it all fits together.</p>
+  <h1>How it works</h1>
+  <p>Mini Numbers is one small program you run on your own server. Your site tells it "someone looked at this page", and it keeps count. That's the whole trick.</p>
 
-  <h2>1. Install</h2>
-  <p>Mini Numbers runs as a Docker container or a standalone Java application. The fastest way to get started is with Docker Compose:</p>
-
+  <h2>1. Start it</h2>
+  <p>One command. The database is built in, so there is nothing else to install.</p>
   <div class="landing-code-block">
     <div class="landing-code-bar">
-      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+      <div class="landing-code-dots">
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+      </div>
       <span class="landing-code-title">Terminal</span>
     </div>
     <div class="landing-code-body">
-<pre>git clone https://github.com/OneManStudioDotSe/mini-numbers.git
-cd mini-numbers
+<pre><span class="hl-comment"># In an empty folder on your server</span>
+curl -fsSLO \
+  https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
+echo "DOMAIN=stats.example.com" > .env
 docker compose up -d</pre>
     </div>
   </div>
+  <p>Just curious? It runs on your laptop too: see the <a href="setup-guide.html">setup guide</a>.</p>
 
-  <h3>Prerequisites</h3>
-  <ul>
-    <li><strong>Docker Compose</strong> (recommended) — any modern version</li>
-    <li><strong>Or</strong> Docker standalone</li>
-    <li><strong>Or</strong> JDK 21+ for building from source</li>
-  </ul>
-  <p>The Docker image is multi-platform (amd64, arm64) and weighs approximately 200MB.</p>
+  <h2>2. Answer six questions</h2>
+  <p>Open your new address and a setup wizard greets you. It asks for a password, a privacy mode and not much else. No config files, no restart.</p>
+  <p>In a hurry? <strong>Quick Setup</strong> picks sensible answers and hands you a strong password.</p>
 
-  <h2>2. Configure</h2>
-  <p>When you first visit your Mini Numbers instance, the setup wizard guides you through configuration in 6 steps:</p>
-  <ol>
-    <li><strong>Secure your dashboard</strong> — admin username, password and the server salt (generated for you)</li>
-    <li><strong>Choose storage</strong> — SQLite (default, one file, no setup) or PostgreSQL</li>
-    <li><strong>Privacy approach</strong> — Standard, Strict or Paranoid</li>
-    <li><strong>Server settings</strong> — port, allowed origins for the admin API, and development mode</li>
-    <li><strong>Fine-tuning</strong> — request limits per visitor and per website</li>
-    <li><strong>Review</strong> — confirm, enter the setup token printed in the server log, and launch; services start without a restart</li>
-  </ol>
-  <p>The wizard saves a <code>.env</code> file and initializes all services — no server restart required. This is Mini Numbers' zero-restart architecture in action.</p>
-
-  <h2>3. Add the Tracker</h2>
-  <p>Add one script tag to your website's HTML. That's the entire integration:</p>
-
+  <h2>3. Paste one script tag</h2>
+  <p>Create a project in the dashboard and it gives you a snippet. Put it on your site:</p>
   <div class="landing-code-block">
     <div class="landing-code-bar">
-      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-      <span class="landing-code-title">your-website.html</span>
+      <div class="landing-code-dots">
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+      </div>
+      <span class="landing-code-title">your-site.html</span>
     </div>
     <div class="landing-code-body">
-<pre><span class="hl-tag">&lt;script</span>
-  <span class="hl-attr">async</span>
-  <span class="hl-attr">src</span>=<span class="hl-val">"https://your-analytics.com/tracker/tracker.min.js"</span>
-  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_API_KEY"</span>
-<span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+<pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">async</span>
+  <span class="hl-attr">src</span>=<span class="hl-val">"https://stats.example.com/tracker/tracker.min.js"</span>
+  <span class="hl-attr">data-project-key</span>=<span class="hl-val">"YOUR_PROJECT_KEY"</span><span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
     </div>
   </div>
-
-  <h3>Tracker Features</h3>
   <ul>
-    <li><strong>2KB gzipped (5.2KB minified)</strong> — smaller than most favicon images</li>
-    <li><strong>SPA support</strong> — automatically patches History API for single-page apps</li>
-    <li><strong>Heartbeat tracking</strong> — measures actual time-on-page (visibility-aware)</li>
-    <li><strong>Custom events</strong> — track any interaction with <code>MiniNumbers.track("event")</code></li>
-    <li><strong>No cookies</strong> — uses sessionStorage for session management</li>
+    <li><strong>2 KB</strong> gzipped. Your hero image is bigger.</li>
+    <li><strong>No cookies.</strong> Nothing to ask consent for.</li>
+    <li><strong>Single-page apps</strong> just work.</li>
+    <li><strong>Custom events</strong> are one line: <code>MiniNumbers.track("signup")</code></li>
+    <li><strong>Polite.</strong> Browsers that send Do Not Track or Global Privacy Control aren't counted.</li>
   </ul>
 
-  <h3>Configuration Options</h3>
-  <table class="landing-config-table">
-    <thead>
-      <tr>
-        <th>Attribute</th>
-        <th>Default</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>data-project-key</code></td>
-        <td>Required</td>
-        <td>Your project's API key</td>
-      </tr>
-      <tr>
-        <td><code>data-api-endpoint</code></td>
-        <td>Script origin</td>
-        <td>Custom API endpoint URL</td>
-      </tr>
-      <tr>
-        <td><code>data-heartbeat-interval</code></td>
-        <td><code>30000</code></td>
-        <td>Heartbeat interval in ms</td>
-      </tr>
-      <tr>
-        <td><code>data-disable-spa</code></td>
-        <td><code>false</code></td>
-        <td>Disable SPA tracking</td>
-      </tr>
-    </tbody>
-  </table>
+  <h2>4. Look at your numbers</h2>
+  <p>Open <code>/admin-panel</code>. Page views, visitors, where they came from, what they read, where they gave up. First visits show up within seconds.</p>
 
-  <h2>4. Analyze</h2>
-  <p>Visit <code>/admin-panel</code> on your Mini Numbers instance to access the dashboard. You'll see:</p>
-  <ul>
-    <li>Page views, unique visitors, and bounce rate with period comparison</li>
-    <li>Top pages, referrers, browsers, and countries</li>
-    <li>Activity heatmaps and contribution calendars</li>
-    <li>Real-time visitor feed with live location tracking</li>
-    <li>Conversion goals, funnels, and user segments</li>
-  </ul>
-
-  <h2>Privacy Architecture</h2>
-  <p>Mini Numbers never stores IP addresses. Instead, it creates a one-way hash:</p>
-
+  <h2>What about privacy?</h2>
+  <p>Mini Numbers never stores an IP address. It turns each visitor into a scrambled ID instead:</p>
   <div class="landing-code-block">
     <div class="landing-code-bar">
-      <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-      <span class="landing-code-title">Privacy hash</span>
+      <div class="landing-code-dots">
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+        <span class="landing-code-dot"></span>
+      </div>
+      <span class="landing-code-title">How a visitor is counted</span>
     </div>
     <div class="landing-code-body">
-<pre>visitorHash = SHA256(ip + userAgent + projectId + serverSalt + rotationBucket)</pre>
+<pre>visitorId = SHA-256(ip + browser + site + secret + time window)</pre>
     </div>
   </div>
+  <p>The time window is the clever part. When it rolls over (every 24 hours unless you choose otherwise), yesterday's visitor becomes a stranger, so nobody can be followed for long. The full story is in the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/privacy.md" target="_blank" rel="noopener">privacy notes</a>.</p>
 
-  <p>The hash rotates on a configurable schedule (1 to 8,760 hours). After rotation, old visitors appear as new — preventing long-term tracking. Three privacy modes let you control exactly how much data is collected.</p>
-
-  <p>For full details, read the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/privacy.md" target="_blank" rel="noopener">Privacy Architecture Documentation</a>.</p>
+  <h2>Who built this?</h2>
+  <p>One human, with a lot of help from an AI. The AI wrote much of the code and all of the confident comments. The human said "no" a lot. There are 419 automated tests because neither fully trusts the other.</p>
 
   <div class="mt-2xl text-center">
     <a href="setup-guide.html" class="landing-btn landing-btn-primary landing-btn-lg">
-      <i class="ri-book-open-line"></i> Read the Setup Guide
+      <i class="ri-rocket-line"></i> Set it up
     </a>
   </div>
 </main>
@@ -159,8 +128,8 @@ docker compose up -d</pre>
 <footer class="landing-footer" role="contentinfo">
   <div class="landing-container">
     <div class="landing-footer-bottom">
-      <span><a class="text-inherit" href="index.html">Mini Numbers</a> — Privacy-first web analytics</span>
-      <span>&copy; 2026 Mini Numbers. MIT License.</span>
+      <span><a class="text-inherit" href="index.html">Mini Numbers</a>. Made by a human and an AI. The human takes the blame.</span>
+      <span>&copy; 2026 Mini Numbers. MIT licence.</span>
     </div>
   </div>
 </footer>

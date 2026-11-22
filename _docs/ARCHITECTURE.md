@@ -455,7 +455,9 @@ The landing site (`landing/`, a separate static site) follows the same rule with
 carry no `style` attribute except data values (`--bar-width`), and `landing.js` reads canvas colours with its
 `token()` helper. Its tokens use the same names and values as the admin's, so a change of look means editing
 `static/css/variables.css` + `themes.css` and `landing/variables.css`. Plus Jakarta Sans (the interface typeface) and Inter (its fallback) are bundled in `landing/assets/fonts/`;
-the dashboard screenshots the home page shows are in `landing/assets/screens/` (one per theme).
+the dashboard screenshots the home page shows are in `landing/assets/screens/` (one per theme). Its icons are a subset of
+Remix Icon in `landing/assets/icons/` (`remixicon.css` lists only the icons in use; add a rule there when a page
+uses a new one), so the landing pages request nothing from another site.
 
 ### Labs
 
