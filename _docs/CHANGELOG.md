@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The landing pages share the dashboard's new look.** Same graphite surfaces and coral accent in both themes,
+  a dark hero in place of the amber band, pill buttons, and the bundled Inter typeface. Their colours and sizes
+  now come from one file (`landing/variables.css`) and the pages carry no inline styles. The text is unchanged.
 - **A new look for the dashboard, login page and setup wizard.** Neutral graphite surfaces in place of the
   brown-tinted ones, one coral accent in place of amber mixed with indigo, flat cards with hairline borders and
   rounder corners, pill-shaped buttons, sentence-case labels, and numbers in the text colour with a small tinted

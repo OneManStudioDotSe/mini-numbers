@@ -105,8 +105,8 @@ and medium item in it is fixed. Still open from it:
 - Hash rotation and the retention purge read the wall clock directly, so they have no tests.
 - Users get no email (no invitation, no reset link): an admin hands a new user their generated password, and a
   forgotten password is reset on the server with `reset-password`. Email needs SMTP, which is still a lab.
-- The landing page (`landing/`) states only true things since 2026-11-11, but still loads Remixicon from a CDN and
-  predates the current design — replaced in M3.
+- The landing page (`landing/`) states only true things since 2026-11-11 and shares the dashboard's look since
+  2026-11-22, but still loads Remixicon from a CDN, and its text is still the long version — rewritten in M3.
 
 ---
 

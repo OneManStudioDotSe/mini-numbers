@@ -118,12 +118,12 @@
           <svg viewBox="0 0 400 100" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#d97706" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
+                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <polygon points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10 400,100 0,100" fill="url(#chart-grad)"/>
-            <polyline points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10" fill="none" stroke="#d97706" stroke-width="2"/>
+            <polyline points="0,80 30,70 60,75 90,50 120,55 150,30 180,40 210,25 240,35 270,20 300,30 330,15 360,25 400,10" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
           </svg>
         </div>
       </div>
@@ -200,7 +200,7 @@
     </div>
 
     <!-- Dashboard tab -->
-    <div class="landing-tab-content active" data-tab="dashboard" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content active relative" data-tab="dashboard" role="tabpanel">
       <img src="assets/set_3/png/003-bar%20graph.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Beautiful, actionable insights</h3>
@@ -217,17 +217,17 @@
         <div class="landing-mock-stats">
           <div class="landing-mock-stat">
             <div class="landing-mock-stat-label">Views</div>
-            <div class="landing-mock-stat-value" style="font-size:1.25rem">8,412</div>
+            <div class="landing-mock-stat-value text-xl">8,412</div>
             <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +12%</div>
           </div>
           <div class="landing-mock-stat">
             <div class="landing-mock-stat-label">Visitors</div>
-            <div class="landing-mock-stat-value" style="font-size:1.25rem">2,103</div>
+            <div class="landing-mock-stat-value text-xl">2,103</div>
             <div class="landing-mock-stat-change"><i class="ri-arrow-up-s-line"></i> +8%</div>
           </div>
           <div class="landing-mock-stat">
             <div class="landing-mock-stat-label">Bounce</div>
-            <div class="landing-mock-stat-value" style="font-size:1.25rem">38%</div>
+            <div class="landing-mock-stat-value text-xl">38%</div>
             <div class="landing-mock-stat-change"><i class="ri-arrow-down-s-line"></i> -5%</div>
           </div>
         </div>
@@ -235,7 +235,7 @@
     </div>
 
     <!-- Custom Events tab -->
-    <div class="landing-tab-content" data-tab="events" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="events" role="tabpanel">
       <img src="assets/set_3/png/019-idea.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Track what matters</h3>
@@ -270,7 +270,7 @@
     </div>
 
     <!-- Visualizations tab -->
-    <div class="landing-tab-content" data-tab="viz" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="viz" role="tabpanel">
       <img src="assets/set_3/png/025-pie%20chart.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Data that tells a story</h3>
@@ -285,42 +285,42 @@
       </div>
       <div class="landing-feature-visual">
         <!-- Mini heatmap illustration -->
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.8;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.9;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.7;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:1;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.5;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.7;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.1;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.8;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.4;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.3;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.6;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.2;border-radius:3px"></div>
-          <div style="aspect-ratio:1;background:var(--color-primary);opacity:0.9;border-radius:3px"></div>
+        <div class="mock-heat">
+          <div class="mock-heat__cell mock-heat__cell--1"></div>
+          <div class="mock-heat__cell mock-heat__cell--3"></div>
+          <div class="mock-heat__cell mock-heat__cell--6"></div>
+          <div class="mock-heat__cell mock-heat__cell--2"></div>
+          <div class="mock-heat__cell mock-heat__cell--8"></div>
+          <div class="mock-heat__cell mock-heat__cell--4"></div>
+          <div class="mock-heat__cell mock-heat__cell--1"></div>
+          <div class="mock-heat__cell mock-heat__cell--5"></div>
+          <div class="mock-heat__cell mock-heat__cell--9"></div>
+          <div class="mock-heat__cell mock-heat__cell--3"></div>
+          <div class="mock-heat__cell mock-heat__cell--7"></div>
+          <div class="mock-heat__cell mock-heat__cell--1"></div>
+          <div class="mock-heat__cell mock-heat__cell--5"></div>
+          <div class="mock-heat__cell mock-heat__cell--2"></div>
+          <div class="mock-heat__cell mock-heat__cell--4"></div>
+          <div class="mock-heat__cell mock-heat__cell--2"></div>
+          <div class="mock-heat__cell mock-heat__cell--6"></div>
+          <div class="mock-heat__cell mock-heat__cell--10"></div>
+          <div class="mock-heat__cell mock-heat__cell--3"></div>
+          <div class="mock-heat__cell mock-heat__cell--5"></div>
+          <div class="mock-heat__cell mock-heat__cell--7"></div>
+          <div class="mock-heat__cell mock-heat__cell--1"></div>
+          <div class="mock-heat__cell mock-heat__cell--8"></div>
+          <div class="mock-heat__cell mock-heat__cell--4"></div>
+          <div class="mock-heat__cell mock-heat__cell--3"></div>
+          <div class="mock-heat__cell mock-heat__cell--6"></div>
+          <div class="mock-heat__cell mock-heat__cell--2"></div>
+          <div class="mock-heat__cell mock-heat__cell--9"></div>
         </div>
-        <p style="text-align:center;font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:var(--spacing-md)">Activity heatmap — spot your peak hours</p>
+        <p class="text-center text-xs text-muted mt-md">Activity heatmap — spot your peak hours</p>
       </div>
     </div>
 
     <!-- Live Monitoring tab -->
-    <div class="landing-tab-content" data-tab="live" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="live" role="tabpanel">
       <img src="assets/set_3/png/021-online%20data.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>See your visitors in real-time</h3>
@@ -334,31 +334,31 @@
         </ul>
       </div>
       <div class="landing-feature-visual">
-        <div style="display:flex;flex-direction:column;gap:var(--spacing-sm);">
-          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+        <div class="stack">
+          <div class="mock-row">
             <span class="landing-w-dot"></span>
-            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/blog/getting-started</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Berlin, DE</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">2s ago</span>
+            <span class="mock-row__label">/blog/getting-started</span>
+            <span class="text-xs text-muted">Berlin, DE</span>
+            <span class="text-xs text-muted">2s ago</span>
           </div>
-          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+          <div class="mock-row">
             <span class="landing-w-dot"></span>
-            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/pricing</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">Tokyo, JP</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">15s ago</span>
+            <span class="mock-row__label">/pricing</span>
+            <span class="text-xs text-muted">Tokyo, JP</span>
+            <span class="text-xs text-muted">15s ago</span>
           </div>
-          <div style="display:flex;align-items:center;gap:var(--spacing-sm);padding:var(--spacing-sm);background:var(--color-bg-secondary);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+          <div class="mock-row">
             <span class="landing-w-dot"></span>
-            <span style="flex:1;font-size:var(--font-size-sm);color:var(--color-text-primary)">/docs/api</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">NYC, US</span>
-            <span style="font-size:var(--font-size-xs);color:var(--color-text-muted)">28s ago</span>
+            <span class="mock-row__label">/docs/api</span>
+            <span class="text-xs text-muted">NYC, US</span>
+            <span class="text-xs text-muted">28s ago</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Segmentation tab -->
-    <div class="landing-tab-content" data-tab="segments" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="segments" role="tabpanel">
       <img src="assets/set_3/png/031-seo.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Slice your data any way you want</h3>
@@ -373,20 +373,20 @@
       </div>
       <div class="landing-feature-visual">
         <!-- Funnel illustration -->
-        <div style="display:flex;flex-direction:column;gap:var(--spacing-sm);align-items:center;">
-          <div style="width:100%;padding:var(--spacing-md);background:var(--color-primary);color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Homepage — 1,000 visitors</div>
-          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
-          <div style="width:85%;padding:var(--spacing-md);background:var(--color-primary);opacity:0.8;color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Pricing — 620 <span style="opacity:0.7;font-weight:400">(62%)</span></div>
-          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
-          <div style="width:65%;padding:var(--spacing-md);background:var(--color-primary);opacity:0.6;color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Signup — 340 <span style="opacity:0.7;font-weight:400">(34%)</span></div>
-          <i class="ri-arrow-down-line" style="color:var(--color-text-muted)"></i>
-          <div style="width:40%;padding:var(--spacing-md);background:var(--color-success);color:#fff;border-radius:var(--radius-md);text-align:center;font-size:var(--font-size-sm);font-weight:600">Converted — 180 <span style="opacity:0.7;font-weight:400">(18%)</span></div>
+        <div class="stack stack--center">
+          <div class="mock-funnel__step mock-funnel__step--w100">Homepage — 1,000 visitors</div>
+          <i class="ri-arrow-down-line text-muted"></i>
+          <div class="mock-funnel__step mock-funnel__step--w85">Pricing — 620 <span class="note-soft">(62%)</span></div>
+          <i class="ri-arrow-down-line text-muted"></i>
+          <div class="mock-funnel__step mock-funnel__step--w65">Signup — 340 <span class="note-soft">(34%)</span></div>
+          <i class="ri-arrow-down-line text-muted"></i>
+          <div class="mock-funnel__step mock-funnel__step--w40 mock-funnel__step--done">Converted — 180 <span class="note-soft">(18%)</span></div>
         </div>
       </div>
     </div>
 
     <!-- Export & API tab -->
-    <div class="landing-tab-content" data-tab="api" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="api" role="tabpanel">
       <img src="assets/set_3/png/023-page.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Your data, your way</h3>
@@ -424,7 +424,7 @@
     </div>
 
     <!-- Widgets tab -->
-    <div class="landing-tab-content" data-tab="widgets" role="tabpanel" style="position:relative;">
+    <div class="landing-tab-content relative" data-tab="widgets" role="tabpanel">
       <img src="assets/set_3/png/032-graph%20line.png" alt="" aria-hidden="true" class="landing-tab-illustration">
       <div class="landing-feature-text">
         <h3>Embeddable widgets for your site</h3>
@@ -438,7 +438,7 @@
         </ul>
       </div>
       <div class="landing-feature-visual">
-        <div style="display:flex;flex-direction:column;gap:var(--spacing-lg);align-items:center;">
+        <div class="stack stack--center stack--loose">
           <div class="landing-w-realtime">
             <span class="landing-w-dot"></span>
             <span class="landing-w-count" id="widget-demo-count">3</span>
@@ -461,7 +461,7 @@
 <!-- ============================================
      4b. REVENUE INTELLIGENCE
      ============================================ -->
-<section class="landing-section" aria-label="Revenue Intelligence" style="overflow: hidden;">
+<section class="landing-section overflow-hidden" aria-label="Revenue Intelligence">
   <div class="landing-container">
     <div class="landing-section-header animate-on-scroll">
       <h2 class="landing-section-title">Know where your <span class="landing-gradient-text">money</span> comes from</h2>
@@ -537,16 +537,16 @@
     <!-- Simple code example -->
     <div class="landing-revenue-code animate-on-scroll">
       <div class="landing-code-header">
-        <span class="landing-code-dot" style="background: #ef4444;"></span>
-        <span class="landing-code-dot" style="background: #f59e0b;"></span>
-        <span class="landing-code-dot" style="background: #10b981;"></span>
-        <span style="margin-left: 0.5rem; font-size: 0.8rem; opacity: 0.7;">tracking.js</span>
+        <span class="landing-code-dot bg-danger"></span>
+        <span class="landing-code-dot bg-warning"></span>
+        <span class="landing-code-dot bg-success"></span>
+        <span class="note-inline">tracking.js</span>
       </div>
-      <pre class="landing-code-body"><code><span style="color: var(--color-text-muted);">// Track a purchase — that's it!</span>
-MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
-  revenue: <span style="color: #10b981;">49.99</span>,
-  currency: <span style="color: #f59e0b;">"USD"</span>,
-  product: <span style="color: #f59e0b;">"Pro Plan"</span>
+      <pre class="landing-code-body"><code><span class="text-muted">// Track a purchase — that's it!</span>
+MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
+  revenue: <span class="text-success">49.99</span>,
+  currency: <span class="text-warning">"USD"</span>,
+  product: <span class="text-warning">"Pro Plan"</span>
 });</code></pre>
     </div>
   </div>
@@ -600,7 +600,7 @@ MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
       </div>
 
       <div class="animate-on-scroll">
-        <h3 style="font-size:var(--font-size-xl);font-weight:var(--font-weight-semibold);margin-bottom:var(--spacing-lg);color:var(--color-text-primary)">Three privacy modes</h3>
+        <h3 class="mock-title">Three privacy modes</h3>
         <table class="landing-modes-table">
           <thead>
             <tr>
@@ -690,7 +690,7 @@ MiniNumbers.track(<span style="color: #f59e0b;">"purchase"</span>, {
       </div>
     </div>
 
-    <div style="text-align:center;" class="animate-on-scroll">
+    <div class="animate-on-scroll text-center">
       <a href="setup-guide.html" class="landing-btn landing-btn-secondary landing-btn-lg">
         <i class="ri-book-open-line"></i> Read the full setup guide
       </a>
@@ -885,7 +885,7 @@ java -jar build/libs/mini-numbers-all.jar
     <div class="landing-tech-layout">
       <div class="animate-on-scroll">
         <h2 class="landing-section-title">Built with modern tools</h2>
-        <p class="landing-section-subtitle" style="margin-bottom:var(--spacing-xl)">A carefully chosen stack for reliability, performance, and developer happiness.</p>
+        <p class="landing-section-subtitle mb-xl">A carefully chosen stack for reliability, performance, and developer happiness.</p>
         <div class="landing-tech-badges">
           <span class="landing-tech-badge">Kotlin</span>
           <span class="landing-tech-badge">Ktor</span>

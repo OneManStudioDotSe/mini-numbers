@@ -448,6 +448,12 @@ Checks (expected: 0 each): `grep -cE '#[0-9a-fA-F]{3,8}\b|rgba?\(\s*[0-9]'` on t
 `grep -o 'style="[^"]*"' admin.html | grep -vc 'display: none'`. Spacing (padding, margin, gap) inside component
 rules still uses literal values in places; that is the remaining gap.
 
+The landing site (`landing/`, a separate static site) follows the same rule with its own copy of the tokens:
+`landing/variables.css` holds every value for both themes, `landing/landing.css` holds rules only, the pages
+carry no `style` attribute except data values (`--bar-width`), and `landing.js` reads canvas colours with its
+`token()` helper. Its tokens use the same names and values as the admin's, so a change of look means editing
+`static/css/variables.css` + `themes.css` and `landing/variables.css`. Inter is bundled in `landing/assets/fonts/`.
+
 ### Labs
 
 `core/Labs.kt` lists the features that work but are not verified well enough to be on by default (see

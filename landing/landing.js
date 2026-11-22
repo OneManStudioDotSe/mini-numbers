@@ -6,6 +6,9 @@
 (function () {
   'use strict';
 
+  /** Read a design token from variables.css; canvas code cannot use var(). */
+  const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
   /* ============================================
      THEME MANAGER
      Adapted from static/js/theme.js — same localStorage key
@@ -470,7 +473,7 @@
       }
 
       // Draw connecting lines
-      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      this.ctx.strokeStyle = token('--hero-canvas-line');
       this.ctx.lineWidth = 0.8;
       for (let i = 0; i < this.numbers.length; i++) {
         for (let j = i + 1; j < this.numbers.length; j++) {
@@ -496,7 +499,7 @@
         this.ctx.translate(n.x, n.y);
         this.ctx.rotate(n.rotation);
         this.ctx.font = `600 14px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, opacity)})`;
+        this.ctx.fillStyle = `rgba(${token('--hero-canvas-dot-rgb')}, ${Math.max(0, opacity)})`;
         this.ctx.fillText(n.digit, 0, 0);
         this.ctx.restore();
       }
