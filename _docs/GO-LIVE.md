@@ -144,8 +144,9 @@ own server only:
 - [ ] Add `LABS=webhooks` (comma-separate several) to `.env`, then `docker compose up -d` to recreate the container.
 - [ ] `./smoke.sh` prints it under "labs on", and the feature appears in the dashboard.
 - [ ] Remove the line and recreate to switch it off again; stored data is kept either way.
-- [ ] Never switch on `widgets` for a site whose numbers should stay private: anyone with the key from the site's
-      HTML can read them.
+- [ ] With `widgets` on, a project still answers nothing until an admin switches on **Embeddable widgets** in its
+      Settings. Only do that for a site whose numbers may be public: anyone with the key from the site's HTML can
+      then read them.
 
 ## 11. Afterwards
 

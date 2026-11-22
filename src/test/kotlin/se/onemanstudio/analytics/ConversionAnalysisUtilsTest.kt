@@ -268,9 +268,15 @@ class ConversionAnalysisUtilsTest {
         // Session 3: only step 1
         insertEvent(projectId, "s3", "/products/item-1", timestamp = now.minusMinutes(20))
 
+        // Sessions 4 and 5 never enter the funnel
+        insertEvent(projectId, "s4", "/", timestamp = now.minusMinutes(20))
+        insertEvent(projectId, "s5", "/about", timestamp = now.minusMinutes(20))
+
         val analysis = analyzeFunnel(funnelId, projectId, now.minusDays(1), now)
 
-        assertEquals(3L, analysis.totalSessions)
+        assertEquals(5L, analysis.totalSessions)
+        // Each step is a share of the sessions that entered the funnel, not of every session on the site
+        assertEquals(listOf(100.0, 66.7, 33.3), analysis.steps.map { Math.round(it.conversionRate * 10) / 10.0 })
         assertEquals(3, analysis.steps.size)
         // Step 1: 3 sessions
         assertEquals(3L, analysis.steps[0].sessions)

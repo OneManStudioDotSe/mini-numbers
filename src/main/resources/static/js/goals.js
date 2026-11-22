@@ -212,10 +212,9 @@ const GoalsManager = {
       return;
     }
 
-    const maxSessions = analysis.totalSessions || analysis.steps[0]?.sessions || 1;
-
     container.innerHTML = analysis.steps.map((step, i) => {
-      const widthPercent = maxSessions > 0 ? (step.sessions / maxSessions) * 100 : 0;
+      // conversionRate is the step's share of the sessions that entered the funnel
+      const widthPercent = step.conversionRate;
       // Drop-off and time are stored on the step they lead to, so the connector below a step shows the next one's
       const next = analysis.steps[i + 1];
 

@@ -31,6 +31,13 @@ Security fixes from the audit of 2026-11-14. Upgrade if your server is reachable
 - **Funnels (lab) can be edited.** The pencil in **Manage funnels** loads a funnel into the form; saving replaces
   its name and steps (`PUT /admin/projects/{id}/funnels/{funnelId}`).
 
+### Changed
+
+- **Funnel bars (lab) now show each step as a share of the visits that entered the funnel**, so the first step
+  is always 100%. Before, they were a share of every visit to the site, which made a funnel starting on a quiet
+  page look empty. `conversionRate` in the funnel analysis response changes the same way; `totalSessions` still
+  counts every session of the period.
+
 ### Security
 
 - **Widgets (lab) no longer answer to the tracking ID alone.** The ID is in every tracked page's HTML, so with the

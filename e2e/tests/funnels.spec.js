@@ -7,8 +7,9 @@ test.describe('funnels (lab)', () => {
     await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await loginViaApi(page.request);
     const project = await createProject(page.request, `funnels ${Date.now()}`);
-    // One visit goes home -> pricing -> signup, one stops at pricing, one only sees home
+    // One visit goes home -> pricing -> signup, one stops at pricing, one only sees home, one never enters
     const journeys = {
+      'fun-d': [{ path: '/about', type: 'pageview' }],
       'fun-a': [{ path: '/', type: 'pageview' }, { path: '/pricing', type: 'pageview' }, { path: '/pricing', type: 'custom', eventName: 'signup' }],
       'fun-b': [{ path: '/', type: 'pageview' }, { path: '/pricing', type: 'pageview' }],
       'fun-c': [{ path: '/', type: 'pageview' }],
@@ -69,6 +70,9 @@ test.describe('funnels (lab)', () => {
     await expect(funnelSteps.nth(0)).toContainText('3 sessions');
     await expect(funnelSteps.nth(1)).toContainText('2 sessions');
     await expect(funnelSteps.nth(0)).toContainText('33.3% drop-off');
+    // Bars are a share of the visits that entered the funnel; the visit that only saw /about is not among them
+    await expect(funnelSteps.nth(0).locator('.funnel-step__percent')).toHaveText('100.0%');
+    await expect(funnelSteps.nth(1).locator('.funnel-step__percent')).toHaveText('66.7%');
 
     // Edit: the form is filled from the funnel; add a third step and rename
     await page.click('#manage-funnels-btn');

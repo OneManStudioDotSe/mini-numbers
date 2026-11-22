@@ -58,8 +58,7 @@ test. **Segments** (2026-11-14) and
 **Funnels** (2026-11-15) have their edit flow and browser test and are ready to graduate (remove them from `LABS`)
 once the owner has tried them. Both analyses read every event of the period into memory, which is fine for small
 sites and should become a query before they are advertised; the segment result is shown as a toast only and
-needs a proper panel. Funnel bars show each step as a share of *all* sessions of the period, not of the sessions
-that entered the funnel: decide which before graduating. **Revenue** (2026-11-15) has tests on known amounts
+needs a proper panel. **Revenue** (2026-11-15) has tests on known amounts
 for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
 `currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of
 its own beyond the CSV export. **Webhooks** (2026-11-15) have tests against a real receiver for delivery, the

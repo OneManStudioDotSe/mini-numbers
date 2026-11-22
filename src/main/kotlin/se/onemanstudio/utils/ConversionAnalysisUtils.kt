@@ -187,6 +187,7 @@ fun analyzeFunnel(
         }
 
         val stepAnalyses = mutableListOf<FunnelStepAnalysis>()
+        var enteredSessions = 0L
 
         for ((index, step) in steps.withIndex()) {
             val stepType = step[FunnelSteps.stepType]
@@ -229,8 +230,10 @@ fun analyzeFunnel(
             val sessionsAtStep = newQualified.size.toLong()
             val previousStepSessions = qualifiedSessions.size.toLong()
 
-            val conversionRate = if (totalSessions > 0) {
-                (sessionsAtStep.toDouble() / totalSessions) * 100.0
+            // Share of the sessions that entered the funnel (reached step 1), so step 1 is always 100%
+            if (index == 0) enteredSessions = sessionsAtStep
+            val conversionRate = if (enteredSessions > 0) {
+                (sessionsAtStep.toDouble() / enteredSessions) * 100.0
             } else 0.0
 
             val dropOffRate = if (previousStepSessions > 0) {
