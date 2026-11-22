@@ -1,6 +1,6 @@
 name: Release
 
-# On a version tag (v1.4.0, ...): run the checks, build the JAR and publish it as a GitHub Release,
+# On a version tag (v1.0.0, ...): run the checks, build the JAR and publish it as a GitHub Release,
 # so the install guide can link to .../releases/latest/download/mini-numbers.jar
 on:
   push:

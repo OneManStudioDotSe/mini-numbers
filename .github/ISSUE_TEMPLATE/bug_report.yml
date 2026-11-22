@@ -7,7 +7,7 @@ body:
     attributes:
       label: Mini Numbers version
       description: From `/health` or the release you installed
-      placeholder: "1.3.0"
+      placeholder: "1.0.0"
     validations:
       required: true
   - type: dropdown

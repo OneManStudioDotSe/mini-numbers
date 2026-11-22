@@ -3,8 +3,7 @@
 The one place for what's next: owner actions, milestones, known gaps and feature ideas. What already shipped
 is in [CHANGELOG.md](CHANGELOG.md); earlier audits and plans are in git history. Last updated 2026-11-22.
 
-**Versions:** 1.0.0 (2026-11-22) is the first public release. The numbers 1.5.0 to 1.6.1 below are the development
-versions before it; their tags, release files and Docker images were withdrawn that day.
+**Versions:** 1.0.0 (2026-11-22) is the first public release.
 
 **Positioning:** the easiest and most private analytics you can self-host — one program, SQLite built in, every
 feature included. Not a race for feature parity with Plausible, Umami or PostHog.
@@ -18,7 +17,7 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
       is public, so they are burned; the history purge below does not make them invalid. The admin password: Settings
       → Account → Change password, or `reset-password admin` on the server (see GO-LIVE.md §1).
 - [x] **Purge history** (2026-11-03): `stats.db`, `.env`, `server.log` and `test-*.db` stripped from every commit
-      with `git filter-repo`, `main` force-pushed, `v1.5.0` tagged on the clean history. The GeoLite2 file was kept
+      with `git filter-repo`, `main` force-pushed. The GeoLite2 file was kept
       on purpose (it is bundled into the JAR; see the next item). The Dependabot branches built on the old history are
       deleted too; the only remaining copies are GitHub's cached pull-request refs (ask support to clear them) and
       clones made before the purge.
@@ -33,19 +32,17 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 - [ ] **Enable Dependabot alerts and security updates**, and merge or close the nine open Dependabot pull requests (Ktor,
       Exposed, sqlite-jdbc, Caffeine, the Gradle wrapper, five Actions).
 - [x] **Release the security fixes** of the 2026-11-14 audit: part of 1.0.0 (2026-11-22).
-- [x] **Tag `v1.5.0`** (2026-11-03): the release JAR and the `1.5.0`, `1.5` and `latest` images are published.
 - [x] **Refresh GeoLite2** (2026-11-12): the bundled copy is now the 2026-11-10 build, for the next release.
-- [x] **Tag `v1.6.0`** (2026-11-12): the release JAR and the `1.6.0`, `1.6` and `latest` images are published.
-- [x] **Tag `v1.6.1`** (2026-11-12): the refreshed GeoLite2 file; release JAR and images published.
+- [x] **Release 1.0.0** (2026-11-22): the release JAR and the `1.0.0`, `1.0` and `latest` images are published.
 - [ ] **Run [GO-LIVE.md](GO-LIVE.md)** on the production server.
 
 ## Milestones
 
 | | Milestone | Status |
 |---|---|---|
-| M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Released in 1.5.0 |
-| M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Released in 1.5.0 |
-| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Released as 1.6.0 (2026-11-12) |
+| M1 | Installs that work: persistent Docker setup, `PORT`/`TRUST_PROXY`, Caddy HTTPS, release JAR, install guide | Done |
+| M2 | Release hardening: the November audit (escaping, delete cascade, sessions, reports, webhooks, time zones) | Done |
+| L | Launch: labs switch, Quick Setup, chart fixes, GPC/DNT, viewer UI, account and user screens, `reset-password`, smoke test and go-live checklist ([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)) | Done |
 | S | Security audit of 2026-11-14: request size limit, setup token and closed setup after a failed start, lockout per address, tokens ended by sign-out, no addresses in logs, trimmed tracker addresses, crawlers not stored | Released in 1.0.0 |
 | 1.0 | First public release: funnels and segments standard, widgets opt-in per project, version reset to 1.0.0 | Released as 1.0.0 (2026-11-22) |
 | M3 | Landing page: ~400 words, plain language, "Try the demo" + "Install" (needs design input first) | Planned |
@@ -91,7 +88,7 @@ Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
   limit (300 a minute overall) and the password's strength; 2FA is idea #10.
 
 The full audit of 2026-11-02, with reproductions, is in [AUDIT-2026-11.md](AUDIT-2026-11.md). Every critical, high
-and medium item in it is fixed in 1.5.0. Still open from it:
+and medium item in it is fixed. Still open from it:
 
 - Webhook retries are in memory: a restart drops deliveries still waiting for their retry. Durable retries would
   re-read pending rows from `webhook_deliveries` on start (M4 leftover).

@@ -1,9 +1,6 @@
 # Launch audit — 2026-11-11
 
-> **Version numbers in this document** (1.3.0 to 1.6.1) are development versions from before the first public
-> release, 1.0.0 of 2026-11-22. Their tags and images were withdrawn; see the CHANGELOG.
-
-What works, what gets fixed first, what is hidden for launch and what does not exist. It decides the scope of 1.6.0,
+What works, what gets fixed first, what is hidden for launch and what does not exist. It decides the scope of the release that became 1.0.0,
 the first release meant for the public. Every **Ship** row has a passing test or a check that was driven by hand
 on 2026-11-11 against the fat JAR built from `2d02626`.
 
@@ -12,7 +9,7 @@ on 2026-11-11 against the fat JAR built from `2d02626`.
 - **Fix, then ship**: works, with a confirmed defect to fix first (step 3 of the launch plan).
 - **Labs**: hidden by default behind `LABS` (step 2).
 - **Not built**: doesn't exist, and nothing may claim it does.
-- **Fixed in 1.6.0**: was "Fix, then ship" or "Not built" on 2026-11-11 and has been fixed since; the notes keep the
+- **Fixed**: was "Fix, then ship" or "Not built" on 2026-11-11 and has been fixed since; the notes keep the
   original finding.
 
 ## Status
@@ -58,15 +55,15 @@ download, enable Discussions) and the smaller notes at the end.
 | Docker image + compose with Caddy (HTTPS) | Ship | CI: Docker health check and volume persistence check (`build.yml`) | No CI job runs the compose stacks themselves; GO-LIVE covers it on the server |
 | Release JAR + systemd unit | Ship | `release.yml`; fresh-install run above | |
 | Fly / Render | Ship | configs match `/app/data` and `PORT` | Fly stops idle machines, which pauses scheduled jobs (already in the docs) |
-| Railway | Fixed in 1.6.0 | — | `railway.json` builds from the Dockerfile, but the docs deploy the GHCR image; it declares no volume and no `TRUST_PROXY` |
+| Railway | Fixed | — | `railway.json` builds from the Dockerfile, but the docs deploy the GHCR image; it declares no volume and no `TRUST_PROXY` |
 | Setup wizard (field by field) | Ship | `SetupWizardTest` (17), `SetupValidationTest` (29), fresh-install run | It writes `GEOIP_DATABASE_PATH=src/main/resources/...`; harmless because of the fallback to the copy in the JAR |
-| Quick Setup button | Fixed in 1.6.0 | fresh-install run | Blocker 1 |
+| Quick Setup button | Fixed | fresh-install run | Blocker 1 |
 | Login / logout / session cookie | Ship | `AuthHardeningTest` (18), `auth.spec.js`, walk-through | Logout ends sessions on every device |
 | JWT tokens + refresh rotation | Ship | `PrivacyRbacAndCacheTest` | |
 | Brute-force lockout, credential rate limit | Ship | `AuthHardeningTest`, curl run | |
-| Password change | Fixed in 1.6.0 | `AuthHardeningTest`, `auth.spec.js` | Fixed in 1.6.0: Settings → Account → Change password for every user (`/admin/me/password`). The older `/api/password-reset` (needs `SERVER_SALT`, `.env` admin only) stays for compatibility. No email |
-| Forgotten password | Fixed in 1.6.0 | `AuthHardeningTest` | Fixed in 1.6.0: `reset-password <username>` on the server. Before, a forgotten password could not be recovered: `ADMIN_PASSWORD` only seeds the first admin |
-| Extra users + viewer role | Fixed in 1.6.0 | `PrivacyRbacAndCacheTest`, `AuthHardeningTest`, `auth.spec.js` | Fixed in 1.6.0: Settings → Account → Manage users (add with a generated password shown once, role, deactivate, remove). Viewers no longer see write controls. No invitations by email |
+| Password change | Fixed | `AuthHardeningTest`, `auth.spec.js` | Fixed: Settings → Account → Change password for every user (`/admin/me/password`). The older `/api/password-reset` (needs `SERVER_SALT`, `.env` admin only) stays for compatibility. No email |
+| Forgotten password | Fixed | `AuthHardeningTest` | Fixed: `reset-password <username>` on the server. Before, a forgotten password could not be recovered: `ADMIN_PASSWORD` only seeds the first admin |
+| Extra users + viewer role | Fixed | `PrivacyRbacAndCacheTest`, `AuthHardeningTest`, `auth.spec.js` | Fixed: Settings → Account → Manage users (add with a generated password shown once, role, deactivate, remove). Viewers no longer see write controls. No invitations by email |
 | Self-service signup, OAuth/OIDC, 2FA | Not built | — | Roadmap ideas #10, #11 |
 
 ### Collection and privacy
@@ -78,7 +75,7 @@ download, enable Discussions) and the smaller notes at the end.
 | Privacy modes (Standard / Strict / Paranoid) + chip | Ship | `PrivacyRbacAndCacheTest`, `dashboard.spec.js` | |
 | Visitor-hash rotation | Ship | `SecurityUtilsTest` (unit only) | No end-to-end test across a rotation window (reads the wall clock) |
 | Data retention purge | Ship (untested) | — | No test; check `DATA_RETENTION_DAYS` on your own server before advertising it |
-| Do Not Track / Global Privacy Control | Fixed in 1.6.0 | `tracker.spec.js` | Found ignored; both are now honoured (opt out with `data-respect-privacy-signals="false"`) |
+| Do Not Track / Global Privacy Control | Fixed | `tracker.spec.js` | Found ignored; both are now honoured (opt out with `data-respect-privacy-signals="false"`) |
 | Android / iOS apps | Not built | — | Roadmap idea #15. | No SDK or app fields. A native app could call `POST /collect` by hand, but its User-Agent is parsed as "Unknown" and nothing documents it. Say "websites" everywhere |
 
 ### Dashboard
@@ -88,17 +85,17 @@ download, enable Discussions) and the smaller notes at the end.
 | Stat cards, sparklines, vs-previous-period | Ship | walk-through (card = API for 24h/3d/30d/365d), `DataAnalysisUtilsTest` (26) | |
 | AI referrals card | Ship | `AiTrafficTest`, `dashboard.spec.js` | |
 | Views over time, top/entry/exit pages, scroll, outbound/downloads, referrers, UTM | Ship | walk-through | `utmTerm`/`utmContent` are stored but never shown |
-| Countries chart + city drill-down | Fixed in 1.6.0 | walk-through | While drilled into a country, a period change leaves the time series and the charts after it stale (24h kept the 7d series: 8 points instead of 4). `admin.js:1099` returns early |
-| Globe | Fixed in 1.6.0 | walk-through (renders) | `globe.gl` and the `three-globe` textures load from jsdelivr with no version and no SRI hash (`globe.js:33,95,235`) |
+| Countries chart + city drill-down | Fixed | walk-through | While drilled into a country, a period change leaves the time series and the charts after it stale (24h kept the 7d series: 8 points instead of 4). `admin.js:1099` returns early |
+| Globe | Fixed | walk-through (renders) | `globe.gl` and the `three-globe` textures load from jsdelivr with no version and no SRI hash (`globe.js:33,95,235`) |
 | Browsers / OS / devices (doughnut/bar/radar) | Ship | walk-through | |
 | Heatmap, peak times, 365-day calendar | Ship | walk-through | |
 | Custom events | Ship | walk-through | Event properties aren't shown anywhere |
-| "Filter by" bar | Fixed in 1.6.0 | walk-through | Every value reads "Firefox (undefined)" (`admin.js:1555` uses `item.count`; the field is `value`). Only narrows that dimension's own chart, as its warning says |
+| "Filter by" bar | Fixed | walk-through | Every value reads "Firefox (undefined)" (`admin.js:1555` uses `item.count`; the field is `value`). Only narrows that dimension's own chart, as its warning says |
 | Real-time feed + counter | Ship | walk-through | For the demo project it shows random fake data |
 | Goals | Ship | walk-through (UI create, API 201), `GoalsFunnelsSegmentsTest` | No edit in the UI, although `PUT` exists |
 | Raw events + CSV export | Ship | `export.spec.js`, walk-through | CSV only (no JSON). The raw-events type filter lacks scroll/outbound/download |
-| Project create / rename / rotate key / delete | Fixed in 1.6.0 | `dashboard.spec.js`, `AdminEndpointTest` (23) | Delete ignores a failed response. The "Loading..." rename race didn't reproduce (the name comes from cache first); low priority |
-| Demo project + "Generate demo data" | Fixed in 1.6.0 | walk-through | The button shows on real projects too and also seeds goals/funnels/segments there; the server doesn't cap `count` |
+| Project create / rename / rotate key / delete | Fixed | `dashboard.spec.js`, `AdminEndpointTest` (23) | Delete ignores a failed response. The "Loading..." rename race didn't reproduce (the name comes from cache first); low priority |
+| Demo project + "Generate demo data" | Fixed | walk-through | The button shows on real projects too and also seeds goals/funnels/segments there; the server doesn't cap `count` |
 | Onboarding checklist | Ship | — | Only "create project" ever ticks; the other three steps are static |
 | Theme toggle, light and dark | Ship | `a11y.spec.js` (axe WCAG AA, both themes), screenshots | |
 | Settings dialog (formats, heatmap colours) | Ship | walk-through | Saving always re-sends the project name |
@@ -119,7 +116,7 @@ download, enable Discussions) and the smaller notes at the end.
 | Item | Verdict | Notes |
 |---|---|---|
 | Public demo instance | Not built | Roadmap M4. Launch with screenshots + "try it locally" instead |
-| Landing page (`landing/`) | Fixed in 1.6.0 | Claims v1.3.0, "327 tests", a 5-step wizard (it has 6), Slack/Discord webhooks, Stripe/Shopify/WooCommerce; marks Plausible self-hosted "Paid" and Matomo cookies "Required"; snippet uses `tracker.js` instead of `tracker.min.js`; loads Remixicon from a CDN |
+| Landing page (`landing/`) | Fixed | Claims an old version number, "327 tests", a 5-step wizard (it has 6), Slack/Discord webhooks, Stripe/Shopify/WooCommerce; marks Plausible self-hosted "Paid" and Matomo cookies "Required"; snippet uses `tracker.js` instead of `tracker.min.js`; loads Remixicon from a CDN |
 | Docs site (`docs/`) | Ship | Accurate on what exists (viewer role, user screen, demo data) |
 
 ## Third-party requests from the dashboard
