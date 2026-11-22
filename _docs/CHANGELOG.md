@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A tidier top bar.** Raw events and the time range are pills, the theme switch and Settings are round icon
+  buttons of the same height (the theme switch shows the current theme's icon instead of a sliding knob), and
+  the date range and filter sit under it as a plain row instead of a boxed bar. On a phone the controls wrap
+  under the project name, which no longer sits under the menu button.
 - **A new typeface, Plus Jakarta Sans**, across the dashboard, login page, setup wizard and landing site, bundled
   with the app (SIL Open Font License) so no page calls a font service. Chart labels and tooltips use it too.
 - **"Views over time" is a dot-matrix chart**: one column of dots per day or hour, the tallest in the accent

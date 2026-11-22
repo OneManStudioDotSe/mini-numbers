@@ -307,6 +307,7 @@
 
   --sidebar-width: 250px;
   --header-height: 60px;
+  --control-height: 40px;          /* buttons and selects in the top bar */
   --max-content-width: 1400px;
   --skeleton-width: 60px;           /* placeholder bar while a number loads */
   --skeleton-width-sm: 50px;

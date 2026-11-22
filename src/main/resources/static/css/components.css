@@ -2984,6 +2984,95 @@ tbody tr {
 }
 
 /* ============================================
+   TOP BAR
+   The project title on the left; on the right a row of controls of one height: pills for the
+   ones with a label, circles for the ones that are only an icon.
+   ============================================ */
+
+.dashboard-header h1 {
+  font-size: var(--font-size-2xl-plus);
+  letter-spacing: var(--letter-spacing-snug);
+}
+
+.dashboard-header .select,
+.dashboard-header .btn-secondary,
+.dashboard-header .btn-icon,
+.dashboard-header .theme-toggle {
+  height: var(--control-height);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.dashboard-header .select,
+.dashboard-header .btn-secondary {
+  border-radius: var(--radius-full);
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.dashboard-header .btn-secondary { padding-left: var(--spacing-md); padding-right: var(--spacing-md); gap: var(--spacing-sm); }
+.dashboard-header .select { padding-left: var(--spacing-md); }
+
+.dashboard-header .btn-icon,
+.dashboard-header .theme-toggle {
+  width: var(--control-height);
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-lg);
+}
+
+.dashboard-header .select:hover,
+.dashboard-header .btn-secondary:hover:not(:disabled),
+.dashboard-header .btn-icon:hover,
+.dashboard-header .theme-toggle:hover {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dashboard-header .btn-icon,
+.dashboard-header .theme-toggle,
+.dashboard-header .btn-secondary {
+  flex-shrink: 0;
+}
+.dashboard-header .select { width: auto; }
+
+/* On a phone the controls wrap under the title, and the title clears the menu button */
+@media (max-width: 640px) {
+  .dashboard-header > div { flex-wrap: wrap; }
+  .dashboard-header h1 { padding-left: calc(var(--control-height) + var(--spacing-md)); }
+}
+
+/* The theme switch is a round button showing the current theme's icon, not a sliding knob */
+.dashboard-header .theme-toggle { justify-content: center; }
+.dashboard-header .theme-toggle__slider,
+[data-theme="dark"] .dashboard-header .theme-toggle__slider {
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  transform: none;
+}
+
+/* The date range and filters sit under the top bar as a plain row, not a boxed bar */
+.filter-bar {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  margin-bottom: var(--spacing-xl);
+}
+.filter-bar__date-range {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+.filter-bar .select { border-radius: var(--radius-full); }
+
+/* ============================================
    SHARED PIECES
    Used by the dialogs and the setup wizard in place of inline styles.
    ============================================ */
