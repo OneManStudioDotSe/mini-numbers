@@ -57,7 +57,7 @@ dependencies {
     implementation("com.github.ua-parser:uap-java:1.6.1")
 
     // Rate limiting (in-memory cache)
-    implementation("com.github.ben-manes.caffeine:caffeine:3.3.0")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.3.1")
 
     // Email (SMTP)
     implementation("jakarta.mail:jakarta.mail-api:2.1.5")
