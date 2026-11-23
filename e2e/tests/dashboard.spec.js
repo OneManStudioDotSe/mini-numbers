@@ -64,6 +64,31 @@ test.describe('dashboard', () => {
     await expect(page.locator('#setting-project-api-key')).toHaveText(rotated);
   });
 
+  test('the activity calendar puts each day in the row of its weekday', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
+    await loginViaApi(page.request);
+    const project = await createProject(page.request, `calendar ${Date.now()}`);
+    await page.request.post(`/admin/projects/${project.id}/demo-data`, { data: { count: 200, timeScope: 30 } });
+    await page.goto('/admin-panel');
+    await page.locator('.project-menu__item', { hasText: project.name }).click();
+    await page.locator('[data-section="time-patterns"] .dashboard-section__header').click();
+    await expect(page.locator('.contribution-cell').first()).toBeAttached({ timeout: 15_000 });
+
+    const cells = await page.locator('.contribution-cell').evaluateAll(els => els.map(e => {
+      const cs = getComputedStyle(e);
+      const [y, m, d] = e.dataset.date.split('-').map(Number);
+      return { date: e.dataset.date, weekday: new Date(y, m - 1, d).getDay(), row: Number(cs.gridRowStart), column: Number(cs.gridColumnStart) };
+    }));
+    expect(cells.length).toBeGreaterThan(360);
+    // Row 1 holds the month names and column 1 the day names; Sunday is the first row of days
+    for (const c of cells) expect(c.row, `${c.date} row`).toBe(c.weekday + 2);
+    expect(Math.min(...cells.map(c => c.column)), 'no day sits in the label column').toBeGreaterThanOrEqual(2);
+    // A new column starts on each Sunday, and nowhere else
+    for (let i = 1; i < cells.length; i++) {
+      expect(cells[i].column - cells[i - 1].column, `${cells[i].date} column step`).toBe(cells[i].weekday === 0 ? 1 : 0);
+    }
+  });
+
   test('renders demo data, opens Raw events as an accessible dialog, and works in both themes', async ({ page, request }, testInfo) => {
     await loginViaApi(page.request);
     const project = await createProject(page.request);

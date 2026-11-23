@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The landing page shows more of the product.** Two new feature tabs, "Pages & sources" (top, entry and exit
+  pages, referrers, campaigns) and "Teams & sites" (several sites, admins and viewers, the demo project), each
+  with real screenshots. The Charts tab now shows the activity calendar and the heatmap it talks about, and the
+  privacy section mentions the chip that says what a server stores.
 - **The landing site speaks plainly.** Every page is rewritten: shorter, casual, and open about the tool being
   built by one human with an AI. The setup guide and the home page's install tabs now give the real install
   commands (the compose file and domain on a server, one `docker run` on your own computer, or the release
@@ -55,6 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The activity calendar put days in the wrong squares.** Days ran across the rows instead of down the weeks,
+  so the Mon/Wed/Fri labels did not match and some squares sat in the label column. Each day now has its own
+  week column and weekday row, the first row is Sunday, and month names sit above the week a month starts in.
 - Landing site: the contact page linked to GitHub Discussions, which is not enabled (404); questions now go
   to a new issue. The script for a widget demo that no longer exists is removed.
 - Landing site: the home page said the tracker is 1.3 KB minified and that there are 417 tests; it now says

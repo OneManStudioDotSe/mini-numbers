@@ -1997,28 +1997,31 @@ const Dashboard = {
     const formatDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const startDate = parseDay(calendar.startDate);
     const endDate = parseDay(calendar.endDate);
-    const daysDiff = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
-    const weeksCount = Math.ceil(daysDiff / 7);
 
-    // Build grid HTML
-    let html = '<div class="contribution-grid">';
+    // Every day gets its place: a column per week (starting on Sunday) and a row per weekday.
+    // Grid row 1 holds the month names and grid column 1 the day names.
+    const gridStart = new Date(startDate);
+    gridStart.setDate(startDate.getDate() - startDate.getDay());
+    const weekOf = (d) => Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay()) - gridStart) / (7 * 24 * 60 * 60 * 1000));
+    const weeksCount = weekOf(endDate) + 1;
 
-    // Month labels
+    let html = `<div class="contribution-grid" style="--weeks: ${weeksCount}">`;
+
+    // Month names, above the week in which each month starts
     html += '<div class="contribution-months">';
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let currentMonth = -1;
-    for (let week = 0; week < weeksCount; week++) {
-      const weekDate = new Date(startDate);
-      weekDate.setDate(startDate.getDate() + week * 7);
-      const month = weekDate.getMonth();
-      if (month !== currentMonth && week % 4 === 0) {
-        html += `<span style="grid-column: ${week + 2}">${months[month]}</span>`;
-        currentMonth = month;
+    let labelledUpTo = -3;
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const week = weekOf(d);
+      // The first month is named at the first column; the others where they begin. Skip a name that would overlap the last one.
+      if ((d.getTime() === startDate.getTime() || d.getDate() === 1) && week - labelledUpTo >= 3) {
+        html += `<span style="grid-column: ${week + 2}">${months[d.getMonth()]}</span>`;
+        labelledUpTo = week;
       }
     }
     html += '</div>';
 
-    // Day labels
+    // Day names
     const dayLabels = ['Mon', 'Wed', 'Fri'];
     html += '<div class="contribution-days">';
     dayLabels.forEach((day, i) => {
@@ -2026,20 +2029,18 @@ const Dashboard = {
     });
     html += '</div>';
 
-    // Contribution cells
+    // One cell per day
     html += '<div class="contribution-cells">';
-    let currentDate = new Date(startDate);
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = formatDay(d);
+      const dayData = dateMap.get(dateStr);
+      const level = dayData?.level || 0;
+      const visits = dayData?.visits || 0;
+      const uniqueVisitors = dayData?.uniqueVisitors || 0;
 
-    for (let week = 0; week < weeksCount; week++) {
-      for (let day = 0; day < 7; day++) {
-        const dateStr = formatDay(currentDate);
-        const dayData = dateMap.get(dateStr);
-        const level = dayData?.level || 0;
-        const visits = dayData?.visits || 0;
-        const uniqueVisitors = dayData?.uniqueVisitors || 0;
-
-        html += `
+      html += `
           <div class="contribution-cell"
+               style="grid-column: ${weekOf(d) + 2}; grid-row: ${d.getDay() + 2}"
                data-level="${level}"
                data-date="${dateStr}"
                data-visits="${visits}"
@@ -2047,11 +2048,6 @@ const Dashboard = {
                data-tooltip="${this.formatContributionTooltip(dateStr, visits, uniqueVisitors)}">
           </div>
         `;
-
-        currentDate.setDate(currentDate.getDate() + 1);
-        if (currentDate > endDate) break;
-      }
-      if (currentDate > endDate) break;
     }
     html += '</div></div>';
 

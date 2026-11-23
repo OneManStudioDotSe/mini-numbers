@@ -1336,7 +1336,8 @@ tbody tr:nth-child(even):hover td {
 
 .contribution-grid {
   display: grid;
-  grid-template-columns: 40px repeat(53, 1fr);
+  /* --weeks is set by the script: a year is 53 or 54 columns depending on the weekday it starts on */
+  grid-template-columns: 40px repeat(var(--weeks, 53), minmax(0, 1fr));
   grid-template-rows: 18px repeat(7, auto);
   gap: 2px;
   width: 100%;
@@ -1352,6 +1353,8 @@ tbody tr:nth-child(even):hover td {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   text-align: left;
+  grid-row: 1;
+  white-space: nowrap;   /* a name is wider than its column and runs over the next ones */
 }
 
 .contribution-days {
@@ -1361,6 +1364,7 @@ tbody tr:nth-child(even):hover td {
 }
 
 .contribution-days span {
+  grid-column: 1;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   text-align: right;
