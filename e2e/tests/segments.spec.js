@@ -65,8 +65,28 @@ test.describe('segments', () => {
     // The dashboard card lists it; Analyze counts the Chrome and the Firefox visit, not the Safari one
     await page.click('#close-segments-modal');
     await expect(card.locator('.segment-card')).toContainText('Chrome or Firefox');
+    const result = page.locator('#segment-result');
+    await expect(result).toBeHidden();
     await card.locator('[data-action="analyze-segment"]').click();
-    await expect(page.locator('.toast', { hasText: 'Chrome or Firefox:' })).toContainText('2 views');
+    await expect(result).toBeVisible();
+    await expect(result.locator('#segment-result-title')).toHaveText('Chrome or Firefox: result');
+    await expect(result.locator('#segment-result-views')).toHaveText('2');
+    await expect(result.locator('#segment-result-visitors')).toHaveText('2');
+    await expect(result.locator('#segment-result-bounce')).toHaveText('100.0%');
+    await expect(result.locator('#segment-result-pages tr')).toHaveCount(1);
+    await expect(result.locator('#segment-result-pages tr')).toContainText('/');
+
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(t => document.documentElement.setAttribute('data-theme', t), theme);
+      await page.waitForFunction(() => !document.getAnimations().some(a => a instanceof CSSTransition));
+      await result.screenshot({ path: testInfo.outputPath(`segment-result-${theme}.png`) });
+    }
+
+    // Re-run keeps the panel; closing hides it
+    await result.locator('#segment-result-rerun').click();
+    await expect(result.locator('#segment-result-views')).toHaveText('2');
+    await result.locator('#segment-result-close').click();
+    await expect(result).toBeHidden();
 
     // Edit: the form is filled from the segment; switch OR to AND and rename
     await page.click('#manage-segments-btn');
@@ -88,7 +108,9 @@ test.describe('segments', () => {
 
     await page.click('#close-segments-modal');
     await card.locator('[data-action="analyze-segment"]').click();
-    await expect(page.locator('.toast', { hasText: 'Chrome and Firefox:' })).toContainText('0 views');
+    await expect(result.locator('#segment-result-title')).toHaveText('Chrome and Firefox: result');
+    await expect(result.locator('#segment-result-views')).toHaveText('0');
+    await expect(result.locator('#segment-result-pages')).toContainText('No matching page views');
 
     // Delete
     await page.click('#manage-segments-btn');

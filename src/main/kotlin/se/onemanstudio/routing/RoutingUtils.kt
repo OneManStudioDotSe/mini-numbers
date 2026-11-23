@@ -3,7 +3,6 @@ package se.onemanstudio.routing
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import se.onemanstudio.api.models.admin.SegmentFilter
 import se.onemanstudio.api.models.dashboard.*
 import se.onemanstudio.core.AnalyticsSecurity
 import se.onemanstudio.db.*
@@ -17,46 +16,6 @@ fun safeParseUUID(value: String?): UUID? {
         UUID.fromString(value)
     } catch (_: IllegalArgumentException) {
         null
-    }
-}
-
-/**
- * Apply segment filters to an event row
- */
-fun applySegmentFilters(event: ResultRow, filters: List<SegmentFilter>): Boolean {
-    if (filters.isEmpty()) return true
-
-    var result = matchesFilter(event, filters[0])
-
-    for (i in 1 until filters.size) {
-        val logic = filters[i - 1].logic.uppercase()
-        val matches = matchesFilter(event, filters[i])
-
-        result = if (logic == "OR") result || matches else result && matches
-    }
-
-    return result
-}
-
-fun matchesFilter(event: ResultRow, filter: SegmentFilter): Boolean {
-    val fieldValue = when (filter.field) {
-        "browser" -> event[Events.browser]
-        "os" -> event[Events.os]
-        "device" -> event[Events.device]
-        "country" -> event[Events.country]
-        "city" -> event[Events.city]
-        "path" -> event[Events.path]
-        "referrer" -> event[Events.referrer]
-        "eventType" -> event[Events.eventType]
-        else -> null
-    } ?: return false
-
-    return when (filter.operator) {
-        "equals" -> fieldValue.equals(filter.value, ignoreCase = true)
-        "not_equals" -> !fieldValue.equals(filter.value, ignoreCase = true)
-        "contains" -> fieldValue.contains(filter.value, ignoreCase = true)
-        "starts_with" -> fieldValue.startsWith(filter.value, ignoreCase = true)
-        else -> false
     }
 }
 

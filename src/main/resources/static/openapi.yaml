@@ -41,23 +41,20 @@ paths:
 
   /metrics:
     get:
-      summary: Application metrics
+      summary: Application metrics (Prometheus text)
+      description: >
+        Needs a signed-in admin session, or `Authorization: Bearer <METRICS_TOKEN>` when the
+        `METRICS_TOKEN` environment variable is set. Everyone else gets 401.
       tags: [System]
       responses:
         '200':
-          description: Metrics data
+          description: Prometheus text with uptime, GeoIP cache hit rate and size
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  uptime_seconds: { type: integer }
-                  total_events: { type: integer }
-                  total_projects: { type: integer }
-                  cache_size: { type: integer }
-                  hash_rotation_hours: { type: integer }
-                  privacy_mode: { type: string }
-                  data_retention_days: { type: integer }
+                type: string
+        '401':
+          description: No admin session and no valid metrics token
 
   /tracker/config:
     get:
@@ -1101,7 +1098,7 @@ paths:
                   id: { type: string, format: uuid }
                   secret: { type: string }
                   success: { type: boolean }
-        '400': { description: Invalid URL (must use HTTPS) }
+        '400': { description: Invalid URL (must use HTTPS, valid, and not a link-local address) }
 
   /admin/projects/{id}/webhooks/{webhookId}:
     put:
@@ -1319,7 +1316,7 @@ paths:
           schema: { type: string, default: '7d', enum: ['24h', '3d', '7d', '30d', '365d'] }
       responses:
         '200':
-          description: Revenue stats with period comparison
+          description: Revenue stats per currency, with period comparison
           content:
             application/json:
               schema:
@@ -1339,7 +1336,7 @@ paths:
           schema: { type: string, default: '7d' }
       responses:
         '200':
-          description: Revenue grouped by event name
+          description: Revenue grouped by event name and currency
           content:
             application/json:
               schema:
@@ -1634,21 +1631,34 @@ components:
         port: { type: integer, nullable: true }
         from: { type: string, nullable: true }
 
-    RevenueStats:
+    CurrencyRevenue:
       type: object
+      description: Revenue of one currency. Currencies are never added together.
       properties:
-        totalRevenue: { type: number, format: double }
-        transactions: { type: integer }
-        averageOrderValue: { type: number, format: double }
+        currency: { type: string, description: 'Upper-cased code from the event; USD when missing' }
+        totalRevenue: { type: number, format: double, description: 'Net: sales minus refunds' }
+        refunds: { type: number, format: double, description: 'Refunded sum (events with a negative revenue), as a positive number' }
+        transactions: { type: integer, description: Sales only }
+        refundCount: { type: integer }
+        averageOrderValue: { type: number, format: double, description: Average sale }
         revenuePerVisitor: { type: number, format: double }
         previousRevenue: { type: number, format: double }
         previousTransactions: { type: integer }
+
+    RevenueStats:
+      type: object
+      properties:
+        currencies:
+          type: array
+          items: { $ref: '#/components/schemas/CurrencyRevenue' }
 
     RevenueByEvent:
       type: object
       properties:
         eventName: { type: string }
-        revenue: { type: number, format: double }
+        currency: { type: string }
+        revenue: { type: number, format: double, description: Net of refunds }
+        refunds: { type: number, format: double }
         transactions: { type: integer }
         avgValue: { type: number, format: double }
 
@@ -1656,7 +1666,9 @@ components:
       type: object
       properties:
         source: { type: string }
-        revenue: { type: number, format: double }
+        currency: { type: string }
+        revenue: { type: number, format: double, description: Net of refunds }
+        refunds: { type: number, format: double }
         transactions: { type: integer }
         avgValue: { type: number, format: double }
         conversionRate: { type: number, format: double }

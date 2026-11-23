@@ -7,6 +7,8 @@ const SegmentsManager = {
   segments: {},
   /** Id of the segment being edited, or null while the form creates a new one */
   editingId: null,
+  /** Id of the segment whose result the panel shows, or null while it is closed */
+  lastAnalyzed: null,
 
   /**
    * Load segments for a project
@@ -31,6 +33,7 @@ const SegmentsManager = {
 
     // Always shown: the "Manage segments" button that creates the first segment lives in this card
     section.style.display = '';
+    this.closeResult();
     if (!segments || segments.length === 0) {
       list.innerHTML = '<p class="text-muted">No segments yet. A segment is a saved set of filters, such as "mobile visitors from Sweden".</p>';
       return;
@@ -63,26 +66,40 @@ const SegmentsManager = {
   },
 
   /**
-   * Analyze a segment and show results
+   * Analyze a segment and show the result in the panel under the segment cards
    */
   async analyzeSegment(projectId, segmentId, filter) {
     try {
-      Utils.toast.info('Analyzing segment...');
       const analysis = await Utils.api.fetch(
         `/admin/projects/${projectId}/segments/${segmentId}/analysis?filter=${filter}`,
         { useCache: false }
       );
-
-      Utils.toast.success(
-        `${analysis.segmentName}: ${Utils.format.number(analysis.totalViews)} views, ` +
-        `${Utils.format.number(analysis.uniqueVisitors)} visitors, ` +
-        `${analysis.bounceRate.toFixed(1)}% bounce rate`,
-        6000
-      );
+      this.lastAnalyzed = segmentId;
+      this.showResult(analysis);
     } catch (error) {
       console.error('Failed to analyze segment:', error);
       Utils.toast.error('Failed to analyze segment');
     }
+  },
+
+  /** Fill the result panel and show it */
+  showResult(analysis) {
+    document.getElementById('segment-result-title').textContent = `${analysis.segmentName}: result`;
+    document.getElementById('segment-result-views').textContent = Utils.format.number(analysis.totalViews);
+    document.getElementById('segment-result-visitors').textContent = Utils.format.number(analysis.uniqueVisitors);
+    document.getElementById('segment-result-bounce').textContent = `${analysis.bounceRate.toFixed(1)}%`;
+    document.getElementById('segment-result-pages').innerHTML = analysis.topPages.length
+      ? analysis.topPages.map(p => `<tr><td>${Utils.escapeHtml(p.label)}</td><td>${Utils.format.number(p.value)}</td></tr>`).join('')
+      : '<tr><td colspan="2" class="cell-placeholder">No matching page views in this period</td></tr>';
+    const panel = document.getElementById('segment-result');
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ block: 'nearest' });
+  },
+
+  /** Hide the result panel; its numbers belong to the segment and period that were analysed */
+  closeResult() {
+    this.lastAnalyzed = null;
+    document.getElementById('segment-result')?.classList.add('hidden');
   },
 
   /**
@@ -118,6 +135,10 @@ const SegmentsManager = {
     document.getElementById('segments-list')?.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action="analyze-segment"]');
       if (btn) this.analyzeSegment(projectId(), btn.dataset.id, Dashboard.state.currentFilter);
+    });
+    document.getElementById('segment-result-close')?.addEventListener('click', () => this.closeResult());
+    document.getElementById('segment-result-rerun')?.addEventListener('click', () => {
+      if (this.lastAnalyzed) this.analyzeSegment(projectId(), this.lastAnalyzed, Dashboard.state.currentFilter);
     });
     document.getElementById('segments-table-body')?.addEventListener('click', (e) => {
       const edit = e.target.closest('[data-action="edit-segment"]');

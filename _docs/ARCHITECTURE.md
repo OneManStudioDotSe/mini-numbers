@@ -104,7 +104,7 @@ mini-numbers/
 │   │   ├── JwtService.kt                 # Access/refresh token issuance & verification
 │   │   ├── Labs.kt                       # Lab enum + LABS parsing; which experimental features are mounted
 │   │   ├── Security.kt                   # Session auth & login page; setPassword()
-│   │   ├── ServiceManager.kt             # Lifecycle management, uptime, retention timer
+│   │   ├── ServiceManager.kt             # Lifecycle management, uptime, cleanup timer (events, webhook deliveries)
 │   │   ├── WidgetAuth.kt                 # API-key auth for /widget/* endpoints
 │   │   └── models/                       # LoginAttempt, UserRole, UserSession
 │   ├── db/
@@ -144,13 +144,15 @@ mini-numbers/
 │   │   ├── EmailService.kt               # SMTP sending (Jakarta Mail)
 │   │   ├── GeoLocationService.kt         # GeoIP lookup (with Caffeine cache)
 │   │   ├── UserAgentParser.kt            # Browser/OS/device detection
+│   │   ├── TrafficSpikeDetector.kt       # Rolling traffic-spike rule (injectable clock)
+│   │   ├── WebhookAddress.kt             # Refuses link-local webhook addresses
 │   │   ├── WebhookService.kt             # HMAC signing + delivery
 │   │   └── WebhookTrigger.kt             # Fires webhook events from collection path
 │   ├── setup/                            # Setup wizard backend + models; SetupRouting.kt is
 │   │                                     # always installed and also serves the shared /css, /js, /assets
 │   └── utils/
 │       ├── AiTrafficUtils.kt    # Referrer host → AI assistant classification
-│       ├── ConversionAnalysisUtils.kt    # Goal & funnel calculations
+│       ├── ConversionAnalysisUtils.kt    # Goal, funnel & segment calculations
 │       ├── DataAnalysisUtils.kt          # Core analytics calculations
 │       └── RevenueAnalysisUtils.kt       # Revenue totals, breakdown, attribution
 ├── src/main/resources/
@@ -270,6 +272,7 @@ All configuration via `.env` file or environment variables.
 | `ADMIN_PASSWORD`  | —       | Admin panel password (required)                          |
 | `SERVER_SALT`     | —       | Server salt for visitor hashing and for deriving the session-cookie and JWT signing keys, min 32 chars (required) |
 | `ADMIN_USERNAME`  | `admin` | Admin panel username                                     |
+| `METRICS_TOKEN`   | —       | Optional bearer token for `GET /metrics` (constant-time compare, `routing/PublicRouting.kt`); unset = admin session only |
 | `ALLOWED_ORIGINS` | —       | Origin allowlist for `/admin/*` and `/api/*` only (`AdminCorsGuard`; empty or `*` = any; same host always allowed). CORS itself is `anyHost()` so the tracker and widgets work everywhere |
 
 ### Database
@@ -319,11 +322,11 @@ next to the file; back up with the service stopped or with `sqlite3 stats.db ".b
 | Variable        | Default | Description                                                              |
 | --------------- | ------- | ------------------------------------------------------------------------ |
 | `SMTP_HOST`     | —       | SMTP server host; leaving unset disables Email Reports entirely          |
-| `SMTP_PORT`     | `587`   | SMTP server port                                                         |
+| `SMTP_PORT`     | `587`   | SMTP server port; `465` = implicit TLS (`mail.smtp.ssl.enable`, STARTTLS off) |
 | `SMTP_USERNAME` | —       | SMTP auth username                                                       |
 | `SMTP_PASSWORD` | —       | SMTP auth password                                                       |
 | `SMTP_FROM`     | —       | From address; required alongside `SMTP_HOST` for the feature to activate |
-| `SMTP_STARTTLS` | `true`  | Use STARTTLS                                                             |
+| `SMTP_STARTTLS` | `true`  | Use STARTTLS, and require it (`mail.smtp.starttls.required`): a server that does not offer it fails the send, no login in clear text |
 
 `EmailConfig.isConfigured()` requires both `SMTP_HOST` and `SMTP_FROM` to be set — if either
 is missing, Email Reports endpoints return 400 ("SMTP is not configured").
@@ -338,7 +341,7 @@ heatmap, calendar, "last 24 hours") are computed in the server's zone and sent a
 
 - `GET /` — Intelligent redirect based on application state
 - `GET /health` — 200 `healthy` with a database probe, 200 `ok` while the wizard is needed, 503 `unhealthy` when services failed or the database is unreachable (no auth). The reason for a failed start is in the server log only
-- `GET /metrics` — Prometheus text: uptime, GeoIP cache hit rate and size
+- `GET /metrics` — Prometheus text: uptime, GeoIP cache hit rate and size. Needs a signed-in admin session or `Authorization: Bearer <METRICS_TOKEN>` (constant-time compare); otherwise 401
 - `GET /favicon.ico`
 - `GET /tracker/config` — heartbeat interval and SPA flag from `TRACKER_*` (not read by the tracker today)
 - `GET /tracker/tracker.min.js` — Minified tracker script
@@ -393,10 +396,19 @@ and widget routes below belong to labs; with their lab off they are not mounted 
 - `GET|POST /admin/projects/{id}/funnels`, `PUT|DELETE /admin/projects/{id}/funnels/{funnelId}` (PUT replaces the name and all steps), `GET /admin/projects/{id}/funnels/{funnelId}/analysis?filter=7d` (each step's `conversionRate` is its share of the sessions that reached step 1)
 - `GET|POST /admin/projects/{id}/segments`, `PUT|DELETE /admin/projects/{id}/segments/{segmentId}` (a filter's `logic` joins it to the *next* filter), `GET /admin/projects/{id}/segments/{segmentId}/analysis?filter=7d`
 
+Both analyses are computed by the database, not from the whole period in memory. A funnel reads only the rows that
+match some step (session id, type, path, event name, timestamp), one at a time, oldest first, and counts the period's
+sessions with one `COUNT(DISTINCT session_id)`. A segment turns its filters into one SQL condition (joined left to
+right, text compared case-insensitively, `%` and `_` in a value taken literally, an empty field never matches) and
+reads only counts: views, distinct visitors, the ten top pages and one row per session for the bounce rate. On
+SQLite `lower()` only folds ASCII, so case-insensitive matching of non-ASCII letters (such as `Å`) needs exact case there.
+The dashboard shows a segment's result in a panel under the segment cards (views, unique visitors, bounce rate, top
+pages) with Re-run and Close; it closes when the dashboard reloads.
+
 ### Webhooks
 
 - `GET /admin/projects/{id}/webhooks` — list
-- `POST /admin/projects/{id}/webhooks` — create (returns the signing secret once); the URL must be https, valid and at most 1024 characters, `events` one or more of `goal_conversion`, `traffic_spike`
+- `POST /admin/projects/{id}/webhooks` — create (returns the signing secret once); the URL must be https, valid and at most 1024 characters, `events` one or more of `goal_conversion`, `traffic_spike`; link-local addresses (169.254.0.0/16, fe80::/10) are refused with 400
 - `PUT /admin/projects/{id}/webhooks/{webhookId}` — `{isActive}` pauses or resumes
 - `DELETE /admin/projects/{id}/webhooks/{webhookId}`
 - `GET /admin/projects/{id}/webhooks/{webhookId}/deliveries` — delivery log
@@ -411,9 +423,9 @@ and widget routes below belong to labs; with their lab off they are not mounted 
 
 ### Revenue
 
-- `GET /admin/projects/{id}/revenue?filter=7d` — totals, transactions, AOV, revenue/visitor, prior-period comparison
-- `GET /admin/projects/{id}/revenue/breakdown?filter=7d` — revenue grouped by event name
-- `GET /admin/projects/{id}/revenue/attribution?filter=7d` — revenue by traffic source, with conversion rate
+- `GET /admin/projects/{id}/revenue?filter=7d` — `{currencies: [...]}`, one entry per currency: net revenue (sales minus refunds), refunds and refund count, sales count, AOV, revenue/visitor, prior-period comparison
+- `GET /admin/projects/{id}/revenue/breakdown?filter=7d` — net revenue and refunds grouped by event name and currency
+- `GET /admin/projects/{id}/revenue/attribution?filter=7d` — net revenue and refunds by traffic source and currency, with conversion rate
 
 ### Embeddable widgets (public, key-authenticated, cached 60s)
 
@@ -507,7 +519,25 @@ signed and deliveries logged to `WebhookDeliveries` (status, response code/body,
 count) for debugging. Triggered from the collection path (`WebhookTrigger`) on goal
 conversions (once per goal per session, matching how the stats count them) and traffic
 spikes. Failed deliveries are retried twice (5 s, then 10 s later) on a scheduled pool;
-retries are in memory, so a restart drops the ones still waiting. The admin UI's
+retries are in memory, so a restart drops the ones still waiting. Before each retry the
+webhook is looked up again; if it was paused or deleted meanwhile the retry is dropped.
+
+**Traffic spikes** (`TrafficSpikeDetector`, in memory, counts only): page views are counted per minute
+per project. The current window is the last 10 minutes; the baseline is the average of the six
+10-minute windows before it (the previous hour). A spike is a current window with at least 20 page
+views and more than twice the baseline. After a spike the project is quiet for 10 minutes (cooldown),
+so a webhook fires at most once per window. Nothing fires in the first 70 minutes after the server
+starts, since a restart wipes the history. The payload carries `eventsInWindow`, `windowMinutes`,
+`currentRate` and `baselineRate` (page views per minute).
+
+**Addresses**: link-local addresses (169.254.0.0/16, fe80::/10; cloud metadata lives there) are refused
+when a webhook is saved and again before every delivery (a refused delivery is logged as failed and
+not retried). Loopback and private ranges stay allowed on purpose, since self-hosters run receivers
+on their own network and the tests use a local one. A host name is resolved at the check, so a name
+that changes its answer between the check and the connection is not caught.
+
+**Delivery history**: the cleanup timer in `ServiceManager` (every 6 hours, also when
+`DATA_RETENTION_DAYS` is 0) deletes `WebhookDeliveries` rows older than 30 days. The admin UI's
 `webhooks.js` renders the config + delivery log modal with pause/resume.
 
 ### Email reports
@@ -517,8 +547,10 @@ Scheduled recurring analytics emails per project (`db/EmailReports.kt`,
 with a send hour/day evaluated in the report's `timezone` (the dialog sends the admin's
 browser zone; unknown ids are rejected); `includeSections` picks the rendered blocks
 (`overview`, `pages`, `referrers`, `geo`, `events`); everything from the database is escaped.
-The hourly scheduler sends at most once per day per report; a manual test send does not
-count as that day's send. Disabled entirely unless `SMTP_HOST` and `SMTP_FROM` are set —
+The hourly scheduler sends a report when its most recent slot (hour, and day for weekly/monthly)
+has not been sent yet, so a slot missed while the server was down or the mail server refused is
+sent at the next check, once (slots before the report was created are not owed; `EmailService.isDue`);
+a manual test send does not count. The subject's `{period}` is plain words ("last 7 days"). Disabled entirely unless `SMTP_HOST` and `SMTP_FROM` are set —
 see Configuration reference above. `email-reports.js` is the admin UI modal.
 
 ### Revenue tracking
@@ -532,8 +564,13 @@ MiniNumbers.track("purchase", { revenue: 29.99, currency: "USD" });
 
 `RevenueAnalysisUtils` scans `Events.properties` for `"revenue": <number>` and aggregates
 totals, per-event breakdown, and per-traffic-source attribution (UTM campaign → UTM source
-→ referrer domain → "Direct", from the session's first pageview). `revenue.js` renders this
-in the admin UI.
+→ referrer domain → "Direct", from the session's first pageview). Amounts are grouped by the event's
+`currency` (trimmed, upper-cased, at most 8 characters; `USD` when missing or blank) and never added across
+currencies. A negative `revenue` is a refund: it is taken off the net revenue and shown as its own figure,
+and is not a sale (`transactions`, AOV and conversion count sales only). An amount beyond 1,000,000,000 either
+way is ignored. `/collect` stores `properties` as sent and does not look at these fields. `revenue.js` renders
+this in the admin UI, one line per currency with `Intl.NumberFormat` (a code it rejects is shown as
+`<amount> <CODE>`); the CSV report has one row per currency.
 
 ### AI assistant referrals
 

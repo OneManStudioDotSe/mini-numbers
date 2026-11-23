@@ -2026,7 +2026,3 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
-
-/* The hero is dark in both themes, so its screenshot is always the dark one */
-.landing-hero .landing-shot__img--light { display: none; }
-.landing-hero .landing-shot__img--dark { display: block; }

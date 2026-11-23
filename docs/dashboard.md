@@ -24,7 +24,7 @@ The page is split into eight sections. Each can be collapsed.
 | **Traffic Sources** | Referrers and UTM sources, mediums and campaigns |
 | **Audience & Technology** | Countries and cities on a map or globe, browsers, operating systems, devices |
 | **Time Patterns** | Busiest day, peak hour, top month, an hour-by-day heatmap and a 365-day activity calendar |
-| **Events** | Your custom events; with the revenue [lab](configuration#labs) also revenue totals, revenue per event and revenue by source and campaign |
+| **Events** | Your custom events; with the revenue [lab](configuration#labs) also net revenue and refunds per currency, revenue per event and revenue by source and campaign |
 | **Real-Time** | Visitors on the site in the last five minutes, as they arrive |
 | **Conversions** | Conversion goals, funnels and visitor segments |
 

@@ -5,6 +5,7 @@ import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import se.onemanstudio.db.WebhookDeliveries
+import se.onemanstudio.db.Webhooks
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -21,7 +22,8 @@ import javax.crypto.spec.SecretKeySpec
  * Delivers webhook payloads with HMAC-SHA256 signatures.
  * Async delivery with automatic retry (3 attempts, 5 s then 10 s apart) scheduled on the
  * pool rather than slept on, so a failing endpoint never blocks other deliveries.
- * Retries live in memory: a restart drops whatever was still waiting.
+ * Retries live in memory: a restart drops whatever was still waiting. Before each retry the
+ * webhook must still exist and be active. Link-local addresses are refused (see [WebhookAddress]).
  */
 object WebhookService {
     private val logger = LoggerFactory.getLogger(WebhookService::class.java)
@@ -49,6 +51,14 @@ object WebhookService {
     }
 
     private fun deliver(webhookId: UUID, url: String, secret: String, eventType: String, payload: String, attempt: Int) {
+        if (attempt > 1 && !isStillActive(webhookId)) {
+            logger.info("Dropping webhook retry: the webhook was paused or deleted")
+            return
+        }
+        if (WebhookAddress.isLinkLocal(url)) {
+            recordDelivery(webhookId, eventType, payload, null, WebhookAddress.LINK_LOCAL_MESSAGE, attempt, "failed")
+            return
+        }
         val signature = signPayload(payload, secret)
 
         try {
@@ -98,12 +108,31 @@ object WebhookService {
         }
     }
 
+    private fun isStillActive(webhookId: UUID): Boolean = try {
+        transaction {
+            Webhooks.selectAll().where { (Webhooks.id eq webhookId) and (Webhooks.isActive eq true) }.count() > 0
+        }
+    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        logger.error("Could not check webhook before retry: ${e.message}")
+        false
+    }
+
     @Suppress("LongParameterList")
     private fun scheduleRetry(webhookId: UUID, url: String, secret: String, eventType: String, payload: String, attempt: Int) {
         executor.schedule(
             { deliver(webhookId, url, secret, eventType, payload, attempt + 1) },
             attempt * retryStepMillis, TimeUnit.MILLISECONDS
         )
+    }
+
+    /** Delivery history is kept this many days; the cleanup job trims older rows. */
+    const val DELIVERY_HISTORY_DAYS = 30L
+
+    /** Delete delivery log rows older than [DELIVERY_HISTORY_DAYS] days; returns how many went. */
+    fun trimDeliveries(): Int = transaction {
+        WebhookDeliveries.deleteWhere {
+            WebhookDeliveries.createdAt less LocalDateTime.now().minusDays(DELIVERY_HISTORY_DAYS)
+        }
     }
 
     /** Wait before the first retry; the second waits twice as long. Tests shorten it. */

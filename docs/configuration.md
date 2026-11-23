@@ -29,6 +29,7 @@ Changing `SERVER_SALT` makes every visitor look new from then on — keep it sec
 |---------|---------|--------------|
 | `ADMIN_USERNAME` | `admin` | Username of the first admin |
 | `ALLOWED_ORIGINS` | *(empty = any)* | Websites allowed to call the **admin API** from a browser, comma-separated (`https://app.example.com`). The dashboard itself and the tracker always work, whatever is set here |
+| `METRICS_TOKEN` | *(empty)* | Lets a monitoring tool read `/metrics` by sending `Authorization: Bearer <token>`. Without it, only a signed-in admin can open `/metrics`; everyone else gets 401. Use a long random value (`openssl rand -hex 32`) |
 | `KTOR_DEVELOPMENT` | `false` | `true` lets you sign in over plain HTTP and turns off HSTS. Only for testing on your own computer or network |
 
 ## Server
@@ -51,7 +52,7 @@ Requests over a limit get HTTP 429 and the event is dropped. A request body over
 |---------|---------|--------------|
 | `PRIVACY_MODE` | `STANDARD` | `STANDARD`, `STRICT` or `PARANOID` — what is stored, see [Privacy](privacy) |
 | `HASH_ROTATION_HOURS` | `24` | After how many hours a returning visitor counts as new (1–8760) |
-| `DATA_RETENTION_DAYS` | `0` | Delete events older than this many days; `0` keeps everything. Checked every 6 hours |
+| `DATA_RETENTION_DAYS` | `0` | Delete events older than this many days; `0` keeps everything. Checked every 6 hours (the same job trims webhook deliveries older than 30 days) |
 
 ## Database
 
@@ -80,7 +81,7 @@ LABS=webhooks,revenue
 
 | Lab | What it adds |
 |-----|--------------|
-| `revenue` | Revenue cards and attribution from events with a `revenue` property, and a revenue section in the CSV report |
+| `revenue` | Net revenue and refunds per currency, revenue per event and attribution from events with a `revenue` property, and a revenue section in the CSV report |
 | `webhooks` | Signed HTTP calls when a goal converts or traffic spikes ([details](developers#webhooks)) |
 | `email-reports` | Scheduled email summaries (also needs the SMTP settings below) |
 | `widgets` | Embeddable live numbers ([details](developers#widgets)). Off for each project until switched on in its settings; while on, anyone with the project key from your site's HTML can read them |
@@ -95,11 +96,11 @@ are set as well.
 | Setting | Default | What it does |
 |---------|---------|--------------|
 | `SMTP_HOST` | — | Mail server |
-| `SMTP_PORT` | `587` | Mail server port |
+| `SMTP_PORT` | `587` | Mail server port. `465` connects with TLS from the start; any other port uses STARTTLS when `SMTP_STARTTLS` is on |
 | `SMTP_USERNAME` | — | Login for the mail server |
 | `SMTP_PASSWORD` | — | Password for the mail server |
 | `SMTP_FROM` | — | Sender address on the reports |
-| `SMTP_STARTTLS` | `true` | Encrypt the connection with STARTTLS |
+| `SMTP_STARTTLS` | `true` | Encrypt the connection with STARTTLS. Required: if the mail server does not offer it, the report is not sent and the login is never sent unencrypted |
 
 ## Location lookup
 

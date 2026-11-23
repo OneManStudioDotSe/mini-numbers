@@ -51,33 +51,18 @@ feature included. Not a race for feature parity with Plausible, Umami or PostHog
 
 ## Known gaps
 
-**Labs to graduate.** Each lab is off by default until it has the tests it lacks
-([LAUNCH-AUDIT.md](LAUNCH-AUDIT.md)); all of them now have those tests. **Widgets** (2026-11-15) answer only
-for projects that switched them on in Settings; while a project has them on, its numbers are still readable by
-anyone with its tracking ID, which is what a public counter is; only the realtime widget's embed has a browser
-test. **Revenue** (2026-11-15) has tests on known amounts
-for totals, per-event and per-source figures. Before it graduates: it adds every amount together whatever its
-`currency` and shows the sum with a `$`; refunds (negative amounts) are left out; and it has no browser test of
-its own beyond the CSV export. **Webhooks** (2026-11-15) have tests against a real receiver for delivery, the
-signature on the wire, retries, the delivery log and which events fire them. Before they graduate: traffic-spike
-detection has no test and its window restarts every ten minutes, so it needs a design of its own; a webhook
-address may point at the server's own network (admins only, but worth a decision); a retry already waiting
-still goes out after its webhook is paused or deleted; `webhook_deliveries` is never trimmed; and the dialog has
-no browser test. **Email reports** (2026-11-15) are sent for real to a local SMTP server in the tests (message,
-login, a silent server, the scheduler). Before they graduate: with `SMTP_STARTTLS=true` a server that does not
-offer STARTTLS still gets the login in clear text (requiring it would break such setups, so it is the owner's
-call), and port 465 (TLS from the start) is not supported; a report whose hour passes while the server is down or
-the mail server refuses is skipped until its next day, week or month; the subject shows the period as `7d`; and
-the dialog has no browser test.
+**Labs.** Revenue, webhooks, email reports and widgets are complete as of 2026-11-23 (per-currency revenue and
+refunds; rolling traffic-spike detection, link-local addresses refused, retries dropped for paused or deleted
+webhooks, deliveries trimmed after 30 days; STARTTLS required when switched on, port 465, catch-up of missed
+reports, plain subjects) and each has a browser test. They stay off by default until the owner graduates them.
+Still open: webhook retries are in memory (a restart drops a waiting retry); editing a report's schedule can send
+a catch-up report at once; a webhook host whose DNS answer changes between the check and the call is not caught.
 
-**Funnels and segments** graduated in 1.0.0 (2026-11-22) and are on for everyone. Still to do: both analyses
-read every event of the period into memory, which is fine for small sites and should become a query; the segment
-result is shown as a toast only and needs a proper panel.
+**Funnels and segments** graduated in 1.0.0 (2026-11-22). Since 2026-11-23 both analyses run in the database and
+the segment result has its own panel. Goal conversions still read the period's events into memory.
 
 Left open by the audit of 2026-11-14 (its fixes are in the CHANGELOG):
 
-- `/metrics` is public. It only shows uptime and the GeoIP cache, but it should move behind a token before it
-  grows.
 - **Visitor IP on Fly and Render is unverified.** With `TRUST_PROXY` the last `X-Forwarded-For` entry is used; if a
   platform appends its own proxy address after the visitor's, every visitor shares one address (one visitor hash,
   one rate-limit bucket). Check on a real deployment before recommending those platforms.

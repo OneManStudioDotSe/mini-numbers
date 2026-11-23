@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.After
 import org.junit.Before
@@ -46,6 +47,10 @@ class EmailReportSendTest {
     /** Just enough SMTP to receive a message. Refuses recipients starting with "bounce"; [silent] never greets. */
     private class FakeSmtp(private val silent: Boolean = false) {
         val mails = CopyOnWriteArrayList<Mail>()
+
+        /** The last AUTH PLAIN credentials any client sent, delivered or not. */
+        @Volatile
+        var lastLogin: String? = null
         private val server = ServerSocket(0, 50, InetAddress.getLoopbackAddress())
         private val open = CopyOnWriteArrayList<Socket>()
         val port: Int get() = server.localPort
@@ -82,6 +87,7 @@ class EmailReportSendTest {
                     command.startsWith("EHLO") -> listOf("250-localhost", "250 AUTH PLAIN")
                     command.startsWith("AUTH PLAIN") -> {
                         login = String(Base64.getDecoder().decode(line.substringAfterLast(' '))).replace('\u0000', ':')
+                        lastLogin = login
                         listOf("235 ok")
                     }
                     command.startsWith("MAIL FROM:") -> listOf("250 ok").also { from = address }
@@ -112,12 +118,13 @@ class EmailReportSendTest {
     private val smtp = FakeSmtp()
     private lateinit var project: UUID
 
-    private fun useSmtp(port: Int, username: String? = null, password: String? = null) = EmailService.init(
-        EmailConfig(
-            smtpHost = "127.0.0.1", smtpPort = port, smtpFrom = "reports@mini.example",
-            smtpUsername = username, smtpPassword = password, smtpStartTls = false
+    private fun useSmtp(port: Int, username: String? = null, password: String? = null, startTls: Boolean = false) =
+        EmailService.init(
+            EmailConfig(
+                smtpHost = "127.0.0.1", smtpPort = port, smtpFrom = "reports@mini.example",
+                smtpUsername = username, smtpPassword = password, smtpStartTls = startTls
+            )
         )
-    )
 
     @Before
     fun start() {
@@ -213,7 +220,7 @@ class EmailReportSendTest {
         assertEquals("reports@mini.example", mail.from)
         assertEquals(listOf("ann@example.com"), mail.to)
         assertNull(mail.login, "no login without a username")
-        assertEquals("Café & Co — 7d (${java.time.LocalDate.now()})", mail.message.subject)
+        assertEquals("Café & Co — last 7 days (${java.time.LocalDate.now()})", mail.message.subject)
         assertEquals("ann@example.com", mail.message.allRecipients.single().toString())
         assertTrue(mail.message.isMimeType("text/html"), mail.message.contentType)
         val html = mail.message.content as String
@@ -245,6 +252,16 @@ class EmailReportSendTest {
     }
 
     @Test
+    fun `with STARTTLS on, a server that does not offer it gets no login and no mail`() {
+        useSmtp(smtp.port, username = "mailer", password = "s3cret", startTls = true)
+
+        assertFailsWith<jakarta.mail.MessagingException> { EmailService.sendReport(project, "ann@example.com", "7d") }
+
+        assertTrue(smtp.mails.isEmpty(), "nothing was delivered")
+        assertNull(smtp.lastLogin, "the password was not sent in clear text")
+    }
+
+    @Test
     fun `a mail server that never answers fails the send instead of hanging`() {
         val silent = FakeSmtp(silent = true)
         try {
@@ -268,6 +285,33 @@ class EmailReportSendTest {
     }
 
     @Test
+    fun `a report whose hour passed while the server was down is sent at the next check, once`() {
+        val now = Instant.now()
+        val daily = report("daily@example.com", hour = now.atZone(ZoneOffset.UTC).hour)
+
+        EmailService.checkAndSendDueReports(now.plusSeconds(3 * 3600)) // three hours later: the hour is gone
+        assertEquals(listOf("daily@example.com"), smtp.mails.flatMap { it.to })
+        assertNotNull(lastSentAt(daily))
+
+        EmailService.checkAndSendDueReports(now.plusSeconds(4 * 3600))
+        assertEquals(1, smtp.mails.size, "the catch-up is not repeated")
+    }
+
+    @Test
+    fun `a refused report is tried again at the next check`() {
+        val now = Instant.now()
+        val bounced = report("bounce@example.com", hour = now.atZone(ZoneOffset.UTC).hour)
+
+        EmailService.checkAndSendDueReports(now)
+        assertNull(lastSentAt(bounced))
+        transaction { EmailReports.update({ EmailReports.id eq bounced }) { it[recipientEmail] = "fixed@example.com" } }
+
+        EmailService.checkAndSendDueReports(now.plusSeconds(3600))
+        assertEquals(listOf("fixed@example.com"), smtp.mails.flatMap { it.to })
+        assertNotNull(lastSentAt(bounced))
+    }
+
+    @Test
     fun `the scheduler sends each due report once, and a bounced one does not stop the rest`() {
         val now = Instant.now()
         val utc = now.atZone(ZoneOffset.UTC)
@@ -282,7 +326,10 @@ class EmailReportSendTest {
 
         assertEquals(setOf("daily@example.com", "weekly@example.com"), smtp.mails.flatMap { it.to }.toSet())
         assertEquals(2, smtp.mails.size)
-        assertEquals(setOf("Café & Co Analytics — 24h", "Café & Co Analytics — 7d"), smtp.mails.map { it.message.subject }.toSet())
+        assertEquals(
+            setOf("Café & Co Analytics — last 24 hours", "Café & Co Analytics — last 7 days"),
+            smtp.mails.map { it.message.subject }.toSet()
+        )
         assertNotNull(lastSentAt(daily))
         assertNotNull(lastSentAt(weekly))
         for (unsent in listOf(bounced, otherHour, otherDay, paused)) assertNull(lastSentAt(unsent))

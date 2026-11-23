@@ -14,11 +14,12 @@ import se.onemanstudio.db.Projects
 import se.onemanstudio.utils.generateReport
 import se.onemanstudio.utils.getCurrentPeriod
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -117,7 +118,7 @@ object EmailService {
             ?: "{project_name} Analytics — {period}"
         val subject = subjectTemplate
             .replace("{project_name}", projectName)
-            .replace("{period}", period)
+            .replace("{period}", periodWords(period))
             .replace("{date}", LocalDateTime.now().toLocalDate().toString())
 
         val headerText = reportConfig?.get(EmailReports.headerText)
@@ -130,18 +131,7 @@ object EmailService {
         val html = buildReportHtml(projectName, projectDomain, period, report, headerText, footerText, sections)
 
         // Send via SMTP
-        val props = Properties().apply {
-            put("mail.smtp.host", checkNotNull(config.smtpHost) { "SMTP host is required" })
-            put("mail.smtp.port", config.smtpPort.toString())
-            put("mail.smtp.auth", (!config.smtpUsername.isNullOrBlank()).toString())
-            if (config.smtpStartTls) {
-                put("mail.smtp.starttls.enable", "true")
-            }
-            // Without these a mail server that stops answering holds the sending thread for ever
-            for (timeout in listOf("connectiontimeout", "timeout", "writetimeout")) {
-                put("mail.smtp.$timeout", smtpTimeoutMillis.toString())
-            }
-        }
+        val props = smtpProperties(config, smtpTimeoutMillis)
 
         val session = if (!config.smtpUsername.isNullOrBlank()) {
             Session.getInstance(props, object : Authenticator() {
@@ -213,10 +203,12 @@ object EmailService {
             // "Send at 8" means 8 o'clock in the report's own timezone, not the server's
             val zone = runCatching { ZoneId.of(report[EmailReports.timezone]) }.getOrDefault(ZoneOffset.UTC)
             val now = ZonedDateTime.ofInstant(at, zone)
-            val lastSentDate = report[EmailReports.lastSentAt]
-                ?.atZone(ZoneId.systemDefault())?.withZoneSameInstant(zone)?.toLocalDate()
+            val lastSent = report[EmailReports.lastSentAt]?.atZone(ZoneId.systemDefault())?.toInstant()
+            // A report is not owed the slots that passed before it was created (in its hour, it still is)
+            val createdHour = report[EmailReports.createdAt].atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(zone).truncatedTo(ChronoUnit.HOURS).toInstant()
 
-            if (isDue(schedule, report[EmailReports.sendHour], report[EmailReports.sendDay], lastSentDate, now)) {
+            if (isDue(schedule, report[EmailReports.sendHour], report[EmailReports.sendDay], lastSent, now, createdHour)) {
                 val period = when (schedule) {
                     "DAILY" -> "24h"
                     "WEEKLY" -> "7d"
@@ -242,17 +234,21 @@ object EmailService {
     val ALL_SECTIONS = setOf("overview", "pages", "referrers", "geo", "events")
 
     /**
-     * Whether a report is due at [now] (already in the report's timezone): the right hour,
-     * the right day for weekly/monthly schedules, and not already sent on that date.
+     * Whether a report is due at [now] (already in the report's timezone): its most recent scheduled
+     * slot (right hour, and right day for weekly/monthly) has not been sent yet. A slot missed while the
+     * server was down or the mail server refused is therefore sent at the next check, once. Slots before
+     * [notBefore] (the report's creation) are not owed.
      */
-    internal fun isDue(schedule: String, sendHour: Int, sendDay: Int, lastSentDate: LocalDate?, now: ZonedDateTime): Boolean {
-        val notSentToday = lastSentDate != now.toLocalDate()
-        return when (schedule) {
-            "DAILY" -> now.hour == sendHour && notSentToday
-            "WEEKLY" -> now.hour == sendHour && now.dayOfWeek.value == sendDay && notSentToday // 1 = Monday
-            "MONTHLY" -> now.hour == sendHour && now.dayOfMonth == sendDay && notSentToday
-            else -> false
-        }
+    internal fun isDue(
+        schedule: String,
+        sendHour: Int,
+        sendDay: Int,
+        lastSentAt: Instant?,
+        now: ZonedDateTime,
+        notBefore: Instant = Instant.EPOCH
+    ): Boolean {
+        val slot = latestSlot(schedule, sendHour, sendDay, now)?.toInstant() ?: return false
+        return slot >= notBefore && (lastSentAt == null || slot > lastSentAt)
     }
 
     /**
@@ -269,14 +265,7 @@ object EmailService {
         footerText: String?,
         sections: Set<String> = ALL_SECTIONS
     ): String {
-        val periodLabel = when (period) {
-            "24h" -> "Last 24 hours"
-            "3d" -> "Last 3 days"
-            "7d" -> "Last 7 days"
-            "30d" -> "Last 30 days"
-            "365d" -> "Last year"
-            else -> period
-        }
+        val periodLabel = periodWords(period).replaceFirstChar { it.uppercase() }
 
         return """
         <!DOCTYPE html>
@@ -331,6 +320,53 @@ object EmailService {
         </html>
         """.trimIndent()
     }
+}
+
+/** SMTP properties for Jakarta Mail. Port 465 is TLS from the first byte; otherwise STARTTLS is required when on. */
+internal fun smtpProperties(config: EmailConfig, timeoutMillis: Int): Properties = Properties().apply {
+    put("mail.smtp.host", checkNotNull(config.smtpHost) { "SMTP host is required" })
+    put("mail.smtp.port", config.smtpPort.toString())
+    put("mail.smtp.auth", (!config.smtpUsername.isNullOrBlank()).toString())
+    if (config.smtpPort == SMTPS_PORT) {
+        put("mail.smtp.ssl.enable", "true")
+    } else if (config.smtpStartTls) {
+        put("mail.smtp.starttls.enable", "true")
+        // Without this a server that does not offer STARTTLS would still get the login in clear text
+        put("mail.smtp.starttls.required", "true")
+    }
+    // Without these a mail server that stops answering holds the sending thread for ever
+    for (timeout in listOf("connectiontimeout", "timeout", "writetimeout")) {
+        put("mail.smtp.$timeout", timeoutMillis.toString())
+    }
+}
+
+/** The period of a report in plain words, for the subject and the header. */
+internal fun periodWords(period: String): String = when (period) {
+    "24h" -> "last 24 hours"
+    "3d" -> "last 3 days"
+    "7d" -> "last 7 days"
+    "30d" -> "last 30 days"
+    "365d" -> "last year"
+    else -> period
+}
+
+private const val SMTPS_PORT = 465
+private const val MAX_SLOT_LOOKBACK_DAYS = 31
+
+/** The latest scheduled send time at or before [now], or null for an unknown schedule. */
+private fun latestSlot(schedule: String, sendHour: Int, sendDay: Int, now: ZonedDateTime): ZonedDateTime? {
+    if (schedule !in setOf("DAILY", "WEEKLY", "MONTHLY")) return null
+    return (0..MAX_SLOT_LOOKBACK_DAYS).asSequence()
+        .map { now.toLocalDate().minusDays(it.toLong()) }
+        .filter {
+            when (schedule) {
+                "WEEKLY" -> it.dayOfWeek.value == sendDay // 1 = Monday
+                "MONTHLY" -> it.dayOfMonth == sendDay
+                else -> true
+            }
+        }
+        .map { ZonedDateTime.of(it, LocalTime.of(sendHour, 0), now.zone) }
+        .firstOrNull { !it.isAfter(now) }
 }
 
 /** Escape text that lands in the email HTML. */

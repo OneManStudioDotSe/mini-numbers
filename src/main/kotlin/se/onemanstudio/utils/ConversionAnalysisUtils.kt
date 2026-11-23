@@ -26,6 +26,7 @@ import se.onemanstudio.db.ConversionGoals
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.FunnelSteps
 import se.onemanstudio.db.Funnels
+import se.onemanstudio.api.models.StatEntry
 import se.onemanstudio.api.models.admin.*
 import java.time.Duration
 import java.time.LocalDateTime
@@ -121,6 +122,9 @@ fun calculateGoalStats(projectId: UUID, filter: String): List<GoalStats> {
     }
 }
 
+/** The few columns of an event that funnel step matching reads. */
+private data class StepHit(val eventType: String, val path: String, val eventName: String?, val timestamp: LocalDateTime)
+
 /**
  * Analyze a funnel: track sessions through sequential steps, calculating drop-off at each stage.
  * A session completes a step if it has a matching event AND completed all previous steps in order.
@@ -167,18 +171,35 @@ fun analyzeFunnel(
             )
         }
 
-        // Load all events for this project in the time range
-        val events = Events.selectAll().where {
-            (Events.projectId eq projectId) and
+        val inPeriod: Op<Boolean> = (Events.projectId eq projectId) and
             (Events.timestamp greaterEq start) and
             (Events.timestamp lessEq end)
-        }.toList()
 
-        // Group events by session, sorted by timestamp within each session
-        val sessionEvents = events.groupBy { it[Events.sessionId] }
-            .mapValues { (_, events) -> events.sortedBy { it[Events.timestamp] } }
+        // Every session of the period counts as entered, whether or not it touches a step
+        val totalSessions = Events.select(Events.sessionId.countDistinct())
+            .where { inPeriod }
+            .single()[Events.sessionId.countDistinct()]
 
-        val totalSessions = sessionEvents.size.toLong()
+        // Only the rows that can match some step, and only the columns the matching needs
+        val urlValues = steps.filter { it[FunnelSteps.stepType] == "url" }.map { it[FunnelSteps.matchValue] }.distinct()
+        val eventValues = steps.filter { it[FunnelSteps.stepType] == "event" }.map { it[FunnelSteps.matchValue] }.distinct()
+        val anyStep: Op<Boolean>? = listOfNotNull(
+            if (urlValues.isEmpty()) null else (Events.eventType eq "pageview") and (Events.path inList urlValues),
+            if (eventValues.isEmpty()) null else (Events.eventType eq "custom") and (Events.eventName inList eventValues)
+        ).reduceOrNull { a, b -> a or b }
+
+        // Rows are read one by one, oldest first, and kept per session as small records
+        val sessionEvents = LinkedHashMap<String, MutableList<StepHit>>()
+        if (anyStep != null) {
+            Events.select(Events.sessionId, Events.eventType, Events.path, Events.eventName, Events.timestamp)
+                .where { inPeriod and anyStep }
+                .orderBy(Events.timestamp to SortOrder.ASC, Events.id to SortOrder.ASC)
+                .forEach { row ->
+                    sessionEvents.getOrPut(row[Events.sessionId]) { mutableListOf() }.add(
+                        StepHit(row[Events.eventType], row[Events.path], row[Events.eventName], row[Events.timestamp])
+                    )
+                }
+        }
 
         // Track which sessions make it through each step
         // For each session, find the timestamp of the event that matched the step
@@ -200,22 +221,22 @@ fun analyzeFunnel(
             var timeDiffCount = 0
 
             for ((sessionId, afterTimestamp) in qualifiedSessions) {
-                val sessionEvents = sessionEvents[sessionId] ?: continue
+                val hits = sessionEvents[sessionId] ?: continue
 
                 // Find the first matching event that occurs after the previous step's timestamp
-                val matchingEvent = sessionEvents.firstOrNull { evt ->
-                    val eventTime = evt[Events.timestamp]
+                val matchingEvent = hits.firstOrNull { evt ->
+                    val eventTime = evt.timestamp
                     val isAfterPrevious = if (index == 0) true else eventTime.isAfter(afterTimestamp)
 
                     isAfterPrevious && when (stepType) {
-                        "url" -> evt[Events.eventType] == "pageview" && evt[Events.path] == matchValue
-                        "event" -> evt[Events.eventType] == "custom" && evt[Events.eventName] == matchValue
+                        "url" -> evt.eventType == "pageview" && evt.path == matchValue
+                        "event" -> evt.eventType == "custom" && evt.eventName == matchValue
                         else -> false
                     }
                 }
 
                 if (matchingEvent != null) {
-                    val matchTime = matchingEvent[Events.timestamp]
+                    val matchTime = matchingEvent.timestamp
                     newQualified[sessionId] = matchTime
 
                     // Calculate time from previous step (skip for first step)
@@ -228,7 +249,7 @@ fun analyzeFunnel(
             }
 
             val sessionsAtStep = newQualified.size.toLong()
-            val previousStepSessions = qualifiedSessions.size.toLong()
+            val previousStepSessions = if (index == 0) totalSessions else qualifiedSessions.size.toLong()
 
             // Share of the sessions that entered the funnel (reached step 1), so step 1 is always 100%
             if (index == 0) enteredSessions = sessionsAtStep
@@ -260,6 +281,105 @@ fun analyzeFunnel(
             funnel = funnelResponse,
             totalSessions = totalSessions,
             steps = stepAnalyses
+        )
+    }
+}
+
+/**
+ * The database condition for one segment filter. Text is compared case-insensitively, and an event whose field
+ * is empty never matches (not even "not equals").
+ */
+private fun segmentCondition(filter: SegmentFilter): Op<Boolean> {
+    val column: Column<out String?> = when (filter.field) {
+        "browser" -> Events.browser
+        "os" -> Events.os
+        "device" -> Events.device
+        "country" -> Events.country
+        "city" -> Events.city
+        "path" -> Events.path
+        "referrer" -> Events.referrer
+        "eventType" -> Events.eventType
+        else -> return Op.FALSE
+    }
+    val value = filter.value.lowercase()
+    // LIKE wildcards in the value are plain characters
+    val literal = value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    val text = column.lowerCase()
+    val matches: Op<Boolean> = when (filter.operator) {
+        "equals" -> text eq value
+        "not_equals" -> text neq value
+        "contains" -> text like LikePattern("%$literal%", '\\')
+        "starts_with" -> text like LikePattern("$literal%", '\\')
+        else -> return Op.FALSE
+    }
+    return column.isNotNull() and matches
+}
+
+/** All filters of a segment as one condition; each filter's logic joins it to the next, evaluated left to right. */
+private fun segmentCondition(filters: List<SegmentFilter>): Op<Boolean> {
+    if (filters.isEmpty()) return Op.TRUE
+    var result = segmentCondition(filters[0])
+    for (i in 1 until filters.size) {
+        val next = segmentCondition(filters[i])
+        result = if (filters[i - 1].logic.uppercase() == "OR") result or next else result and next
+    }
+    return result
+}
+
+/**
+ * Analyze a segment: views, visitors, bounce rate and top pages of the events that match its filters.
+ * The database does the matching and counting; no event rows are loaded.
+ */
+fun analyzeSegment(
+    segmentId: UUID,
+    segmentName: String,
+    projectId: UUID,
+    filters: List<SegmentFilter>,
+    start: LocalDateTime,
+    end: LocalDateTime
+): SegmentAnalysis {
+    val matching: Op<Boolean> = (Events.projectId eq projectId) and
+        (Events.timestamp greaterEq start) and
+        (Events.timestamp lessEq end) and
+        segmentCondition(filters)
+
+    return transaction {
+        val views = Events.id.count()
+        val visitors = Events.visitorHash.countDistinct()
+        val totals = Events.select(views, visitors).where { matching }.single()
+
+        // Ties keep the order in which a page first appeared
+        val pageViews = Events.id.count()
+        val firstSeen = Events.id.min()
+        val topPages = Events.select(Events.path, pageViews, firstSeen)
+            .where { matching }
+            .groupBy(Events.path)
+            .orderBy(pageViews to SortOrder.DESC, firstSeen to SortOrder.ASC)
+            .limit(10)
+            .map { StatEntry(it[Events.path], it[pageViews]) }
+
+        // One row per session: how many pages it saw and whether it sent a heartbeat
+        val pages = Events.path.countDistinct()
+        val heartbeats = Sum(Case().When(Events.eventType eq "heartbeat", intLiteral(1)).Else(intLiteral(0)), IntegerColumnType())
+        var sessions = 0L
+        var bounced = 0L
+        Events.select(Events.sessionId, pages, heartbeats)
+            .where { matching }
+            .groupBy(Events.sessionId)
+            .forEach {
+                sessions++
+                if (it[pages] == 1L && (it[heartbeats] ?: 0) == 0) bounced++
+            }
+        val bounceRate = if (sessions > 0) (bounced.toDouble() / sessions) * 100.0 else 0.0
+
+        SegmentAnalysis(
+            segmentId = segmentId.toString(),
+            segmentName = segmentName,
+            totalViews = totals[views],
+            uniqueVisitors = totals[visitors],
+            bounceRate = bounceRate,
+            topPages = topPages,
+            matchingEvents = totals[views]
         )
     }
 }

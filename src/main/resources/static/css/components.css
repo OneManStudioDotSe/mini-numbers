@@ -3202,6 +3202,9 @@ label.check-label--tight { gap: var(--spacing-xs); }
 .revenue-row__track { width: 40%; position: relative; height: 20px; background: var(--color-bg-secondary); border-radius: var(--radius-xs); overflow: hidden; }
 .revenue-row__fill { height: 100%; background: var(--gradient-revenue-bar); border-radius: var(--radius-xs); transition: width 0.6s ease; }
 .revenue-row__amount { min-width: 80px; text-align: right; font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); }
+.revenue-amount { display: flex; align-items: baseline; flex-wrap: wrap; white-space: nowrap; }
+.revenue-amounts--multi { font-size: var(--font-size-xl); }
+.revenue-refunds { font-size: var(--font-size-xs); color: var(--color-danger); margin-top: var(--spacing-xs); }
 .revenue-comparison { font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); margin-left: var(--spacing-sm); }
 .revenue-comparison--up { color: var(--color-success); }
 .revenue-comparison--down { color: var(--color-danger); }

@@ -40,7 +40,7 @@ MiniNumbers.track("plan_selected", { plan: "pro" });
 MiniNumbers.track("purchase", { revenue: 29.99, currency: "EUR" });
 ```
 
-An event with a numeric `revenue` property (zero or more, at the top level of the properties) counts towards the revenue cards and attribution. Event names and
+An event with a numeric `revenue` property (at the top level of the properties) counts towards the revenue cards and attribution. Each `currency` (an ISO code such as `USD` or `EUR`; `USD` when missing) is shown on its own and never added to another. A negative `revenue` is a refund: it is taken off the net revenue and shown as its own figure. Amounts beyond 1,000,000,000 are ignored. Event names and
 properties are stored as sent — keep personal data out of them.
 
 ---
@@ -128,6 +128,12 @@ import hmac, hashlib
 expected = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
 valid = hmac.compare_digest(signature_header, expected)
 ```
+
+A traffic spike is 20 or more page views in the last 10 minutes and more than twice the average of the six
+10-minute windows before; it fires at most once per 10 minutes, and not in the first 70 minutes after the server
+starts. A failed delivery is tried up to three times (5 s, then 10 s apart); a retry does not go out if the
+webhook was paused or deleted meanwhile. Addresses in the link-local range (169.254.0.0/16, fe80::/10) are
+refused; localhost and your own network are allowed. Delivery history older than 30 days is deleted.
 
 The body is plain JSON, not a Slack or Discord message format; connect those through a tool such as Zapier,
 n8n or a small script.

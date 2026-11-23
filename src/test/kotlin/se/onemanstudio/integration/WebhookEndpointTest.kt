@@ -108,8 +108,15 @@ class WebhookEndpointTest {
         assertEquals(HttpStatusCode.BadRequest, create("""{"url":"https://","events":["goal_conversion"]}"""), "no host")
         assertEquals(HttpStatusCode.BadRequest,
             create("""{"url":"$url/${"x".repeat(1024)}","events":["goal_conversion"]}"""), "long address")
+        for (host in listOf("169.254.169.254", "169.254.0.1", "[fe80::1]", "[::ffff:169.254.169.254]")) {
+            val body = """{"url":"https://$host/latest","events":["goal_conversion"]}"""
+            assertEquals(HttpStatusCode.BadRequest, create(body), "link-local $host")
+        }
         assertEquals("[]", authClient.get("/admin/projects/$projectId/webhooks").bodyAsText(), "nothing was stored")
 
+        for (allowed in listOf("127.0.0.1:9000", "192.168.1.10")) {
+            assertEquals(HttpStatusCode.Created, create("""{"url":"https://$allowed/in","events":["traffic_spike"]}"""), allowed)
+        }
         assertEquals(HttpStatusCode.Created, create("""{"url":"$url","events":["traffic_spike","traffic_spike"]}"""))
         val listed = authClient.get("/admin/projects/$projectId/webhooks").bodyAsText()
         assertTrue(listed.contains(""""events":["traffic_spike"]"""), "duplicates collapse: $listed")

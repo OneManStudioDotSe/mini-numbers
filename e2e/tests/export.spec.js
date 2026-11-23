@@ -29,7 +29,7 @@ test.describe('report export (audit H5)', () => {
     }
     await item.click(); // the last project in a long list must not sit under the footer
     await expect(page.locator('#total-views')).not.toHaveText(/^(0|-|)$/, { timeout: 15_000 });
-    await expect.poll(() => page.evaluate(() => RevenueManager.state.stats?.totalRevenue), { timeout: 15_000 }).toBeGreaterThan(0);
+    await expect.poll(() => page.evaluate(() => RevenueManager.state.stats?.currencies.length), { timeout: 15_000 }).toBeGreaterThan(0);
 
     await page.click('#open-settings-btn');
     await expect(page.locator('#settings-modal')).toHaveClass(/show/);
@@ -37,9 +37,9 @@ test.describe('report export (audit H5)', () => {
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#download-report-btn')]);
     const csv = fs.readFileSync(await download.path(), 'utf8');
 
-    expect(csv).toMatch(/REVENUE\nTotal revenue,[0-9]*[1-9]/);
-    expect(csv).toContain('\nEvent,Revenue,Transactions\n');
-    expect(csv).toMatch(/\n"purchase",[0-9.]+,\d+\n/); // the breakdown is sorted by revenue, so the row can be anywhere
+    expect(csv).toMatch(/REVENUE\nCurrency,Net revenue,Refunds,Transactions,Average order value,Revenue per visitor\n"USD",[0-9]*[1-9]/);
+    expect(csv).toContain('\nEvent,Currency,Revenue,Refunds,Transactions\n');
+    expect(csv).toMatch(/\n"purchase","USD",[0-9.]+,[0-9.]+,\d+\n/); // the breakdown is sorted by revenue, so the row can be anywhere
     const raw = csv.split('RAW EVENTS\n')[1];
     expect(raw, 'raw events section').toBeTruthy();
     const rows = raw.trim().split('\n');

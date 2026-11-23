@@ -47,7 +47,7 @@ test.describe('escaping (audit H2)', () => {
     // Segment card: name and filter value are text; Analyze shows the name in the toast as text
     await expect(page.locator('#segments-list')).toContainText(CANARY);
     await page.locator('#segments-list [data-action="analyze-segment"]').click();
-    await expect(page.locator('.toast--success')).toContainText(CANARY);
+    await expect(page.locator('#segment-result')).toContainText(CANARY);
 
     // Nothing was injected anywhere on the page
     expect(await page.locator('img[src="x"]').count(), 'injected img').toBe(0);

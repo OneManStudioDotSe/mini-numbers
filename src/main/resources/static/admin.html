@@ -690,7 +690,7 @@ MiniNumbers.track("donation", {
 
                                 <h4 class="subheading">How to interpret the data</h4>
                                 <ul class="text-secondary pl-md-plus mb-md">
-                                    <li><strong>Total Revenue</strong> &mdash; aggregate income in the selected period with comparison to the previous period</li>
+                                    <li><strong>Net revenue</strong> &mdash; income in the selected period minus refunds (events with a negative <code class="code-chip">revenue</code>), one line per currency, with comparison to the previous period</li>
                                     <li><strong>Average Order Value (AOV)</strong> &mdash; mean revenue per transaction; use it to spot pricing opportunities</li>
                                     <li><strong>Revenue per Visitor</strong> &mdash; key metric for traffic quality; higher = better-converting traffic</li>
                                     <li><strong>Revenue Attribution</strong> &mdash; which referrers and UTM campaigns generate actual revenue, not just clicks</li>
@@ -699,7 +699,7 @@ MiniNumbers.track("donation", {
 
                                 <h4 class="subheading">Best practices</h4>
                                 <ul class="text-secondary pl-md-plus">
-                                    <li>Always include <code class="code-chip">currency</code> for multi-currency support</li>
+                                    <li>Always include <code class="code-chip">currency</code> (an ISO code such as USD or EUR; USD when missing). Each currency is shown on its own and never added to another</li>
                                     <li>Track at the point of confirmed payment, not intent</li>
                                     <li>Use meaningful event names that map to your business model</li>
                                     <li>Combine with UTM parameters for full attribution</li>
@@ -712,23 +712,24 @@ MiniNumbers.track("donation", {
                             <div class="card stat-card">
                                 <div class="stat-card__header">
                                     <div class="stat-card__icon" aria-hidden="true"><i class="ri-money-dollar-circle-line"></i></div>
-                                    <small>Total Revenue</small>
+                                    <small>Net revenue</small>
                                 </div>
-                                <div class="stat-card__value" id="revenue-total">$0.00</div>
+                                <div class="stat-card__value" id="revenue-total">0.00</div>
+                                <div class="revenue-refunds" id="revenue-refunds"></div>
                             </div>
                             <div class="card stat-card">
                                 <div class="stat-card__header">
                                     <div class="stat-card__icon" aria-hidden="true"><i class="ri-shopping-cart-line"></i></div>
                                     <small>AOV</small>
                                 </div>
-                                <div class="stat-card__value" id="revenue-aov">$0.00</div>
+                                <div class="stat-card__value" id="revenue-aov">0.00</div>
                             </div>
                             <div class="card stat-card">
                                 <div class="stat-card__header">
                                     <div class="stat-card__icon" aria-hidden="true"><i class="ri-user-star-line"></i></div>
                                     <small>Revenue / Visitor</small>
                                 </div>
-                                <div class="stat-card__value" id="revenue-rpv">$0.00</div>
+                                <div class="stat-card__value" id="revenue-rpv">0.00</div>
                             </div>
                             <div class="card stat-card">
                                 <div class="stat-card__header">
@@ -876,6 +877,44 @@ MiniNumbers.track("donation", {
                             </div>
                         </div>
                         <div id="segments-list" role="list" aria-label="Segments list">Loading...</div>
+                        <div id="segment-result" class="mt-lg hidden" role="region" aria-live="polite" aria-labelledby="segment-result-title">
+                            <div class="chart-card__header mb-sm">
+                                <h4 class="chart-card__title text-lg" id="segment-result-title">Segment result</h4>
+                                <div class="chart-card__actions">
+                                    <button class="btn btn-ghost btn-sm" id="segment-result-rerun" aria-label="Run the segment analysis again">
+                                        <i class="ri-refresh-line"></i> Re-run
+                                    </button>
+                                    <button class="btn btn-ghost btn-icon" id="segment-result-close" aria-label="Close segment result">
+                                        <i class="ri-close-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 mb-md">
+                                <div class="card stat-card">
+                                    <div class="stat-card__comparison text-muted">Views</div>
+                                    <div class="stat-card__value" id="segment-result-views"></div>
+                                </div>
+                                <div class="card stat-card">
+                                    <div class="stat-card__comparison text-muted">Unique visitors</div>
+                                    <div class="stat-card__value" id="segment-result-visitors"></div>
+                                </div>
+                                <div class="card stat-card">
+                                    <div class="stat-card__comparison text-muted">Bounce rate</div>
+                                    <div class="stat-card__value" id="segment-result-bounce"></div>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Top pages</th>
+                                            <th>Views</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="segment-result-pages"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1442,8 +1481,9 @@ valid = hmac.compare_digest(signature, expected)</pre>
                         <ul class="text-secondary pl-md-plus">
                             <li>URLs must use <strong>HTTPS</strong> &mdash; HTTP is rejected for security.</li>
                             <li>Your endpoint must respond within <strong>10 seconds</strong> or the delivery is marked as failed.</li>
-                            <li>Failed deliveries are <strong>retried up to 3 times</strong> with exponential backoff (5s, 10s, 15s).</li>
-                            <li>Check the delivery log for response codes &mdash; 4xx errors are not retried.</li>
+                            <li>A delivery that fails is <strong>tried up to 3 times</strong> in all, 5 s and then 10 s apart. A paused or deleted webhook gets no further retries.</li>
+                            <li>Addresses in the link-local range (169.254.x.x, fe80::) are refused; your own network and localhost are fine.</li>
+                            <li>Check the delivery log for response codes. Deliveries older than 30 days are removed.</li>
                         </ul>
                     </div>
                 </div>

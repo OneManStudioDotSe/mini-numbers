@@ -13,7 +13,6 @@ import se.onemanstudio.db.Webhooks
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicLong
 import se.onemanstudio.utils.nowApiString
 
 /**
@@ -35,11 +34,7 @@ object WebhookTrigger {
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .build<String, Boolean>()
 
-    /** Sliding window event counters per project for traffic spike detection */
-    private val trafficCounters = Caffeine.newBuilder()
-        .maximumSize(500)
-        .expireAfterWrite(10, TimeUnit.MINUTES)
-        .build<String, TrafficWindow>()
+    private val spikes = TrafficSpikeDetector()
 
     data class WebhookInfo(
         val id: UUID,
@@ -47,12 +42,6 @@ object WebhookTrigger {
         val secret: String,
         val events: List<String>,
         val isActive: Boolean
-    )
-
-    data class TrafficWindow(
-        val counter: AtomicLong = AtomicLong(0),
-        val windowStart: Long = System.currentTimeMillis(),
-        var baselineRate: Double = 0.0
     )
 
     /**
@@ -74,8 +63,8 @@ object WebhookTrigger {
             checkGoalConversions(projectId, webhooks, eventType, eventName, path, sessionId)
         }
 
-        // Update traffic counter and check for spikes
-        updateTrafficAndCheckSpike(projectId, webhooks)
+        // Only page views count as visits for spike detection (not heartbeats or custom events)
+        if (eventType == "pageview") checkSpike(projectId, webhooks)
     }
 
     private fun getActiveWebhooks(projectId: UUID): List<WebhookInfo> {
@@ -158,52 +147,35 @@ object WebhookTrigger {
         }
     }
 
-    private fun updateTrafficAndCheckSpike(projectId: UUID, webhooks: List<WebhookInfo>) {
+    private fun checkSpike(projectId: UUID, webhooks: List<WebhookInfo>) {
         val spikeWebhooks = webhooks.filter { "traffic_spike" in it.events }
         if (spikeWebhooks.isEmpty()) return
 
-        val key = projectId.toString()
-        val window = trafficCounters.get(key) { TrafficWindow() }
-        val count = window.counter.incrementAndGet()
+        val spike = spikes.record(projectId.toString()) ?: return
+        val windowMinutes = TrafficSpikeDetector.WINDOW_MINUTES
+        val payload = buildJsonObject {
+            put("event", "traffic_spike")
+            put("projectId", projectId.toString())
+            put("currentRate", spike.windowVisits / windowMinutes.toDouble())
+            put("baselineRate", spike.baselinePerWindow / windowMinutes)
+            put("eventsInWindow", spike.windowVisits)
+            put("windowMinutes", windowMinutes)
+            put("timestamp", nowApiString())
+        }.toString()
 
-        val elapsedMinutes = (System.currentTimeMillis() - window.windowStart) / 60_000.0
-        if (elapsedMinutes < 1.0) return // Need at least 1 minute of data
-
-        val currentRate = count / elapsedMinutes
-
-        // Update baseline with exponential moving average
-        if (window.baselineRate == 0.0) {
-            window.baselineRate = currentRate
-            return
+        for (webhook in spikeWebhooks) {
+            WebhookService.deliverAsync(
+                webhookId = webhook.id,
+                url = webhook.url,
+                secret = webhook.secret,
+                eventType = "traffic_spike",
+                payload = payload
+            )
         }
-        window.baselineRate = window.baselineRate * 0.9 + currentRate * 0.1
-
-        // Fire if current rate exceeds 2x baseline and we have meaningful traffic
-        if (currentRate > window.baselineRate * 2.0 && currentRate > 10) {
-            val payload = buildJsonObject {
-                put("event", "traffic_spike")
-                put("projectId", projectId.toString())
-                put("currentRate", currentRate)
-                put("baselineRate", window.baselineRate)
-                put("eventsInWindow", count)
-                put("timestamp", nowApiString())
-            }.toString()
-
-            for (webhook in spikeWebhooks) {
-                WebhookService.deliverAsync(
-                    webhookId = webhook.id,
-                    url = webhook.url,
-                    secret = webhook.secret,
-                    eventType = "traffic_spike",
-                    payload = payload
-                )
-            }
-            logger.info("Fired traffic_spike webhook for project $projectId (rate: ${"%.1f".format(currentRate)}/min, baseline: ${"%.1f".format(window.baselineRate)}/min)")
-
-            // Reset counter after firing to avoid re-triggering
-            window.counter.set(0)
-            trafficCounters.put(key, TrafficWindow(baselineRate = window.baselineRate))
-        }
+        logger.info(
+            "Fired traffic_spike webhook for project $projectId (${spike.windowVisits} page views in " +
+                "$windowMinutes min, usual ${"%.1f".format(spike.baselinePerWindow)})"
+        )
     }
 
     /** Invalidate cached webhooks for a project (call when webhooks are created/deleted) */

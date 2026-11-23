@@ -227,7 +227,8 @@ object ConfigLoader {
             adminUsername = adminUsername,
             adminPassword = adminPassword,
             serverSalt = serverSalt,
-            allowedOrigins = allowedOrigins
+            allowedOrigins = allowedOrigins,
+            metricsToken = getEnvOrNull("METRICS_TOKEN")?.trim()?.takeIf { it.isNotEmpty() }
         )
     }
 

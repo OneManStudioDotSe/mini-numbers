@@ -3,9 +3,11 @@ package se.onemanstudio.services
 import com.sun.net.httpserver.HttpServer
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -238,5 +240,68 @@ class WebhookDeliveryTest {
         )) assertTrue(request.body.contains(expected), "$expected in ${request.body}")
         assertNull(Regex("session|visitor|ip", RegexOption.IGNORE_CASE).find(request.body), "nothing about the visitor")
         assertNotNull(Regex(""""timestamp":"[^"]+"""").find(request.body))
+    }
+
+    @Test
+    fun `a retry waiting when its webhook is paused is not sent`() {
+        WebhookService.retryStepMillis = 400
+        val id = webhook(receiverUrl("/paused-midway"))
+        answers += listOf(500, 500)
+
+        WebhookService.deliverAsync(id, receiverUrl("/paused-midway"), signingSecret, "goal_conversion", """{"n":1}""")
+        waitUntil("the first attempt") { log(id).size == 1 }
+        transaction { Webhooks.update({ Webhooks.id eq id }) { it[isActive] = false } }
+        Thread.sleep(1_200)
+
+        assertEquals(1, received.size)
+        assertEquals(1, log(id).size)
+    }
+
+    @Test
+    fun `a retry waiting when its webhook is deleted is not sent`() {
+        WebhookService.retryStepMillis = 400
+        val id = webhook(receiverUrl("/deleted-midway"))
+        answers += listOf(500, 500)
+
+        WebhookService.deliverAsync(id, receiverUrl("/deleted-midway"), signingSecret, "goal_conversion", """{"n":1}""")
+        waitUntil("the first attempt") { log(id).size == 1 }
+        transaction {
+            WebhookDeliveries.deleteWhere { WebhookDeliveries.webhookId eq id }
+            Webhooks.deleteWhere { Webhooks.id eq id }
+        }
+        Thread.sleep(1_200)
+
+        assertEquals(1, received.size)
+        assertEquals(0, log(id).size)
+    }
+
+    @Test
+    fun `a link-local address is refused at delivery without a request or a retry`() {
+        val url = "http://169.254.169.254/latest/meta-data"
+        val id = webhook(url)
+
+        WebhookService.deliverAsync(id, url, signingSecret, "goal_conversion", """{"n":1}""")
+        waitUntil("the delivery log") { log(id).isNotEmpty() }
+        settle()
+
+        assertEquals(listOf(listOf(1, "failed", null, false)), log(id))
+    }
+
+    @Test
+    fun `delivery history older than thirty days is trimmed and newer is kept`() {
+        val id = webhook(receiverUrl("/trim"))
+        fun row(daysAgo: Long) = transaction {
+            WebhookDeliveries.insert {
+                it[WebhookDeliveries.id] = UUID.randomUUID()
+                it[webhookId] = id
+                it[eventType] = "test"
+                it[payload] = "{}"
+                it[createdAt] = java.time.LocalDateTime.now().minusDays(daysAgo)
+            }
+        }
+        row(40); row(31); row(29); row(1)
+
+        assertEquals(2, WebhookService.trimDeliveries())
+        assertEquals(2, log(id).size)
     }
 }

@@ -49,6 +49,9 @@ module.exports = defineConfig({
       TRACKER_HEARTBEAT_INTERVAL: '2',
       // Labs are off by default; the suite keeps them on so it can test them (dashboard.spec checks them off)
       LABS: 'widgets,revenue,webhooks,email-reports',
+      // A mail server that is never contacted: enough for the email reports dialog to create and delete reports
+      SMTP_HOST: 'smtp.e2e.invalid',
+      SMTP_FROM: 'reports@e2e.invalid',
     },
   }, {
     // A second, unconfigured instance in an empty directory, for the setup wizard (wizard.spec.js)

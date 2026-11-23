@@ -96,11 +96,13 @@ class RevenueNumbersTest {
             }
         }
 
+    private fun stats() = RevenueAnalysisUtils.calculateRevenue(project, weekStart, now).currencies.associateBy { it.currency }
+
     @Test
     fun `totals, average order, revenue per visitor and the previous period`() {
         pageview("a")
         pageview("b")
-        event("a", "purchase", """{"revenue":30,"currency":"EUR"}""")
+        event("a", "purchase", """{"revenue":30}""")
         event("a", "purchase", """{"revenue":"10"}""")
         event("b", "subscription", """{"revenue": 100.5}""")
         event("b", "signup", """{"plan":"pro"}""")
@@ -108,21 +110,76 @@ class RevenueNumbersTest {
         event("old", "purchase", """{"revenue":50}""", at = now.minusDays(10))
         event("older", "purchase", """{"revenue":999}""", at = now.minusDays(20))
 
-        val stats = RevenueAnalysisUtils.calculateRevenue(project, weekStart, now)
+        val usd = stats().getValue("USD")
 
-        assertEquals(140.5, stats.totalRevenue)
-        assertEquals(3, stats.transactions)
-        assertEquals(46.83, stats.averageOrderValue)
-        assertEquals(70.25, stats.revenuePerVisitor)
-        assertEquals(50.0, stats.previousRevenue)
-        assertEquals(1, stats.previousTransactions)
+        assertEquals(140.5, usd.totalRevenue)
+        assertEquals(3, usd.transactions)
+        assertEquals(46.83, usd.averageOrderValue)
+        assertEquals(70.25, usd.revenuePerVisitor)
+        assertEquals(50.0, usd.previousRevenue)
+        assertEquals(1, usd.previousTransactions)
+    }
+
+    @Test
+    fun `amounts in different currencies are never added together`() {
+        event("a", "purchase", """{"revenue":30,"currency":"EUR"}""")
+        event("a", "purchase", """{"revenue":10,"currency":"eur"}""")
+        event("a", "purchase", """{"revenue":100,"currency":"USD"}""")
+        event("a", "purchase", """{"revenue":5}""")
+        event("a", "purchase", """{"revenue":7,"currency":""}""")
+        event("old", "purchase", """{"revenue":20,"currency":"SEK"}""", at = now.minusDays(10))
+
+        val byCurrency = stats()
+
+        assertEquals(setOf("EUR", "USD", "SEK"), byCurrency.keys)
+        assertEquals(40.0, byCurrency.getValue("EUR").totalRevenue)
+        assertEquals(2, byCurrency.getValue("EUR").transactions)
+        // A missing or blank currency is USD, as the demo data and the dashboard's old symbol assumed
+        assertEquals(112.0, byCurrency.getValue("USD").totalRevenue)
+        assertEquals(20.0, byCurrency.getValue("SEK").previousRevenue)
+        assertEquals(0.0, byCurrency.getValue("SEK").totalRevenue)
+    }
+
+    @Test
+    fun `negative amounts are refunds, shown apart and taken off the net revenue`() {
+        pageview("a")
+        event("a", "purchase", """{"revenue":100}""")
+        event("a", "purchase", """{"revenue":50}""")
+        event("a", "refund", """{"revenue":-30}""")
+        event("a", "refund", """{"revenue":-5.5,"currency":"EUR"}""")
+
+        val usd = stats().getValue("USD")
+        assertEquals(120.0, usd.totalRevenue)
+        assertEquals(30.0, usd.refunds)
+        assertEquals(1, usd.refundCount)
+        assertEquals(2, usd.transactions)
+        assertEquals(75.0, usd.averageOrderValue)
+        assertEquals(120.0, usd.revenuePerVisitor)
+        assertEquals(-5.5, stats().getValue("EUR").totalRevenue)
+        assertEquals(5.5, stats().getValue("EUR").refunds)
+
+        val byEvent = RevenueAnalysisUtils.calculateRevenueByEvent(project, weekStart, now)
+            .associateBy { it.eventName to it.currency }
+        assertEquals(150.0, byEvent.getValue("purchase" to "USD").revenue)
+        assertEquals(-30.0, byEvent.getValue("refund" to "USD").revenue)
+        assertEquals(30.0, byEvent.getValue("refund" to "USD").refunds)
+        assertEquals(0L, byEvent.getValue("refund" to "USD").transactions)
+    }
+
+    @Test
+    fun `an absurd amount is ignored`() {
+        event("a", "purchase", """{"revenue":1e15}""")
+        event("a", "purchase", """{"revenue":-1e15}""")
+        event("a", "purchase", """{"revenue":12}""")
+
+        assertEquals(12.0, stats().getValue("USD").totalRevenue)
+        assertEquals(0, stats().getValue("USD").refundCount)
     }
 
     @Test
     fun `only a top-level numeric revenue counts`() {
         event("a", "purchase", """{"revenue":1e3}""")
         event("a", "purchase", """{"revenue":0.5}""")
-        event("a", "refund", """{"revenue":-20}""")
         event("a", "purchase", """{"revenue":"12abc"}""")
         event("a", "purchase", """{"revenue":null}""")
         event("a", "purchase", """{"total_revenue":7}""")
@@ -130,10 +187,11 @@ class RevenueNumbersTest {
         event("a", "purchase", """{"note":"\"revenue\":7"}""")
         event("a", "purchase", "not json")
 
-        val stats = RevenueAnalysisUtils.calculateRevenue(project, weekStart, now)
+        val usd = stats().getValue("USD")
 
-        assertEquals(1000.5, stats.totalRevenue)
-        assertEquals(2, stats.transactions)
+        assertEquals(1000.5, usd.totalRevenue)
+        assertEquals(2, usd.transactions)
+        assertEquals(0, usd.refundCount)
     }
 
     @Test
@@ -141,7 +199,7 @@ class RevenueNumbersTest {
         event("a", "purchase", """{"revenue":30000000}""")
         event("a", "purchase", """{"revenue":0.25}""")
 
-        assertEquals(30_000_000.25, RevenueAnalysisUtils.calculateRevenue(project, weekStart, now).totalRevenue)
+        assertEquals(30_000_000.25, stats().getValue("USD").totalRevenue)
         assertEquals(30_000_000.25, RevenueAnalysisUtils.calculateRevenueByEvent(project, weekStart, now).single().revenue)
     }
 
@@ -150,14 +208,35 @@ class RevenueNumbersTest {
         event("a", "purchase", """{"revenue":30}""")
         event("b", "purchase", """{"revenue":10}""")
         event("b", "subscription", """{"revenue":100.5}""")
+        event("b", "subscription", """{"revenue":7,"currency":"EUR"}""")
         event("b", "signup", """{"plan":"pro"}""")
 
         val byEvent = RevenueAnalysisUtils.calculateRevenueByEvent(project, weekStart, now)
 
-        assertEquals(listOf("subscription", "purchase"), byEvent.map { it.eventName })
-        assertEquals(listOf(100.5, 40.0), byEvent.map { it.revenue })
-        assertEquals(listOf(1L, 2L), byEvent.map { it.transactions })
-        assertEquals(listOf(100.5, 20.0), byEvent.map { it.avgValue })
+        assertEquals(
+            listOf("subscription" to "USD", "purchase" to "USD", "subscription" to "EUR"),
+            byEvent.map { it.eventName to it.currency }
+        )
+        assertEquals(listOf(100.5, 40.0, 7.0), byEvent.map { it.revenue })
+        assertEquals(listOf(1L, 2L, 1L), byEvent.map { it.transactions })
+        assertEquals(listOf(100.5, 20.0, 7.0), byEvent.map { it.avgValue })
+    }
+
+    @Test
+    fun `attribution keeps each currency of a source apart and nets refunds`() {
+        pageview("a", referrer = "https://www.google.com/")
+        event("a", "purchase", """{"revenue":30}""")
+        event("a", "purchase", """{"revenue":10,"currency":"EUR"}""")
+        event("a", "refund", """{"revenue":-4}""")
+
+        val rows = RevenueAnalysisUtils.calculateRevenueAttribution(project, weekStart, now).associateBy { it.currency }
+
+        assertEquals(setOf("USD", "EUR"), rows.keys)
+        assertEquals(26.0, rows.getValue("USD").revenue)
+        assertEquals(4.0, rows.getValue("USD").refunds)
+        assertEquals(1L, rows.getValue("USD").transactions)
+        assertEquals(10.0, rows.getValue("EUR").revenue)
+        assertEquals("google.com", rows.getValue("EUR").source)
     }
 
     @Test

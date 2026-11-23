@@ -15,6 +15,8 @@ import se.onemanstudio.db.Funnels
 import se.onemanstudio.db.FunnelSteps
 import se.onemanstudio.db.Projects
 import se.onemanstudio.utils.analyzeFunnel
+import se.onemanstudio.utils.analyzeSegment
+import se.onemanstudio.api.models.admin.SegmentFilter
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.*
@@ -465,5 +467,124 @@ class ConversionAnalysisUtilsTest {
 
         assertEquals(1L, analysis.totalSessions)
         assertEquals(0L, analysis.steps[0].sessions)
+    }
+
+    // ==================== Larger seeded dataset ====================
+
+    /** About 5 000 events over 1 200 sessions: a funnel path with out-of-order and repeated steps, plus noise. */
+    private fun seedLargeDataset(projectId: UUID, base: LocalDateTime) {
+        val browsers = listOf("Chrome", "Firefox", "Safari")
+        val countries = listOf("Sweden", "Germany", null, "France", "Sweden")
+        transaction {
+            for (i in 0 until 1200) {
+                val t0 = base.plusSeconds(i * 5L)
+                fun add(type: String, path: String, offset: Long, name: String? = null) {
+                    Events.insert {
+                        it[Events.projectId] = projectId
+                        it[Events.visitorHash] = "v${i % 700}"
+                        it[Events.sessionId] = "big-$i"
+                        it[Events.eventType] = type
+                        it[Events.eventName] = name
+                        it[Events.path] = path
+                        it[Events.timestamp] = t0.plusSeconds(offset)
+                        it[Events.browser] = browsers[i % 3]
+                        it[Events.device] = if (i % 2 == 0) "Mobile" else "Desktop"
+                        it[Events.country] = countries[i % 5]
+                    }
+                }
+                add("pageview", if (i % 6 == 5) "/pricing" else "/", 0)
+                if (i % 2 == 0) add("pageview", "/products", 10)
+                if (i % 4 == 0) {
+                    // Every fourth of these adds to the cart before looking at products, which must not count
+                    add("custom", "/products", if (i % 16 == 0) 5 else 30, "add_to_cart")
+                    if (i % 32 == 0) add("custom", "/products", 40, "add_to_cart")
+                }
+                if (i % 8 == 0) add("pageview", "/checkout", 60)
+                if (i % 10 == 0) add("heartbeat", "/products", 70)
+                if (i % 3 == 0) add("pageview", "/blog/${i % 7}", 80)
+            }
+        }
+    }
+
+    private fun createThreeStepFunnel(projectId: UUID): UUID {
+        val funnelId = UUID.randomUUID()
+        transaction {
+            Funnels.insert {
+                it[id] = funnelId
+                it[Funnels.projectId] = projectId
+                it[name] = "Large funnel"
+            }
+            listOf(Triple("url", "/products", "Products"), Triple("event", "add_to_cart", "Cart"), Triple("url", "/checkout", "Checkout"))
+                .forEachIndexed { index, (type, match, label) ->
+                    FunnelSteps.insert {
+                        it[id] = UUID.randomUUID()
+                        it[FunnelSteps.funnelId] = funnelId
+                        it[stepNumber] = index + 1
+                        it[name] = label
+                        it[stepType] = type
+                        it[matchValue] = match
+                    }
+                }
+        }
+        return funnelId
+    }
+
+    @Test
+    fun `funnel analysis on a larger dataset gives the known numbers`() {
+        ensureTestDb()
+        val projectId = createProject()
+        val now = LocalDateTime.now()
+        seedLargeDataset(projectId, now.minusHours(3))
+        val funnelId = createThreeStepFunnel(projectId)
+
+        val analysis = analyzeFunnel(funnelId, projectId, now.minusDays(1), now)
+
+        val actual = "${analysis.totalSessions} " + analysis.steps.joinToString(" | ") {
+            val avg = it.avgTimeFromPrevious?.let { v -> "%.4f".format(v) }
+            "${it.sessions} ${"%.4f".format(it.conversionRate)} ${"%.4f".format(it.dropOffRate)} $avg"
+        }
+        assertEquals("1200 600 100.0000 50.0000 null | 263 43.8333 56.1667 21.4449 | 113 18.8333 57.0342 26.6372", actual)
+    }
+
+    @Test
+    fun `segment analysis on a larger dataset gives the known numbers`() {
+        ensureTestDb()
+        val projectId = createProject()
+        val now = LocalDateTime.now()
+        seedLargeDataset(projectId, now.minusHours(3))
+        val segmentId = UUID.randomUUID()
+        val cases = listOf(
+            // Chrome AND mobile OR path starts with /prod (joined left to right)
+            listOf(
+                SegmentFilter("browser", "equals", "chrome", "AND"),
+                SegmentFilter("device", "equals", "MOBILE", "OR"),
+                SegmentFilter("path", "starts_with", "/PROD")
+            ),
+            listOf(SegmentFilter("country", "not_equals", "sweden")),
+            listOf(
+                SegmentFilter("path", "contains", "log/", "OR"),
+                SegmentFilter("eventType", "equals", "heartbeat", "OR")
+            ),
+            listOf(SegmentFilter("path", "contains", "%")),
+        )
+        val actual = cases.joinToString("\n") { filters ->
+            val a = analyzeSegment(segmentId, "Large", projectId, filters, now.minusDays(1), now)
+            "${a.totalViews} ${a.uniqueVisitors} ${"%.4f".format(a.bounceRate)} ${a.matchingEvents} " +
+                a.topPages.joinToString(",") { "${it.label}=${it.value}" }
+        }
+        assertEquals(
+            listOf(
+                "1508 350 53.3333 1508 /products=1058,/=200,/checkout=50,/blog/0=29," +
+                    "/blog/6=29,/blog/5=29,/blog/4=29,/blog/3=28," +
+                    "/blog/2=28,/blog/1=28",
+                "1074 280 33.3333 1074 /=400,/products=374,/pricing=80,/checkout=60," +
+                    "/blog/3=23,/blog/6=23,/blog/4=23,/blog/0=23," +
+                    "/blog/5=23,/blog/1=23",
+                "520 430 75.0000 520 /products=120,/blog/0=58,/blog/3=57,/blog/6=57," +
+                    "/blog/2=57,/blog/5=57,/blog/1=57,/blog/4=57",
+                "0 0 0.0000 0 "
+            ).joinToString("\n"),
+            actual
+        )
     }
 }

@@ -7,8 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Refunds in the revenue lab**: an event with a negative `revenue` is a refund. It is taken off the net revenue
+  and shown as its own figure. Amounts above 1,000,000,000 are ignored.
+- **`METRICS_TOKEN`**: a monitoring tool can read `/metrics` with `Authorization: Bearer <token>`.
+- **Email reports on port 465** connect with TLS from the start.
+- **Email reports catch up**: a report whose hour passed while the server was down, or while the mail server
+  refused it, is sent at the next hourly check.
+- Browser tests for the revenue card, the webhooks dialog and the email reports dialog.
+
 ### Changed
 
+- **Revenue is shown per currency.** Amounts in different currencies are no longer added together, and each is
+  shown with its own symbol; a missing currency counts as USD. The revenue API returns `currencies` (one entry
+  per currency) instead of single totals, revenue by event and by source has one row per currency, and the CSV
+  report has one row per currency. This changes the revenue API's shape (revenue is a lab).
+- **Traffic-spike webhooks** compare the last 10 minutes of page views with the average of the previous hour. A
+  spike needs at least 20 page views and more than twice that average, fires at most once every 10 minutes, and
+  stays quiet for the first 70 minutes after the server starts. Only page views count.
+- **Webhook delivery history** older than 30 days is deleted by the cleanup job, which now always runs.
+- **`/metrics` needs a signed-in admin or the metrics token**; it was public before.
+- **Email reports require STARTTLS when `SMTP_STARTTLS=true`**: a mail server that does not offer it now makes
+  the send fail instead of receiving the login unencrypted. The subject says "last 7 days" instead of "7d".
+- **Funnel and segment analysis run in the database** instead of reading every event of the period into memory.
+  On SQLite, case-insensitive matching of non-ASCII letters (such as å and Å) no longer matches.
+- **The landing page's hero screenshot follows the light/dark switch**, like every other screenshot there.
 - **The landing page shows more of the product.** Two new feature tabs, "Pages & sources" (top, entry and exit
   pages, referrers, campaigns) and "Teams & sites" (several sites, admins and viewers, the demo project), each
   with real screenshots. The Charts tab now shows the activity calendar and the heatmap it talks about, and the
@@ -59,6 +83,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A segment's result is shown in a panel under the segment cards (views, unique visitors, bounce rate, top
+  pages, Re-run and Close) instead of a short-lived toast.
+- A webhook retry that was still waiting no longer goes out after the webhook is paused or deleted.
+- Webhook addresses in the link-local range (169.254.0.0/16, fe80::/10) are refused when saved and before each
+  delivery. Localhost and private networks are still allowed.
+- The webhook dialog no longer says that 4xx responses are not retried, and gives the real retry timing.
 - **The activity calendar put days in the wrong squares.** Days ran across the rows instead of down the weeks,
   so the Mon/Wed/Fri labels did not match and some squares sat in the label column. Each day now has its own
   week column and weekday row, the first row is Sunday, and month names sit above the week a month starts in.

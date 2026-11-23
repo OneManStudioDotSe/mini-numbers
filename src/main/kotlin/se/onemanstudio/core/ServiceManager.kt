@@ -9,6 +9,7 @@ import se.onemanstudio.db.DatabaseFactory
 import se.onemanstudio.db.Events
 import se.onemanstudio.db.Users
 import se.onemanstudio.services.GeoLocationService
+import se.onemanstudio.services.WebhookService
 import java.time.LocalDateTime
 import java.util.Timer
 import java.util.TimerTask
@@ -124,9 +125,9 @@ object ServiceManager {
             SessionSigner.init(config.security.serverSalt, secureCookie = !config.server.isDevelopment)
             logger.info("JWT service and session signer initialized")
 
-            // 5. Start data retention cleanup if configured
+            // 5. Start the cleanup timer (event retention if configured, webhook delivery trim always)
+            startRetentionCleanup(config.privacy.dataRetentionDays, logger)
             if (config.privacy.dataRetentionDays > 0) {
-                startRetentionCleanup(config.privacy.dataRetentionDays, logger)
                 logger.info("Data retention policy active: ${config.privacy.dataRetentionDays} days")
             }
 
@@ -174,7 +175,7 @@ object ServiceManager {
     }
 
     /**
-     * Start periodic data retention cleanup
+     * Start periodic cleanup: events older than [retentionDays] (when above 0) and old webhook deliveries (always)
      */
     private fun startRetentionCleanup(retentionDays: Int, logger: Logger) {
         stopRetentionCleanup()
@@ -184,12 +185,18 @@ object ServiceManager {
             scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
                     try {
-                        val cutoff = LocalDateTime.now().minusDays(retentionDays.toLong())
-                        val deleted = transaction {
-                            Events.deleteWhere { Events.timestamp less cutoff }
+                        if (retentionDays > 0) {
+                            val cutoff = LocalDateTime.now().minusDays(retentionDays.toLong())
+                            val deleted = transaction {
+                                Events.deleteWhere { Events.timestamp less cutoff }
+                            }
+                            if (deleted > 0) {
+                                logger.info("Data retention cleanup: deleted $deleted events older than $retentionDays days")
+                            }
                         }
-                        if (deleted > 0) {
-                            logger.info("Data retention cleanup: deleted $deleted events older than $retentionDays days")
+                        val trimmed = WebhookService.trimDeliveries()
+                        if (trimmed > 0) {
+                            logger.info("Trimmed $trimmed webhook deliveries older than ${WebhookService.DELIVERY_HISTORY_DAYS} days")
                         }
                     } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                         logger.error("Data retention cleanup failed: ${e.message}")

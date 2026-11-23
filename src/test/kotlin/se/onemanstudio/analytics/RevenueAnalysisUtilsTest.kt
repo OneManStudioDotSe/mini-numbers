@@ -49,10 +49,7 @@ class RevenueAnalysisUtilsTest {
         assertEquals(HttpStatusCode.OK, response.status)
 
         val body = response.bodyAsText()
-        assertTrue(body.contains("totalRevenue"))
-        assertTrue(body.contains("transactions"))
-        assertTrue(body.contains("averageOrderValue"))
-        assertTrue(body.contains("revenuePerVisitor"))
+        assertEquals("""{"currencies":[]}""", body)
     }
 
     @Test
@@ -134,9 +131,8 @@ class RevenueAnalysisUtilsTest {
         assertEquals(HttpStatusCode.OK, response.status)
 
         val body = response.bodyAsText()
-        assertTrue(body.contains("totalRevenue"))
-        // Demo data should have some revenue since purchases are included
-        assertTrue(body.contains("transactions"))
+        // Demo data only sometimes holds a purchase; either way the list is there
+        assertTrue(body.contains("currencies"))
     }
 
     @Test

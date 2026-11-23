@@ -23,6 +23,7 @@ import se.onemanstudio.db.*
 import se.onemanstudio.middleware.QueryCache
 import se.onemanstudio.middleware.requireRole
 import se.onemanstudio.services.EmailService
+import se.onemanstudio.services.WebhookAddress
 import se.onemanstudio.services.WebhookService
 import se.onemanstudio.services.WebhookTrigger
 import se.onemanstudio.utils.*
@@ -521,39 +522,7 @@ private fun Route.segmentRoutes() {
 
         val (start, end) = getCurrentPeriod(filter)
 
-        val analysis = transaction {
-            val allEvents = Events.selectAll().where {
-                (Events.projectId eq pid) and (Events.timestamp greaterEq start) and (Events.timestamp lessEq end)
-            }.toList()
-
-            // Apply segment filters
-            val filtered = allEvents.filter { event ->
-                applySegmentFilters(event, filters)
-            }
-
-            val sessions = filtered.groupBy { it[Events.sessionId] }
-            val bouncedSessions = sessions.count { (_, sessionEvents) ->
-                val uniquePages = sessionEvents.map { it[Events.path] }.distinct().size
-                val hasHeartbeat = sessionEvents.any { it[Events.eventType] == "heartbeat" }
-                uniquePages == 1 && !hasHeartbeat
-            }
-            val bounceRate = if (sessions.isNotEmpty()) (bouncedSessions.toDouble() / sessions.size) * 100.0 else 0.0
-
-            val topPages = filtered.groupBy { it[Events.path] }
-                .map { (path, events) -> StatEntry(path, events.size.toLong()) }
-                .sortedByDescending { it.value }
-                .take(10)
-
-            SegmentAnalysis(
-                segmentId = segmentId.toString(),
-                segmentName = segment[Segments.name],
-                totalViews = filtered.size.toLong(),
-                uniqueVisitors = filtered.map { it[Events.visitorHash] }.distinct().size.toLong(),
-                bounceRate = bounceRate,
-                topPages = topPages,
-                matchingEvents = filtered.size.toLong()
-            )
-        }
+        val analysis = analyzeSegment(segmentId, segment[Segments.name], pid, filters, start, end)
         call.respond(analysis)
     }
 
@@ -638,6 +607,7 @@ private fun Route.webhookRoutes() {
                 "Webhook URL must be at most $MAX_WEBHOOK_URL_LENGTH characters"
             runCatching { java.net.URI(request.url).host }.getOrNull().isNullOrBlank() ->
                 "Webhook URL is not a valid address"
+            WebhookAddress.isLinkLocal(request.url) -> WebhookAddress.LINK_LOCAL_MESSAGE
             events.isEmpty() || events.any { it !in WEBHOOK_EVENTS } ->
                 "Events must be one or more of: ${WEBHOOK_EVENTS.joinToString()}"
             else -> null

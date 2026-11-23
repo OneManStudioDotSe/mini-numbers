@@ -1819,17 +1819,15 @@ const Dashboard = {
     if (isChecked('revenue') && typeof RevenueManager !== 'undefined' && RevenueManager.state.stats) {
       const { stats, breakdown, attribution } = RevenueManager.state;
       lines.push('REVENUE');
-      lines.push(`Total revenue,${stats.totalRevenue}`);
-      lines.push(`Transactions,${stats.transactions}`);
-      lines.push(`Average order value,${stats.averageOrderValue}`);
-      lines.push(`Revenue per visitor,${stats.revenuePerVisitor}`);
+      lines.push('Currency,Net revenue,Refunds,Transactions,Average order value,Revenue per visitor');
+      stats.currencies.forEach(c => lines.push(`${Utils.export.cell(c.currency)},${c.totalRevenue},${c.refunds},${c.transactions},${c.averageOrderValue},${c.revenuePerVisitor}`));
       if (breakdown.length) {
-        lines.push('Event,Revenue,Transactions');
-        breakdown.forEach(b => lines.push(`${Utils.export.cell(b.eventName)},${b.revenue},${b.transactions}`));
+        lines.push('Event,Currency,Revenue,Refunds,Transactions');
+        breakdown.forEach(b => lines.push(`${Utils.export.cell(b.eventName)},${Utils.export.cell(b.currency)},${b.revenue},${b.refunds},${b.transactions}`));
       }
       if (attribution.length) {
-        lines.push('Source,Revenue,Transactions');
-        attribution.forEach(a => lines.push(`${Utils.export.cell(a.source)},${a.revenue},${a.transactions}`));
+        lines.push('Source,Currency,Revenue,Refunds,Transactions');
+        attribution.forEach(a => lines.push(`${Utils.export.cell(a.source)},${Utils.export.cell(a.currency)},${a.revenue},${a.refunds},${a.transactions}`));
       }
       lines.push('');
     }
