@@ -2009,6 +2009,24 @@ img { max-width: 100%; display: block; }
 .mt-2xl { margin-top: var(--spacing-2xl); }
 .mb-xl { margin-bottom: var(--spacing-xl); }
 
+/* Text and pictures start level at the top, so the text stays in view beside a tall stack of pictures */
+.landing-tab-content.active { align-items: start; }
+
+/* Several screenshots in one feature panel: stacked, each with its own rounded edge */
+.landing-shot--stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+.landing-shot--stack .landing-shot__img {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
 /* The hero is dark in both themes, so its screenshot is always the dark one */
 .landing-hero .landing-shot__img--light { display: none; }
 .landing-hero .landing-shot__img--dark { display: block; }

@@ -1,5 +1,5 @@
 /* Remix Icon 4.6.0 (Apache License 2.0, see LICENSE-RemixIcon.txt), served from this site so no page
-   calls an icon CDN. Only the 45 icons the landing pages use are listed here; to use another one, copy
+   calls an icon CDN. Only the 47 icons the landing pages use are listed here; to use another one, copy
    its rule from the full remixicon.css of the same version. */
 @font-face {
   font-family: "remixicon";
@@ -25,6 +25,7 @@
 .ri-code-box-line:before { content: "\eba7"; }
 .ri-code-line:before { content: "\eba9"; }
 .ri-code-s-slash-line:before { content: "\ebad"; }
+.ri-compass-3-line:before { content: "\ebbe"; }
 .ri-dashboard-line:before { content: "\ec14"; }
 .ri-discuss-line:before { content: "\ec3a"; }
 .ri-eye-off-line:before { content: "\ecb7"; }
@@ -55,6 +56,7 @@
 .ri-ship-line:before { content: "\f110"; }
 .ri-star-line:before { content: "\f18b"; }
 .ri-sun-line:before { content: "\f1bf"; }
+.ri-team-line:before { content: "\f1ee"; }
 .ri-terminal-box-line:before { content: "\f1f6"; }
 .ri-test-tube-line:before { content: "\f1fc"; }
 .ri-timer-line:before { content: "\f215"; }

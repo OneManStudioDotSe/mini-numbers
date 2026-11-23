@@ -84,7 +84,7 @@
     </div>
 
     <div class="landing-hero-trust">
-      <span><i class="ri-test-tube-line"></i> 419 tests</span>
+      <span><i class="ri-test-tube-line"></i> 420 tests</span>
       <span><i class="ri-code-s-slash-line"></i> 2 KB tracker</span>
       <span><i class="ri-shield-check-line"></i> Zero cookies</span>
       <span><i class="ri-open-source-line"></i> MIT licence</span>
@@ -128,7 +128,7 @@
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-3">
         <div class="landing-metric-icon"><i class="ri-test-tube-line"></i></div>
-        <div class="landing-metric-value" data-count="419">0</div>
+        <div class="landing-metric-value" data-count="420">0</div>
         <div class="landing-metric-label">Tests keeping the AI honest</div>
       </div>
       <div class="landing-metric animate-on-scroll animate-delay-4">
@@ -154,6 +154,9 @@
       <button class="landing-tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
         <i class="ri-dashboard-line"></i> Dashboard
       </button>
+      <button class="landing-tab-btn" data-tab="sources" role="tab" aria-selected="false">
+        <i class="ri-compass-3-line"></i> Pages &amp; sources
+      </button>
       <button class="landing-tab-btn" data-tab="events" role="tab" aria-selected="false">
         <i class="ri-flashlight-line"></i> Events
       </button>
@@ -168,6 +171,9 @@
       </button>
       <button class="landing-tab-btn" data-tab="api" role="tab" aria-selected="false">
         <i class="ri-code-box-line"></i> Export &amp; API
+      </button>
+      <button class="landing-tab-btn" data-tab="teams" role="tab" aria-selected="false">
+        <i class="ri-team-line"></i> Teams &amp; sites
       </button>
       <button class="landing-tab-btn" data-tab="widgets" role="tab" aria-selected="false">
         <i class="ri-layout-grid-line"></i> Widgets
@@ -190,6 +196,26 @@
       <div class="landing-shot landing-feature-visual">
         <img class="landing-shot__img landing-shot__img--light" src="assets/screens/stats-light.png" alt="The overview: page views, visitors, sessions, bounce rate, session length, conversion rate and AI referrals, each with its change from the previous period" width="1449" height="797" loading="lazy">
         <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/stats-dark.png" alt="The overview: page views, visitors, sessions, bounce rate, session length, conversion rate and AI referrals, each with its change from the previous period" width="1449" height="815" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Pages and sources tab -->
+    <div class="landing-tab-content relative" data-tab="sources" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>What they read, and how they found it</h3>
+        <p>Your most-read pages, where visits start and end, and which links, searches and campaigns sent people over.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> Top pages, entry pages and exit pages</li>
+          <li><i class="ri-check-line"></i> Referrers, with AI assistants called out</li>
+          <li><i class="ri-check-line"></i> Campaigns: UTM source, medium and campaign</li>
+          <li><i class="ri-check-line"></i> Narrow any chart to one browser, device, country or referrer</li>
+        </ul>
+      </div>
+      <div class="landing-shot landing-shot--stack landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/pages-light.png" alt="The most-viewed pages as a bar chart" width="1449" height="621" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/pages-dark.png" alt="The most-viewed pages as a bar chart" width="1449" height="621" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/sources-light.png" alt="Referrers, and UTM sources, mediums and campaigns" width="1449" height="1092" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/sources-dark.png" alt="Referrers, and UTM sources, mediums and campaigns" width="1449" height="1092" loading="lazy">
       </div>
     </div>
 
@@ -223,7 +249,11 @@
           <li><i class="ri-check-line"></i> Dot charts, gauges and bars: pick your flavour</li>
         </ul>
       </div>
-      <div class="landing-shot landing-feature-visual">
+      <div class="landing-shot landing-shot--stack landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/calendar-light.png" alt="A year of activity as a calendar, one square per day" width="1449" height="466" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/calendar-dark.png" alt="A year of activity as a calendar, one square per day" width="1449" height="466" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/heatmap-light.png" alt="The busiest hours of each weekday as a heatmap" width="1449" height="725" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/heatmap-dark.png" alt="The busiest hours of each weekday as a heatmap" width="1449" height="725" loading="lazy">
         <img class="landing-shot__img landing-shot__img--light" src="assets/screens/charts-light.png" alt="Browsers, operating systems and devices as gauge charts" width="1449" height="911" loading="lazy">
         <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/charts-dark.png" alt="Browsers, operating systems and devices as gauge charts" width="1449" height="911" loading="lazy">
       </div>
@@ -280,6 +310,26 @@
       <div class="landing-shot landing-feature-visual">
         <img class="landing-shot__img landing-shot__img--light" src="assets/screens/raw-events-light.png" alt="The raw events table with type, path, location, browser and device" width="1350" height="1215" loading="lazy">
         <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/raw-events-dark.png" alt="The raw events table with type, path, location, browser and device" width="1350" height="1215" loading="lazy">
+      </div>
+    </div>
+
+    <!-- Teams and sites tab -->
+    <div class="landing-tab-content relative" data-tab="teams" role="tabpanel">
+      <div class="landing-feature-text">
+        <h3>All your sites, and your people</h3>
+        <p>One install handles as many sites as you like. Invite the people who need the numbers, and decide who gets to touch the settings.</p>
+        <ul class="landing-feature-list">
+          <li><i class="ri-check-line"></i> As many sites as you want, each with its own key</li>
+          <li><i class="ri-check-line"></i> Admins change things; viewers just look</li>
+          <li><i class="ri-check-line"></i> New users get a generated password, shown once</li>
+          <li><i class="ri-check-line"></i> A demo project with sample data, for a look around first</li>
+        </ul>
+      </div>
+      <div class="landing-shot landing-shot--stack landing-feature-visual">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/sites-light.png" alt="The dashboard with three sites in the sidebar" width="1920" height="900" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/sites-dark.png" alt="The dashboard with three sites in the sidebar" width="1920" height="900" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--light" src="assets/screens/users-light.png" alt="The users dialog with an admin and a viewer" width="1350" height="756" loading="lazy">
+        <img class="landing-shot__img landing-shot__img--dark" src="assets/screens/users-dark.png" alt="The users dialog with an admin and a viewer" width="1350" height="756" loading="lazy">
       </div>
     </div>
 
@@ -405,6 +455,13 @@ MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
             <div>
               <h4>Forgetful by design</h4>
               <p>Visitor IDs rotate every 1 to 8,760 hours. You choose how soon yesterday's visitor becomes a stranger.</p>
+            </div>
+          </div>
+          <div class="landing-privacy-card animate-on-scroll animate-delay-3">
+            <div class="landing-privacy-card-icon"><i class="ri-shield-check-line"></i></div>
+            <div>
+              <h4>No guessing</h4>
+              <p>A chip in the dashboard says, in plain words, exactly what your server keeps about a visitor.</p>
             </div>
           </div>
         </div>

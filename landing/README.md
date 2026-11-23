@@ -21,7 +21,7 @@ It does not need the Mini Numbers app, and the app does not need it.
 | `landing.js` | Theme switch, tabs, copy buttons, the scroll effects. No dependencies |
 | `assets/fonts/` | Plus Jakarta Sans and Inter (SIL Open Font License) |
 | `assets/icons/` | The Remix Icon font (Apache 2.0) and a stylesheet listing only the icons in use |
-| `assets/screens/` | Screenshots of the dashboard, one per theme |
+| `assets/screens/` | Screenshots of the dashboard, a light and a dark one of each |
 
 ## Changing things
 
