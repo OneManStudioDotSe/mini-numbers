@@ -551,17 +551,6 @@ img { max-width: 100%; display: block; }
   animation: landing-slideDown 0.8s var(--ease-out) 1.2s both;
 }
 
-/* Mockup float after entrance */
-@keyframes landing-mockup-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.landing-hero-mockup {
-  animation: landing-slideDown 0.8s var(--ease-out) 1.2s both,
-             landing-mockup-float 6s ease-in-out 2s infinite;
-}
-
 /* Bigger hero CTA buttons */
 .landing-hero .landing-btn-lg {
   padding: 1rem 2.5rem;
@@ -685,13 +674,7 @@ img { max-width: 100%; display: block; }
   left: 50%;
   transform: translateX(-50%);
   color: rgba(var(--rgb-white), 0.5);
-  animation: landing-bounce 2s infinite;
   font-size: var(--font-size-2xl);
-}
-
-@keyframes landing-bounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(8px); }
 }
 
 /* ============================================
@@ -1443,33 +1426,9 @@ img { max-width: 100%; display: block; }
    HERO ENHANCEMENTS
    ============================================ */
 
-/* A highlighted word in a heading: a run of the accent on the page; in the hero, which is always
-   dark, from white into the accent. */
-.landing-hero .landing-gradient-text {
-  background: var(--gradient-hero-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-
-.landing-gradient-text {
-  background: var(--gradient-accent-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Floating trust badges with subtle bob */
-.landing-hero-trust span {
-  animation: landing-float 3s ease-in-out infinite;
-}
-.landing-hero-trust span:nth-child(2) { animation-delay: 0.5s; }
-.landing-hero-trust span:nth-child(3) { animation-delay: 1s; }
-.landing-hero-trust span:nth-child(4) { animation-delay: 1.5s; }
-
-@keyframes landing-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
+/* A highlighted word in a section heading: the accent colour. In the hero it stays plain. */
+.landing-accent-text { color: var(--color-primary); }
+.landing-hero .landing-accent-text { color: inherit; }
 
 /* Button hover glow effect */
 .landing-btn-primary:hover {

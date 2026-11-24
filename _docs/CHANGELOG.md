@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Funnel and segment analysis run in the database** instead of reading every event of the period into memory.
   On SQLite, case-insensitive matching of non-ASCII letters (such as å and Å) no longer matches.
 - **The landing page's hero screenshot follows the light/dark switch**, like every other screenshot there.
+- **The landing page holds still.** The hero heading is plain text instead of a gradient, a highlighted word in a
+  section heading is the plain accent colour, and the hero screenshot, the trust badges and the scroll arrow no
+  longer bob up and down. The digits behind the hero are drawn once instead of drifting. The test count says 449.
 - **The landing page shows more of the product.** Two new feature tabs, "Pages & sources" (top, entry and exit
   pages, referrers, campaigns) and "Teams & sites" (several sites, admins and viewers, the demo project), each
   with real screenshots. The Charts tab now shows the activity calendar and the heatmap it talks about, and the

@@ -377,42 +377,27 @@
     canvas: null,
     ctx: null,
     numbers: [],
-    raf: null,
-    paused: false,
 
     init() {
       this.canvas = document.getElementById('numbers-canvas');
       if (!this.canvas) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
       this.ctx = this.canvas.getContext('2d');
       this.resize();
-      this.createNumbers();
-      this.animate();
-
       window.addEventListener('resize', () => this.resize());
-
-      // Pause when page hidden (battery saving)
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          this.paused = true;
-          if (this.raf) cancelAnimationFrame(this.raf);
-        } else {
-          this.paused = false;
-          this.animate();
-        }
-      });
     },
 
+    // Drawn once, and again when the hero changes size. Nothing moves.
     resize() {
       const rect = this.canvas.parentElement.getBoundingClientRect();
       this.canvas.width = rect.width;
       this.canvas.height = rect.height;
+      this.createNumbers();
+      this.draw();
     },
 
     createNumbers() {
-      const isMobile = window.innerWidth < 768;
-      const count = isMobile ? 20 : 60;
+      const count = window.innerWidth < 768 ? 20 : 60;
       this.numbers = [];
 
       for (let i = 0; i < count; i++) {
@@ -420,48 +405,24 @@
           digit: Math.floor(Math.random() * 10).toString(),
           x: Math.random() * this.canvas.width,
           y: Math.random() * this.canvas.height,
-          vy: -(Math.random() * 0.4 + 0.1),           // Float upward
-          vx: (Math.random() - 0.5) * 0.3,             // Slight horizontal drift
-          size: Math.random() * 20 + 14,                // 14-34px
           rotation: Math.random() * Math.PI * 2,
-          rotationSpeed: (Math.random() - 0.5) * 0.008, // Slow rotation
-          baseOpacity: Math.random() * 0.08 + 0.03,     // Very subtle: 0.03-0.11
-          opacityPhase: Math.random() * Math.PI * 2,     // Pulse phase offset
-          opacitySpeed: Math.random() * 0.01 + 0.005     // Pulse speed
+          opacity: Math.random() * 0.08 + 0.03 // Very subtle: 0.03-0.11
         });
       }
     },
 
-    animate() {
-      if (this.paused || !this.ctx) return;
+    draw() {
       const { width, height } = this.canvas;
       this.ctx.clearRect(0, 0, width, height);
 
-      // Update all positions first
-      for (const n of this.numbers) {
-        n.x += n.vx;
-        n.y += n.vy;
-        n.rotation += n.rotationSpeed;
-        n.opacityPhase += n.opacitySpeed;
-
-        if (n.y < -40) {
-          n.y = height + 40;
-          n.x = Math.random() * width;
-          n.digit = Math.floor(Math.random() * 10).toString();
-        }
-        if (n.x < -40) n.x = width + 40;
-        if (n.x > width + 40) n.x = -40;
-      }
-
-      // Draw connecting lines
+      // Connecting lines between nearby digits
       this.ctx.strokeStyle = token('--hero-canvas-line');
       this.ctx.lineWidth = 0.8;
       for (let i = 0; i < this.numbers.length; i++) {
         for (let j = i + 1; j < this.numbers.length; j++) {
           const dx = this.numbers[i].x - this.numbers[j].x;
           const dy = this.numbers[i].y - this.numbers[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (Math.sqrt(dx * dx + dy * dy) < 120) {
             this.ctx.beginPath();
             this.ctx.moveTo(this.numbers[i].x, this.numbers[i].y);
             this.ctx.lineTo(this.numbers[j].x, this.numbers[j].y);
@@ -470,22 +431,18 @@
         }
       }
 
-      // Draw digit characters
+      // Digits
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
+      this.ctx.font = `600 14px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
       for (const n of this.numbers) {
-        const opacity = n.baseOpacity + Math.sin(n.opacityPhase) * 0.02;
-
         this.ctx.save();
         this.ctx.translate(n.x, n.y);
         this.ctx.rotate(n.rotation);
-        this.ctx.font = `600 14px -apple-system, BlinkMacSystemFont, Inter, sans-serif`;
-        this.ctx.fillStyle = `rgba(${token('--hero-canvas-dot-rgb')}, ${Math.max(0, opacity)})`;
+        this.ctx.fillStyle = `rgba(${token('--hero-canvas-dot-rgb')}, ${n.opacity})`;
         this.ctx.fillText(n.digit, 0, 0);
         this.ctx.restore();
       }
-
-      this.raf = requestAnimationFrame(() => this.animate());
     }
   };
 
