@@ -1296,6 +1296,12 @@ img { max-width: 100%; display: block; }
   color: var(--color-primary);
 }
 
+/* A link in that column would otherwise look like the plain text beside it */
+.landing-comparison .hl-col a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .landing-comparison th.hl-col {
   background: rgba(var(--rgb-accent), var(--badge-tint));
   color: var(--color-primary-hover);

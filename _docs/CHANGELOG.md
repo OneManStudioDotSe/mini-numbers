@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   privacy section reads top to bottom: the four promises, then how a visitor is counted beside the three modes.
   The revenue snippet sits with the revenue features instead of floating under them. "What's inside" is a plain
   list instead of pills. The comparison table is grouped, leads with what sets Mini Numbers apart, and has
-  rows for Android, iOS and Flutter apps (in the works). The terms page covers labs, third-party parts and the
+  rows for Android, iOS and Flutter apps that link to the sample apps. The terms page covers labs, third-party parts and the
   coming app support. The privacy-modes and settings tables no longer push a phone screen sideways.
 - **The landing page's hero screenshot follows the light/dark switch**, like every other screenshot there.
 - **The landing page holds still.** The hero heading is plain text instead of a gradient, a highlighted word in a
