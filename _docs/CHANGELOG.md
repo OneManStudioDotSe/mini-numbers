@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Sample apps for Android, iOS and Flutter** in `samples/`: the same small shop app three times, in each
+  platform's own toolkit and in the dashboard's look. Each shows screen views, custom events, purchases and
+  refunds, outbound links, a heartbeat and an opt-out, with the tracking in one file you can copy.
+  `docs/developers.md` has a new section on tracking from an app.
 - **Refunds in the revenue lab**: an event with a negative `revenue` is a refund. It is taken off the net revenue
   and shown as its own figure. Amounts above 1,000,000,000 are ignored.
 - **`METRICS_TOKEN`**: a monitoring tool can read `/metrics` with `Authorization: Bearer <token>`.

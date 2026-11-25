@@ -167,12 +167,17 @@ mini-numbers/
 ├── docker-compose.yml / .postgres.yml    # pulls ghcr.io/onemanstudiodotse/mini-numbers:latest + Caddy (HTTPS from DOMAIN)
 ├── .github/workflows/                    # build.yml (tests, e2e, Docker persistence check), docker-publish.yml
 │                                         # (GHCR; `latest` on v* tags), release.yml (JAR on GitHub Release), docs.yml
-└── e2e/                                  # Playwright browser tests (own package.json, not part of Gradle)
-    ├── playwright.config.js              # boots the fat JAR twice: configured on a throwaway SQLite DB with every lab on,
-    │                                     # and unconfigured on E2E_PORT+1 for the wizard spec
-    ├── helpers.js                        # login, project creation, fake tracked site via request interception
-    └── tests/                            # auth, dashboard, tracker, wizard, export, xss, a11y specs; screenshots.spec.js
-                                          # regenerates docs/screenshots on demand
+├── e2e/                                  # Playwright browser tests (own package.json, not part of Gradle)
+│   ├── playwright.config.js              # boots the fat JAR twice: configured on a throwaway SQLite DB with every lab on,
+│   │                                     # and unconfigured on E2E_PORT+1 for the wizard spec
+│   ├── helpers.js                        # login, project creation, fake tracked site via request interception
+│   └── tests/                            # auth, dashboard, tracker, wizard, export, xss, a11y specs; screenshots.spec.js
+│                                         # regenerates docs/screenshots on demand
+└── samples/                              # Sample apps that post to /collect; not part of the server build
+    ├── SPEC.md                           # the one spec all three follow: contract, screens, texts, design tokens
+    ├── android/                          # Kotlin + Jetpack Compose (own Gradle wrapper)
+    ├── ios/                              # Swift + SwiftUI (CornerShop.xcodeproj)
+    └── flutter/                          # Dart + Flutter widgets, Android and iOS targets
 ```
 
 ## Database schema

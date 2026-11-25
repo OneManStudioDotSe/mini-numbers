@@ -108,8 +108,18 @@ can't use. Admins manage users in **Settings → Account → Manage users**, or 
 changes their own password with `POST /api/me/password` (`{"currentPassword":"…","newPassword":"…"}`), which signs
 that account out everywhere.
 
-Mini Numbers tracks websites. There is no SDK for Android or iOS apps yet (it's on the
-[roadmap](https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/ROADMAP.md)).
+## Tracking from a native app
+
+Mini Numbers is built for websites and has no SDK for apps yet, but an app can post to `/collect` itself. The
+[sample apps](https://github.com/OneManStudioDotSe/mini-numbers/tree/main/samples) for Android, iOS and Flutter
+each do it in one small file you can copy. Three things differ from a website:
+
+- Send the project key in the `X-Project-Key` header and a `sessionId` you generate (32 hex characters per app
+  start). Use a path per screen, such as `/shop/mug`; leave `referrer` out.
+- Send a User-Agent that names the system, such as `MyApp/1.0 (Linux; Android 14; Pixel 8) Mobile` or
+  `MyApp/1.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile`. A plain HTTP-library User-Agent shows up as an
+  "Unknown" device, and one containing "bot", "crawl" or "spider" is answered with `202` and not stored.
+- The server reads no privacy header. To let someone opt out, send nothing.
 
 ---
 

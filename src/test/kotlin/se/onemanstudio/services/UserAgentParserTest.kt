@@ -256,4 +256,23 @@ class UserAgentParserTest {
         // If we get here without exception, thread-safety is good
         assertTrue(true)
     }
+
+    // The sample apps in samples/ send these User-Agents. A native app has no browser, so its
+    // User-Agent is the only thing that tells the server which system and device it runs on.
+    @Test
+    fun `the sample apps' User-Agents read as a phone on their own system, not as a bot`() {
+        val android = "MiniNumbersSample/1.0 (Linux; Android 14; Pixel 8) Mobile"
+        val ios = "MiniNumbersSample/1.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile"
+
+        assertEquals("Android", UserAgentParser.parseOS(android))
+        assertEquals("Mobile", UserAgentParser.parseDevice(android))
+        assertEquals("iOS", UserAgentParser.parseOS(ios))
+        assertEquals("Mobile", UserAgentParser.parseDevice(ios))
+    }
+
+    @Test
+    fun `a bare HTTP library User-Agent tells the server nothing about the device`() {
+        assertEquals("Unknown", UserAgentParser.parseDevice("okhttp/4.12.0"))
+        assertEquals("Unknown", UserAgentParser.parseDevice("Dart/3.14 (dart:io)"))
+    }
 }

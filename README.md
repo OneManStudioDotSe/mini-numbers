@@ -50,7 +50,8 @@ into your website. Then check the install end to end in about 30 seconds with
 [`scripts/smoke.sh`](docs/deployment.md#after-installing). Server panels, Railway/Render/Fly.io, plain Java and
 cPanel: see the **[Install guide](docs/deployment.md)**.
 
-Mini Numbers is for websites; apps for Android and iOS aren't supported yet.
+Mini Numbers is built for websites. There is no SDK for apps yet, but the three sample apps in
+[`samples/`](samples/) (Android, iOS, Flutter) show how to send screen views and events from one.
 
 ## Documentation
 
