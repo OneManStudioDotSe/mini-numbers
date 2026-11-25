@@ -2,7 +2,7 @@
 
 > Much of this list is automated. `./gradlew test` (388 JVM tests, SQLite locally and PostgreSQL in CI) covers the API,
 > privacy modes, RBAC, JWT, caching, collection rules, the labs switch and the demo-data limits;
-> `cd e2e && npx playwright test` (35 browser tests) covers login/sign-out, a viewer's dashboard, the setup wizard's
+> `cd e2e && npx playwright test` (36 browser tests) covers login/sign-out, a viewer's dashboard, the setup wizard's
 > Quick Setup on an unconfigured server, project creation, the demo dashboard with the Raw events and privacy dialogs
 > in both themes, labs that are off leaving no trace, filters, the country drill-down and the globe, switching
 > projects without leftovers, the phone-width sidebar, CSV export, escaping, the real tracker on a cross-site page

@@ -1033,10 +1033,24 @@ MiniNumbers.track("donation", {
                 <button class="modal-close" id="close-settings" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
-                <!-- Project Information Section -->
-                <div id="project-settings-section" style="display: none;">
-                    <h3 class="group-heading group-heading--first">Project information</h3>
+                <div class="tabs" role="tablist" aria-label="Settings sections">
+                <button type="button" class="tabs__btn active" role="tab" id="settings-tab-project" data-settings-tab="project" aria-controls="settings-panel-project" aria-selected="true">
+                    <i class="ri-global-line"></i> Project
+                </button>
+                <button type="button" class="tabs__btn" role="tab" id="settings-tab-preferences" data-settings-tab="preferences" aria-controls="settings-panel-preferences" aria-selected="false">
+                    <i class="ri-equalizer-line"></i> Preferences
+                </button>
+                <button type="button" class="tabs__btn" role="tab" id="settings-tab-export" data-settings-tab="export" aria-controls="settings-panel-export" aria-selected="false">
+                    <i class="ri-download-line"></i> Export
+                </button>
+                <button type="button" class="tabs__btn" role="tab" id="settings-tab-account" data-settings-tab="account" aria-controls="settings-panel-account" aria-selected="false">
+                    <i class="ri-user-line"></i> Account
+                </button>
+                </div>
 
+                <div class="tab-panels">
+                <!-- Project: name, tracking ID, widgets, automations -->
+                <div class="tab-panel active" role="tabpanel" id="settings-panel-project" data-settings-panel="project" aria-labelledby="settings-tab-project">
                     <div class="grid-2-cols">
                         <div class="form-group">
                             <label for="setting-project-name">Project name*</label>
@@ -1069,14 +1083,28 @@ MiniNumbers.track("donation", {
                                 <input type="checkbox" id="setting-project-widgets">
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span class="text-muted text-sm">Let your pages show this project's visitor and page-view numbers. The tracking ID is in your site's HTML, so anyone who copies it can read those numbers while this is on.</span>
+                            <span class="text-muted text-sm">Let your pages show this project's visitor and page-view numbers. Anyone who copies the tracking ID from your site can read them while this is on.</span>
                         </div>
                     </div>
 
-                    <h3 class="group-heading">Dashboard preferences</h3>
+                    <div class="form-group" data-lab="webhooks email-reports" data-admin-only>
+                        <label>Automations</label>
+                        <div class="flex gap-sm flex-wrap">
+                            <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn" data-lab="webhooks">
+                                <i class="ri-webhook-line"></i>
+                                <span>Manage webhooks</span>
+                            </button>
+                            <button class="btn btn-ghost btn-sm" id="manage-email-reports-btn" data-lab="email-reports" aria-label="Manage email reports">
+                                <i class="ri-mail-send-line"></i>
+                                <span>Manage email reports</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Dashboard Settings Section -->
+                <!-- Preferences: how this browser shows the dashboard -->
+                <div class="tab-panel" role="tabpanel" id="settings-panel-preferences" data-settings-panel="preferences" aria-labelledby="settings-tab-preferences">
+                <p class="text-secondary text-sm mb-md">How this browser shows times, dates and the activity heatmap.</p>
                 <div class="grid-2-cols settings-section-content">
                     <div class="form-group">
                         <label for="setting-time-format">Time format</label>
@@ -1103,9 +1131,10 @@ MiniNumbers.track("donation", {
                         </select>
                     </div>
                 </div>
+                </div>
 
-                <!-- Export Report Section -->
-                <h3 class="group-heading">Export report</h3>
+                <!-- Export: a CSV report of the chosen sections -->
+                <div class="tab-panel" role="tabpanel" id="settings-panel-export" data-settings-panel="export" aria-labelledby="settings-tab-export">
                 <p class="text-secondary text-sm mb-md">Select which data to include in the downloadable CSV report.</p>
                 <div class="grid-2-cols settings-section-content mb-md">
                     <label class="check-label">
@@ -1139,24 +1168,10 @@ MiniNumbers.track("donation", {
                 <button class="btn btn-primary btn-sm" id="download-report-btn">
                     <i class="ri-download-line"></i> Download report
                 </button>
-
-                <!-- Automations Section -->
-                <div data-lab="webhooks email-reports" data-admin-only>
-                <h3 class="group-heading">Automations</h3>
-                <div class="flex gap-sm flex-wrap">
-                    <button class="btn btn-ghost btn-sm" id="manage-webhooks-btn" data-lab="webhooks">
-                        <i class="ri-webhook-line"></i>
-                        <span>Manage webhooks</span>
-                    </button>
-                    <button class="btn btn-ghost btn-sm" id="manage-email-reports-btn" data-lab="email-reports" aria-label="Manage email reports">
-                        <i class="ri-mail-send-line"></i>
-                        <span>Manage email reports</span>
-                    </button>
-                </div>
                 </div>
 
-                <!-- Account Section -->
-                <h3 class="group-heading">Account</h3>
+                <!-- Account -->
+                <div class="tab-panel" role="tabpanel" id="settings-panel-account" data-settings-panel="account" aria-labelledby="settings-tab-account">
                 <p class="account-summary">Signed in as <strong id="account-username">…</strong> <span class="badge badge-secondary" id="account-role"></span></p>
                 <div class="flex gap-sm flex-wrap">
                     <button class="btn btn-ghost btn-sm" id="change-password-btn">
@@ -1167,6 +1182,8 @@ MiniNumbers.track("donation", {
                         <i class="ri-team-line"></i>
                         <span>Manage users</span>
                     </button>
+                </div>
+                </div>
                 </div>
             </div>
             <div class="modal-footer">

@@ -52,9 +52,11 @@ test.describe('authentication', () => {
     await page.click('#open-settings-btn');
     await expect(page.locator('#rotate-project-api-key')).toBeHidden();
     await expect(page.locator('#setting-project-name')).toHaveAttribute('readonly', '');
+    await page.click('#settings-tab-account');
     await expect(page.locator('#account-username')).toHaveText(username);
     await expect(page.locator('#change-password-btn')).toBeVisible();
     await expect(page.locator('#manage-users-btn')).toBeHidden();
+    await page.click('#settings-tab-preferences');
     await page.click('#save-settings');
     await page.waitForTimeout(500);
     expect(forbidden, 'nothing the viewer did was refused').toEqual([]);
@@ -69,6 +71,7 @@ test.describe('authentication', () => {
     await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await page.goto('/admin-panel');
     await page.click('#open-settings-btn');
+    await page.click('#settings-tab-account');
     await expect(page.locator('#account-username')).toHaveText(ADMIN.username);
     await page.click('#manage-users-btn');
     await expect(page.locator('#users-modal')).toHaveClass(/show/);
@@ -96,6 +99,7 @@ test.describe('authentication', () => {
     await teammate.click('#login-btn');
     await teammate.waitForURL(/admin-panel/);
     await teammate.click('#open-settings-btn');
+    await teammate.click('#settings-tab-account');
     await teammate.click('#change-password-btn');
     await teammate.fill('#current-password', 'not-the-password');
     await teammate.fill('#new-password', 'Chosen-pass-456');

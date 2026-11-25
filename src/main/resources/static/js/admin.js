@@ -2256,6 +2256,29 @@ const Dashboard = {
 
     if (!modal || !openBtn) return;
 
+    // Tabs: one panel at a time. Save only applies to the Project and Preferences tabs.
+    const tabs = [...modal.querySelectorAll('[data-settings-tab]')];
+    const showTab = (name) => {
+      tabs.forEach(tab => {
+        const on = tab.dataset.settingsTab === name;
+        tab.classList.toggle('active', on);
+        tab.setAttribute('aria-selected', String(on));
+      });
+      modal.querySelectorAll('[data-settings-panel]').forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.settingsPanel === name);
+      });
+      const saves = name === 'project' || name === 'preferences';
+      saveBtn.classList.toggle('hidden', !saves);
+      cancelBtn.textContent = saves ? 'Cancel' : 'Close';
+    };
+    // Without a project there is nothing to show on the Project tab
+    const setProjectTab = (available) => {
+      const tab = modal.querySelector('[data-settings-tab="project"]');
+      tab.classList.toggle('hidden', !available);
+      if (!available && tab.classList.contains('active')) showTab('preferences');
+    };
+    tabs.forEach(tab => tab.addEventListener('click', () => showTab(tab.dataset.settingsTab)));
+
     openBtn.addEventListener('click', () => {
       // Show modal immediately
       modal.classList.add('show');
@@ -2268,9 +2291,9 @@ const Dashboard = {
       document.getElementById('setting-heatmap-colors').value = settings.heatmapColors;
 
       // Load project information asynchronously (don't block modal from showing)
-      const projectSection = document.getElementById('project-settings-section');
-      if (this.state.currentProjectId && projectSection) {
-        projectSection.style.display = 'block';
+      if (this.state.currentProjectId) {
+        setProjectTab(true);
+        showTab('project');
         document.getElementById('setting-project-name').value = 'Loading...';
         document.getElementById('setting-project-domain').value = 'Loading...';
         document.getElementById('setting-project-api-key').textContent = 'Loading...';
@@ -2296,14 +2319,14 @@ const Dashboard = {
             document.getElementById('setting-project-domain').value = currentProject.domain;
             document.getElementById('setting-project-api-key').textContent = currentProject.apiKey;
           } else {
-            projectSection.style.display = 'none';
+            setProjectTab(false);
           }
         }).catch(error => {
           console.error('Failed to load project info:', error);
-          projectSection.style.display = 'none';
+          setProjectTab(false);
         });
-      } else if (projectSection) {
-        projectSection.style.display = 'none';
+      } else {
+        setProjectTab(false);
       }
 
     });

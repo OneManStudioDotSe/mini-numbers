@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Settings are four tabs: Project, Preferences, Export and Account.** Each tab fits the dialog without
+  scrolling (checked at 1280 by 720 with every lab on), and the dialog keeps one height as the tab changes.
+  Webhooks and email reports sit on the Project tab. Save shows only on the tabs that have something to save.
 - **Revenue is shown per currency.** Amounts in different currencies are no longer added together, and each is
   shown with its own symbol; a missing currency counts as USD. The revenue API returns `currencies` (one entry
   per currency) instead of single totals, revenue by event and by source has one row per currency, and the CSV
@@ -35,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The landing page's hero screenshot follows the light/dark switch**, like every other screenshot there.
 - **The landing page holds still.** The hero heading is plain text instead of a gradient, a highlighted word in a
   section heading is the plain accent colour, and the hero screenshot, the trust badges and the scroll arrow no
-  longer bob up and down. The digits behind the hero are drawn once instead of drifting. The test count says 449.
+  longer bob up and down. The digits behind the hero are drawn once instead of drifting. The test count says 450.
 - **The landing page shows more of the product.** Two new feature tabs, "Pages & sources" (top, entry and exit
   pages, referrers, campaigns) and "Teams & sites" (several sites, admins and viewers, the demo project), each
   with real screenshots. The Charts tab now shows the activity calendar and the heatmap it talks about, and the

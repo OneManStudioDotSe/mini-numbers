@@ -64,6 +64,30 @@ test.describe('dashboard', () => {
     await expect(page.locator('#setting-project-api-key')).toHaveText(rotated);
   });
 
+  test('settings are tabs, and no tab needs scrolling', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
+    await loginViaApi(page.request);
+    const project = await createProject(page.request, `settings tabs ${Date.now()}`);
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/admin-panel');
+    await page.locator('.project-menu__item', { hasText: project.name }).click();
+    await page.click('#open-settings-btn');
+
+    const shown = { project: '#setting-project-name', preferences: '#setting-time-format', export: '#download-report-btn', account: '#change-password-btn' };
+    for (const [tab, control] of Object.entries(shown)) {
+      await page.click(`#settings-tab-${tab}`);
+      await expect(page.locator(`#settings-tab-${tab}`)).toHaveAttribute('aria-selected', 'true');
+      await expect(page.locator(control)).toBeVisible();
+      for (const other of Object.values(shown).filter(c => c !== control)) await expect(page.locator(other)).toBeHidden();
+      const body = page.locator('#settings-modal .modal-body');
+      expect(await body.evaluate(el => el.scrollHeight - el.clientHeight), `${tab} tab scrolls`).toBeLessThanOrEqual(0);
+    }
+    // Save belongs to the tabs that have something to save
+    await expect(page.locator('#save-settings')).toBeHidden();
+    await page.click('#settings-tab-preferences');
+    await expect(page.locator('#save-settings')).toBeVisible();
+  });
+
   test('the activity calendar puts each day in the row of its weekday', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('mini-numbers-onboarding-dismissed', 'true'));
     await loginViaApi(page.request);

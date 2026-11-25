@@ -268,6 +268,65 @@
   color: var(--color-on-primary);
 }
 
+/* Tabs: a row of pills that switches between panels (settings dialog) */
+.tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--button-radius);
+  overflow-x: auto;
+}
+
+.tabs__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: transparent;
+  border-radius: var(--button-radius);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tabs__btn:hover {
+  color: var(--color-text-primary);
+}
+
+.tabs__btn.active {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+/* The panels share one grid cell, so the dialog keeps the height of its tallest panel
+   and does not jump when the tab changes. */
+.tab-panels {
+  display: grid;
+}
+
+.tab-panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+}
+
+.tab-panel.active {
+  visibility: visible;
+}
+
+.tab-panel .form-group:last-child {
+  margin-bottom: 0;
+}
+
 /* Map Container */
 .map-container {
   width: 100%;

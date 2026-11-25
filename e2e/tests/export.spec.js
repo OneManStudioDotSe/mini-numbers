@@ -32,6 +32,7 @@ test.describe('report export (audit H5)', () => {
     await expect.poll(() => page.evaluate(() => RevenueManager.state.stats?.currencies.length), { timeout: 15_000 }).toBeGreaterThan(0);
 
     await page.click('#open-settings-btn');
+    await page.click('#settings-tab-export');
     await expect(page.locator('#settings-modal')).toHaveClass(/show/);
     for (const cb of await page.locator('.export-section-cb').all()) await cb.check();
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#download-report-btn')]);
