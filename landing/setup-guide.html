@@ -45,58 +45,9 @@
   <h1>Setup guide</h1>
   <p>Three ways to run Mini Numbers. Pick one; they all end at the same setup wizard.</p>
 
-  <h2>On a server (recommended)</h2>
-  <p>You need a small Linux server with Docker, and a domain name pointing at it. HTTPS sorts itself out.</p>
-  <div class="landing-code-block">
-    <div class="landing-code-bar">
-      <div class="landing-code-dots">
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-      </div>
-      <span class="landing-code-title">Terminal</span>
-    </div>
-    <div class="landing-code-body">
-<pre><span class="hl-comment"># In an empty folder on your server</span>
-curl -fsSLO \
-  https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-echo "DOMAIN=stats.example.com" > .env
-docker compose up -d</pre>
-    </div>
-  </div>
-  <p>Then open <code>https://stats.example.com</code>. If nothing loads, check that ports 80 and 443 are open in your provider's firewall.</p>
-
-  <h2>On your own computer</h2>
-  <p>For a look around before you commit to anything.</p>
-  <div class="landing-code-block">
-    <div class="landing-code-bar">
-      <div class="landing-code-dots">
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-      </div>
-      <span class="landing-code-title">Terminal</span>
-    </div>
-    <div class="landing-code-body">
-<pre>docker run --rm -p 8080:8080 -v mini-numbers-data:/app/data ghcr.io/onemanstudiodotse/mini-numbers:latest</pre>
-    </div>
-  </div>
-  <p>Then open <code>http://localhost:8080</code>.</p>
-
-  <h2>Without Docker</h2>
-  <p>With Java 21 installed, download <code>mini-numbers.jar</code> from the <a href="https://github.com/OneManStudioDotSe/mini-numbers/releases/latest" target="_blank" rel="noopener">latest release</a> and run it.</p>
-  <div class="landing-code-block">
-    <div class="landing-code-bar">
-      <div class="landing-code-dots">
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-      </div>
-      <span class="landing-code-title">Terminal</span>
-    </div>
-    <div class="landing-code-body">
-<pre>java -jar mini-numbers.jar</pre>
-    </div>
+  <h2>Start it</h2>
+  <div data-install-picker>
+    <noscript><p>The install commands are in the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/deployment.md">install guide</a>.</p></noscript>
   </div>
 
   <h2>The setup wizard</h2>
@@ -196,8 +147,50 @@ docker compose up -d</pre>
 
 <footer class="landing-footer" role="contentinfo">
   <div class="landing-container">
+    <div class="landing-footer-grid">
+      <div>
+        <a href="index.html" class="landing-footer-brand">
+          <img src="assets/mini_numbers_logo.png" alt="" class="landing-logo-img">
+          Mini Numbers
+        </a>
+        <p class="landing-footer-tagline">
+          Small, private web analytics you host yourself. Free, open source, and built with more AI than we'd like to admit.
+        </p>
+      </div>
+
+      <div>
+        <h4>Product</h4>
+        <ul class="landing-footer-links">
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="how-it-works.html">How it works</a></li>
+          <li><a href="setup-guide.html">Setup guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Resources</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/dashboard.md" target="_blank" rel="noopener">Dashboard guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/privacy.md" target="_blank" rel="noopener">Privacy architecture</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Legal</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
+          <li><a href="terms.html">Terms of service</a></li>
+          <li><a href="privacy-policy.html">Privacy policy</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Code of conduct</a></li>
+        </ul>
+      </div>
+    </div>
+
     <div class="landing-footer-bottom">
-      <span><a class="text-inherit" href="index.html">Mini Numbers</a>. Made by a human and an AI. The human takes the blame.</span>
+      <span>Made by a human and an AI. The human takes the blame.</span>
       <span>&copy; 2026 Mini Numbers. MIT licence.</span>
     </div>
   </div>

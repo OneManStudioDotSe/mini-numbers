@@ -392,24 +392,24 @@
           <h3>Email reports</h3>
           <p>A daily, weekly or monthly summary in your inbox. Bring your own mail server.</p>
         </div>
+
+        <div class="landing-code-block animate-on-scroll">
+        <div class="landing-code-bar">
+          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+          <span class="landing-code-title">Your thank-you page</span>
+        </div>
+        <div class="landing-code-body">
+<pre><span class="hl-comment">// One purchase, one call.</span>
+MiniNumbers.<span class="hl-fn">track</span>(<span class="hl-val">"purchase"</span>, {
+  revenue: <span class="hl-val">49.99</span>,
+  currency: <span class="hl-val">"USD"</span>,
+  product: <span class="hl-val">"Pro Plan"</span>
+});</pre>
+        </div>
+        </div>
       </div>
     </div>
 
-    <!-- Simple code example -->
-    <div class="landing-revenue-code animate-on-scroll">
-      <div class="landing-code-header">
-        <span class="landing-code-dot bg-danger"></span>
-        <span class="landing-code-dot bg-warning"></span>
-        <span class="landing-code-dot bg-success"></span>
-        <span class="note-inline">tracking.js</span>
-      </div>
-      <pre class="landing-code-body"><code><span class="text-muted">// One purchase, one line. That's the whole integration.</span>
-MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
-  revenue: <span class="text-success">49.99</span>,
-  currency: <span class="text-warning">"USD"</span>,
-  product: <span class="text-warning">"Pro Plan"</span>
-});</code></pre>
-    </div>
   </div>
 </section>
 
@@ -423,56 +423,66 @@ MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
       <p class="landing-section-subtitle">Your visitors' data stays on your server. Nothing is sent anywhere else, and nobody gets followed around the internet.</p>
     </div>
 
-    <div class="landing-privacy-grid">
-      <div>
-        <!-- Hash formula -->
-        <div class="landing-hash-formula animate-on-scroll">
-          <code>
-            <span class="hl-fn">visitorHash</span> <span class="hl-op">=</span> <span class="hl-fn">SHA256</span>(<br>
-            &nbsp;&nbsp;<span class="hl-var">ip</span> <span class="hl-op">+</span> <span class="hl-var">userAgent</span> <span class="hl-op">+</span> <span class="hl-var">projectId</span><br>
-            &nbsp;&nbsp;<span class="hl-op">+</span> <span class="hl-var">serverSalt</span> <span class="hl-op">+</span> <span class="hl-var">rotationBucket</span><br>
-            )
-          </code>
-        </div>
-
-        <div class="landing-privacy-cards">
-          <div class="landing-privacy-card animate-on-scroll animate-delay-1">
-            <div class="landing-privacy-card-icon"><i class="ri-forbid-line"></i></div>
-            <div>
-              <h4>No cookies</h4>
-              <p>Nothing is left on your visitor's device beyond a visit ID that dies with the tab. No cookie, no cookie banner.</p>
-            </div>
-          </div>
-          <div class="landing-privacy-card animate-on-scroll animate-delay-2">
-            <div class="landing-privacy-card-icon"><i class="ri-eye-off-line"></i></div>
-            <div>
-              <h4>No stored IP addresses</h4>
-              <p>An address lives in memory for one request, then it's gone. It never touches the disk.</p>
-            </div>
-          </div>
-          <div class="landing-privacy-card animate-on-scroll animate-delay-3">
-            <div class="landing-privacy-card-icon"><i class="ri-timer-line"></i></div>
-            <div>
-              <h4>Forgetful by design</h4>
-              <p>Visitor IDs rotate every 1 to 8,760 hours. You choose how soon yesterday's visitor becomes a stranger.</p>
-            </div>
-          </div>
-          <div class="landing-privacy-card animate-on-scroll animate-delay-3">
-            <div class="landing-privacy-card-icon"><i class="ri-shield-check-line"></i></div>
-            <div>
-              <h4>No guessing</h4>
-              <p>A chip in the dashboard says, in plain words, exactly what your server keeps about a visitor.</p>
-            </div>
-          </div>
+    <!-- What never happens -->
+    <div class="landing-privacy-cards">
+      <div class="landing-privacy-card animate-on-scroll animate-delay-1">
+        <div class="landing-privacy-card-icon"><i class="ri-forbid-line"></i></div>
+        <div>
+          <h4>No cookies</h4>
+          <p>Nothing is left on your visitor's device beyond a visit ID that dies with the tab. No cookie, no cookie banner.</p>
         </div>
       </div>
+      <div class="landing-privacy-card animate-on-scroll animate-delay-2">
+        <div class="landing-privacy-card-icon"><i class="ri-eye-off-line"></i></div>
+        <div>
+          <h4>No stored IP addresses</h4>
+          <p>An address lives in memory for one request, then it's gone. It never touches the disk.</p>
+        </div>
+      </div>
+      <div class="landing-privacy-card animate-on-scroll animate-delay-1">
+        <div class="landing-privacy-card-icon"><i class="ri-timer-line"></i></div>
+        <div>
+          <h4>Forgetful by design</h4>
+          <p>Visitor IDs rotate every 1 to 8,760 hours. You choose how soon yesterday's visitor becomes a stranger.</p>
+        </div>
+      </div>
+      <div class="landing-privacy-card animate-on-scroll animate-delay-2">
+        <div class="landing-privacy-card-icon"><i class="ri-shield-check-line"></i></div>
+        <div>
+          <h4>No guessing</h4>
+          <p>A chip in the dashboard says, in plain words, exactly what your server keeps about a visitor.</p>
+        </div>
+      </div>
+    </div>
 
+    <div class="landing-privacy-grid">
+      <!-- How a visitor is counted -->
+      <div class="animate-on-scroll">
+        <h3 class="mock-title">How a visitor is counted</h3>
+        <p class="landing-privacy-text">With no cookie to lean on, each visitor becomes a scrambled ID. The IP address goes into the sum and is thrown away; only the result is stored, and it can't be turned back.</p>
+        <div class="landing-code-block" data-no-copy>
+        <div class="landing-code-bar">
+          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
+          <span class="landing-code-title">The whole formula</span>
+        </div>
+        <div class="landing-code-body">
+<pre><span class="hl-fn">visitorId</span> = <span class="hl-fn">SHA-256</span>(
+  <span class="hl-val">ip</span> + <span class="hl-val">browser</span> + <span class="hl-val">site</span>
+  + <span class="hl-val">secret</span> + <span class="hl-val">time window</span>
+)</pre>
+        </div>
+        </div>
+        <p class="landing-privacy-text">When the time window rolls over, the same person gets a brand new ID, so nobody can be followed for long.</p>
+      </div>
+
+      <!-- What each mode keeps -->
       <div class="animate-on-scroll">
         <h3 class="mock-title">Three privacy modes</h3>
+        <p class="landing-privacy-text">You decide how much is kept about a visit. Pages, referrers and events are counted in every mode.</p>
         <table class="landing-modes-table">
           <thead>
             <tr>
-              <th>Capability</th>
+              <th>What is kept</th>
               <th>Standard</th>
               <th>Strict</th>
               <th>Paranoid</th>
@@ -481,42 +491,31 @@ MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
           <tbody>
             <tr>
               <td>Country</td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-close-line cross"></i></td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-close-line cross" aria-label="No"></i></td>
             </tr>
             <tr>
-              <td>City</td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-close-line cross"></i></td>
-              <td><i class="ri-close-line cross"></i></td>
+              <td>Region and city</td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-close-line cross" aria-label="No"></i></td>
+              <td><i class="ri-close-line cross" aria-label="No"></i></td>
             </tr>
             <tr>
-              <td>Browser / OS</td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-close-line cross"></i></td>
+              <td>Browser and system</td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-close-line cross" aria-label="No"></i></td>
             </tr>
             <tr>
               <td>Device type</td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-check-line check"></i></td>
-              <td><i class="ri-close-line cross"></i></td>
-            </tr>
-            <tr>
-              <td>Hash Rotation</td>
-              <td>1–8,760h</td>
-              <td>1–8,760h</td>
-              <td>1–8,760h</td>
-            </tr>
-            <tr>
-              <td>Data Retention</td>
-              <td>Configurable</td>
-              <td>Configurable</td>
-              <td>Configurable</td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+              <td><i class="ri-close-line cross" aria-label="No"></i></td>
             </tr>
           </tbody>
         </table>
+        <p class="landing-privacy-text">In every mode, you also set how often visitor IDs rotate and how long events are kept.</p>
       </div>
     </div>
   </div>
@@ -576,73 +575,8 @@ MiniNumbers.track(<span class="text-warning">"purchase"</span>, {
       <p class="landing-section-subtitle">Three ways to start it. They all end at the same setup wizard.</p>
     </div>
 
-    <div class="landing-install-tabs" role="tablist">
-      <button class="landing-install-tab active" data-install="compose" role="tab" aria-selected="true">
-        <i class="ri-ship-line"></i> On a server
-        <span class="landing-recommended-badge">Recommended</span>
-      </button>
-      <button class="landing-install-tab" data-install="docker" role="tab" aria-selected="false">
-        <i class="ri-instance-line"></i> On your computer
-      </button>
-      <button class="landing-install-tab" data-install="source" role="tab" aria-selected="false">
-        <i class="ri-terminal-box-line"></i> Without Docker
-      </button>
-    </div>
-
-    <!-- Docker Compose -->
-    <div class="landing-install-content active" data-install="compose" role="tabpanel">
-      <div class="landing-code-block">
-        <div class="landing-code-bar">
-          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-          <span class="landing-code-title">Terminal</span>
-          <button class="landing-copy-btn" data-code="curl -fsSLO https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-echo &quot;DOMAIN=stats.example.com&quot; > .env
-docker compose up -d"><i class="ri-file-copy-line"></i> Copy</button>
-        </div>
-        <div class="landing-code-body">
-<pre><span class="hl-comment"># In an empty folder on a server with Docker. Use your own domain.</span>
-curl -fsSLO \
-  https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-echo "DOMAIN=stats.example.com" &gt; .env
-docker compose up -d
-
-<span class="hl-comment"># Open https://stats.example.com: HTTPS is set up for you</span></pre>
-        </div>
-      </div>
-    </div>
-
-    <!-- Docker -->
-    <div class="landing-install-content" data-install="docker" role="tabpanel">
-      <div class="landing-code-block">
-        <div class="landing-code-bar">
-          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-          <span class="landing-code-title">Terminal</span>
-          <button class="landing-copy-btn" data-code="docker run --rm -p 8080:8080 -v mini-numbers-data:/app/data ghcr.io/onemanstudiodotse/mini-numbers:latest"><i class="ri-file-copy-line"></i> Copy</button>
-        </div>
-        <div class="landing-code-body">
-<pre><span class="hl-comment"># For a look around. Needs Docker.</span>
-docker run --rm -p 8080:8080 -v mini-numbers-data:/app/data ghcr.io/onemanstudiodotse/mini-numbers:latest
-
-<span class="hl-comment"># Open http://localhost:8080</span></pre>
-        </div>
-      </div>
-    </div>
-
-    <!-- From Source -->
-    <div class="landing-install-content" data-install="source" role="tabpanel">
-      <div class="landing-code-block">
-        <div class="landing-code-bar">
-          <div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>
-          <span class="landing-code-title">Terminal</span>
-          <button class="landing-copy-btn" data-code="java -jar mini-numbers.jar"><i class="ri-file-copy-line"></i> Copy</button>
-        </div>
-        <div class="landing-code-body">
-<pre><span class="hl-comment"># Needs Java 21. Download mini-numbers.jar from the latest release on GitHub, then:</span>
-java -jar mini-numbers.jar
-
-<span class="hl-comment"># Open http://localhost:8080</span></pre>
-        </div>
-      </div>
+    <div data-install-picker>
+      <noscript><p class="landing-install-note">The install commands are in the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/deployment.md">install guide</a>.</p></noscript>
     </div>
 
     <div class="landing-callout animate-on-scroll">
@@ -659,7 +593,7 @@ java -jar mini-numbers.jar
   <div class="landing-container">
     <div class="landing-section-header animate-on-scroll">
       <h2 class="landing-section-title">How it stacks up</h2>
-      <p class="landing-section-subtitle">The honest version. The others are good tools too.</p>
+      <p class="landing-section-subtitle">One program instead of a small fleet, privacy you can tune, and nothing held back for a paid plan. The others are good tools too.</p>
     </div>
 
     <div class="landing-comparison-wrapper animate-on-scroll">
@@ -668,71 +602,126 @@ java -jar mini-numbers.jar
           <tr>
             <th>Feature</th>
             <th class="hl-col">Mini Numbers</th>
-            <th>Plausible</th>
+            <th>Plausible CE</th>
             <th>Umami</th>
             <th>Matomo</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Tracker size</td>
-            <td class="hl-col">2KB gz</td>
-            <td>1KB</td>
-            <td>2KB</td>
-            <td>21KB</td>
+          <tr class="landing-comparison-group">
+            <th colspan="5" scope="colgroup">Running it</th>
           </tr>
           <tr>
-            <td>Self-hosted</td>
-            <td class="hl-col">Free</td>
-            <td>Free (Community Edition)</td>
-            <td>Free</td>
-            <td>Free</td>
+            <td>What you have to run</td>
+            <td class="hl-col">One program, database built in</td>
+            <td>App, ClickHouse and PostgreSQL</td>
+            <td>App and PostgreSQL</td>
+            <td>PHP and MySQL</td>
           </tr>
           <tr>
-            <td>Privacy modes</td>
-            <td class="hl-col">3</td>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
+            <td>Setup wizard in the browser</td>
+            <td class="hl-col"><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-check-line check" aria-label="Yes"></i></td>
           </tr>
           <tr>
-            <td>Hash rotation</td>
-            <td class="hl-col">1–8,760h</td>
-            <td>Fixed</td>
-            <td>Fixed</td>
-            <td>N/A</td>
+            <td>Licence</td>
+            <td class="hl-col">MIT</td>
+            <td>AGPL</td>
+            <td>MIT</td>
+            <td>GPL</td>
+          </tr>
+          <tr class="landing-comparison-group">
+            <th colspan="5" scope="colgroup">Privacy</th>
           </tr>
           <tr>
             <td>Cookies</td>
             <td class="hl-col">None</td>
             <td>None</td>
             <td>None</td>
-            <td>Optional (cookieless mode)</td>
+            <td>Optional</td>
           </tr>
           <tr>
-            <td>Setup wizard</td>
-            <td class="hl-col"><i class="ri-check-line check"></i></td>
-            <td><i class="ri-close-line cross"></i></td>
-            <td><i class="ri-close-line cross"></i></td>
-            <td><i class="ri-check-line check"></i></td>
+            <td>Privacy modes</td>
+            <td class="hl-col">3, you pick</td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td>Partial</td>
           </tr>
           <tr>
-            <td>Embeddable widgets</td>
-            <td class="hl-col">Lab</td>
-            <td><i class="ri-close-line cross"></i></td>
-            <td><i class="ri-close-line cross"></i></td>
-            <td><i class="ri-close-line cross"></i></td>
+            <td>Forget visitors after</td>
+            <td class="hl-col">1 hour to 1 year, you pick</td>
+            <td>Fixed</td>
+            <td>Fixed</td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
           </tr>
           <tr>
-            <td>License</td>
-            <td class="hl-col">MIT</td>
-            <td>AGPL</td>
-            <td>MIT</td>
-            <td>GPL</td>
+            <td>Dashboard says what is stored</td>
+            <td class="hl-col"><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+          </tr>
+          <tr class="landing-comparison-group">
+            <th colspan="5" scope="colgroup">Included when you host it yourself</th>
+          </tr>
+          <tr>
+            <td>Funnels</td>
+            <td class="hl-col"><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td>Cloud plan only</td>
+            <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td>Paid plugin</td>
+          </tr>
+          <tr>
+            <td>AI assistants as a traffic source</td>
+            <td class="hl-col"><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td>Cloud only</td>
+            <td>Partial</td>
+            <td><i class="ri-check-line check" aria-label="Yes"></i></td>
+          </tr>
+          <tr>
+            <td>Year calendar and busiest-hours heatmap</td>
+            <td class="hl-col"><i class="ri-check-line check" aria-label="Yes"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+            <td><i class="ri-close-line cross" aria-label="No"></i></td>
+          </tr>
+          <tr>
+            <td>Tracker size, gzipped</td>
+            <td class="hl-col">About 2 KB</td>
+            <td>1.9 KB</td>
+            <td>2.4 KB</td>
+            <td>21 KB</td>
+          </tr>
+          <tr class="landing-comparison-group">
+            <th colspan="5" scope="colgroup">Mobile apps</th>
+          </tr>
+          <tr>
+            <td>Android</td>
+            <td class="hl-col">In the works</td>
+            <td>No SDK, API only</td>
+            <td>No SDK, API only</td>
+            <td>Official SDK</td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td class="hl-col">In the works</td>
+            <td>No SDK, API only</td>
+            <td>No SDK, API only</td>
+            <td>Official SDK</td>
+          </tr>
+          <tr>
+            <td>Flutter</td>
+            <td class="hl-col">In the works</td>
+            <td>No SDK, API only</td>
+            <td>No SDK, API only</td>
+            <td>Community package</td>
           </tr>
         </tbody>
       </table>
     </div>
+    <p class="landing-comparison-note animate-on-scroll">Plausible is shown as its free Community Edition. Eleven tools, row by row, in the <a href="https://onemanstudiodotse.github.io/mini-numbers/comparison.html" target="_blank" rel="noopener">full comparison</a>.</p>
   </div>
 </section>
 
@@ -745,17 +734,14 @@ java -jar mini-numbers.jar
       <div class="animate-on-scroll">
         <h2 class="landing-section-title">What's inside</h2>
         <p class="landing-section-subtitle mb-xl">Boring, proven parts: one program and one database file. Written by one human and an AI that never asked for a coffee break.</p>
-        <div class="landing-tech-badges">
-          <span class="landing-tech-badge">Kotlin</span>
-          <span class="landing-tech-badge">Ktor</span>
-          <span class="landing-tech-badge">Exposed ORM</span>
-          <span class="landing-tech-badge">SQLite</span>
-          <span class="landing-tech-badge">PostgreSQL</span>
-          <span class="landing-tech-badge">Caffeine Cache</span>
-          <span class="landing-tech-badge">Chart.js</span>
-          <span class="landing-tech-badge">JDK 21</span>
-          <span class="landing-tech-badge">Docker</span>
-        </div>
+        <dl class="landing-tech-list">
+          <div><dt>Language</dt><dd>Kotlin, on JDK 21</dd></div>
+          <div><dt>Server</dt><dd>Ktor</dd></div>
+          <div><dt>Database</dt><dd>SQLite built in, or PostgreSQL, through Exposed</dd></div>
+          <div><dt>Cache</dt><dd>Caffeine</dd></div>
+          <div><dt>Charts</dt><dd>Chart.js</dd></div>
+          <div><dt>Ships as</dt><dd>One JAR, or one Docker image</dd></div>
+        </dl>
       </div>
 
       <div class="landing-github-cta animate-on-scroll">
@@ -777,10 +763,10 @@ java -jar mini-numbers.jar
   <div class="landing-container">
     <div class="landing-footer-grid">
       <div>
-        <div class="landing-footer-brand">
-          <i class="ri-bar-chart-grouped-line"></i>
+        <a href="index.html" class="landing-footer-brand">
+          <img src="assets/mini_numbers_logo.png" alt="" class="landing-logo-img">
           Mini Numbers
-        </div>
+        </a>
         <p class="landing-footer-tagline">
           Small, private web analytics you host yourself. Free, open source, and built with more AI than we'd like to admit.
         </p>
@@ -789,7 +775,7 @@ java -jar mini-numbers.jar
       <div>
         <h4>Product</h4>
         <ul class="landing-footer-links">
-          <li><a href="#features">Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
           <li><a href="how-it-works.html">How it works</a></li>
           <li><a href="setup-guide.html">Setup guide</a></li>
           <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>

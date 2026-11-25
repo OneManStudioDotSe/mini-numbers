@@ -156,6 +156,73 @@
   };
 
   /* ============================================
+     INSTALL PICKER
+     The one place the install commands live. A page shows it with <div data-install-picker></div>.
+     ============================================ */
+  const InstallPicker = {
+    RELEASE: 'https://github.com/OneManStudioDotSe/mini-numbers/releases/latest',
+
+    options() {
+      return [
+        {
+          id: 'compose',
+          icon: 'ri-ship-line',
+          label: 'On a server',
+          recommended: true,
+          need: 'You need a small Linux server with Docker, and a domain name pointing at it. HTTPS sorts itself out.',
+          code: '<span class="hl-comment"># In an empty folder on your server. Use your own domain.</span>\n' +
+            'curl -fsSLO \\\n' +
+            '  https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml\n' +
+            'echo "DOMAIN=stats.example.com" &gt; .env\n' +
+            'docker compose up -d',
+          then: 'Then open <code>https://stats.example.com</code>. If nothing loads, check that ports 80 and 443 are open in your provider\'s firewall.'
+        },
+        {
+          id: 'docker',
+          icon: 'ri-instance-line',
+          label: 'On your computer',
+          need: 'For a look around before you commit to anything. You need Docker.',
+          code: 'docker run --rm -p 8080:8080 \\\n' +
+            '  -v mini-numbers-data:/app/data \\\n' +
+            '  ghcr.io/onemanstudiodotse/mini-numbers:latest',
+          then: 'Then open <code>http://localhost:8080</code>.'
+        },
+        {
+          id: 'jar',
+          icon: 'ri-terminal-box-line',
+          label: 'Without Docker',
+          need: 'You need Java 21. Download <code>mini-numbers.jar</code> from the <a href="' + this.RELEASE +
+            '" target="_blank" rel="noopener">latest release</a>, then run it.',
+          code: 'java -jar mini-numbers.jar',
+          then: 'Then open <code>http://localhost:8080</code>.'
+        }
+      ];
+    },
+
+    init() {
+      const options = this.options();
+      document.querySelectorAll('[data-install-picker]').forEach(root => {
+        root.classList.add('landing-install');
+        root.innerHTML =
+          '<div class="landing-install-tabs" role="tablist">' + options.map((o, i) =>
+            '<button class="landing-install-tab' + (i === 0 ? ' active' : '') + '" data-install="' + o.id +
+            '" role="tab" aria-selected="' + (i === 0) + '"><i class="' + o.icon + '"></i> ' + o.label +
+            (o.recommended ? ' <span class="landing-recommended-badge">Recommended</span>' : '') + '</button>'
+          ).join('') + '</div>' + options.map((o, i) =>
+            '<div class="landing-install-content' + (i === 0 ? ' active' : '') + '" data-install="' + o.id +
+            '" role="tabpanel">' +
+            '<p class="landing-install-note">' + o.need + '</p>' +
+            '<div class="landing-code-block"><div class="landing-code-bar">' +
+            '<div class="landing-code-dots"><span class="landing-code-dot"></span><span class="landing-code-dot"></span><span class="landing-code-dot"></span></div>' +
+            '<span class="landing-code-title">Terminal</span></div>' +
+            '<div class="landing-code-body"><pre>' + o.code + '</pre></div></div>' +
+            '<p class="landing-install-note">' + o.then + '</p></div>'
+          ).join('');
+      });
+    }
+  };
+
+  /* ============================================
      TAB MANAGER
      Handles feature tabs and install tabs
      ============================================ */
@@ -196,24 +263,31 @@
      ============================================ */
   const CodeCopyManager = {
     init() {
-      document.querySelectorAll('.landing-copy-btn').forEach(btn => {
-        btn.addEventListener('click', () => this.copy(btn));
+      document.querySelectorAll('.landing-code-block:not([data-no-copy])').forEach(block => {
+        const bar = block.querySelector('.landing-code-bar');
+        const pre = block.querySelector('pre');
+        if (!bar || !pre) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'landing-copy-btn';
+        btn.innerHTML = this.LABEL;
+        btn.addEventListener('click', () => this.copy(btn, this.text(pre)));
+        bar.appendChild(btn);
       });
     },
 
-    async copy(btn) {
-      const code = btn.getAttribute('data-code');
-      if (!code) return;
+    LABEL: '<i class="ri-file-copy-line"></i> Copy',
 
+    /** The code without its comment lines. */
+    text(pre) {
+      const clone = pre.cloneNode(true);
+      clone.querySelectorAll('.hl-comment').forEach(c => c.remove());
+      return clone.textContent.replace(/^\s*\n/gm, '').trim();
+    },
+
+    async copy(btn, code) {
       try {
         await navigator.clipboard.writeText(code);
-        btn.classList.add('copied');
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="ri-check-line"></i> Copied!';
-        setTimeout(() => {
-          btn.classList.remove('copied');
-          btn.innerHTML = original;
-        }, 2000);
       } catch {
         // Fallback for non-HTTPS or older browsers
         const textarea = document.createElement('textarea');
@@ -224,15 +298,13 @@
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-
-        btn.classList.add('copied');
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="ri-check-line"></i> Copied!';
-        setTimeout(() => {
-          btn.classList.remove('copied');
-          btn.innerHTML = original;
-        }, 2000);
       }
+      btn.classList.add('copied');
+      btn.innerHTML = '<i class="ri-check-line"></i> Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = this.LABEL;
+      }, 2000);
     }
   };
 
@@ -503,6 +575,7 @@
     ThemeManager.init();
     ScrollAnimator.init();
     CounterAnimator.init();
+    InstallPicker.init();
     TabManager.init();
     CodeCopyManager.init();
     NavManager.init();

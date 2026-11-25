@@ -35,6 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the send fail instead of receiving the login unencrypted. The subject says "last 7 days" instead of "7d".
 - **Funnel and segment analysis run in the database** instead of reading every event of the period into memory.
   On SQLite, case-insensitive matching of non-ASCII letters (such as å and Å) no longer matches.
+- **Landing site, third pass.** Every page ends with the full footer, which now shows the real logo. The install
+  commands live in one picker (`landing.js`) shown on the home page, the setup guide and "How it works"; every
+  code panel is the same component with a copy button, and long lines wrap instead of scrolling sideways. The
+  privacy section reads top to bottom: the four promises, then how a visitor is counted beside the three modes.
+  The revenue snippet sits with the revenue features instead of floating under them. "What's inside" is a plain
+  list instead of pills. The comparison table is grouped, leads with what sets Mini Numbers apart, and has
+  rows for Android, iOS and Flutter apps (in the works). The terms page covers labs, third-party parts and the
+  coming app support. The privacy-modes and settings tables no longer push a phone screen sideways.
 - **The landing page's hero screenshot follows the light/dark switch**, like every other screenshot there.
 - **The landing page holds still.** The hero heading is plain text instead of a gradient, a highlighted word in a
   section heading is the plain accent colour, and the hero screenshot, the trust badges and the scroll arrow no

@@ -18,7 +18,7 @@ It does not need the Mini Numbers app, and the app does not need it.
 | `how-it-works.html`, `setup-guide.html`, `contact.html`, `privacy-policy.html`, `terms.html` | The other pages |
 | `variables.css` | Every colour and size, light and dark. Change the look here |
 | `landing.css` | The rules. No colours or sizes of its own |
-| `landing.js` | Theme switch, tabs, copy buttons, the scroll effects. No dependencies |
+| `landing.js` | Theme switch, tabs, the install picker, copy buttons, the scroll effects. No dependencies |
 | `assets/fonts/` | Plus Jakarta Sans and Inter (SIL Open Font License) |
 | `assets/icons/` | The Remix Icon font (Apache 2.0) and a stylesheet listing only the icons in use |
 | `assets/screens/` | Screenshots of the dashboard, a light and a dark one of each |
@@ -26,5 +26,9 @@ It does not need the Mini Numbers app, and the app does not need it.
 ## Changing things
 
 - **A new icon:** copy its rule from the full `remixicon.css` (version 4.6.0) into `assets/icons/remixicon.css`.
+- **The install commands** are written once, in `InstallPicker` in `landing.js`. A page shows them with
+  `<div data-install-picker></div>`.
+- **A code panel** is a `.landing-code-block`; it gets its copy button by itself (`data-no-copy` leaves it out).
+- **The footer** is the same block on every page: change it on all six.
 - **Keep links relative.** `contact.html`, not `/contact.html`, or the site stops working in a sub-folder.
 - **The version badge** in the home page's menu is typed by hand: update it when you release.

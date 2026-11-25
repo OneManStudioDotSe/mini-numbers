@@ -47,24 +47,10 @@
 
   <h2>1. Start it</h2>
   <p>One command. The database is built in, so there is nothing else to install.</p>
-  <div class="landing-code-block">
-    <div class="landing-code-bar">
-      <div class="landing-code-dots">
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-        <span class="landing-code-dot"></span>
-      </div>
-      <span class="landing-code-title">Terminal</span>
-    </div>
-    <div class="landing-code-body">
-<pre><span class="hl-comment"># In an empty folder on your server</span>
-curl -fsSLO \
-  https://raw.githubusercontent.com/OneManStudioDotSe/mini-numbers/main/docker-compose.yml
-echo "DOMAIN=stats.example.com" > .env
-docker compose up -d</pre>
-    </div>
+  <div data-install-picker>
+    <noscript><p>The install commands are in the <a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/deployment.md">install guide</a>.</p></noscript>
   </div>
-  <p>Just curious? It runs on your laptop too: see the <a href="setup-guide.html">setup guide</a>.</p>
+  <p>What comes after the command is in the <a href="setup-guide.html">setup guide</a>.</p>
 
   <h2>2. Answer six questions</h2>
   <p>Open your new address and a setup wizard greets you. It asks for a password, a privacy mode and not much else. No config files, no restart.</p>
@@ -100,14 +86,14 @@ docker compose up -d</pre>
 
   <h2>What about privacy?</h2>
   <p>Mini Numbers never stores an IP address. It turns each visitor into a scrambled ID instead:</p>
-  <div class="landing-code-block">
+  <div class="landing-code-block" data-no-copy>
     <div class="landing-code-bar">
       <div class="landing-code-dots">
         <span class="landing-code-dot"></span>
         <span class="landing-code-dot"></span>
         <span class="landing-code-dot"></span>
       </div>
-      <span class="landing-code-title">How a visitor is counted</span>
+      <span class="landing-code-title">The whole formula</span>
     </div>
     <div class="landing-code-body">
 <pre>visitorId = SHA-256(ip + browser + site + secret + time window)</pre>
@@ -127,8 +113,50 @@ docker compose up -d</pre>
 
 <footer class="landing-footer" role="contentinfo">
   <div class="landing-container">
+    <div class="landing-footer-grid">
+      <div>
+        <a href="index.html" class="landing-footer-brand">
+          <img src="assets/mini_numbers_logo.png" alt="" class="landing-logo-img">
+          Mini Numbers
+        </a>
+        <p class="landing-footer-tagline">
+          Small, private web analytics you host yourself. Free, open source, and built with more AI than we'd like to admit.
+        </p>
+      </div>
+
+      <div>
+        <h4>Product</h4>
+        <ul class="landing-footer-links">
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="how-it-works.html">How it works</a></li>
+          <li><a href="setup-guide.html">Setup guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Resources</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/dashboard.md" target="_blank" rel="noopener">Dashboard guide</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/docs/privacy.md" target="_blank" rel="noopener">Privacy architecture</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/_docs/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Legal</h4>
+        <ul class="landing-footer-links">
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
+          <li><a href="terms.html">Terms of service</a></li>
+          <li><a href="privacy-policy.html">Privacy policy</a></li>
+          <li><a href="https://github.com/OneManStudioDotSe/mini-numbers/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener">Code of conduct</a></li>
+        </ul>
+      </div>
+    </div>
+
     <div class="landing-footer-bottom">
-      <span><a class="text-inherit" href="index.html">Mini Numbers</a>. Made by a human and an AI. The human takes the blame.</span>
+      <span>Made by a human and an AI. The human takes the blame.</span>
       <span>&copy; 2026 Mini Numbers. MIT licence.</span>
     </div>
   </div>
