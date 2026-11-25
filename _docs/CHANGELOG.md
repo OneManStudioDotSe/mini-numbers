@@ -39,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the send fail instead of receiving the login unencrypted. The subject says "last 7 days" instead of "7d".
 - **Funnel and segment analysis run in the database** instead of reading every event of the period into memory.
   On SQLite, case-insensitive matching of non-ASCII letters (such as å and Å) no longer matches.
-- **Landing site, third pass.** Every page ends with the full footer, which now shows the real logo. The install
+- **Landing site, third pass.** Every page ends with the full footer, which now shows the real logo, and starts
+  with the same top bar: version badge, then Features, How it works, Setup guide and Contact. The install
   commands live in one picker (`landing.js`) shown on the home page, the setup guide and "How it works"; every
   code panel is the same component with a copy button, and long lines wrap instead of scrolling sideways. The
   privacy section reads top to bottom: the four promises, then how a visitor is counted beside the three modes.
