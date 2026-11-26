@@ -20,7 +20,7 @@ dependencies {
     implementation("org.openfolder:kotlin-asyncapi-ktor:3.2.4")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-auth")
-    implementation("ch.qos.logback:logback-classic:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.8")
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.21")
