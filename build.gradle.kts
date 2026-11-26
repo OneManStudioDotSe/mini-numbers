@@ -51,7 +51,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages-jvm:3.6.1")
     implementation("com.password4j:password4j:1.8.4")
 
-    implementation("com.maxmind.geoip2:geoip2:5.2.0")
+    implementation("com.maxmind.geoip2:geoip2:5.3.0")
 
     // User-Agent parsing (uap-core regexes, Apache-2.0)
     implementation("com.github.ua-parser:uap-java:1.6.1")
